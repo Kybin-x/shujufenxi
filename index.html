@@ -1000,6 +1000,50 @@
         }
 
         /* =============================================
+           🔄 登录加载状态
+           ============================================= */
+        .btn-login.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .btn-login.loading::after {
+            content: '';
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btn-spin 0.7s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @keyframes btn-spin { to { transform: rotate(360deg); } }
+        .login-sync-status {
+            align-items: center;
+            gap: 7px;
+            padding: 9px 14px;
+            border-radius: var(--r-sm);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: none;
+        }
+        .login-sync-status.show     { display: flex; }
+        .login-sync-status.syncing  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .login-sync-status.found    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .login-sync-status.new-user { background: var(--primary-lightest); color: var(--primary-dark); border: 1px solid var(--primary-lighter); }
+        .login-sync-status.error    { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .sync-spinner {
+            width: 12px; height: 12px;
+            border: 2px solid rgba(29,78,216,0.25);
+            border-top-color: #1d4ed8;
+            border-radius: 50%;
+            animation: btn-spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        /* =============================================
            🎊 撒花特效
            ============================================= */
         .confetti-container {
@@ -1448,8 +1492,14 @@
                 <input type="text" id="inputId" placeholder="请输入你的学号" maxlength="20" autocomplete="off" />
             </div>
 
-            <button class="btn-login" onclick="handleLogin()">🚀 开始学习之旅</button>
-            <p class="login-tip">⚠️ 请在同一台电脑上学习，学习进度保存在本机浏览器中</p>
+            <!-- 同步状态提示（登录时动态显示） -->
+            <div class="login-sync-status" id="loginSyncStatus">
+                <div class="sync-spinner" id="syncSpinner"></div>
+                <span id="syncMsg">正在同步云端进度…</span>
+            </div>
+
+            <button class="btn-login" id="btnLogin" onclick="handleLogin()">🚀 开始学习之旅</button>
+            <p class="login-tip">☁️ 学习进度自动云端同步，可在多台电脑继续学习</p>
         </div>
     </div>
 
@@ -2121,6 +2171,7 @@
          */
         function saveUser(data) {
             data.lastVisit = new Date().toISOString();
+            data.updatedAt = new Date().toISOString(); // 本地版本时间戳（用于云端冲突检测）
 
             // 本周 XP 追踪：每周一重置
             const todayWeekStart = getWeekStart();
@@ -2131,21 +2182,21 @@
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-            // 同步到 Supabase（静默，不阻塞本地流程）
+            // 同步到 Supabase（只上传，不下载；冲突由登录时的云端优先逻辑处理）
             if (_supabase) {
                 const completedUnits = ALL_UNITS.filter(id => data.units[id]?.completed).length;
                 const totalStars = ALL_UNITS.reduce((sum, id) => sum + (data.units[id]?.stars || 0), 0);
                 _supabase.from('student_progress').upsert({
-                    student_id: data.studentId,
-                    name: data.name,
-                    xp: data.xp,
+                    student_id:      data.studentId,
+                    name:            data.name,
+                    xp:              data.xp,
                     completed_units: completedUnits,
-                    total_stars: totalStars,
-                    week_xp: data.weekXp || 0,
-                    week_start: data.weekStart || todayWeekStart,
-                    achievements: data.achievements,
-                    units: data.units,
-                    updated_at: new Date().toISOString()
+                    total_stars:     totalStars,
+                    week_xp:         data.weekXp  || 0,
+                    week_start:      data.weekStart || todayWeekStart,
+                    achievements:    data.achievements,
+                    units:           data.units,
+                    updated_at:      data.updatedAt
                 }, { onConflict: 'student_id' })
                     .then(({ error }) => { if (error) console.warn('Supabase sync:', error.message); });
             }
@@ -2342,12 +2393,20 @@
            ============================================= */
 
         /**
-         * 处理登录逻辑
+         * 处理登录逻辑（云端优先）
+         *
+         * 流程：
+         *  1. 验证表单
+         *  2. 若已配置 Supabase → 查询云端
+         *     a. 云端有数据 → 与本地比较 updated_at，取较新的写入本地并渲染
+         *     b. 云端无数据 → 检查本地，本地有则上传并渲染；本地也没有则创建新用户
+         *  3. 未配置 Supabase → 纯本地逻辑（降级兼容）
          */
-        function handleLogin() {
-            const name = document.getElementById('inputName').value.trim();
+        async function handleLogin() {
+            const name      = document.getElementById('inputName').value.trim();
             const studentId = document.getElementById('inputId').value.trim();
 
+            // ── 表单验证 ──
             if (!name) {
                 showToast('⚠️ 请输入你的姓名');
                 document.getElementById('inputName').focus();
@@ -2363,31 +2422,164 @@
                 return;
             }
 
-            // 创建或读取用户（如果已有进度则保留，仅更新姓名）
-            let user = loadUser();
-            if (!user) {
-                user = createUser(name, studentId);
-                saveUser(user);
-                // 首次登录撒花
-                setTimeout(() => launchConfetti(), 500);
-                setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
-            } else {
-                user.name = name;
-                user.studentId = studentId;
-                saveUser(user);
-                showToast(`👋 欢迎回来，${name}！继续加油`);
+            // ── 进入加载状态 ──
+            const btnEl    = document.getElementById('btnLogin');
+            const statusEl = document.getElementById('loginSyncStatus');
+            const msgEl    = document.getElementById('syncMsg');
+            const spinEl   = document.getElementById('syncSpinner');
+
+            function setStatus(type, msg) {
+                statusEl.className = 'login-sync-status show ' + type;
+                spinEl.style.display = type === 'syncing' ? 'block' : 'none';
+                msgEl.textContent = msg;
             }
 
-            // 展开登录弹窗，展示页面
-            document.getElementById('loginOverlay').classList.add('hidden');
-            renderAll(user);
+            btnEl.classList.add('loading');
+
+            // ── Supabase 未配置 → 纯本地降级 ──
+            if (!_supabase) {
+                btnEl.classList.remove('loading');
+                let user = loadUser();
+                if (!user) {
+                    user = createUser(name, studentId);
+                    saveUser(user);
+                    setTimeout(() => launchConfetti(), 500);
+                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
+                } else {
+                    user.name = name; user.studentId = studentId;
+                    saveUser(user);
+                    showToast(`👋 欢迎回来，${name}！继续加油`);
+                }
+                document.getElementById('loginOverlay').classList.add('hidden');
+                renderAll(user);
+                return;
+            }
+
+            // ── Supabase 已配置 → 云端优先同步 ──
+            try {
+                setStatus('syncing', '正在连接云端，查询你的学习进度…');
+
+                const { data: rows, error } = await _supabase
+                    .from('student_progress')
+                    .select('*')
+                    .eq('student_id', studentId)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                const localUser  = loadUser();
+                let   finalUser  = null;
+                let   isNewUser  = false;
+
+                if (rows) {
+                    // ── 云端有数据 ──
+                    const cloudUpdated = new Date(rows.updated_at || 0).getTime();
+                    const localUpdated = localUser
+                        ? new Date(localUser.updatedAt || localUser.lastVisit || 0).getTime()
+                        : 0;
+
+                    if (localUser && localUpdated > cloudUpdated) {
+                        // 本地更新，以本地为准（例如刚在这台电脑做完单元还没同步成功）
+                        setStatus('found', `📱 发现本地进度更新，以本地数据为准（${localUser.xp} XP）`);
+                        finalUser = localUser;
+                        finalUser.name = name;
+                    } else {
+                        // 云端更新，以云端为准 ✅ 核心场景：换电脑登录
+                        setStatus('found', `☁️ 已找到云端进度！${rows.name} · ${rows.xp} XP · ${rows.completed_units} 单元`);
+
+                        // 将云端数据重建为本地 user 结构
+                        finalUser = {
+                            name:        name,             // 以本次输入的姓名为准
+                            studentId:   studentId,
+                            xp:          rows.xp          || 0,
+                            weekXp:      rows.week_xp     || 0,
+                            weekStart:   rows.week_start  || getWeekStart(),
+                            createdAt:   localUser?.createdAt || new Date().toISOString(),
+                            updatedAt:   rows.updated_at,
+                            units:       rows.units       || buildEmptyUnits(),
+                            achievements: rows.achievements || ['first_login'],
+                        };
+                    }
+                    await new Promise(r => setTimeout(r, 800)); // 短暂展示同步状态
+                } else {
+                    // ── 云端无数据 ──
+                    if (localUser) {
+                        // 本地有历史进度（可能这台机器登录过但未同步到云端）
+                        setStatus('found', `📂 发现本地进度（${localUser.xp} XP），正在上传到云端…`);
+                        finalUser = localUser;
+                        finalUser.name = name;
+                        await new Promise(r => setTimeout(r, 600));
+                    } else {
+                        // 全新用户
+                        isNewUser = true;
+                        setStatus('new-user', '✨ 新同学！正在创建你的学习档案…');
+                        finalUser = createUser(name, studentId);
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                }
+
+                // ── 写入本地并同步到云端 ──
+                saveUser(finalUser);
+
+                // ── 隐藏弹窗，渲染页面 ──
+                btnEl.classList.remove('loading');
+                statusEl.classList.remove('show');
+                document.getElementById('loginOverlay').classList.add('hidden');
+                renderAll(finalUser);
+
+                // ── 成功提示 ──
+                if (isNewUser) {
+                    setTimeout(() => launchConfetti(), 400);
+                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500);
+                } else if (rows && new Date(rows.updated_at || 0) >= new Date(localUser?.updatedAt || 0)) {
+                    showToast(`☁️ 云端进度已恢复！欢迎回来，${finalUser.name}！`);
+                } else {
+                    showToast(`👋 欢迎回来，${finalUser.name}！继续加油`);
+                }
+
+            } catch (err) {
+                console.error('Login sync error:', err);
+                // ── 网络故障降级：优先用本地，没有则创建 ──
+                setStatus('error', '⚠️ 云端连接失败，使用本地数据登录');
+                await new Promise(r => setTimeout(r, 1200));
+
+                let user = loadUser();
+                if (!user) {
+                    user = createUser(name, studentId);
+                    saveUser(user);
+                    setTimeout(() => launchConfetti(), 400);
+                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500);
+                } else {
+                    user.name = name; user.studentId = studentId;
+                    saveUser(user);
+                    showToast(`👋 欢迎回来（离线模式），${name}！`);
+                }
+                btnEl.classList.remove('loading');
+                statusEl.classList.remove('show');
+                document.getElementById('loginOverlay').classList.add('hidden');
+                renderAll(user);
+            }
+        }
+
+        /**
+         * 构建空的单元进度结构（云端数据重建时使用）
+         */
+        function buildEmptyUnits() {
+            const units = {};
+            ALL_UNITS.forEach(id => {
+                units[id] = { completed: false, stars: 0, score: 0, xpEarned: 0 };
+            });
+            return units;
         }
 
         /**
          * 处理退出登录
          */
         function handleLogout() {
-            if (!confirm('确定要退出登录吗？你的进度会保留在这台电脑上。')) return;
+            const msg = _supabase
+                ? '确定要退出登录吗？\n\n你的进度已同步到云端，下次在任意电脑登录都可以继续学习。'
+                : '确定要退出登录吗？你的进度会保留在这台电脑上。';
+            if (!confirm(msg)) return;
             document.getElementById('loginOverlay').classList.remove('hidden');
         }
 
@@ -2612,15 +2804,41 @@
         /* =============================================
            🚀 初始化代码（IIFE）
            ============================================= */
-        (function init() {
+        (async function init() {
             setupLoginKeyboard();
 
-            // 检查是否已有用户数据
-            const user = loadUser();
+            // ── 检查本地是否已登录 ──
+            let user = loadUser();
+
             if (user) {
-                // 已登录，直接渲染
+                // 本地已有用户数据 → 先用本地快速渲染，再后台静默对比云端
                 document.getElementById('loginOverlay').classList.add('hidden');
                 renderAll(user);
+
+                // 后台静默同步：若云端版本更新则悄悄更新本地并重新渲染
+                if (_supabase) {
+                    _supabase.from('student_progress')
+                        .select('xp, completed_units, units, achievements, week_xp, week_start, updated_at')
+                        .eq('student_id', user.studentId)
+                        .maybeSingle()
+                        .then(({ data: row }) => {
+                            if (!row) return;
+                            const cloudTs = new Date(row.updated_at || 0).getTime();
+                            const localTs = new Date(user.updatedAt || user.lastVisit || 0).getTime();
+                            if (cloudTs > localTs) {
+                                // 云端更新，静默合并
+                                user.xp           = row.xp          || user.xp;
+                                user.weekXp       = row.week_xp     || user.weekXp;
+                                user.weekStart    = row.week_start  || user.weekStart;
+                                user.units        = row.units       || user.units;
+                                user.achievements = row.achievements || user.achievements;
+                                user.updatedAt    = row.updated_at;
+                                localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+                                renderAll(user); // 静默刷新
+                                showToast('☁️ 云端进度已同步');
+                            }
+                        });
+                }
             } else {
                 // 未登录，显示登录弹窗，自动聚焦姓名输入框
                 setTimeout(() => document.getElementById('inputName').focus(), 300);
