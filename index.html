@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子商务数据分析基础 · 学习地图</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* =============================================
+           CSS 自定义属性 - 设计系统变量
+           ============================================= */
+        :root {
+            --primary: #F97316;
+            --primary-dark: #EA580C;
+            --primary-light: #FB923C;
+            --primary-lighter: #FDBA74;
+            --primary-lightest: #FFF7ED;
+
+            --accent: #6366F1;
+            --accent-light: #818CF8;
+            --accent-dark: #4F46E5;
+
+            --bg-main: #FFFBF5;
+            --bg-card: #FFFFFF;
+            --bg-code: #FFF7ED;
+
+            --text-dark: #1C1917;
+            --text-mid: #57534E;
+            --text-light: #A8A29E;
+            --text-white: #FFFFFF;
+
+            --success: #22C55E;
+            --warning: #FBBF24;
+            --danger: #EF4444;
+            --info: #3B82F6;
+
+            --m1-color: #F97316;
+            --m2-color: #3B82F6;
+            --m3-color: #8B5CF6;
+            --m4-color: #10B981;
+            --m5-color: #EC4899;
+
+            --r-sm: 8px;
+            --r-md: 14px;
+            --r-lg: 20px;
+            --r-full: 9999px;
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
+        }
+
+        /* =============================================
+           基础重置
+           ============================================= */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* =============================================
+           🔐 登录弹窗遮罩
+           ============================================= */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 25, 23, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .login-overlay.hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border-radius: var(--r-lg);
+            padding: 48px 52px;
+            width: 460px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-light));
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-logo {
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 8px;
+            animation: bounce 2s ease infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 36px;
+        }
+
+        .login-field {
+            margin-bottom: 20px;
+        }
+
+        .login-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-mid);
+            margin-bottom: 8px;
+        }
+
+        .login-field input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #E7E5E4;
+            border-radius: var(--r-sm);
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text-dark);
+            background: var(--bg-main);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+        }
+
+        .login-field input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+        }
+
+        .login-field input::placeholder {
+            color: var(--text-light);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--text-white);
+            border: none;
+            border-radius: var(--r-sm);
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .login-tip {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 16px;
+        }
+
+        /* =============================================
+           📌 顶部导航栏
+           ============================================= */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 251, 245, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.12);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+        }
+
+        .navbar-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .navbar-logo-icon {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        }
+
+        .navbar-logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .navbar-logo-text span {
+            color: var(--primary);
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-lighter), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .navbar-user-info {
+            line-height: 1.2;
+        }
+
+        .navbar-user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .navbar-level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            background: var(--primary-lightest);
+            border: 1px solid var(--primary-lighter);
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .btn-logout {
+            padding: 6px 14px;
+            background: transparent;
+            border: 1.5px solid #E7E5E4;
+            border-radius: var(--r-full);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* =============================================
+           页面主内容容器
+           ============================================= */
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 32px 60px;
+        }
+
+        /* =============================================
+           🎯 英雄区
+           ============================================= */
+        .hero {
+            padding: 44px 0 36px;
+            position: relative;
+        }
+
+        .hero-deco {
+            position: absolute;
+            right: -20px;
+            top: 20px;
+            font-size: 100px;
+            opacity: 0.06;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .hero-greeting {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease 0.1s forwards;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1.25;
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease 0.2s forwards;
+        }
+
+        .hero-title .highlight {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .hero-title .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 2px;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            color: var(--text-mid);
+            margin-bottom: 32px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease 0.3s forwards;
+        }
+
+        /* 统计卡片组 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+            cursor: default;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card:nth-child(1) {
+            animation-delay: 0.35s;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 0.45s;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 0.55s;
+        }
+
+        .stat-card:nth-child(4) {
+            animation-delay: 0.65s;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* 总进度条 */
+        .overall-progress {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 22px 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease 0.75s forwards;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .progress-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .progress-pct {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .progress-track {
+            height: 10px;
+            background: var(--primary-lightest);
+            border-radius: var(--r-full);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: var(--r-full);
+            transition: width 1s ease;
+            width: 0;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+        }
+
+        .progress-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        /* =============================================
+           🗺️ 学习地图
+           ============================================= */
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .section-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            background: var(--primary-lightest);
+            color: var(--primary);
+            border-radius: var(--r-full);
+            letter-spacing: 0.03em;
+        }
+
+        .learning-map {
+            margin-bottom: 48px;
+        }
+
+        .module-card {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .module-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .module-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .module-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .module-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .module-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .module-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .module-color-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .module-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--r-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .module-info {
+            flex: 1;
+        }
+
+        .module-num {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .module-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .module-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .module-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .module-progress-mini {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 12px;
+        }
+
+        .mini-track {
+            width: 80px;
+            height: 6px;
+            background: #F5F5F4;
+            border-radius: var(--r-full);
+            overflow: hidden;
+        }
+
+        .mini-fill {
+            height: 100%;
+            border-radius: var(--r-full);
+            transition: width 0.8s ease;
+        }
+
+        .mini-pct {
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 28px;
+            text-align: right;
+        }
+
+        .module-toggle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #F5F5F4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: transform 0.3s ease, background 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .module-card.expanded .module-toggle {
+            transform: rotate(180deg);
+            background: var(--primary-lightest);
+        }
+
+        /* 单元列表 */
+        .unit-list {
+            display: none;
+            padding: 0 24px 20px;
+            border-top: 1px solid #F5F5F4;
+        }
+
+        .module-card.expanded .unit-list {
+            display: block;
+        }
+
+        .unit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+            padding-top: 16px;
+        }
+
+        .unit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: var(--r-sm);
+            border: 1.5px solid #F5F5F4;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unit-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .unit-item:hover {
+            border-color: currentColor;
+            transform: translateX(4px);
+        }
+
+        .unit-item.completed {
+            background: rgba(34, 197, 94, 0.04);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .unit-item.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .unit-status-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .unit-status-icon.done {
+            background: rgba(34, 197, 94, 0.12);
+        }
+
+        .unit-status-icon.active {
+            background: rgba(249, 115, 22, 0.12);
+            animation: pulse-ring 2s ease infinite;
+        }
+
+        .unit-status-icon.locked-icon {
+            background: #F5F5F4;
+        }
+
+        @keyframes pulse-ring {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(249, 115, 22, 0);
+            }
+        }
+
+        .unit-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .unit-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unit-stars {
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .unit-xp {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+
+        /* =============================================
+           🏆 成就徽章墙
+           ============================================= */
+        .achievements {
+            margin-bottom: 48px;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        .badge-item {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 18px 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            text-align: center;
+            cursor: default;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .badge-item:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .badge-item:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .badge-item:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .badge-item:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .badge-item:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .badge-item:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        .badge-item:nth-child(7) {
+            animation-delay: 0.35s;
+        }
+
+        .badge-item:nth-child(8) {
+            animation-delay: 0.4s;
+        }
+
+        .badge-item:nth-child(9) {
+            animation-delay: 0.45s;
+        }
+
+        .badge-item:nth-child(10) {
+            animation-delay: 0.5s;
+        }
+
+        .badge-item:nth-child(11) {
+            animation-delay: 0.55s;
+        }
+
+        .badge-item:nth-child(12) {
+            animation-delay: 0.6s;
+        }
+
+        .badge-item.unlocked:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .badge-item.locked {
+            filter: grayscale(1);
+            opacity: 0.45;
+        }
+
+        .badge-item.locked.in-anim {
+            opacity: 0;
+        }
+
+        .badge-emoji {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .badge-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .badge-desc {
+            font-size: 10px;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .badge-unlocked-tag {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 16px;
+            height: 16px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: white;
+        }
+
+        /* =============================================
+           🦶 页脚
+           ============================================= */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            padding: 24px 32px;
+            text-align: center;
+        }
+
+        .footer-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .footer-version {
+            font-size: 11px;
+            color: var(--text-light);
+            background: #F5F5F4;
+            padding: 3px 10px;
+            border-radius: var(--r-full);
+        }
+
+        /* =============================================
+           🎊 撒花特效
+           ============================================= */
+        .confetti-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            top: -10px;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* =============================================
+           🔔 Toast 提示条
+           ============================================= */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--text-dark);
+            color: var(--text-white);
+            padding: 12px 24px;
+            border-radius: var(--r-full);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 500;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* =============================================
+           入场动画关键帧
+           ============================================= */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =============================================
+           响应式适配
+           ============================================= */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 0 16px 48px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .badge-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .hero-title {
+                font-size: 24px;
+            }
+
+            .navbar {
+                padding: 0 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .badge-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .unit-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* =============================================
+           🏅 班级排行榜
+           ============================================= */
+        .leaderboard {
+            margin-bottom: 48px;
+        }
+
+        .lb-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .lb-live-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        .lb-live-dot::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: live-blink 1.5s ease infinite;
+        }
+
+        @keyframes live-blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .lb-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .lb-tab {
+            padding: 5px 14px;
+            border-radius: var(--r-full);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid #E7E5E4;
+            color: var(--text-light);
+            background: transparent;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .lb-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+        }
+
+        /* 排行榜列表 */
+        .lb-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 14px 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .lb-row:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 前三名特殊样式 */
+        .lb-row.rank-1 {
+            border-color: rgba(245, 158, 11, 0.3);
+            background: linear-gradient(90deg, rgba(255, 251, 235, 0.8), #fff);
+        }
+
+        .lb-row.rank-2 {
+            border-color: rgba(148, 163, 184, 0.3);
+            background: linear-gradient(90deg, rgba(248, 250, 252, 0.8), #fff);
+        }
+
+        .lb-row.rank-3 {
+            border-color: rgba(205, 119, 47, 0.3);
+            background: linear-gradient(90deg, rgba(255, 247, 237, 0.8), #fff);
+        }
+
+        /* 自己的行高亮 */
+        .lb-row.is-me {
+            border-color: var(--primary-lighter);
+            background: linear-gradient(90deg, var(--primary-lightest), #fff);
+        }
+
+        .lb-rank {
+            min-width: 36px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .lb-rank.medal {
+            font-size: 22px;
+        }
+
+        .lb-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-lighter), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .lb-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lb-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+
+        .lb-me-tag {
+            padding: 1px 7px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: var(--r-full);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .lb-stats {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .lb-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .lb-xp {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .lb-xp-unit {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .lb-week-bar-wrap {
+            width: 60px;
+            height: 4px;
+            background: #F5F5F4;
+            border-radius: var(--r-full);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .lb-week-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: var(--r-full);
+            transition: width 0.8s ease;
+        }
+
+        /* 空状态 */
+        .lb-empty {
+            text-align: center;
+            padding: 48px 20px;
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lb-empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .lb-empty-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .lb-empty-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* 加载骨架屏 */
+        .lb-skeleton {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 14px 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .skeleton-block {
+            background: linear-gradient(90deg, #f5f5f4 25%, #ebebeb 50%, #f5f5f4 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Supabase 配置提示横幅 */
+        .supabase-config-banner {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border-radius: var(--r-md);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            color: #fff;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .supabase-config-banner.hidden {
+            display: none;
+        }
+
+        .scb-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .scb-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .scb-body {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+        }
+
+        .scb-code {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        @media (max-width: 768px) {
+            .lb-stats {
+                gap: 6px;
+            }
+
+            .lb-week-bar-wrap {
+                display: none;
+            }
+
+            .lb-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== 🔐 登录弹窗 ===== -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-logo">📊</div>
+            <h1 class="login-title">欢迎来到数据课堂</h1>
+            <p class="login-subtitle">电子商务数据分析基础 · 请先登录</p>
+
+            <div class="login-field">
+                <label for="inputName">👤 你的姓名</label>
+                <input type="text" id="inputName" placeholder="请输入你的真实姓名" maxlength="20" autocomplete="off" />
+            </div>
+
+            <div class="login-field">
+                <label for="inputId">🎓 学号</label>
+                <input type="text" id="inputId" placeholder="请输入你的学号" maxlength="20" autocomplete="off" />
+            </div>
+
+            <button class="btn-login" onclick="handleLogin()">🚀 开始学习之旅</button>
+            <p class="login-tip">⚠️ 请在同一台电脑上学习，学习进度保存在本机浏览器中</p>
+        </div>
+    </div>
+
+    <!-- ===== 📌 顶部导航栏 ===== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-logo" href="#">
+                <div class="navbar-logo-icon">📊</div>
+                <span class="navbar-logo-text">电商<span>数据分析</span>基础</span>
+            </a>
+            <div class="navbar-right">
+                <div class="navbar-user" id="navbarUser">
+                    <div class="navbar-avatar" id="navbarAvatar">-</div>
+                    <div class="navbar-user-info">
+                        <div class="navbar-user-name" id="navbarName">-</div>
+                        <div class="navbar-level-badge" id="navbarLevel">🌱 数据小白</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">退出</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== 页面主体 ===== -->
+    <main class="page-container">
+
+        <!-- ===== 🎯 英雄区 ===== -->
+        <section class="hero">
+            <div class="hero-deco">📊</div>
+            <p class="hero-greeting" id="heroGreeting">早上好 👋</p>
+            <h1 class="hero-title">
+                你好，<span class="highlight" id="heroName">同学</span>！<br>
+                <span id="heroMotivation">今天也要认真学习哦～</span>
+            </h1>
+            <p class="hero-subtitle" id="heroSubtitle">高等教育出版社《电子商务数据分析基础》· 全课程 21 个单元 · 共 72 课时</p>
+
+            <!-- 统计卡片组 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" id="statUnits">0</div>
+                    <div class="stat-label">已完成单元</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="statStars">0</div>
+                    <div class="stat-label">累计星星</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="statXP">0</div>
+                    <div class="stat-label">经验值 XP</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="statBadges">0</div>
+                    <div class="stat-label">徽章数量</div>
+                </div>
+            </div>
+
+            <!-- 总进度条 -->
+            <div class="overall-progress">
+                <div class="progress-header">
+                    <span class="progress-title">📈 总体学习进度</span>
+                    <span class="progress-pct" id="progressPct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-hint" id="progressHint">加油！完成第一个单元，开启你的数据分析学习之旅 🚀</p>
+            </div>
+        </section>
+
+        <!-- ===== 🗺️ 学习地图 ===== -->
+        <section class="learning-map">
+            <h2 class="section-title">
+                🗺️ 学习地图
+                <span class="section-badge">5 个模块 · 21 个单元</span>
+            </h2>
+
+            <!-- 模块一 -->
+            <div class="module-card" id="m1-card">
+                <div class="module-header" onclick="toggleModule('m1')">
+                    <div class="module-color-bar" style="background:var(--m1-color)"></div>
+                    <div class="module-icon" style="background:rgba(249,115,22,0.1)">📊</div>
+                    <div class="module-info">
+                        <div class="module-num" style="color:var(--m1-color)">模块一</div>
+                        <div class="module-name">电子商务数据分析概述</div>
+                        <div class="module-meta">
+                            <span class="module-meta-item">📖 3 个单元</span>
+                            <span class="module-meta-item">⏱️ 6 课时</span>
+                            <span class="module-meta-item">🎯 认识数据分析</span>
+                        </div>
+                    </div>
+                    <div class="module-progress-mini">
+                        <div class="mini-track">
+                            <div class="mini-fill" id="m1-mini-fill" style="background:var(--m1-color);width:0%"></div>
+                        </div>
+                        <span class="mini-pct" id="m1-mini-pct" style="color:var(--m1-color)">0%</span>
+                    </div>
+                    <div class="module-toggle" id="m1-toggle">▼</div>
+                </div>
+                <div class="unit-list" id="m1-units">
+                    <div class="unit-grid">
+                        <div class="unit-item" style="color:var(--m1-color)" onclick="goToUnit('m1u1','m1-u1.html')"
+                            id="unit-m1u1">
+                            <div class="unit-status-icon" id="status-m1u1">🔓</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元一：认识电商数据分析</div>
+                                <div class="unit-stars" id="stars-m1u1">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m1u1">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m1-color)" onclick="goToUnit('m1u2','m1-u2.html')"
+                            id="unit-m1u2">
+                            <div class="unit-status-icon" id="status-m1u2">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元二：电商数据分析指标</div>
+                                <div class="unit-stars" id="stars-m1u2">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m1u2">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m1-color)" onclick="goToUnit('m1u3','m1-u3.html')"
+                            id="unit-m1u3">
+                            <div class="unit-status-icon" id="status-m1u3">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元三：数据分析基本流程</div>
+                                <div class="unit-stars" id="stars-m1u3">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m1u3">+50 XP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块二 -->
+            <div class="module-card" id="m2-card">
+                <div class="module-header" onclick="toggleModule('m2')">
+                    <div class="module-color-bar" style="background:var(--m2-color)"></div>
+                    <div class="module-icon" style="background:rgba(59,130,246,0.1)">📡</div>
+                    <div class="module-info">
+                        <div class="module-num" style="color:var(--m2-color)">模块二</div>
+                        <div class="module-name">电子商务数据采集</div>
+                        <div class="module-meta">
+                            <span class="module-meta-item">📖 5 个单元</span>
+                            <span class="module-meta-item">⏱️ 12 课时</span>
+                            <span class="module-meta-item">🎯 数据从哪来</span>
+                        </div>
+                    </div>
+                    <div class="module-progress-mini">
+                        <div class="mini-track">
+                            <div class="mini-fill" id="m2-mini-fill" style="background:var(--m2-color);width:0%"></div>
+                        </div>
+                        <span class="mini-pct" id="m2-mini-pct" style="color:var(--m2-color)">0%</span>
+                    </div>
+                    <div class="module-toggle" id="m2-toggle">▼</div>
+                </div>
+                <div class="unit-list" id="m2-units">
+                    <div class="unit-grid">
+                        <div class="unit-item" style="color:var(--m2-color)" onclick="goToUnit('m2u1','m2-u1.html')"
+                            id="unit-m2u1">
+                            <div class="unit-status-icon" id="status-m2u1">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元一：认识电商数据采集</div>
+                                <div class="unit-stars" id="stars-m2u1">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m2u1">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m2-color)" onclick="goToUnit('m2u2','m2-u2.html')"
+                            id="unit-m2u2">
+                            <div class="unit-status-icon" id="status-m2u2">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元二：数据采集渠道与工具</div>
+                                <div class="unit-stars" id="stars-m2u2">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m2u2">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m2-color)" onclick="goToUnit('m2u3','m2-u3.html')"
+                            id="unit-m2u3">
+                            <div class="unit-status-icon" id="status-m2u3">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元三：市场数据采集</div>
+                                <div class="unit-stars" id="stars-m2u3">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m2u3">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m2-color)" onclick="goToUnit('m2u4','m2-u4.html')"
+                            id="unit-m2u4">
+                            <div class="unit-status-icon" id="status-m2u4">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元四：运营数据采集</div>
+                                <div class="unit-stars" id="stars-m2u4">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m2u4">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m2-color)" onclick="goToUnit('m2u5','m2-u5.html')"
+                            id="unit-m2u5">
+                            <div class="unit-status-icon" id="status-m2u5">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元五：产品数据采集</div>
+                                <div class="unit-stars" id="stars-m2u5">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m2u5">+50 XP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块三 -->
+            <div class="module-card" id="m3-card">
+                <div class="module-header" onclick="toggleModule('m3')">
+                    <div class="module-color-bar" style="background:var(--m3-color)"></div>
+                    <div class="module-icon" style="background:rgba(139,92,246,0.1)">🧹</div>
+                    <div class="module-info">
+                        <div class="module-num" style="color:var(--m3-color)">模块三</div>
+                        <div class="module-name">电子商务数据分类处理</div>
+                        <div class="module-meta">
+                            <span class="module-meta-item">📖 4 个单元</span>
+                            <span class="module-meta-item">⏱️ 12 课时</span>
+                            <span class="module-meta-item">🎯 数据整理清洗</span>
+                        </div>
+                    </div>
+                    <div class="module-progress-mini">
+                        <div class="mini-track">
+                            <div class="mini-fill" id="m3-mini-fill" style="background:var(--m3-color);width:0%"></div>
+                        </div>
+                        <span class="mini-pct" id="m3-mini-pct" style="color:var(--m3-color)">0%</span>
+                    </div>
+                    <div class="module-toggle" id="m3-toggle">▼</div>
+                </div>
+                <div class="unit-list" id="m3-units">
+                    <div class="unit-grid">
+                        <div class="unit-item" style="color:var(--m3-color)" onclick="goToUnit('m3u1','m3-u1.html')"
+                            id="unit-m3u1">
+                            <div class="unit-status-icon" id="status-m3u1">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元一：认识数据分类处理</div>
+                                <div class="unit-stars" id="stars-m3u1">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m3u1">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m3-color)" onclick="goToUnit('m3u2','m3-u2.html')"
+                            id="unit-m3u2">
+                            <div class="unit-status-icon" id="status-m3u2">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元二：数据分类与统计</div>
+                                <div class="unit-stars" id="stars-m3u2">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m3u2">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m3-color)" onclick="goToUnit('m3u3','m3-u3.html')"
+                            id="unit-m3u3">
+                            <div class="unit-status-icon" id="status-m3u3">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元三：数据处理</div>
+                                <div class="unit-stars" id="stars-m3u3">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m3u3">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m3-color)" onclick="goToUnit('m3u4','m3-u4.html')"
+                            id="unit-m3u4">
+                            <div class="unit-status-icon" id="status-m3u4">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元四：数据计算</div>
+                                <div class="unit-stars" id="stars-m3u4">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m3u4">+50 XP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块四 -->
+            <div class="module-card" id="m4-card">
+                <div class="module-header" onclick="toggleModule('m4')">
+                    <div class="module-color-bar" style="background:var(--m4-color)"></div>
+                    <div class="module-icon" style="background:rgba(16,185,129,0.1)">💡</div>
+                    <div class="module-info">
+                        <div class="module-num" style="color:var(--m4-color)">模块四</div>
+                        <div class="module-name">电子商务数据描述性分析</div>
+                        <div class="module-meta">
+                            <span class="module-meta-item">📖 4 个单元</span>
+                            <span class="module-meta-item">⏱️ 12 课时</span>
+                            <span class="module-meta-item">🎯 让数据说话</span>
+                        </div>
+                    </div>
+                    <div class="module-progress-mini">
+                        <div class="mini-track">
+                            <div class="mini-fill" id="m4-mini-fill" style="background:var(--m4-color);width:0%"></div>
+                        </div>
+                        <span class="mini-pct" id="m4-mini-pct" style="color:var(--m4-color)">0%</span>
+                    </div>
+                    <div class="module-toggle" id="m4-toggle">▼</div>
+                </div>
+                <div class="unit-list" id="m4-units">
+                    <div class="unit-grid">
+                        <div class="unit-item" style="color:var(--m4-color)" onclick="goToUnit('m4u1','m4-u1.html')"
+                            id="unit-m4u1">
+                            <div class="unit-status-icon" id="status-m4u1">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元一：描述性统计分析</div>
+                                <div class="unit-stars" id="stars-m4u1">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m4u1">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m4-color)" onclick="goToUnit('m4u2','m4-u2.html')"
+                            id="unit-m4u2">
+                            <div class="unit-status-icon" id="status-m4u2">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元二：趋势分析</div>
+                                <div class="unit-stars" id="stars-m4u2">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m4u2">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m4-color)" onclick="goToUnit('m4u3','m4-u3.html')"
+                            id="unit-m4u3">
+                            <div class="unit-status-icon" id="status-m4u3">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元三：对比分析</div>
+                                <div class="unit-stars" id="stars-m4u3">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m4u3">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m4-color)" onclick="goToUnit('m4u4','m4-u4.html')"
+                            id="unit-m4u4">
+                            <div class="unit-status-icon" id="status-m4u4">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元四：其他分析方法</div>
+                                <div class="unit-stars" id="stars-m4u4">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m4u4">+50 XP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块五 -->
+            <div class="module-card" id="m5-card">
+                <div class="module-header" onclick="toggleModule('m5')">
+                    <div class="module-color-bar" style="background:var(--m5-color)"></div>
+                    <div class="module-icon" style="background:rgba(236,72,153,0.1)">📊</div>
+                    <div class="module-info">
+                        <div class="module-num" style="color:var(--m5-color)">模块五</div>
+                        <div class="module-name">电子商务数据监控与报表</div>
+                        <div class="module-meta">
+                            <span class="module-meta-item">📖 3 个单元</span>
+                            <span class="module-meta-item">⏱️ 8 课时</span>
+                            <span class="module-meta-item">🎯 制作数据报表</span>
+                        </div>
+                    </div>
+                    <div class="module-progress-mini">
+                        <div class="mini-track">
+                            <div class="mini-fill" id="m5-mini-fill" style="background:var(--m5-color);width:0%"></div>
+                        </div>
+                        <span class="mini-pct" id="m5-mini-pct" style="color:var(--m5-color)">0%</span>
+                    </div>
+                    <div class="module-toggle" id="m5-toggle">▼</div>
+                </div>
+                <div class="unit-list" id="m5-units">
+                    <div class="unit-grid">
+                        <div class="unit-item" style="color:var(--m5-color)" onclick="goToUnit('m5u1','m5-u1.html')"
+                            id="unit-m5u1">
+                            <div class="unit-status-icon" id="status-m5u1">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元一：电商数据监控</div>
+                                <div class="unit-stars" id="stars-m5u1">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m5u1">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m5-color)" onclick="goToUnit('m5u2','m5-u2.html')"
+                            id="unit-m5u2">
+                            <div class="unit-status-icon" id="status-m5u2">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元二：数据报表制作</div>
+                                <div class="unit-stars" id="stars-m5u2">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m5u2">+50 XP</div>
+                        </div>
+                        <div class="unit-item" style="color:var(--m5-color)" onclick="goToUnit('m5u3','m5-u3.html')"
+                            id="unit-m5u3">
+                            <div class="unit-status-icon" id="status-m5u3">🔒</div>
+                            <div class="unit-info">
+                                <div class="unit-name">单元三：数据图表制作</div>
+                                <div class="unit-stars" id="stars-m5u3">☆☆☆</div>
+                            </div>
+                            <div class="unit-xp" id="xp-m5u3">+50 XP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 🏆 成就徽章墙 ===== -->
+        <section class="achievements">
+            <h2 class="section-title">
+                🏆 成就徽章墙
+                <span class="section-badge" id="badgeCountLabel">0 / 12 已解锁</span>
+            </h2>
+            <div class="badge-grid" id="badgeGrid">
+                <!-- 徽章由JS动态渲染 -->
+            </div>
+        </section>
+
+        <!-- ===== 🏅 班级排行榜 ===== -->
+        <section class="leaderboard">
+
+            <!-- Supabase 未配置时显示的提示 -->
+            <div class="supabase-config-banner" id="supabaseConfigBanner">
+                <div class="scb-icon">⚙️</div>
+                <div>
+                    <div class="scb-title">排行榜需要配置 Supabase 才能启用</div>
+                    <div class="scb-body">
+                        在文件顶部找到 <span class="scb-code">SUPABASE_URL</span> 和
+                        <span class="scb-code">SUPABASE_ANON_KEY</span>，
+                        填入你的 Supabase 项目信息后，全班排行榜将实时同步。
+                        配置方法详见页面代码注释，或查阅上方对话的说明文档。
+                    </div>
+                </div>
+            </div>
+
+            <div class="lb-header-row">
+                <h2 class="section-title" style="margin-bottom:0">
+                    🏅 班级排行榜
+                    <span class="lb-live-dot" id="lbLiveDot">实时更新中</span>
+                </h2>
+                <div class="lb-tabs">
+                    <button class="lb-tab active" onclick="switchTab('xp')" id="tab-xp">⚡ XP 排名</button>
+                    <button class="lb-tab" onclick="switchTab('units')" id="tab-units">📚 完成进度</button>
+                    <button class="lb-tab" onclick="switchTab('stars')" id="tab-stars">⭐ 星星榜</button>
+                    <button class="lb-tab" onclick="switchTab('week')" id="tab-week">🔥 本周活跃</button>
+                </div>
+            </div>
+
+            <div class="lb-list" id="lbList">
+                <!-- 骨架屏占位 -->
+                <div class="lb-skeleton">
+                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
+                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                        <div class="skeleton-block" style="width:120px;height:14px"></div>
+                        <div class="skeleton-block" style="width:200px;height:10px"></div>
+                    </div>
+                    <div class="skeleton-block" style="width:50px;height:22px"></div>
+                </div>
+                <div class="lb-skeleton">
+                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
+                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                        <div class="skeleton-block" style="width:100px;height:14px"></div>
+                        <div class="skeleton-block" style="width:160px;height:10px"></div>
+                    </div>
+                    <div class="skeleton-block" style="width:50px;height:22px"></div>
+                </div>
+                <div class="lb-skeleton">
+                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
+                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                        <div class="skeleton-block" style="width:140px;height:14px"></div>
+                        <div class="skeleton-block" style="width:180px;height:10px"></div>
+                    </div>
+                    <div class="skeleton-block" style="width:50px;height:22px"></div>
+                </div>
+            </div>
+
+            <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:12px" id="lbUpdateTime">
+                — 排行榜数据来自全班同学的学习进度 —
+            </p>
+        </section>
+
+    </main>
+
+    <!-- ===== 🦶 页脚 ===== -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <p class="footer-text">© 2025 电子商务数据分析基础 · 高等教育出版社 · 课程互动教学平台</p>
+            <span class="footer-version">v1.0 · 2025.02</span>
+        </div>
+    </footer>
+
+    <!-- ===== 🔔 Toast 提示 ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== 🎊 撒花容器 ===== -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <script>
+        /* =============================================
+           ⚙️ Supabase 配置
+           【如何配置】
+           1. 去 https://supabase.com 注册并创建免费项目
+           2. 进入项目 → Project Settings → API
+           3. 复制 Project URL 和 anon/public key 填到下方
+           4. 在 SQL Editor 里执行以下建表语句：
+        
+           create table student_progress (
+             id uuid default gen_random_uuid() primary key,
+             student_id text not null unique,
+             name text not null,
+             xp integer default 0,
+             completed_units integer default 0,
+             total_stars integer default 0,
+             week_xp integer default 0,
+             week_start text default '',
+             achievements text[] default '{}',
+             units jsonb default '{}',
+             updated_at timestamptz default now()
+           );
+           alter table student_progress enable row level security;
+           create policy "allow all" on student_progress for all using (true);
+           alter publication supabase_realtime add table student_progress;
+           ============================================= */
+        const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';  
+
+        // 初始化 Supabase 客户端（如果已配置）
+        let _supabase = null;
+        const SUPABASE_CONFIGURED = (
+            SUPABASE_URL.startsWith('https://') &&
+            SUPABASE_ANON_KEY.startsWith('eyJ')
+        );
+        if (SUPABASE_CONFIGURED && window.supabase) {
+            _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        /* =============================================
+           📦 常量与数据定义
+           ============================================= */
+        const STORAGE_KEY = 'ecommerce_data_analysis_user';
+
+        /** 等级系统 */
+        const LEVELS = [
+            { min: 0, name: '数据小白', icon: '🌱' },
+            { min: 100, name: '数据新手', icon: '🌿' },
+            { min: 300, name: '数据学徒', icon: '🌳' },
+            { min: 600, name: '数据能手', icon: '⭐' },
+            { min: 1000, name: '数据达人', icon: '🌟' },
+            { min: 1500, name: '数据专家', icon: '💫' },
+            { min: 2000, name: '数据大师', icon: '👑' },
+        ];
+
+        /** 成就徽章列表 */
+        const BADGES = [
+            { id: 'first_login', icon: '🌱', name: '初来乍到', desc: '完成注册登录' },
+            { id: 'first_unit', icon: '📖', name: '第一课', desc: '完成第1个单元' },
+            { id: 'first_star3', icon: '🌟', name: '满分达人', desc: '任意单元获三星' },
+            { id: 'streak3', icon: '🔥', name: '连续学习', desc: '连续完成3个单元' },
+            { id: 'module1_done', icon: '🔍', name: '数据探索者', desc: '完成模块一全部' },
+            { id: 'module2_done', icon: '📡', name: '数据猎手', desc: '完成模块二全部' },
+            { id: 'module3_done', icon: '🧹', name: '数据整理师', desc: '完成模块三全部' },
+            { id: 'module4_done', icon: '💡', name: '数据分析师', desc: '完成模块四全部' },
+            { id: 'module5_done', icon: '📊', name: '报表达人', desc: '完成模块五全部' },
+            { id: 'half_done', icon: '🚀', name: '半程英雄', desc: '完成50%课程' },
+            { id: 'all_done', icon: '👑', name: '数据大师', desc: '完成全部课程' },
+            { id: 'xp500', icon: '⚡', name: '能量满满', desc: '累计500 XP' },
+        ];
+
+        /** 所有单元ID，用于计算进度 */
+        const ALL_UNITS = [
+            'm1u1', 'm1u2', 'm1u3',
+            'm2u1', 'm2u2', 'm2u3', 'm2u4', 'm2u5',
+            'm3u1', 'm3u2', 'm3u3', 'm3u4',
+            'm4u1', 'm4u2', 'm4u3', 'm4u4',
+            'm5u1', 'm5u2', 'm5u3'
+        ];
+
+        /** 各模块包含的单元 */
+        const MODULE_UNITS = {
+            m1: ['m1u1', 'm1u2', 'm1u3'],
+            m2: ['m2u1', 'm2u2', 'm2u3', 'm2u4', 'm2u5'],
+            m3: ['m3u1', 'm3u2', 'm3u3', 'm3u4'],
+            m4: ['m4u1', 'm4u2', 'm4u3', 'm4u4'],
+            m5: ['m5u1', 'm5u2', 'm5u3'],
+        };
+
+        /* =============================================
+           🛠️ 工具函数
+           ============================================= */
+
+        /**
+         * 获取当前时间段问候语
+         * @returns {string} 问候语文本
+         */
+        function getGreeting() {
+            const h = new Date().getHours();
+            if (h < 6) return '深夜了 🌙';
+            if (h < 9) return '早上好 🌅';
+            if (h < 12) return '上午好 ☀️';
+            if (h < 14) return '中午好 🌞';
+            if (h < 18) return '下午好 🌤️';
+            if (h < 22) return '晚上好 🌆';
+            return '夜深了 🌙';
+        }
+
+        /**
+         * 根据XP获取等级信息
+         * @param {number} xp - 当前经验值
+         * @returns {{name:string, icon:string}} 等级信息
+         */
+        function getLevel(xp) {
+            let level = LEVELS[0];
+            for (const l of LEVELS) {
+                if (xp >= l.min) level = l;
+            }
+            return level;
+        }
+
+        /**
+         * 将星数转换为星星字符
+         * @param {number} stars - 星数 0~3
+         * @returns {string} 星星字符串
+         */
+        function starsToStr(stars) {
+            return '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+        }
+
+        /**
+         * 显示 Toast 提示
+         * @param {string} msg - 提示内容
+         * @param {number} duration - 显示时长（毫秒）
+         */
+        function showToast(msg, duration = 2500) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), duration);
+        }
+
+        /**
+         * 触发撒花特效
+         */
+        function launchConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#F97316', '#3B82F6', '#8B5CF6', '#10B981', '#EC4899', '#FBBF24'];
+            container.innerHTML = '';
+            for (let i = 0; i < 60; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.cssText = `
+            left: ${Math.random() * 100}%;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            width: ${6 + Math.random() * 6}px;
+            height: ${6 + Math.random() * 6}px;
+            animation-duration: ${2 + Math.random() * 2}s;
+            animation-delay: ${Math.random() * 0.5}s;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        `;
+                container.appendChild(piece);
+            }
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        /* =============================================
+           💾 存储管理函数
+           ============================================= */
+
+        /**
+         * 读取用户数据
+         * @returns {object|null} 用户数据对象，未登录则返回null
+         */
+        function loadUser() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            try { return JSON.parse(raw); } catch { return null; }
+        }
+
+        /**
+         * 保存用户数据（本地 + 同步到 Supabase）
+         * @param {object} data - 用户数据对象
+         */
+        function saveUser(data) {
+            data.lastVisit = new Date().toISOString();
+
+            // 本周 XP 追踪：每周一重置
+            const todayWeekStart = getWeekStart();
+            if (data.weekStart !== todayWeekStart) {
+                data.weekXp = 0;
+                data.weekStart = todayWeekStart;
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            // 同步到 Supabase（静默，不阻塞本地流程）
+            if (_supabase) {
+                const completedUnits = ALL_UNITS.filter(id => data.units[id]?.completed).length;
+                const totalStars = ALL_UNITS.reduce((sum, id) => sum + (data.units[id]?.stars || 0), 0);
+                _supabase.from('student_progress').upsert({
+                    student_id: data.studentId,
+                    name: data.name,
+                    xp: data.xp,
+                    completed_units: completedUnits,
+                    total_stars: totalStars,
+                    week_xp: data.weekXp || 0,
+                    week_start: data.weekStart || todayWeekStart,
+                    achievements: data.achievements,
+                    units: data.units,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'student_id' })
+                    .then(({ error }) => { if (error) console.warn('Supabase sync:', error.message); });
+            }
+        }
+
+        /**
+         * 获取本周一的日期字符串（用于周XP重置基准）
+         * @returns {string} 格式 YYYY-MM-DD
+         */
+        function getWeekStart() {
+            const d = new Date();
+            const day = d.getDay() || 7;          // 把周日的0改成7
+            d.setDate(d.getDate() - day + 1);     // 退回到周一
+            return d.toISOString().slice(0, 10);
+        }
+
+        /**
+         * 创建新用户数据结构
+         * @param {string} name - 姓名
+         * @param {string} studentId - 学号
+         * @returns {object} 初始化的用户数据
+         */
+        function createUser(name, studentId) {
+            const units = {};
+            ALL_UNITS.forEach(id => {
+                units[id] = { completed: false, stars: 0, score: 0, xpEarned: 0 };
+            });
+            return {
+                name,
+                studentId,
+                xp: 15,  // 登录奖励
+                weekXp: 15,
+                weekStart: getWeekStart(),
+                createdAt: new Date().toISOString(),
+                lastVisit: new Date().toISOString(),
+                units,
+                achievements: ['first_login']  // 首次登录自动获得
+            };
+        }
+
+        /* =============================================
+           🖼️ 渲染函数
+           ============================================= */
+
+        /**
+         * 渲染导航栏用户信息
+         * @param {object} user - 用户数据
+         */
+        function renderNavbar(user) {
+            const level = getLevel(user.xp);
+            document.getElementById('navbarAvatar').textContent = user.name.charAt(0);
+            document.getElementById('navbarName').textContent = user.name;
+            document.getElementById('navbarLevel').textContent = `${level.icon} ${level.name}`;
+        }
+
+        /**
+         * 渲染英雄区
+         * @param {object} user - 用户数据
+         */
+        function renderHero(user) {
+            const completedUnits = ALL_UNITS.filter(id => user.units[id]?.completed).length;
+            const totalStars = ALL_UNITS.reduce((sum, id) => sum + (user.units[id]?.stars || 0), 0);
+            const totalBadges = user.achievements.length;
+            const pct = Math.round(completedUnits / ALL_UNITS.length * 100);
+
+            // 问候语
+            document.getElementById('heroGreeting').textContent = getGreeting();
+            document.getElementById('heroName').textContent = user.name;
+
+            // 动态激励语
+            const motivations = [
+                '今天也要认真学习哦～',
+                '数据分析高手，就是你！',
+                '每一步都算数，加油吧！',
+                `已完成 ${completedUnits} 个单元，继续冲！`,
+                '抖音背后的数据，等你来分析！'
+            ];
+            document.getElementById('heroMotivation').textContent =
+                motivations[Math.floor(Math.random() * motivations.length)];
+
+            // 统计数字
+            document.getElementById('statUnits').textContent = completedUnits;
+            document.getElementById('statStars').textContent = totalStars;
+            document.getElementById('statXP').textContent = user.xp;
+            document.getElementById('statBadges').textContent = totalBadges;
+
+            // 进度条
+            document.getElementById('progressPct').textContent = pct + '%';
+            const hints = [
+                '加油！完成第一个单元，开启你的数据分析学习之旅 🚀',
+                '继续学习，你正在成为数据高手的路上！💪',
+                '已完成一半！坚持就是胜利 🌟',
+                '快完成了！终点就在眼前 🏁',
+                '全部完成！你是真正的数据大师 👑',
+            ];
+            const hintIdx = pct === 0 ? 0 : pct < 30 ? 1 : pct < 60 ? 2 : pct < 100 ? 3 : 4;
+            document.getElementById('progressHint').textContent = hints[hintIdx];
+
+            // 延迟触发进度条动画
+            setTimeout(() => {
+                document.getElementById('progressFill').style.width = pct + '%';
+            }, 800);
+        }
+
+        /**
+         * 渲染学习地图（单元状态）
+         * @param {object} user - 用户数据
+         */
+        function renderLearningMap(user) {
+            ALL_UNITS.forEach((unitId, idx) => {
+                const unitData = user.units[unitId] || {};
+                const statusEl = document.getElementById(`status-${unitId}`);
+                const starsEl = document.getElementById(`stars-${unitId}`);
+                const unitEl = document.getElementById(`unit-${unitId}`);
+                if (!statusEl) return;
+
+                if (unitData.completed) {
+                    // 已完成
+                    statusEl.textContent = '✅';
+                    statusEl.className = 'unit-status-icon done';
+                    starsEl.textContent = starsToStr(unitData.stars);
+                    unitEl.classList.add('completed');
+                } else if (idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed) {
+                    // 当前可解锁（第一个单元，或上一个已完成）
+                    statusEl.textContent = '▶️';
+                    statusEl.className = 'unit-status-icon active';
+                    unitEl.classList.remove('locked');
+                } else {
+                    // 锁定状态
+                    statusEl.textContent = '🔒';
+                    statusEl.className = 'unit-status-icon locked-icon';
+                    unitEl.classList.add('locked');
+                }
+            });
+
+            // 渲染模块小进度条
+            ['m1', 'm2', 'm3', 'm4', 'm5'].forEach(mid => {
+                const units = MODULE_UNITS[mid];
+                const done = units.filter(id => user.units[id]?.completed).length;
+                const pct = Math.round(done / units.length * 100);
+                const fillEl = document.getElementById(`${mid}-mini-fill`);
+                const pctEl = document.getElementById(`${mid}-mini-pct`);
+                if (fillEl) {
+                    setTimeout(() => { fillEl.style.width = pct + '%'; }, 600);
+                }
+                if (pctEl) pctEl.textContent = pct + '%';
+            });
+        }
+
+        /**
+         * 渲染成就徽章墙
+         * @param {object} user - 用户数据
+         */
+        function renderBadges(user) {
+            const grid = document.getElementById('badgeGrid');
+            const unlocked = user.achievements || [];
+            grid.innerHTML = '';
+
+            BADGES.forEach((badge, i) => {
+                const isUnlocked = unlocked.includes(badge.id);
+                const el = document.createElement('div');
+                el.className = `badge-item ${isUnlocked ? 'unlocked' : 'locked in-anim'}`;
+                el.style.animationDelay = `${i * 0.05}s`;
+                el.innerHTML = `
+            ${isUnlocked ? '<div class="badge-unlocked-tag">✓</div>' : ''}
+            <span class="badge-emoji">${badge.icon}</span>
+            <div class="badge-name">${badge.name}</div>
+            <div class="badge-desc">${badge.desc}</div>
+        `;
+                if (isUnlocked) {
+                    el.title = `🎉 已解锁：${badge.name}`;
+                } else {
+                    el.title = `🔒 解锁条件：${badge.desc}`;
+                }
+                grid.appendChild(el);
+            });
+
+            document.getElementById('badgeCountLabel').textContent = `${unlocked.length} / 12 已解锁`;
+        }
+
+        /**
+         * 整体渲染所有区块
+         * @param {object} user - 用户数据
+         */
+        function renderAll(user) {
+            renderNavbar(user);
+            renderHero(user);
+            renderLearningMap(user);
+            renderBadges(user);
+        }
+
+        /* =============================================
+           🎮 交互逻辑
+           ============================================= */
+
+        /**
+         * 处理登录逻辑
+         */
+        function handleLogin() {
+            const name = document.getElementById('inputName').value.trim();
+            const studentId = document.getElementById('inputId').value.trim();
+
+            if (!name) {
+                showToast('⚠️ 请输入你的姓名');
+                document.getElementById('inputName').focus();
+                return;
+            }
+            if (!studentId) {
+                showToast('⚠️ 请输入你的学号');
+                document.getElementById('inputId').focus();
+                return;
+            }
+            if (name.length < 2) {
+                showToast('⚠️ 姓名至少需要2个字');
+                return;
+            }
+
+            // 创建或读取用户（如果已有进度则保留，仅更新姓名）
+            let user = loadUser();
+            if (!user) {
+                user = createUser(name, studentId);
+                saveUser(user);
+                // 首次登录撒花
+                setTimeout(() => launchConfetti(), 500);
+                setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
+            } else {
+                user.name = name;
+                user.studentId = studentId;
+                saveUser(user);
+                showToast(`👋 欢迎回来，${name}！继续加油`);
+            }
+
+            // 展开登录弹窗，展示页面
+            document.getElementById('loginOverlay').classList.add('hidden');
+            renderAll(user);
+        }
+
+        /**
+         * 处理退出登录
+         */
+        function handleLogout() {
+            if (!confirm('确定要退出登录吗？你的进度会保留在这台电脑上。')) return;
+            document.getElementById('loginOverlay').classList.remove('hidden');
+        }
+
+        /**
+         * 展开/折叠模块
+         * @param {string} moduleId - 模块ID（如 'm1'）
+         */
+        function toggleModule(moduleId) {
+            const card = document.getElementById(`${moduleId}-card`);
+            card.classList.toggle('expanded');
+        }
+
+        /**
+         * 跳转到单元页面
+         * @param {string} unitId - 单元ID（如 'm1u1'）
+         * @param {string} url - 单元页面URL
+         */
+        function goToUnit(unitId, url) {
+            const user = loadUser();
+            if (!user) return;
+
+            // 检查是否锁定（第一个单元不锁）
+            const idx = ALL_UNITS.indexOf(unitId);
+            if (idx > 0 && !user.units[ALL_UNITS[idx - 1]]?.completed) {
+                showToast('🔒 请先完成上一个单元再解锁哦！');
+                return;
+            }
+
+            // 存入sessionStorage供单元页面读取
+            sessionStorage.setItem('currentUnit', unitId);
+            window.location.href = url;
+        }
+
+        /**
+         * 登录框支持 Enter 键提交
+         */
+        function setupLoginKeyboard() {
+            ['inputName', 'inputId'].forEach(id => {
+                document.getElementById(id).addEventListener('keydown', e => {
+                    if (e.key === 'Enter') handleLogin();
+                });
+            });
+        }
+
+        /* =============================================
+           🏅 排行榜逻辑
+           ============================================= */
+
+        /** 当前排行榜排序维度 */
+        let lbCurrentTab = 'xp';
+
+        /** 缓存的排行榜数据（避免切换Tab重复请求） */
+        let lbCachedData = null;
+
+        /**
+         * 切换排行榜Tab
+         * @param {string} tab - 'xp' | 'units' | 'stars' | 'week'
+         */
+        function switchTab(tab) {
+            lbCurrentTab = tab;
+            // 更新Tab样式
+            ['xp', 'units', 'stars', 'week'].forEach(t => {
+                document.getElementById(`tab-${t}`)
+                    .classList.toggle('active', t === tab);
+            });
+            // 用缓存数据重新渲染
+            if (lbCachedData) renderLeaderboard(lbCachedData);
+        }
+
+        /**
+         * 加载排行榜数据（首次）
+         */
+        async function loadLeaderboard() {
+            if (!_supabase) {
+                // 未配置Supabase：显示配置提示，隐藏加载骨架
+                document.getElementById('supabaseConfigBanner').classList.remove('hidden');
+                document.getElementById('lbList').innerHTML = `
+            <div class="lb-empty">
+                <div class="lb-empty-icon">🔧</div>
+                <div class="lb-empty-title">排行榜待激活</div>
+                <div class="lb-empty-desc">配置 Supabase 后，全班排行榜将实时显示在这里</div>
+            </div>`;
+                document.getElementById('lbLiveDot').style.display = 'none';
+                return;
+            }
+
+            // 已配置：隐藏配置提示
+            document.getElementById('supabaseConfigBanner').classList.add('hidden');
+
+            const { data, error } = await _supabase
+                .from('student_progress')
+                .select('student_id, name, xp, completed_units, total_stars, week_xp, week_start, updated_at')
+                .order('xp', { ascending: false })
+                .limit(40);
+
+            if (error) {
+                document.getElementById('lbList').innerHTML = `
+            <div class="lb-empty">
+                <div class="lb-empty-icon">⚠️</div>
+                <div class="lb-empty-title">加载失败</div>
+                <div class="lb-empty-desc">${error.message}</div>
+            </div>`;
+                return;
+            }
+
+            lbCachedData = data;
+            renderLeaderboard(data);
+        }
+
+        /**
+         * 实时订阅排行榜变化
+         */
+        function subscribeLeaderboard() {
+            if (!_supabase) return;
+            _supabase.channel('lb-realtime')
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'student_progress' },
+                    payload => {
+                        // 收到变更时重新拉取最新数据
+                        loadLeaderboard();
+                        // 闪一下"更新中"提示
+                        const dot = document.getElementById('lbLiveDot');
+                        dot.style.background = 'rgba(249,115,22,0.15)';
+                        setTimeout(() => dot.style.background = '', 800);
+                    }
+                )
+                .subscribe();
+        }
+
+        /**
+         * 渲染排行榜列表
+         * @param {Array} data - 学生数据数组
+         */
+        function renderLeaderboard(data) {
+            const myStudentId = loadUser()?.studentId;
+            const medals = ['🥇', '🥈', '🥉'];
+            const todayWeekStart = getWeekStart();
+
+            // 根据当前Tab排序
+            const sorted = [...data].sort((a, b) => {
+                if (lbCurrentTab === 'xp') return b.xp - a.xp;
+                if (lbCurrentTab === 'units') return b.completed_units - a.completed_units;
+                if (lbCurrentTab === 'stars') return b.total_stars - a.total_stars;
+                if (lbCurrentTab === 'week') {
+                    // 本周XP：只算本周，过期的归零
+                    const aW = a.week_start === todayWeekStart ? (a.week_xp || 0) : 0;
+                    const bW = b.week_start === todayWeekStart ? (b.week_xp || 0) : 0;
+                    return bW - aW;
+                }
+                return 0;
+            });
+
+            // 最大值（用于进度条比例）
+            const maxWeekXp = Math.max(1, ...sorted.map(r =>
+                r.week_start === todayWeekStart ? (r.week_xp || 0) : 0
+            ));
+
+            if (!sorted.length) {
+                document.getElementById('lbList').innerHTML = `
+            <div class="lb-empty">
+                <div class="lb-empty-icon">🎯</div>
+                <div class="lb-empty-title">还没有同学上榜</div>
+                <div class="lb-empty-desc">完成第一个单元，成为班级第一名！</div>
+            </div>`;
+                return;
+            }
+
+            const container = document.getElementById('lbList');
+            container.innerHTML = sorted.map((row, i) => {
+                const isMe = row.student_id === myStudentId;
+                const rankNum = i + 1;
+                const rankDisplay = rankNum <= 3
+                    ? `<span class="lb-rank medal">${medals[rankNum - 1]}</span>`
+                    : `<span class="lb-rank" style="color:var(--text-light)">${rankNum}</span>`;
+
+                // 本周XP（过期则显示0）
+                const weekXp = row.week_start === todayWeekStart ? (row.week_xp || 0) : 0;
+                const weekPct = Math.round(weekXp / maxWeekXp * 100);
+
+                // 高亮主指标
+                let primaryVal = '', primaryLabel = '';
+                if (lbCurrentTab === 'xp') { primaryVal = row.xp; primaryLabel = 'XP'; }
+                if (lbCurrentTab === 'units') { primaryVal = row.completed_units; primaryLabel = '单元'; }
+                if (lbCurrentTab === 'stars') { primaryVal = row.total_stars; primaryLabel = '⭐'; }
+                if (lbCurrentTab === 'week') { primaryVal = weekXp; primaryLabel = 'XP'; }
+
+                return `
+        <div class="lb-row rank-${rankNum <= 3 ? rankNum : 'other'} ${isMe ? 'is-me' : ''}"
+             style="animation-delay:${i * 0.04}s">
+            ${rankDisplay}
+            <div class="lb-avatar">${row.name.charAt(0)}</div>
+            <div class="lb-info">
+                <div class="lb-name">
+                    ${row.name}
+                    ${isMe ? '<span class="lb-me-tag">我</span>' : ''}
+                </div>
+                <div class="lb-stats">
+                    <span class="lb-stat-item">⚡ ${row.xp} XP</span>
+                    <span class="lb-stat-item">📚 ${row.completed_units} 单元</span>
+                    <span class="lb-stat-item">⭐ ${row.total_stars} 星</span>
+                    ${lbCurrentTab === 'week' ? `
+                    <div class="lb-week-bar-wrap" title="本周 ${weekXp} XP">
+                        <div class="lb-week-bar" style="width:${weekPct}%"></div>
+                    </div>
+                    <span class="lb-stat-item">🔥 本周 ${weekXp} XP</span>
+                    ` : ''}
+                </div>
+            </div>
+            <div>
+                <div class="lb-xp">${primaryVal}</div>
+                <div class="lb-xp-unit">${primaryLabel}</div>
+            </div>
+        </div>`;
+            }).join('');
+
+            // 更新时间戳
+            const now = new Date();
+            document.getElementById('lbUpdateTime').textContent =
+                `最后更新：${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        }
+
+        /* =============================================
+           🚀 初始化代码（IIFE）
+           ============================================= */
+        (function init() {
+            setupLoginKeyboard();
+
+            // 检查是否已有用户数据
+            const user = loadUser();
+            if (user) {
+                // 已登录，直接渲染
+                document.getElementById('loginOverlay').classList.add('hidden');
+                renderAll(user);
+            } else {
+                // 未登录，显示登录弹窗，自动聚焦姓名输入框
+                setTimeout(() => document.getElementById('inputName').focus(), 300);
+            }
+
+            // 第一个模块默认展开
+            setTimeout(() => {
+                if (loadUser()) {
+                    document.getElementById('m1-card').classList.add('expanded');
+                }
+            }, 400);
+
+            // 排行榜：加载 + 实时订阅
+            loadLeaderboard();
+            subscribeLeaderboard();
+        })();
+    </script>
+
+</body>
+
+</html>
