@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块一·单元一 - 认识电子商务数据及数据分析</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Supabase SDK（与 index.html 保持一致） -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* =============================================
+           CSS 自定义属性
+           ============================================= */
+        :root {
+            --primary: #F97316;
+            --primary-dark: #EA580C;
+            --primary-light: #FB923C;
+            --primary-lighter: #FDBA74;
+            --primary-lightest: #FFF7ED;
+            --accent: #6366F1;
+            --bg-main: #FFFBF5;
+            --bg-card: #FFFFFF;
+            --text-dark: #1C1917;
+            --text-mid: #57534E;
+            --text-light: #A8A29E;
+            --text-white: #FFFFFF;
+            --success: #22C55E;
+            --danger: #EF4444;
+            --warning: #FBBF24;
+            --info: #3B82F6;
+            --m1-color: #F97316;
+            --r-sm: 8px;
+            --r-md: 14px;
+            --r-lg: 20px;
+            --r-full: 9999px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
+        }
+
+        /* =============================================
+           基础重置
+           ============================================= */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Noto Sans SC", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* =============================================
+           📌 顶部导航栏
+           ============================================= */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 251, 245, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.12);
+            height: 58px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        .navbar-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            background: transparent;
+            border: 1.5px solid #E7E5E4;
+            border-radius: var(--r-full);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-mid);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .nav-breadcrumb {
+            font-size: 13px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-breadcrumb .current {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .nav-xp-badge {
+            padding: 4px 12px;
+            background: var(--primary-lightest);
+            border: 1px solid var(--primary-lighter);
+            border-radius: var(--r-full);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        /* =============================================
+           📊 单元进度条
+           ============================================= */
+        .unit-progress-bar {
+            background: var(--bg-card);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            padding: 14px 24px;
+            position: sticky;
+            top: 58px;
+            z-index: 90;
+        }
+
+        .unit-progress-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .part-step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .part-dot-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 56px;
+        }
+
+        .part-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            border: 2px solid #E7E5E4;
+            background: #fff;
+            color: var(--text-light);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .part-dot.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .part-dot.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+            animation: pulse-dot 2s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(249, 115, 22, 0);
+            }
+        }
+
+        .part-label {
+            font-size: 10px;
+            color: var(--text-light);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .part-label.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .part-line {
+            flex: 1;
+            height: 2px;
+            background: #E7E5E4;
+            margin: 0 2px;
+            margin-bottom: 18px;
+            transition: background 0.3s;
+        }
+
+        .part-line.done {
+            background: var(--success);
+        }
+
+        /* =============================================
+           页面主容器
+           ============================================= */
+        .page-wrap {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* =============================================
+           Part 通用样式
+           ============================================= */
+        .part-section {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .part-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .part-header {
+            padding: 36px 0 24px;
+            border-bottom: 2px solid var(--primary-lightest);
+            margin-bottom: 28px;
+        }
+
+        .part-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            background: var(--primary-lightest);
+            border: 1px solid var(--primary-lighter);
+            border-radius: var(--r-full);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .part-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .part-subtitle {
+            font-size: 14px;
+            color: var(--text-mid);
+        }
+
+        .part-time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            background: #F5F5F4;
+            border-radius: var(--r-full);
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        /* 卡片通用 */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 24px 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 下一步按钮 */
+        .btn-next-wrap {
+            text-align: center;
+            padding: 32px 0 8px;
+        }
+
+        .btn-next {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-next:active {
+            transform: translateY(0);
+        }
+
+        /* =============================================
+           🎬 Part 1 - 情境导入
+           ============================================= */
+        .scenario-banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: var(--r-lg);
+            padding: 40px 40px 36px;
+            color: #fff;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scenario-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 50%, rgba(249, 115, 22, 0.15) 0%, transparent 60%);
+        }
+
+        .scenario-banner-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--primary-lighter);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .scenario-banner-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .scenario-banner-title .hl {
+            color: var(--primary-light);
+        }
+
+        .scenario-banner-body {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            max-width: 600px;
+        }
+
+        .scenario-banner-emoji {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .think-card {
+            background: linear-gradient(135deg, var(--primary-lightest), #fff);
+            border: 2px dashed var(--primary-lighter);
+            border-radius: var(--r-md);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+
+        .think-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+        }
+
+        .think-card p {
+            font-size: 14px;
+            color: var(--text-mid);
+            line-height: 1.8;
+        }
+
+        .think-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .think-option {
+            padding: 8px 18px;
+            background: #fff;
+            border: 2px solid #E7E5E4;
+            border-radius: var(--r-full);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .think-option:hover,
+        .think-option.selected {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-lightest);
+        }
+
+        /* =============================================
+           📖 Part 2 - 知识学习
+           ============================================= */
+        .knowledge-block {
+            margin-bottom: 32px;
+        }
+
+        .kb-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 12px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            color: #fff;
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        .kb-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 14px;
+        }
+
+        /* 定义高亮块 */
+        .definition-box {
+            background: linear-gradient(135deg, var(--primary-lightest), #fff9f0);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 var(--r-md) var(--r-md) 0;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        .definition-box .def-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+        }
+
+        .definition-box .def-text {
+            font-size: 15px;
+            color: var(--text-dark);
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .definition-box .def-text .key {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 翻转卡片组 */
+        .flip-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .flip-card-wrap {
+            height: 160px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.55s cubic-bezier(.4, 0, .2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card-wrap.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            inset: 0;
+            border-radius: var(--r-md);
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .flip-card-front {
+            background: var(--bg-card);
+            border: 2px solid #F5F5F4;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .flip-card-front:hover {
+            border-color: var(--primary-lighter);
+            box-shadow: var(--shadow-md);
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transform: rotateY(180deg);
+            color: #fff;
+        }
+
+        .flip-card-front .fc-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .flip-card-front .fc-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .flip-card-front .fc-hint {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .flip-card-back .fc-back-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .flip-card-back .fc-back-body {
+            font-size: 12px;
+            line-height: 1.7;
+            opacity: 0.92;
+        }
+
+        /* 两列对比卡片 */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .compare-card {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .compare-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .compare-card.type-a::before {
+            background: var(--primary);
+        }
+
+        .compare-card.type-b::before {
+            background: var(--accent);
+        }
+
+        .compare-card .cc-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .compare-card .cc-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .compare-card .cc-body {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.7;
+        }
+
+        .compare-card .cc-eg {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* 作用三列卡片 */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .role-card {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 20px 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .role-card .rc-num {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        .role-card .rc-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .role-card .rc-body {
+            font-size: 12px;
+            color: var(--text-mid);
+            line-height: 1.7;
+        }
+
+        /* 应用场景标签组 */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .app-card {
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .app-card:hover {
+            border-color: var(--primary-lighter);
+            transform: translateY(-2px);
+        }
+
+        .app-card.open {
+            border-color: var(--primary);
+            background: var(--primary-lightest);
+        }
+
+        .app-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0;
+        }
+
+        .app-card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--r-sm);
+            background: var(--primary-lightest);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .app-card.open .app-card-icon {
+            background: var(--primary);
+        }
+
+        .app-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .app-card-body {
+            font-size: 13px;
+            color: var(--text-mid);
+            margin-top: 12px;
+            line-height: 1.7;
+            display: none;
+        }
+
+        .app-card.open .app-card-body {
+            display: block;
+        }
+
+        .app-card-chevron {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-light);
+            transition: transform 0.3s;
+        }
+
+        .app-card.open .app-card-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* 即时小练习 */
+        .mini-quiz {
+            background: linear-gradient(135deg, #f8faff, #eef2ff);
+            border: 2px solid #c7d2fe;
+            border-radius: var(--r-md);
+            padding: 22px 26px;
+            margin-top: 20px;
+        }
+
+        .mini-quiz-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .mini-quiz-tag {
+            padding: 3px 10px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .mini-quiz-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3730a3;
+        }
+
+        .quiz-q {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quiz-opt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+            background: #fff;
+            border: 2px solid #e0e7ff;
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-opt:hover:not(.disabled) {
+            border-color: var(--accent);
+            background: #eef2ff;
+        }
+
+        .quiz-opt.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.06);
+            color: #15803d;
+        }
+
+        .quiz-opt.wrong {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.06);
+            color: #b91c1c;
+        }
+
+        .quiz-opt.disabled {
+            cursor: default;
+        }
+
+        .quiz-opt .opt-letter {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .quiz-opt.correct .opt-letter {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .quiz-opt.wrong .opt-letter {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .quiz-feedback {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.ok {
+            background: rgba(34, 197, 94, 0.1);
+            color: #15803d;
+            border-left: 3px solid var(--success);
+        }
+
+        .quiz-feedback.no {
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            border-left: 3px solid var(--danger);
+        }
+
+        .xp-pop {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 8px;
+            background: var(--warning);
+            color: #7c2d12;
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* =============================================
+           🔍 Part 3 - 案例实战
+           ============================================= */
+        .case-story {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: var(--r-lg);
+            padding: 32px 36px;
+            color: #fff;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-story::after {
+            content: '📱';
+            position: absolute;
+            right: 32px;
+            bottom: 20px;
+            font-size: 72px;
+            opacity: 0.12;
+        }
+
+        .case-story-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fb923c;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .case-story-title {
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .case-story-body {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.9;
+        }
+
+        .data-table-wrap {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 13px 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #F5F5F4;
+            color: var(--text-mid);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: var(--primary-lightest);
+        }
+
+        .data-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .data-tag.behavior {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--primary-dark);
+        }
+
+        .data-tag.business {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+        }
+
+        /* 分析步骤 */
+        .analysis-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .analysis-step.revealed {
+            border-color: var(--primary-lighter);
+            background: var(--primary-lightest);
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-lightest);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .analysis-step.revealed .step-num {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .step-info {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0;
+        }
+
+        .step-body {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.7;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .analysis-step.revealed .step-body {
+            display: block;
+        }
+
+        .step-click-hint {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .analysis-step.revealed .step-click-hint {
+            display: none;
+        }
+
+        /* 案例小结 */
+        .case-summary {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.06), rgba(249, 115, 22, 0.02));
+            border: 1.5px solid var(--primary-lighter);
+            border-radius: var(--r-md);
+            padding: 20px 24px;
+        }
+
+        .case-summary h4 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .case-summary p {
+            font-size: 14px;
+            color: var(--text-mid);
+            line-height: 1.8;
+        }
+
+        /* =============================================
+           🎮 Part 4 - 闯关游戏
+           ============================================= */
+        .game-intro {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border-radius: var(--r-lg);
+            padding: 28px 32px;
+            color: #fff;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .game-intro-icon {
+            font-size: 52px;
+            flex-shrink: 0;
+        }
+
+        .game-intro-title {
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .game-intro-body {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+        }
+
+        .game-rules {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .game-rule-badge {
+            padding: 4px 12px;
+            border-radius: var(--r-full);
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 记忆配对游戏 */
+        .memory-game-area {
+            margin-bottom: 24px;
+        }
+
+        .memory-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .memory-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .memory-stat {
+            text-align: center;
+        }
+
+        .memory-stat-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .memory-stat-label {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .btn-restart {
+            padding: 7px 18px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            border-radius: var(--r-full);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-restart:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .memory-card-wrap {
+            height: 90px;
+            perspective: 800px;
+            cursor: pointer;
+        }
+
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.45s cubic-bezier(.4, 0, .2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .memory-card-wrap.flipped .memory-card-inner,
+        .memory-card-wrap.matched .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card-front,
+        .memory-card-back {
+            position: absolute;
+            inset: 0;
+            border-radius: var(--r-sm);
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .memory-card-front {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            font-size: 22px;
+        }
+
+        .memory-card-back {
+            background: var(--bg-card);
+            border: 2px solid #E7E5E4;
+            transform: rotateY(180deg);
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .memory-card-wrap.matched .memory-card-back {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.06);
+            color: #15803d;
+        }
+
+        .memory-card-wrap.disabled {
+            cursor: default;
+        }
+
+        /* 游戏结算 */
+        .game-result {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .game-result.show {
+            display: block;
+        }
+
+        .result-stars {
+            font-size: 42px;
+            margin-bottom: 12px;
+            letter-spacing: 8px;
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .result-body {
+            font-size: 14px;
+            color: var(--text-mid);
+            margin-bottom: 20px;
+        }
+
+        .result-xp {
+            display: inline-block;
+            padding: 10px 28px;
+            background: linear-gradient(135deg, var(--warning), #f59e0b);
+            border-radius: var(--r-full);
+            font-size: 18px;
+            font-weight: 900;
+            color: #7c2d12;
+            margin-bottom: 24px;
+        }
+
+        /* =============================================
+           📝 Part 5 - 小结 + 知识导图
+           ============================================= */
+        .summary-keypoints {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .kp-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .kp-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--r-sm);
+            background: var(--primary-lightest);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .kp-text h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .kp-text p {
+            font-size: 12px;
+            color: var(--text-mid);
+            line-height: 1.6;
+        }
+
+        /* 知识导图 */
+        .mindmap-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .mindmap {
+            background: var(--bg-card);
+            border-radius: var(--r-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 28px;
+            overflow-x: auto;
+        }
+
+        .mindmap-tree {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            min-width: 600px;
+        }
+
+        .mindmap-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 14px 22px;
+            border-radius: var(--r-md);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            min-width: 120px;
+            text-align: center;
+            align-self: center;
+            flex-shrink: 0;
+        }
+
+        .mindmap-branches {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            margin-left: 0;
+        }
+
+        .mindmap-connector {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .mm-line-h {
+            height: 2px;
+            width: 32px;
+            flex-shrink: 0;
+        }
+
+        .mm-branch {
+            flex: 1;
+        }
+
+        .mm-branch-header {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .mm-branch-label {
+            padding: 7px 16px;
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .mm-branch-label:hover {
+            opacity: 0.85;
+        }
+
+        .mm-leaves {
+            margin-left: 24px;
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease;
+        }
+
+        .mm-leaves.open {
+            max-height: 300px;
+        }
+
+        .mm-leaf {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-mid);
+            padding: 5px 0;
+        }
+
+        .mm-leaf::before {
+            content: '';
+            width: 20px;
+            height: 1.5px;
+            background: #E7E5E4;
+            flex-shrink: 0;
+        }
+
+        .mm-leaf-text {
+            padding: 3px 10px;
+            background: #F5F5F4;
+            border-radius: var(--r-full);
+            font-weight: 500;
+        }
+
+        /* 竖向连接线 */
+        .mm-vert-lines {
+            display: flex;
+            flex-direction: column;
+            margin-left: 0;
+        }
+
+        /* 得分汇总 */
+        .score-summary {
+            background: linear-gradient(135deg, var(--primary-lightest), #fff);
+            border: 2px solid var(--primary-lighter);
+            border-radius: var(--r-lg);
+            padding: 28px 32px;
+            text-align: center;
+        }
+
+        .score-summary h3 {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 18px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-val {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .score-lab {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 36px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-size: 15px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+        }
+
+        /* =============================================
+           Toast + 撒花
+           ============================================= */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--text-dark);
+            color: #fff;
+            padding: 11px 24px;
+            border-radius: var(--r-full);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 500;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .confetti-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            top: -10px;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* =============================================
+           响应式
+           ============================================= */
+        @media (max-width: 768px) {
+            .page-wrap {
+                padding: 0 14px 60px;
+            }
+
+            .flip-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .compare-grid,
+            .summary-keypoints {
+                grid-template-columns: 1fr;
+            }
+
+            .role-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .memory-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== 📌 顶部导航栏 ===== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <div class="nav-left">
+                <a class="btn-back" href="index.html">← 返回首页</a>
+                <div class="nav-breadcrumb">
+                    <span>模块一</span>
+                    <span>›</span>
+                    <span class="current">单元一</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <span class="nav-user-name" id="navName">-</span>
+                <span class="nav-xp-badge" id="navXP">⚡ 0 XP</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== 📊 单元进度条 ===== -->
+    <div class="unit-progress-bar">
+        <div class="unit-progress-inner">
+            <div class="part-step">
+                <div class="part-dot-wrap">
+                    <div class="part-dot active" id="dot-1" onclick="scrollToPart(1)">1</div>
+                    <div class="part-label active" id="label-1">情境导入</div>
+                </div>
+                <div class="part-line" id="line-1-2"></div>
+            </div>
+            <div class="part-step">
+                <div class="part-dot-wrap">
+                    <div class="part-dot" id="dot-2" onclick="scrollToPart(2)">2</div>
+                    <div class="part-label" id="label-2">知识学习</div>
+                </div>
+                <div class="part-line" id="line-2-3"></div>
+            </div>
+            <div class="part-step">
+                <div class="part-dot-wrap">
+                    <div class="part-dot" id="dot-3" onclick="scrollToPart(3)">3</div>
+                    <div class="part-label" id="label-3">案例实战</div>
+                </div>
+                <div class="part-line" id="line-3-4"></div>
+            </div>
+            <div class="part-step">
+                <div class="part-dot-wrap">
+                    <div class="part-dot" id="dot-4" onclick="scrollToPart(4)">4</div>
+                    <div class="part-label" id="label-4">闯关游戏</div>
+                </div>
+                <div class="part-line" id="line-4-5"></div>
+            </div>
+            <div class="part-step">
+                <div class="part-dot-wrap">
+                    <div class="part-dot" id="dot-5" onclick="scrollToPart(5)">5</div>
+                    <div class="part-label" id="label-5">小结导图</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 页面主体 ===== -->
+    <div class="page-wrap">
+
+        <!-- ===== 🎬 PART 1: 情境导入 ===== -->
+        <section class="part-section active" id="part-1">
+            <div class="part-header">
+                <div class="part-tag">🎬 Part 1 · 情境导入</div>
+                <h1 class="part-title">你刷抖音的每一秒，背后都是数据在运作</h1>
+                <p class="part-subtitle">认识电子商务数据及数据分析 · 单元一</p>
+                <div class="part-time-badge">⏱️ 约 5 分钟</div>
+            </div>
+
+            <!-- 情境故事 -->
+            <div class="scenario-banner">
+                <div class="scenario-banner-emoji">📊</div>
+                <div class="scenario-banner-label">🔍 场景故事</div>
+                <h2 class="scenario-banner-title">
+                    为什么你刷抖音总能刷到<span class="hl">你感兴趣的视频</span>？
+                </h2>
+                <p class="scenario-banner-body">
+                    小明昨天搜索了"篮球教学"，今天打开抖音，首页就推了好几条篮球相关视频。<br>
+                    这不是"巧合"——这是<strong>数据分析</strong>在发挥作用！<br><br>
+                    抖音的系统记录了你的每一次点击、停留时长、点赞行为……
+                    对这些<strong>数据</strong>进行分析，就能知道你喜欢看什么，然后精准推送给你。
+                </p>
+            </div>
+
+            <!-- 延伸到电商 -->
+            <div class="card">
+                <div class="card-title">🛒 再来看一个例子：网店里的数据</div>
+                <p style="font-size:14px;color:var(--text-mid);line-height:1.9;margin-bottom:14px;">
+                    一家卖衣服的淘宝店，每天都会产生大量数据：有多少人来看店（<strong>访客数</strong>）、
+                    看了多少件商品（<strong>浏览量</strong>）、最终有多少人买了（<strong>成交量</strong>）、
+                    买家的评价（<strong>商品反馈</strong>）……
+                </p>
+                <p style="font-size:14px;color:var(--text-mid);line-height:1.9;">
+                    如果店主只是<em>"感觉今天生意还可以"</em>，那他根本不知道哪件衣服最受欢迎、
+                    应该多备什么货、什么时间段流量最高。
+                    <strong style="color:var(--primary)">数据分析，就是把这些数字变成有用的决策依据！</strong>
+                </p>
+            </div>
+
+            <!-- 思考题 -->
+            <div class="think-card">
+                <h3>💭 先想一想：你认为数据分析对网店最大的作用是什么？</h3>
+                <p>（点击选项，看看大家的想法——这道题不计分，随便选！）</p>
+                <div class="think-options">
+                    <div class="think-option" onclick="selectThink(this,'a')">📦 帮助决定进什么货</div>
+                    <div class="think-option" onclick="selectThink(this,'b')">💰 增加销售额</div>
+                    <div class="think-option" onclick="selectThink(this,'c')">👥 了解买家喜好</div>
+                    <div class="think-option" onclick="selectThink(this,'d')">📢 优化广告投放</div>
+                </div>
+                <div id="think-reply"
+                    style="margin-top:14px;font-size:13px;color:var(--primary-dark);font-weight:600;display:none">
+                    ✅ 好的答案！其实这些都对——数据分析的作用是多方面的，接下来我们一起深入学习！
+                </div>
+            </div>
+
+            <div class="btn-next-wrap">
+                <button class="btn-next" onclick="goToPart(2)">开始学习知识点 📖 →</button>
+            </div>
+        </section>
+
+
+        <!-- ===== 📖 PART 2: 知识学习 ===== -->
+        <section class="part-section" id="part-2">
+            <div class="part-header">
+                <div class="part-tag">📖 Part 2 · 知识学习</div>
+                <h1 class="part-title">核心知识点讲解</h1>
+                <p class="part-subtitle">认识电子商务数据及数据分析 · 共 4 个知识点</p>
+                <div class="part-time-badge">⏱️ 约 20 分钟</div>
+            </div>
+
+            <!-- 知识点 1：数据的含义 -->
+            <div class="knowledge-block">
+                <div class="kb-label">📌 知识点 1</div>
+                <div class="kb-title">电子商务数据的含义</div>
+
+                <div class="definition-box">
+                    <div class="def-label">📖 数据的定义</div>
+                    <div class="def-text">
+                        <span class="key">数据</span>是科学实验、检验、统计等所获得的，用于科学研究、技术设计、查证、
+                        决策等的数值，其表现形式可以是<span class="key">符号、文字、数字、语音、图像、视频</span>等。
+                    </div>
+                </div>
+
+                <div class="definition-box">
+                    <div class="def-label">🛒 电子商务数据的定义</div>
+                    <div class="def-text">
+                        <span class="key">电子商务数据</span>是企业进行电子商务活动时产生的
+                        <span class="key">行为数据</span>和<span class="key">商业数据</span>。
+                    </div>
+                </div>
+
+                <div class="compare-grid">
+                    <div class="compare-card type-a">
+                        <div class="cc-icon">🧑‍💻</div>
+                        <div class="cc-title">行为数据</div>
+                        <div class="cc-body">能够反映<strong>客户行为</strong>的数据，记录了客户在平台上的一切动作。</div>
+                        <div class="cc-eg">例：客户访问情况、客户浏览情况、收藏量、停留时长…</div>
+                    </div>
+                    <div class="compare-card type-b">
+                        <div class="cc-icon">📈</div>
+                        <div class="cc-title">商业数据</div>
+                        <div class="cc-body">能够反映<strong>企业运营状况</strong>的数据，关注经营成果和商业价值。</div>
+                        <div class="cc-eg">例：产品交易量、投资回报率（ROI）、销售额、利润率…</div>
+                    </div>
+                </div>
+
+                <!-- 即时练习 1 -->
+                <div class="mini-quiz" id="quiz1">
+                    <div class="mini-quiz-header">
+                        <span class="mini-quiz-tag">💡 即时练习</span>
+                        <span class="mini-quiz-title">判断下面这条数据属于哪种类型</span>
+                    </div>
+                    <div class="quiz-q">
+                        某买家昨天在淘宝逛了 30 分钟，浏览了 15 件商品，最终买了 2 件。
+                        其中"<strong>浏览了 15 件商品</strong>"属于哪类数据？
+                    </div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" onclick="checkQ1(this,'A')">
+                            <span class="opt-letter">A</span> 行为数据，因为它反映了客户的浏览行为
+                        </div>
+                        <div class="quiz-opt" onclick="checkQ1(this,'B')">
+                            <span class="opt-letter">B</span> 商业数据，因为它与销售有关
+                        </div>
+                        <div class="quiz-opt" onclick="checkQ1(this,'C')">
+                            <span class="opt-letter">C</span> 两者都不是
+                        </div>
+                    </div>
+                    <div class="quiz-feedback" id="q1-feedback"></div>
+                </div>
+            </div>
+
+            <!-- 知识点 2：数据的分类 -->
+            <div class="knowledge-block">
+                <div class="kb-label">📌 知识点 2</div>
+                <div class="kb-title">电子商务数据的分类</div>
+                <p style="font-size:14px;color:var(--text-mid);margin-bottom:16px;line-height:1.8">
+                    电子商务数据可以分为三大类：<strong>市场数据、运营数据、产品数据</strong>。
+                    点击下面的卡片，翻开查看每种数据的定义和包含内容 👇
+                </p>
+
+                <div class="flip-cards-grid">
+                    <div class="flip-card-wrap" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="fc-icon">📊</div>
+                                <div class="fc-title">市场数据</div>
+                                <div class="fc-hint">点击翻转查看详情</div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="fc-back-title">市场数据</div>
+                                <div class="fc-back-body">
+                                    包含<br><strong>行业数据</strong>（总销售额、增长率、目标客户等）<br>和<strong>竞争数据</strong>（对手销售额、畅销商品等）
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flip-card-wrap" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="fc-icon">⚙️</div>
+                                <div class="fc-title">运营数据</div>
+                                <div class="fc-hint">点击翻转查看详情</div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="fc-back-title">运营数据</div>
+                                <div class="fc-back-body">包含<br><strong>客户数据、推广数据<br>销售数据、供应链数据</strong><br>四大类运营相关数据
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flip-card-wrap" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="fc-icon">📦</div>
+                                <div class="fc-title">产品数据</div>
+                                <div class="fc-hint">点击翻转查看详情</div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="fc-back-title">产品数据</div>
+                                <div class="fc-back-body">
+                                    包含<br><strong>行业产品数据</strong>（搜索指数等）<br>和<strong>企业产品数据</strong>（新客点击量、重复购买率、毛利率等）
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 即时练习 2 -->
+                <div class="mini-quiz" id="quiz2">
+                    <div class="mini-quiz-header">
+                        <span class="mini-quiz-tag">💡 即时练习</span>
+                        <span class="mini-quiz-title">数据分类辨别</span>
+                    </div>
+                    <div class="quiz-q">
+                        某网店老板想了解"竞争对手上个月的销售额和主推商品"，这属于哪类数据？
+                    </div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" onclick="checkQ2(this,'A')">
+                            <span class="opt-letter">A</span> 运营数据 → 因为跟销售有关
+                        </div>
+                        <div class="quiz-opt" onclick="checkQ2(this,'B')">
+                            <span class="opt-letter">B</span> 市场数据（竞争数据）→ 因为是分析竞争对手的
+                        </div>
+                        <div class="quiz-opt" onclick="checkQ2(this,'C')">
+                            <span class="opt-letter">C</span> 产品数据 → 因为涉及商品
+                        </div>
+                    </div>
+                    <div class="quiz-feedback" id="q2-feedback"></div>
+                </div>
+            </div>
+
+            <!-- 知识点 3：数据分析的作用 -->
+            <div class="knowledge-block">
+                <div class="kb-label">📌 知识点 3</div>
+                <div class="kb-title">电子商务数据分析的作用</div>
+
+                <div class="definition-box">
+                    <div class="def-label">📖 数据分析的定义</div>
+                    <div class="def-text">
+                        通过建立分析模型对数据进行核对、检查、复算、判断等操作，将数据的
+                        <span class="key">现实状态</span>与<span class="key">理想状态</span>进行比较，
+                        从而发现规律，得到分析结果的过程。
+                    </div>
+                </div>
+
+                <div class="role-grid">
+                    <div class="role-card">
+                        <div class="rc-num">1</div>
+                        <div class="rc-title">辅助企业运营决策</div>
+                        <div class="rc-body">将经营数据处理成易于分析的形式，帮助推导出有价值的信息，作为运营决策的依据。</div>
+                    </div>
+                    <div class="role-card">
+                        <div class="rc-num">2</div>
+                        <div class="rc-title">降低企业运营成本</div>
+                        <div class="rc-body">根据分析结果优化业务流程，减少不必要的成本投入，对资源进行合理配置。</div>
+                    </div>
+                    <div class="role-card">
+                        <div class="rc-num">3</div>
+                        <div class="rc-title">优化市场竞争力</div>
+                        <div class="rc-body">快速发现企业在市场的位置和竞争情况，帮助企业在短时间内调整业务和产品方向。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识点 4：数据分析的应用 -->
+            <div class="knowledge-block">
+                <div class="kb-label">📌 知识点 4</div>
+                <div class="kb-title">电子商务数据分析的应用</div>
+                <p style="font-size:14px;color:var(--text-mid);margin-bottom:16px">
+                    点击下方每个应用领域，查看详细说明 👇
+                </p>
+
+                <div class="app-grid">
+                    <div class="app-card" id="app-1" onclick="toggleApp(1)">
+                        <div class="app-card-header">
+                            <div class="app-card-icon" style="background:rgba(249,115,22,0.1)">📈</div>
+                            <div class="app-card-name">流量分析</div>
+                            <span class="app-card-chevron">▼</span>
+                        </div>
+                        <div class="app-card-body">
+                            对网站广告投放及营销推广数据进行分析，分为三个维度：
+                            <strong>①站内实时流量</strong>——随时掌握日常运营；
+                            <strong>②站外营销流量</strong>——优化广告投放策略；
+                            <strong>③其他流量</strong>——明确引流最多的渠道。
+                        </div>
+                    </div>
+                    <div class="app-card" id="app-2" onclick="toggleApp(2)">
+                        <div class="app-card-header">
+                            <div class="app-card-icon" style="background:rgba(99,102,241,0.1)">👥</div>
+                            <div class="app-card-name">客户分析</div>
+                            <span class="app-card-chevron">▼</span>
+                        </div>
+                        <div class="app-card-body">
+                            对目标受众、交易客户、潜在客户进行分析，从四个维度展开：
+                            <strong>客户属性</strong>（年龄、性别、地域）、
+                            <strong>设备属性</strong>（PC/手机）、
+                            <strong>流量属性</strong>（来源渠道）、
+                            <strong>行为属性</strong>（下单、活跃情况），实现精准运营。
+                        </div>
+                    </div>
+                    <div class="app-card" id="app-3" onclick="toggleApp(3)">
+                        <div class="app-card-header">
+                            <div class="app-card-icon" style="background:rgba(16,185,129,0.1)">📦</div>
+                            <div class="app-card-name">产品分析</div>
+                            <span class="app-card-chevron">▼</span>
+                        </div>
+                        <div class="app-card-body">
+                            对产品相应指标进行分析，如<strong>点击量、订单量、成交量、客户反馈</strong>等，
+                            判断产品的受欢迎程度、受欢迎类型、购买情况和利润情况，帮助企业实现产品升级和优化。
+                        </div>
+                    </div>
+                    <div class="app-card" id="app-4" onclick="toggleApp(4)">
+                        <div class="app-card-header">
+                            <div class="app-card-icon" style="background:rgba(236,72,153,0.1)">🏪</div>
+                            <div class="app-card-name">市场分析</div>
+                            <span class="app-card-chevron">▼</span>
+                        </div>
+                        <div class="app-card-body">
+                            对企业所在行业及市场的<strong>发展现状和发展趋势</strong>进行分析，
+                            如行业产品销量、行业竞争情况等，帮助企业确定<strong>市场定位、产品定位、发展目标</strong>等决策性内容。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 即时练习 3 -->
+                <div class="mini-quiz" id="quiz3" style="margin-top:20px">
+                    <div class="mini-quiz-header">
+                        <span class="mini-quiz-tag">💡 即时练习</span>
+                        <span class="mini-quiz-title">分析应用场景判断</span>
+                    </div>
+                    <div class="quiz-q">
+                        某直播间运营发现最近来看直播的人越来越少，她想查看"是从哪些渠道来的粉丝在减少"，
+                        这属于哪个应用方向？
+                    </div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" onclick="checkQ3(this,'A')">
+                            <span class="opt-letter">A</span> 产品分析
+                        </div>
+                        <div class="quiz-opt" onclick="checkQ3(this,'B')">
+                            <span class="opt-letter">B</span> 流量分析（其他流量/来源渠道分析）
+                        </div>
+                        <div class="quiz-opt" onclick="checkQ3(this,'C')">
+                            <span class="opt-letter">C</span> 市场分析
+                        </div>
+                    </div>
+                    <div class="quiz-feedback" id="q3-feedback"></div>
+                </div>
+            </div>
+
+            <div class="btn-next-wrap">
+                <button class="btn-next" onclick="goToPart(3)">进入案例实战 🔍 →</button>
+            </div>
+        </section>
+
+
+        <!-- ===== 🔍 PART 3: 案例实战 ===== -->
+        <section class="part-section" id="part-3">
+            <div class="part-header">
+                <div class="part-tag">🔍 Part 3 · 案例实战</div>
+                <h1 class="part-title">「小明潮品店」数据分析之谜</h1>
+                <p class="part-subtitle">用真实案例，练习判断数据类型和分析方向</p>
+                <div class="part-time-badge">⏱️ 约 15 分钟</div>
+            </div>
+
+            <!-- 案例背景 -->
+            <div class="case-story">
+                <div class="case-story-badge">📱 案例背景</div>
+                <h2 class="case-story-title">小明在淘宝开了一家卖潮流服饰的网店</h2>
+                <div class="case-story-body">
+                    双十一过后，小明发现这个月店里很热闹，感觉卖出了不少东西，但实际收入好像没预期的多。
+                    老板（小明的爸爸）问他："你知道这个月哪件衣服卖得最好吗？是哪类人在买？广告花出去的钱有没有带来回报？"
+                    <br><br>
+                    小明一脸茫然……因为他<strong style="color:var(--primary-light)">从来没有认真分析过数据</strong>。
+                    现在，我们来帮小明分析一下这个月的店铺数据！
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="card">
+                <div class="card-title">📊 小明潮品店 · 本月部分数据</div>
+                <div class="data-table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>数据项目</th>
+                                <th>数值</th>
+                                <th>数据类型</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>店铺访客数（UV）</td>
+                                <td><strong>8,500</strong></td>
+                                <td><span class="data-tag behavior">行为数据</span></td>
+                                <td>来店浏览的独立用户数</td>
+                            </tr>
+                            <tr>
+                                <td>商品浏览量（PV）</td>
+                                <td><strong>24,000</strong></td>
+                                <td><span class="data-tag behavior">行为数据</span></td>
+                                <td>所有商品被查看的总次数</td>
+                            </tr>
+                            <tr>
+                                <td>成交订单数</td>
+                                <td><strong>340</strong></td>
+                                <td><span class="data-tag business">商业数据</span></td>
+                                <td>实际完成付款的订单</td>
+                            </tr>
+                            <tr>
+                                <td>销售额</td>
+                                <td><strong>¥51,000</strong></td>
+                                <td><span class="data-tag business">商业数据</span></td>
+                                <td>成交订单总金额</td>
+                            </tr>
+                            <tr>
+                                <td>广告点击人数</td>
+                                <td><strong>1,200</strong></td>
+                                <td><span class="data-tag behavior">行为数据</span></td>
+                                <td>通过广告进入店铺的人数</td>
+                            </tr>
+                            <tr>
+                                <td>客单价</td>
+                                <td><strong>¥150</strong></td>
+                                <td><span class="data-tag business">商业数据</span></td>
+                                <td>每笔订单平均金额</td>
+                            </tr>
+                            <tr>
+                                <td>买家平均年龄</td>
+                                <td><strong>22 岁</strong></td>
+                                <td><span class="data-tag behavior">行为数据</span></td>
+                                <td>客户画像中的年龄段</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 引导分析步骤 -->
+            <div class="card">
+                <div class="card-title">🔬 引导分析 · 逐步点击解锁每个分析步骤</div>
+                <div class="analysis-steps">
+                    <div class="analysis-step" id="step-1" onclick="revealStep(1)">
+                        <div class="step-num">1</div>
+                        <div class="step-info">
+                            <div class="step-title">第一步：计算店铺转化率</div>
+                            <div class="step-body">
+                                <strong>转化率 = 成交订单数 ÷ 访客数 × 100%</strong><br>
+                                = 340 ÷ 8500 × 100% = <strong style="color:var(--primary)">4%</strong><br><br>
+                                💡 <em>行业平均电商转化率约 2%~3%，小明的店铺转化率 4% 还不错！说明到店的顾客中有相当比例愿意购买。</em>
+                            </div>
+                        </div>
+                        <div class="step-click-hint">点击展开 👆</div>
+                    </div>
+                    <div class="analysis-step" id="step-2" onclick="revealStep(2)">
+                        <div class="step-num">2</div>
+                        <div class="step-info">
+                            <div class="step-title">第二步：分析广告效果（流量分析）</div>
+                            <div class="step-body">
+                                广告带来了 1,200 人访问，占总访客 8,500 人的 <strong
+                                    style="color:var(--primary)">14.1%</strong>。<br><br>
+                                💡 <em>如果广告费花了
+                                    ¥2,000，而从广告来的访客最终贡献了多少销售额？这就是在做<strong>站外营销流量分析</strong>——属于"流量分析"的应用。</em>
+                            </div>
+                        </div>
+                        <div class="step-click-hint">点击展开 👆</div>
+                    </div>
+                    <div class="analysis-step" id="step-3" onclick="revealStep(3)">
+                        <div class="step-num">3</div>
+                        <div class="step-info">
+                            <div class="step-title">第三步：分析客户画像（客户分析）</div>
+                            <div class="step-body">
+                                买家平均年龄 22 岁，说明主要顾客是<strong>年轻人（大学生/上班族）</strong>。<br><br>
+                                💡 <em>这个信息太有用了！小明可以据此：①主推符合年轻人审美的潮流款；②在年轻人活跃的平台（抖音、小红书）投广告；③在夜间 9-11
+                                    点（年轻人刷手机高峰）开直播。这就是"客户分析"的应用！</em>
+                            </div>
+                        </div>
+                        <div class="step-click-hint">点击展开 👆</div>
+                    </div>
+                    <div class="analysis-step" id="step-4" onclick="revealStep(4)">
+                        <div class="step-num">4</div>
+                        <div class="step-info">
+                            <div class="step-title">第四步：得出结论（辅助决策）</div>
+                            <div class="step-body">
+                                综合以上分析，小明可以得出以下<strong>运营决策</strong>：<br>
+                                ①转化率不错，说明商品和店铺页面设计是合格的 ✅<br>
+                                ②广告引流效果一般，可以考虑增加抖音/小红书等年轻人渠道的投放 📢<br>
+                                ③客单价只有 ¥150，可以通过"满减"或"搭配推荐"提高客单价 💡<br>
+                                ④下个月重点备货：符合 22 岁年轻人审美的潮流款式 👕
+                            </div>
+                        </div>
+                        <div class="step-click-hint">点击展开 👆</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 案例小结 -->
+            <div class="case-summary">
+                <h4>✅ 案例小结：数据分析对小明的帮助</h4>
+                <p>
+                    通过分析这 7 条数据，小明从"感觉还不错"变成了"知道具体哪里好、哪里要改"。
+                    这就是<strong>电子商务数据分析的核心价值</strong>——把模糊的感觉变成精准的行动依据，让每一分钱花得更值，每一次运营决策更科学。
+                </p>
+            </div>
+
+            <div class="btn-next-wrap">
+                <button class="btn-next" onclick="goToPart(4)">去闯关游戏 🎮 →</button>
+            </div>
+        </section>
+
+
+        <!-- ===== 🎮 PART 4: 闯关游戏 ===== -->
+        <section class="part-section" id="part-4">
+            <div class="part-header">
+                <div class="part-tag">🎮 Part 4 · 闯关游戏</div>
+                <h1 class="part-title">概念翻翻乐</h1>
+                <p class="part-subtitle">找到相互匹配的"概念"和"解释"，用最少次数全部配对！</p>
+                <div class="part-time-badge">⏱️ 约 10 分钟</div>
+            </div>
+
+            <!-- 游戏说明 -->
+            <div class="game-intro">
+                <div class="game-intro-icon">🃏</div>
+                <div>
+                    <div class="game-intro-title">翻翻乐游戏说明</div>
+                    <div class="game-intro-body">
+                        共 8 对卡片（16 张）。每次翻开 2 张，如果是一对概念+解释就配对成功！
+                        否则自动翻回去，用你的记忆力找到所有配对！
+                    </div>
+                    <div class="game-rules">
+                        <span class="game-rule-badge">🎯 翻转≤20次 → ⭐⭐⭐</span>
+                        <span class="game-rule-badge">🎯 翻转≤30次 → ⭐⭐</span>
+                        <span class="game-rule-badge">🎯 翻转>30次 → ⭐</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游戏区 -->
+            <div class="memory-game-area" id="gameArea">
+                <div class="memory-header">
+                    <div class="memory-stats">
+                        <div class="memory-stat">
+                            <div class="memory-stat-val" id="flipCount">0</div>
+                            <div class="memory-stat-label">翻转次数</div>
+                        </div>
+                        <div class="memory-stat">
+                            <div class="memory-stat-val" id="matchCount">0</div>
+                            <div class="memory-stat-label">已配对</div>
+                        </div>
+                        <div class="memory-stat">
+                            <div class="memory-stat-val" id="remainCount">8</div>
+                            <div class="memory-stat-label">剩余对数</div>
+                        </div>
+                    </div>
+                    <button class="btn-restart" onclick="initMemoryGame()">🔄 重新开始</button>
+                </div>
+                <div class="memory-grid" id="memoryGrid"></div>
+            </div>
+
+            <!-- 游戏结算 -->
+            <div class="game-result" id="gameResult">
+                <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+                <div class="result-title" id="resultTitle">太厉害了！</div>
+                <div class="result-body" id="resultBody">你用极少的翻转次数完成了全部配对！</div>
+                <div class="result-xp" id="resultXP">🎉 +30 XP</div>
+                <button class="btn-next" onclick="goToPart(5)" style="margin-top:8px">查看本单元小结 📝 →</button>
+            </div>
+
+            <div class="btn-next-wrap" id="skipGameBtn">
+                <button class="btn-next" style="background:linear-gradient(135deg,#78716C,#57534E)"
+                    onclick="goToPart(5)">跳过游戏，直接查看小结 →</button>
+            </div>
+        </section>
+
+
+        <!-- ===== 📝 PART 5: 小结 + 知识导图 ===== -->
+        <section class="part-section" id="part-5">
+            <div class="part-header">
+                <div class="part-tag">📝 Part 5 · 小结导图</div>
+                <h1 class="part-title">本节知识总结</h1>
+                <p class="part-subtitle">一图掌握「认识电子商务数据及数据分析」全部要点</p>
+                <div class="part-time-badge">⏱️ 约 5 分钟</div>
+            </div>
+
+            <!-- 一页纸总结 -->
+            <div class="card" style="margin-bottom:28px">
+                <div class="card-title">📋 核心要点清单</div>
+                <div class="summary-keypoints">
+                    <div class="kp-item">
+                        <div class="kp-icon">📊</div>
+                        <div class="kp-text">
+                            <h4>数据的定义</h4>
+                            <p>数据是科学实验等获得的数值，形式包括文字、数字、语音、图像、视频等。</p>
+                        </div>
+                    </div>
+                    <div class="kp-item">
+                        <div class="kp-icon">🛒</div>
+                        <div class="kp-text">
+                            <h4>电商数据的含义</h4>
+                            <p>企业进行电商活动时产生的<strong>行为数据</strong>（反映客户行为）和<strong>商业数据</strong>（反映运营状况）。</p>
+                        </div>
+                    </div>
+                    <div class="kp-item">
+                        <div class="kp-icon">📂</div>
+                        <div class="kp-text">
+                            <h4>电商数据的分类</h4>
+                            <p>三大类：<strong>市场数据</strong>（行业+竞争）、<strong>运营数据</strong>（客户/推广/销售/供应链）、<strong>产品数据</strong>（行业产品+企业产品）。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="kp-item">
+                        <div class="kp-icon">⚡</div>
+                        <div class="kp-text">
+                            <h4>数据分析的三大作用</h4>
+                            <p>①辅助运营决策；②降低运营成本；③优化市场竞争力。</p>
+                        </div>
+                    </div>
+                    <div class="kp-item">
+                        <div class="kp-icon">🎯</div>
+                        <div class="kp-text">
+                            <h4>数据分析的四大应用</h4>
+                            <p>流量分析、客户分析、产品分析、市场分析。</p>
+                        </div>
+                    </div>
+                    <div class="kp-item">
+                        <div class="kp-icon">💡</div>
+                        <div class="kp-text">
+                            <h4>核心价值</h4>
+                            <p>把模糊的"感觉"变成精准的行动依据，科学辅助企业发展。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识导图 -->
+            <div class="mindmap-title">🗺️ 知识导图（点击分支展开/折叠）</div>
+            <div class="mindmap">
+                <div class="mindmap-tree">
+                    <!-- 中心 -->
+                    <div class="mindmap-center">认识电商<br>数据分析</div>
+
+                    <!-- 连接 + 分支 -->
+                    <div style="display:flex;flex-direction:column;flex:1;gap:16px;margin-left:0">
+                        <!-- 分支一 -->
+                        <div style="display:flex;align-items:flex-start">
+                            <div style="width:40px;height:2px;background:#fdba74;margin-top:18px;flex-shrink:0"></div>
+                            <div style="flex:1">
+                                <div style="display:flex;align-items:center;gap:8px">
+                                    <div class="mm-branch-label" style="background:var(--m1-color)"
+                                        onclick="toggleMM('mm1')">
+                                        📊 电商数据的含义与分类
+                                    </div>
+                                </div>
+                                <div class="mm-leaves" id="mm1">
+                                    <div class="mm-leaf"><span class="mm-leaf-text">数据的定义（数值、多种形式）</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">行为数据 → 反映客户行为</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">商业数据 → 反映运营状况</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">三大类：市场 / 运营 / 产品</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 分支二 -->
+                        <div style="display:flex;align-items:flex-start">
+                            <div style="width:40px;height:2px;background:#fdba74;margin-top:18px;flex-shrink:0"></div>
+                            <div style="flex:1">
+                                <div style="display:flex;align-items:center;gap:8px">
+                                    <div class="mm-branch-label" style="background:var(--info)"
+                                        onclick="toggleMM('mm2')">
+                                        ⚡ 数据分析的作用
+                                    </div>
+                                </div>
+                                <div class="mm-leaves" id="mm2">
+                                    <div class="mm-leaf"><span class="mm-leaf-text">辅助企业运营决策（最主要）</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">降低企业运营成本</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">优化企业市场竞争力</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 分支三 -->
+                        <div style="display:flex;align-items:flex-start">
+                            <div style="width:40px;height:2px;background:#fdba74;margin-top:18px;flex-shrink:0"></div>
+                            <div style="flex:1">
+                                <div style="display:flex;align-items:center;gap:8px">
+                                    <div class="mm-branch-label" style="background:var(--success)"
+                                        onclick="toggleMM('mm3')">
+                                        🎯 数据分析的应用
+                                    </div>
+                                </div>
+                                <div class="mm-leaves" id="mm3">
+                                    <div class="mm-leaf"><span class="mm-leaf-text">流量分析（站内/站外/其他）</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">客户分析（4大属性）</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">产品分析（点击量/订单/反馈）</span></div>
+                                    <div class="mm-leaf"><span class="mm-leaf-text">市场分析（行业现状与趋势）</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 得分汇总 -->
+            <div class="score-summary">
+                <h3>🎉 本单元学习完成！</h3>
+                <div class="score-row">
+                    <div class="score-item">
+                        <div class="score-val" id="finalStars">⭐⭐⭐</div>
+                        <div class="score-lab">本单元星级</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-val" id="finalXP">+50</div>
+                        <div class="score-lab">获得 XP</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-val" id="finalScore">100</div>
+                        <div class="score-lab">本单元得分</div>
+                    </div>
+                </div>
+                <button class="btn-home" onclick="completeUnit()">🏠 保存进度 · 返回首页</button>
+            </div>
+        </section>
+
+    </div><!-- end page-wrap -->
+
+    <!-- ===== 🦶 页脚 ===== -->
+    <footer
+        style="text-align:center;padding:20px;font-size:12px;color:var(--text-light);border-top:1px solid rgba(0,0,0,0.04);background:var(--bg-card)">
+        模块一 · 单元一 · 认识电子商务数据及数据分析 · 高等教育出版社《电子商务数据分析基础》
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    <!-- 撒花 -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <script>
+        /* =============================================
+           ⚙️ Supabase 配置（与 index.html 保持完全一致）
+           修改时只需改这两个值，其余代码不用动
+           ============================================= */
+        const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+
+        let _supabase = null;
+        if (SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.startsWith('eyJ') && window.supabase) {
+            _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        /* =============================================
+           📦 常量 / 状态
+           ============================================= */
+        const STORAGE_KEY = 'ecommerce_data_analysis_user';
+
+        /** 所有单元列表（saveUser 计算 completed_units 时使用） */
+        const ALL_UNITS = [
+            'm1u1', 'm1u2', 'm1u3',
+            'm2u1', 'm2u2', 'm2u3', 'm2u4', 'm2u5',
+            'm3u1', 'm3u2', 'm3u3', 'm3u4',
+            'm4u1', 'm4u2', 'm4u3', 'm4u4',
+            'm5u1', 'm5u2', 'm5u3'
+        ];
+        let currentPart = 1;
+        let earnedXP = 0;      // 本单元累计XP
+        let gameStars = 0;     // 闯关星数
+
+        // 翻翻乐游戏数据
+        const CARD_PAIRS = [
+            { id: 1, term: '数据', def: '科学实验、统计等获得的数值，用于决策依据' },
+            { id: 2, term: '行为数据', def: '反映客户行为的数据，如浏览量、收藏量' },
+            { id: 3, term: '商业数据', def: '反映企业运营状况的数据，如销售额、ROI' },
+            { id: 4, term: '市场数据', def: '包含行业数据和竞争数据两部分' },
+            { id: 5, term: '运营数据', def: '客户、推广、销售、供应链数据的总称' },
+            { id: 6, term: '流量分析', def: '对网站/网店广告投放及营销推广数据分析' },
+            { id: 7, term: '客户分析', def: '对客户属性、设备、行为等4大维度分析' },
+            { id: 8, term: '转化率', def: '成交人数 ÷ 访客数 × 100%' },
+        ];
+
+        let gameCards = [];
+        let flipped = [];
+        let matchedCount = 0;
+        let flipTotal = 0;
+        let lockBoard = false;
+
+        /* =============================================
+           🛠️ 工具函数
+           ============================================= */
+        function loadUser() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            try { return JSON.parse(raw); } catch { return null; }
+        }
+
+        /**
+         * 获取本周一日期字符串（用于周XP重置）
+         */
+        function getWeekStart() {
+            const d = new Date();
+            const day = d.getDay() || 7;
+            d.setDate(d.getDate() - day + 1);
+            return d.toISOString().slice(0, 10);
+        }
+
+        /**
+         * 保存用户数据到 localStorage，并静默同步到 Supabase
+         * @param {object} data - 用户数据
+         */
+        function saveUser(data) {
+            data.lastVisit = new Date().toISOString();
+
+            // 本周XP重置逻辑
+            const todayWeekStart = getWeekStart();
+            if (data.weekStart !== todayWeekStart) {
+                data.weekXp = 0;
+                data.weekStart = todayWeekStart;
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            // 同步到 Supabase
+            if (_supabase) {
+                const completedUnits = ALL_UNITS.filter(id => data.units[id]?.completed).length;
+                const totalStars = ALL_UNITS.reduce((sum, id) => sum + (data.units[id]?.stars || 0), 0);
+                _supabase.from('student_progress').upsert({
+                    student_id: data.studentId,
+                    name: data.name,
+                    xp: data.xp,
+                    completed_units: completedUnits,
+                    total_stars: totalStars,
+                    week_xp: data.weekXp || 0,
+                    week_start: data.weekStart || todayWeekStart,
+                    achievements: data.achievements,
+                    units: data.units,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'student_id' })
+                    .then(({ error }) => { if (error) console.warn('Supabase sync:', error.message); });
+            }
+        }
+        function showToast(msg, duration = 2500) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), duration);
+        }
+        function launchConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#F97316', '#3B82F6', '#8B5CF6', '#10B981', '#EC4899', '#FBBF24'];
+            container.innerHTML = '';
+            for (let i = 0; i < 60; i++) {
+                const p = document.createElement('div');
+                p.className = 'confetti-piece';
+                p.style.cssText = `left:${Math.random() * 100}%;background:${colors[Math.floor(Math.random() * colors.length)]};width:${6 + Math.random() * 6}px;height:${6 + Math.random() * 6}px;animation-duration:${2 + Math.random() * 2}s;animation-delay:${Math.random() * 0.5}s;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+                container.appendChild(p);
+            }
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        /* =============================================
+           Part 步骤控制
+           ============================================= */
+        function goToPart(n) {
+            // 隐藏当前
+            document.getElementById(`part-${currentPart}`).classList.remove('active');
+            // 更新进度点
+            updateDot(currentPart, 'done');
+            // 显示新
+            currentPart = n;
+            document.getElementById(`part-${n}`).classList.add('active');
+            updateDot(n, 'active');
+            // 滚到顶
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToPart(n) {
+            if (n <= currentPart) goToPart(n);
+        }
+
+        function updateDot(n, state) {
+            const dot = document.getElementById(`dot-${n}`);
+            const label = document.getElementById(`label-${n}`);
+            dot.className = `part-dot ${state}`;
+            label.className = `part-label ${state === 'active' ? 'active' : ''}`;
+            if (n > 1) {
+                const line = document.getElementById(`line-${n - 1}-${n}`);
+                if (line && state === 'done') line.classList.add('done');
+            }
+        }
+
+        /* =============================================
+           情境导入 - 思考选项
+           ============================================= */
+        function selectThink(el, val) {
+            document.querySelectorAll('.think-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('think-reply').style.display = 'block';
+        }
+
+        /* =============================================
+           即时练习答题
+           ============================================= */
+        function handleQuiz(opts, clickedOpt, correctKey, feedbackId, explanation) {
+            // 禁用所有选项
+            opts.forEach(o => o.classList.add('disabled'));
+            const data = clickedOpt.dataset.key;
+            if (data === correctKey) {
+                clickedOpt.classList.add('correct');
+                const fb = document.getElementById(feedbackId);
+                fb.className = 'quiz-feedback show ok';
+                fb.innerHTML = `✅ 回答正确！<span class="xp-pop">+5 XP</span><br><small style="font-weight:400;margin-top:4px;display:block">${explanation}</small>`;
+                earnedXP += 5;
+                updateNavXP();
+                showToast('✅ 答对了！+5 XP');
+            } else {
+                clickedOpt.classList.add('wrong');
+                opts.forEach(o => { if (o.dataset.key === correctKey) o.classList.add('correct'); });
+                const fb = document.getElementById(feedbackId);
+                fb.className = 'quiz-feedback show no';
+                fb.innerHTML = `❌ 再想想！正确答案是 ${correctKey}。<br><small style="font-weight:400;margin-top:4px;display:block">${explanation}</small>`;
+                showToast('❌ 这道题做错了，别灰心！');
+            }
+        }
+
+        function checkQ1(el, key) {
+            el.dataset.key = key;
+            const opts = document.querySelectorAll('#quiz1 .quiz-opt');
+            if (el.classList.contains('disabled')) return;
+            opts.forEach((o, i) => { o.dataset.key = ['A', 'B', 'C'][i]; });
+            handleQuiz(opts, el, 'A', 'q1-feedback', '浏览商品是客户的行为，反映了客户在店铺的操作轨迹，属于行为数据。');
+        }
+        function checkQ2(el, key) {
+            el.dataset.key = key;
+            const opts = document.querySelectorAll('#quiz2 .quiz-opt');
+            if (el.classList.contains('disabled')) return;
+            opts.forEach((o, i) => { o.dataset.key = ['A', 'B', 'C'][i]; });
+            handleQuiz(opts, el, 'B', 'q2-feedback', '竞争对手的销售额和主推商品，是在分析竞争对手情况，属于市场数据中的"竞争数据"。');
+        }
+        function checkQ3(el, key) {
+            el.dataset.key = key;
+            const opts = document.querySelectorAll('#quiz3 .quiz-opt');
+            if (el.classList.contains('disabled')) return;
+            opts.forEach((o, i) => { o.dataset.key = ['A', 'B', 'C'][i]; });
+            handleQuiz(opts, el, 'B', 'q3-feedback', '分析来自哪些渠道的粉丝，是在研究流量来源，属于流量分析中的"其他流量分析"。');
+        }
+
+        /* =============================================
+           应用卡片展开/折叠
+           ============================================= */
+        function toggleApp(n) {
+            const card = document.getElementById(`app-${n}`);
+            card.classList.toggle('open');
+        }
+
+        /* =============================================
+           案例实战 - 分析步骤展开
+           ============================================= */
+        function revealStep(n) {
+            const step = document.getElementById(`step-${n}`);
+            step.classList.toggle('revealed');
+        }
+
+        /* =============================================
+           知识导图 - 分支展开/折叠
+           ============================================= */
+        function toggleMM(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('open');
+        }
+
+        /* =============================================
+           🎮 翻翻乐游戏
+           ============================================= */
+        function initMemoryGame() {
+            flipped = [];
+            matchedCount = 0;
+            flipTotal = 0;
+            lockBoard = false;
+
+            // 创建并打乱卡片
+            gameCards = [];
+            CARD_PAIRS.forEach(p => {
+                gameCards.push({ id: p.id, type: 'term', text: p.term });
+                gameCards.push({ id: p.id, type: 'def', text: p.def });
+            });
+            // Fisher-Yates 洗牌
+            for (let i = gameCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameCards[i], gameCards[j]] = [gameCards[j], gameCards[i]];
+            }
+
+            // 更新统计
+            document.getElementById('flipCount').textContent = 0;
+            document.getElementById('matchCount').textContent = 0;
+            document.getElementById('remainCount').textContent = 8;
+            document.getElementById('gameResult').classList.remove('show');
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('skipGameBtn').style.display = 'block';
+
+            // 渲染卡片
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            gameCards.forEach((card, idx) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'memory-card-wrap';
+                wrap.dataset.idx = idx;
+                wrap.dataset.id = card.id;
+                wrap.dataset.type = card.type;
+                wrap.innerHTML = `
+            <div class="memory-card-inner">
+                <div class="memory-card-front">🃏</div>
+                <div class="memory-card-back">${card.text}</div>
+            </div>`;
+                wrap.addEventListener('click', () => flipCard(wrap));
+                grid.appendChild(wrap);
+            });
+        }
+
+        function flipCard(card) {
+            if (lockBoard) return;
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            card.classList.add('flipped');
+            flipped.push(card);
+            flipTotal++;
+            document.getElementById('flipCount').textContent = flipTotal;
+
+            if (flipped.length === 2) {
+                lockBoard = true;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [a, b] = flipped;
+            const sameId = a.dataset.id === b.dataset.id;
+            const diffType = a.dataset.type !== b.dataset.type;
+
+            if (sameId && diffType) {
+                // 配对成功
+                a.classList.add('matched');
+                b.classList.add('matched');
+                a.classList.remove('flipped');
+                b.classList.remove('flipped');
+                matchedCount++;
+                document.getElementById('matchCount').textContent = matchedCount;
+                document.getElementById('remainCount').textContent = 8 - matchedCount;
+                flipped = [];
+                lockBoard = false;
+                showToast('✅ 配对成功！继续找！');
+
+                if (matchedCount === 8) {
+                    setTimeout(showGameResult, 600);
+                }
+            } else {
+                // 不匹配，翻回
+                setTimeout(() => {
+                    a.classList.remove('flipped');
+                    b.classList.remove('flipped');
+                    flipped = [];
+                    lockBoard = false;
+                }, 1000);
+            }
+        }
+
+        function showGameResult() {
+            let stars, title, body, xp;
+            if (flipTotal <= 20) {
+                stars = '⭐⭐⭐'; title = '记忆大师！'; body = `仅用 ${flipTotal} 次翻转就全部配对，超厉害！`; xp = 30; gameStars = 3;
+            } else if (flipTotal <= 30) {
+                stars = '⭐⭐'; title = '完成得很好！'; body = `用了 ${flipTotal} 次翻转完成了全部配对，还有提升空间！`; xp = 20; gameStars = 2;
+            } else {
+                stars = '⭐'; title = '完成啦！'; body = `用了 ${flipTotal} 次翻转，下次再试试能不能更少！`; xp = 10; gameStars = 1;
+            }
+
+            earnedXP += xp;
+            updateNavXP();
+
+            document.getElementById('resultStars').textContent = stars;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultBody').textContent = body;
+            document.getElementById('resultXP').textContent = `🎉 +${xp} XP`;
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('skipGameBtn').style.display = 'none';
+            document.getElementById('gameResult').classList.add('show');
+            document.getElementById('finalStars').textContent = stars;
+
+            if (gameStars === 3) launchConfetti();
+            showToast(`${stars} 游戏结束！+${xp} XP`);
+        }
+
+        /* =============================================
+           导航栏 XP 更新
+           ============================================= */
+        function updateNavXP() {
+            const user = loadUser();
+            if (user) document.getElementById('navXP').textContent = `⚡ ${user.xp + earnedXP} XP`;
+        }
+
+        /* =============================================
+           完成单元 · 保存进度 · 返回首页
+           ============================================= */
+        function completeUnit() {
+            const user = loadUser();
+            if (!user) { window.location.href = 'index.html'; return; }
+
+            // 计算得分（3道题各10分 + 完成奖励20分 + 游戏奖励10分）
+            const score = Math.min(100, 20 + earnedXP);
+            const stars = gameStars || (score >= 90 ? 3 : score >= 75 ? 2 : 1);
+            const totalXP = earnedXP + 20; // 完成奖励
+
+            // 更新单元数据
+            user.units['m1u1'] = {
+                completed: true,
+                stars: stars,
+                score: score,
+                xpEarned: totalXP
+            };
+            user.xp += totalXP;
+            user.weekXp = (user.weekXp || 0) + totalXP;  // 累加本周XP
+
+            // 检查成就
+            const achievements = user.achievements || [];
+            if (!achievements.includes('first_unit')) achievements.push('first_unit');
+            if (stars === 3 && !achievements.includes('first_star3')) achievements.push('first_star3');
+            user.achievements = achievements;
+
+            saveUser(user);
+
+            // 更新汇总显示
+            document.getElementById('finalStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+            document.getElementById('finalXP').textContent = `+${totalXP}`;
+            document.getElementById('finalScore').textContent = score;
+
+            if (stars === 3) launchConfetti();
+            showToast(`🎉 已保存！获得 +${totalXP} XP`, 2000);
+            setTimeout(() => { window.location.href = 'index.html'; }, 2200);
+        }
+
+        /* =============================================
+           初始化
+           ============================================= */
+        (function init() {
+            // 读取用户信息
+            const user = loadUser();
+            if (user) {
+                document.getElementById('navName').textContent = user.name;
+                document.getElementById('navXP').textContent = `⚡ ${user.xp} XP`;
+            } else {
+                document.getElementById('navName').textContent = '同学';
+            }
+
+            // 初始化游戏
+            initMemoryGame();
+
+            // 默认展开第一个知识导图分支
+            setTimeout(() => toggleMM('mm1'), 300);
+        })();
+    </script>
+</body>
+
+</html>
