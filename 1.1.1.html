@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据分析闯关挑战 · 1.1</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============================
+   ROOT & RESET
+============================ */
+:root {
+  --bg: #0f0c29;
+  --bg2: #1a1640;
+  --surface: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+  --gold: #FFD700;
+  --gold2: #FFA500;
+  --teal: #00E5CC;
+  --pink: #FF6B9D;
+  --purple: #C77DFF;
+  --blue: #74B9FF;
+  --green: #00E676;
+  --red: #FF5252;
+  --text: #F0F0FF;
+  --muted: rgba(240,240,255,0.55);
+  --radius: 20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Noto Sans SC',sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor: default;
+}
+
+/* ============================
+   STARFIELD BG
+============================ */
+.stars-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+
+/* ============================
+   SCREENS WRAPPER
+============================ */
+.screen{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:30px 20px;
+}
+.screen.active{display:flex;}
+
+/* ============================
+   LOGIN SCREEN
+============================ */
+.login-box{
+  background: linear-gradient(135deg, rgba(26,22,64,0.95), rgba(15,12,41,0.97));
+  border: 1.5px solid var(--border);
+  border-radius: 28px;
+  padding: 50px 44px;
+  max-width: 480px;
+  width:100%;
+  box-shadow: 0 0 80px rgba(199,125,255,0.15), 0 30px 60px rgba(0,0,0,0.5);
+  text-align:center;
+  animation: floatUp 0.8s ease both;
+}
+@keyframes floatUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+
+.game-logo{
+  width:90px;height:90px;
+  margin:0 auto 20px;
+  border-radius:50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;
+  box-shadow:0 0 30px rgba(255,215,0,0.4);
+  animation: spinGlow 3s ease-in-out infinite alternate;
+}
+@keyframes spinGlow{
+  from{box-shadow:0 0 20px rgba(255,215,0,0.3);}
+  to{box-shadow:0 0 50px rgba(255,215,0,0.7);}
+}
+.login-title{
+  font-family:'ZCOOL KuaiLe',cursive;
+  font-size:clamp(24px,5vw,32px);
+  background: linear-gradient(90deg, var(--gold), var(--teal), var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:8px;
+}
+.login-sub{color:var(--muted);font-size:14px;margin-bottom:30px;}
+.badge-row{
+  display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:32px;
+}
+.badge{
+  padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;
+  display:flex;align-items:center;gap:5px;
+}
+.badge.single{background:rgba(116,185,255,0.15);color:var(--blue);border:1px solid rgba(116,185,255,0.3);}
+.badge.multi{background:rgba(0,229,204,0.15);color:var(--teal);border:1px solid rgba(0,229,204,0.3);}
+.badge.judge{background:rgba(255,107,157,0.15);color:var(--pink);border:1px solid rgba(255,107,157,0.3);}
+
+.input-group{margin-bottom:18px;text-align:left;}
+.input-group label{
+  display:block;font-size:13px;color:var(--muted);
+  margin-bottom:8px;font-weight:700;letter-spacing:0.5px;
+}
+.input-group input{
+  width:100%;padding:14px 18px;
+  background:rgba(255,255,255,0.07);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  color:var(--text);font-size:15px;
+  font-family:'Noto Sans SC',sans-serif;
+  transition:border-color 0.3s,box-shadow 0.3s;
+  outline:none;
+}
+.input-group input:focus{
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(0,229,204,0.15);
+}
+.input-group input::placeholder{color:rgba(240,240,255,0.25);}
+
+.start-btn{
+  width:100%;padding:16px;margin-top:8px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #1a1200;font-weight:900;font-size:17px;
+  font-family:'ZCOOL KuaiLe',cursive;
+  border:none;border-radius:16px;
+  cursor:pointer;letter-spacing:2px;
+  box-shadow:0 8px 30px rgba(255,215,0,0.35);
+  transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.start-btn::after{
+  content:'';position:absolute;top:-50%;left:-60%;
+  width:40%;height:200%;
+  background:rgba(255,255,255,0.35);
+  transform:skewX(-20deg);
+  transition:left 0.5s;
+}
+.start-btn:hover::after{left:120%;}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(255,215,0,0.45);}
+.start-btn:active{transform:translateY(0);}
+
+/* ============================
+   GAME SCREEN
+============================ */
+.game-wrap{
+  width:100%;max-width:760px;
+  animation:floatUp 0.5s ease both;
+}
+
+/* Header bar */
+.game-header{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px 24px;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  margin-bottom:24px;
+  backdrop-filter:blur(10px);
+  flex-wrap:wrap;gap:12px;
+}
+.player-info{display:flex;align-items:center;gap:10px;}
+.player-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:white;
+  flex-shrink:0;
+}
+.player-name{font-weight:700;font-size:14px;}
+.player-id{font-size:12px;color:var(--muted);}
+
+.score-display{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,215,0,0.1);
+  border:1px solid rgba(255,215,0,0.3);
+  border-radius:12px;padding:8px 16px;
+}
+.score-icon{font-size:20px;}
+.score-val{font-family:'ZCOOL KuaiLe',cursive;font-size:20px;color:var(--gold);}
+.score-total{font-size:12px;color:var(--muted);}
+
+/* Progress */
+.progress-wrap{margin-bottom:22px;}
+.progress-meta{
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);margin-bottom:8px;
+}
+.progress-track{
+  background:rgba(255,255,255,0.08);
+  border-radius:10px;height:10px;overflow:hidden;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.progress-fill{
+  height:100%;border-radius:10px;
+  background:linear-gradient(90deg, var(--teal), var(--purple), var(--gold));
+  transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+  position:relative;
+}
+.progress-fill::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:20px;
+  background:rgba(255,255,255,0.3);border-radius:10px;
+  animation:shimmer 1.5s infinite;
+}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+
+/* Stage indicators */
+.stage-row{
+  display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;
+}
+.stage-dot{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+  border:2px solid rgba(255,255,255,0.2);
+  color:var(--muted);
+  transition:all 0.4s;
+  cursor:default;
+}
+.stage-dot.done{background:var(--green);border-color:var(--green);color:#003;font-size:14px;}
+.stage-dot.wrong-dot{background:var(--red);border-color:var(--red);color:white;font-size:14px;}
+.stage-dot.current{
+  border-color:var(--gold);color:var(--gold);
+  box-shadow:0 0 14px rgba(255,215,0,0.5);
+  animation:pulse 1s ease-in-out infinite alternate;
+}
+@keyframes pulse{from{box-shadow:0 0 8px rgba(255,215,0,0.3);}to{box-shadow:0 0 20px rgba(255,215,0,0.7);}}
+
+/* Question card */
+.q-card{
+  background:linear-gradient(135deg, rgba(26,22,64,0.9), rgba(20,18,55,0.95));
+  border:1.5px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  animation:slideCard 0.4s cubic-bezier(0.4,0,0.2,1) both;
+  position:relative;overflow:hidden;
+}
+.q-card::before{
+  content:'';position:absolute;top:0;right:0;
+  width:200px;height:200px;
+  background:radial-gradient(circle, rgba(199,125,255,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+@keyframes slideCard{
+  from{opacity:0;transform:translateX(30px);}
+  to{opacity:1;transform:translateX(0);}
+}
+
+.q-type-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;
+  font-size:12px;font-weight:700;
+  margin-bottom:18px;
+}
+.q-type-badge.single{background:rgba(116,185,255,0.15);color:var(--blue);border:1px solid rgba(116,185,255,0.3);}
+.q-type-badge.multi{background:rgba(0,229,204,0.15);color:var(--teal);border:1px solid rgba(0,229,204,0.3);}
+.q-type-badge.judge{background:rgba(255,107,157,0.15);color:var(--pink);border:1px solid rgba(255,107,157,0.3);}
+
+.q-num{
+  font-family:'ZCOOL KuaiLe',cursive;
+  font-size:13px;color:var(--muted);margin-bottom:10px;
+}
+.q-text{
+  font-size:clamp(15px,2.5vw,18px);
+  line-height:1.75;font-weight:700;
+  margin-bottom:24px;
+  color:var(--text);
+}
+.q-hint{
+  font-size:12px;color:var(--teal);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:6px;
+}
+
+/* Options */
+.options{display:flex;flex-direction:column;gap:12px;}
+.opt{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:15px 18px;
+  background:rgba(255,255,255,0.04);
+  border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:16px;
+  cursor:pointer;
+  transition:all 0.25s;
+  user-select:none;
+  position:relative;overflow:hidden;
+}
+.opt::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent,rgba(255,255,255,0.03));
+  opacity:0;transition:opacity 0.25s;
+}
+.opt:hover::before{opacity:1;}
+.opt:hover:not(.locked){
+  border-color:rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08);
+  transform:translateX(4px);
+}
+.opt.selected:not(.locked){
+  border-color:var(--purple);
+  background:rgba(199,125,255,0.12);
+}
+.opt.correct{
+  border-color:var(--green) !important;
+  background:rgba(0,230,118,0.1) !important;
+  animation:correctFlash 0.5s ease;
+}
+@keyframes correctFlash{
+  0%,100%{background:rgba(0,230,118,0.1);}
+  50%{background:rgba(0,230,118,0.25);}
+}
+.opt.wrong{
+  border-color:var(--red) !important;
+  background:rgba(255,82,82,0.1) !important;
+  animation:wrongShake 0.4s ease;
+}
+@keyframes wrongShake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-6px);}
+  75%{transform:translateX(6px);}
+}
+.opt.locked{cursor:not-allowed;}
+.opt.show-correct{border-color:var(--green) !important;background:rgba(0,230,118,0.06) !important;}
+
+.opt-key{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:13px;
+  flex-shrink:0;
+  transition:all 0.25s;
+}
+.opt.selected:not(.locked) .opt-key{background:var(--purple);color:white;}
+.opt.correct .opt-key{background:var(--green);color:#003;}
+.opt.wrong .opt-key{background:var(--red);color:white;}
+.opt.show-correct .opt-key{background:var(--green);color:#003;}
+.opt-text{font-size:14px;line-height:1.6;padding-top:4px;}
+
+/* Submit btn */
+.submit-btn{
+  width:100%;margin-top:22px;
+  padding:16px;
+  background:linear-gradient(135deg, var(--teal), #00b8a0);
+  color:#003;font-weight:900;font-size:16px;
+  font-family:'ZCOOL KuaiLe',cursive;
+  border:none;border-radius:16px;cursor:pointer;
+  letter-spacing:1px;
+  box-shadow:0 6px 25px rgba(0,229,204,0.3);
+  transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.submit-btn::after{
+  content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;
+  background:rgba(255,255,255,0.3);transform:skewX(-20deg);transition:left 0.5s;
+}
+.submit-btn:hover:not(:disabled)::after{left:120%;}
+.submit-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,229,204,0.4);}
+.submit-btn:disabled{
+  opacity:0.4;cursor:not-allowed;
+  background:rgba(255,255,255,0.1);color:var(--muted);
+  box-shadow:none;transform:none;
+}
+
+.next-btn{
+  width:100%;margin-top:14px;
+  padding:14px;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  color:white;font-weight:900;font-size:16px;
+  font-family:'ZCOOL KuaiLe',cursive;
+  border:none;border-radius:16px;cursor:pointer;
+  letter-spacing:1px;
+  box-shadow:0 6px 25px rgba(199,125,255,0.35);
+  transition:all 0.3s;
+  display:none;
+  position:relative;overflow:hidden;
+}
+.next-btn.show{display:block;animation:floatUp 0.3s ease;}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(199,125,255,0.45);}
+
+/* Feedback */
+.feedback{
+  display:none;
+  margin-top:18px;
+  padding:18px 20px;
+  border-radius:16px;
+  font-size:14px;line-height:1.7;
+  animation:floatUp 0.4s ease;
+}
+.feedback.show{display:block;}
+.feedback.correct-fb{
+  background:rgba(0,230,118,0.08);
+  border:1px solid rgba(0,230,118,0.3);
+}
+.feedback.wrong-fb{
+  background:rgba(255,82,82,0.08);
+  border:1px solid rgba(255,82,82,0.3);
+}
+.fb-header{
+  display:flex;align-items:center;gap:10px;
+  font-weight:900;font-size:16px;margin-bottom:10px;
+}
+.fb-header.ok{color:var(--green);}
+.fb-header.no{color:var(--red);}
+.fb-answer{
+  font-size:13px;color:var(--muted);
+  margin-top:8px;padding-top:8px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;gap:6px;align-items:flex-start;
+}
+.fb-answer span{color:var(--gold);font-weight:700;}
+
+/* ============================
+   RESULT SCREEN
+============================ */
+.result-wrap{
+  max-width:620px;width:100%;text-align:center;
+  animation:floatUp 0.7s ease both;
+}
+.result-fireworks{
+  font-size:50px;
+  display:flex;justify-content:center;gap:8px;
+  flex-wrap:wrap;margin-bottom:24px;
+  animation:bounce 0.8s ease;
+}
+@keyframes bounce{
+  0%{transform:scale(0.5);opacity:0;}
+  60%{transform:scale(1.15);}
+  100%{transform:scale(1);opacity:1;}
+}
+.result-card{
+  background:linear-gradient(135deg, rgba(26,22,64,0.97), rgba(15,12,41,0.98));
+  border:1.5px solid var(--border);
+  border-radius:28px;
+  padding:44px 40px;
+  box-shadow:0 0 100px rgba(255,215,0,0.1), 0 40px 80px rgba(0,0,0,0.5);
+  position:relative;overflow:hidden;
+}
+.result-card::before{
+  content:'';position:absolute;top:-100px;right:-100px;
+  width:300px;height:300px;
+  background:radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+.result-badge-icon{
+  width:100px;height:100px;border-radius:50%;
+  margin:0 auto 20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:48px;
+  box-shadow:0 0 40px rgba(255,215,0,0.3);
+}
+.result-greeting{
+  font-family:'ZCOOL KuaiLe',cursive;
+  font-size:clamp(22px,4vw,30px);
+  color:var(--gold);
+  margin-bottom:8px;
+}
+.result-name{
+  font-size:18px;color:var(--text);
+  margin-bottom:6px;
+}
+.result-achievement{
+  font-size:clamp(14px,2.5vw,16px);
+  color:var(--muted);
+  line-height:1.7;
+  margin:16px 0 24px;
+  padding:16px;
+  background:rgba(255,255,255,0.04);
+  border-radius:14px;
+  border:1px solid var(--border);
+}
+
+/* Score breakdown */
+.score-breakdown{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin:20px 0 28px;
+}
+.sb-item{
+  background:rgba(255,255,255,0.05);
+  border-radius:14px;padding:16px 10px;
+  border:1px solid var(--border);
+}
+.sb-icon{font-size:22px;margin-bottom:6px;}
+.sb-type{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.sb-num{font-family:'ZCOOL KuaiLe',cursive;font-size:22px;color:var(--teal);}
+.sb-total{font-size:11px;color:var(--muted);}
+
+.big-score{
+  font-family:'ZCOOL KuaiLe',cursive;
+  font-size:clamp(48px,8vw,72px);
+  background:linear-gradient(90deg,var(--gold),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1;margin-bottom:4px;
+}
+.score-label{font-size:14px;color:var(--muted);margin-bottom:28px;}
+
+.retry-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 40px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#1a1200;font-weight:900;font-size:17px;
+  font-family:'ZCOOL KuaiLe',cursive;
+  border:none;border-radius:20px;cursor:pointer;
+  letter-spacing:2px;
+  box-shadow:0 8px 30px rgba(255,215,0,0.35);
+  transition:all 0.3s;
+}
+.retry-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 40px rgba(255,215,0,0.5);}
+
+/* Floating particles */
+.particle{
+  position:fixed;pointer-events:none;z-index:999;
+  font-size:24px;
+  animation:particle-fly 2s ease-out forwards;
+}
+@keyframes particle-fly{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-200px) scale(0);opacity:0;}
+}
+
+/* Answer key strip for multi */
+.answer-key-strip{
+  display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;
+}
+.ak-tag{
+  padding:3px 12px;border-radius:8px;font-size:12px;font-weight:700;
+  background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.3);
+}
+
+/* Combo bonus */
+.combo-toast{
+  position:fixed;top:20px;right:20px;z-index:999;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#1a1200;font-weight:900;font-size:15px;
+  font-family:'ZCOOL KuaiLe',cursive;
+  padding:12px 22px;border-radius:14px;
+  box-shadow:0 8px 30px rgba(255,215,0,0.5);
+  animation:comboIn 2s ease forwards;
+  display:none;
+}
+@keyframes comboIn{
+  0%{opacity:0;transform:translateX(50px);}
+  15%,75%{opacity:1;transform:translateX(0);}
+  100%{opacity:0;transform:translateX(50px);}
+}
+
+/* Responsive */
+@media(max-width:500px){
+  .login-box{padding:36px 24px;}
+  .q-card{padding:22px 18px;}
+  .result-card{padding:32px 22px;}
+  .score-breakdown{grid-template-columns:repeat(3,1fr);}
+  .game-header{padding:12px 16px;}
+}
+</style>
+</head>
+<body>
+
+<canvas class="stars-canvas" id="stars"></canvas>
+<div class="combo-toast" id="comboToast"></div>
+
+<!-- ============================  SCREEN 1: LOGIN ============================ -->
+<div class="screen active" id="screenLogin">
+  <div class="login-box">
+    <div class="game-logo">📊</div>
+    <div class="login-title">数据分析 · 闯关挑战</div>
+    <div class="login-sub">模块一·1.1 电子商务数据分析概述</div>
+    <div class="badge-row">
+      <span class="badge single">🔵 单选 ×10</span>
+      <span class="badge multi">🟢 多选 ×5</span>
+      <span class="badge judge">🩷 判断 ×5</span>
+    </div>
+    <div class="input-group">
+      <label>📋 学号</label>
+      <input type="text" id="inputId" placeholder="请输入学号" maxlength="20">
+    </div>
+    <div class="input-group">
+      <label>✏️ 姓名</label>
+      <input type="text" id="inputName" placeholder="请输入姓名" maxlength="12">
+    </div>
+    <button class="start-btn" onclick="startGame()">⚔️ 开始闯关</button>
+  </div>
+</div>
+
+<!-- ============================  SCREEN 2: GAME ============================ -->
+<div class="screen" id="screenGame">
+  <div class="game-wrap">
+
+    <div class="game-header">
+      <div class="player-info">
+        <div class="player-avatar" id="avatarLetter">A</div>
+        <div>
+          <div class="player-name" id="headerName">-</div>
+          <div class="player-id" id="headerId">学号: -</div>
+        </div>
+      </div>
+      <div class="score-display">
+        <div class="score-icon">⭐</div>
+        <div class="score-val" id="scoreVal">0</div>
+        <div class="score-total" id="scoreTotalTxt">/20题</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="progressTxt">第 1 题 / 共 20 题</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="stage-row" id="stageRow"></div>
+
+    <div class="q-card" id="qCard">
+      <!-- dynamic -->
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================  SCREEN 3: RESULT ============================ -->
+<div class="screen" id="screenResult">
+  <div class="result-wrap">
+    <div class="result-fireworks" id="resultEmojis">🎉🏆🎊⭐🥇</div>
+    <div class="result-card">
+      <div class="result-badge-icon" id="resultBadgeIcon" style="background:linear-gradient(135deg,#FFD700,#FFA500)">🏆</div>
+      <div class="result-greeting" id="resultGreeting">恭喜你完成挑战！</div>
+      <div class="result-name" id="resultName"></div>
+      <div class="result-achievement" id="resultAchievement"></div>
+      <div class="big-score" id="bigScore">0</div>
+      <div class="score-label">综合得分（满分 20 分）</div>
+      <div class="score-breakdown">
+        <div class="sb-item">
+          <div class="sb-icon">🔵</div>
+          <div class="sb-type">单选题</div>
+          <div class="sb-num" id="sb1">0</div>
+          <div class="sb-total">/ 10</div>
+        </div>
+        <div class="sb-item">
+          <div class="sb-icon">🟢</div>
+          <div class="sb-type">多选题</div>
+          <div class="sb-num" id="sb2">0</div>
+          <div class="sb-total">/ 5</div>
+        </div>
+        <div class="sb-item">
+          <div class="sb-icon">🩷</div>
+          <div class="sb-type">判断题</div>
+          <div class="sb-num" id="sb3">0</div>
+          <div class="sb-total">/ 5</div>
+        </div>
+      </div>
+      <button class="retry-btn" onclick="retryGame()">🔄 再战一次</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STARFIELD
+============================================================ */
+(function(){
+  const c=document.getElementById('stars'),ctx=c.getContext('2d');
+  let stars=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;init();}
+  function init(){
+    stars=[];
+    for(let i=0;i<180;i++){
+      stars.push({x:Math.random()*c.width,y:Math.random()*c.height,
+        r:Math.random()*1.5+0.3,a:Math.random(),speed:Math.random()*0.4+0.1});
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${s.a})`;ctx.fill();
+      s.a+=s.speed*0.01;
+      if(s.a>1)s.speed=-Math.abs(s.speed);
+      if(s.a<0.1)s.speed=Math.abs(s.speed);
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+
+/* ============================================================
+   QUESTION BANK
+============================================================ */
+const QUESTIONS = [
+  // ===== 单选题 (10) =====
+  {
+    type:'single', typeLabel:'单选题',
+    text:'下列属于「行为数据」的是哪一项？',
+    options:['A. 企业本月总销售额','B. 客户对商品页面的浏览次数和停留时间','C. 企业产品的库存周转率','D. 企业本季度净利润'],
+    answer:[1],
+    explanation:'行为数据反映的是客户的行为轨迹，如浏览量、停留时间、搜索次数等。销售额、库存周转率、净利润属于商务数据，反映企业运营状况。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'电子商务数据分析的最主要作用是什么？',
+    options:['A. 替代企业管理层做决策','B. 辅助决策，使企业运营更科学、精准','C. 让企业获得更多媒体曝光','D. 自动完成订单处理'],
+    answer:[1],
+    explanation:'数据分析最主要的作用是「辅助决策」——将复杂数据转化为有价值的信息，为企业提供科学依据，而非替代管理层决策。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'以下哪项数据属于「竞争数据」？',
+    options:['A. 本店铺的月销售额','B. 本店铺的客户浏览量','C. 竞争对手的畅销商品与商品评价','D. 本店铺的广告点击率'],
+    answer:[2],
+    explanation:'竞争数据能揭示企业在行业中的竞争力情况，包括竞争对手的销售额、客单价、营销活动数据、畅销商品及商品评价等，属于市场数据的子类。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'某淘宝商家通过分析数据，发现「防摔手机壳」搜索量在某月增加30%，这属于对哪类数据的分析？',
+    options:['A. 运营数据','B. 市场数据（行业数据）','C. 产品数据（企业产品数据）','D. 供应数据'],
+    answer:[1],
+    explanation:'行业产品的搜索趋势属于市场数据中的行业数据，反映整个市场/行业的发展状况。商家自己店铺的搜索数据才属于运营数据。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'在运营数据中，「物流时效」和「库存周转率」属于以下哪类数据？',
+    options:['A. 客户数据','B. 推广数据','C. 销售数据','D. 供应数据'],
+    answer:[3],
+    explanation:'供应数据是产品在采购、物流、库存过程中产生的数据，包括采购数量、采购单价等采购数据，以及物流时效、库存周转率、残次库存比等仓储数据。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'电商平台推荐算法根据你的历史行为推送商品，利用的是客户分析中的哪类属性？',
+    options:['A. 客户属性（年龄、职业等）','B. 客户设备属性','C. 客户流量属性','D. 客户行为属性'],
+    answer:[3],
+    explanation:'客户行为属性包括客户下载/注册/关注、下单、活跃情况等行为轨迹。推荐算法正是通过分析用户的历史点击、购买、收藏等行为来进行个性化推荐的。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'商家分析自家产品的「重复购买率」和「毛利率」，属于哪类数据？',
+    options:['A. 市场数据','B. 行业产品数据','C. 企业产品数据','D. 推广数据'],
+    answer:[2],
+    explanation:'企业产品数据是产品在具体企业层面的数据，包括获客能力数据（如新客点击量、重复购买率）和盈利能力数据（如客单件、毛利率）。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'关于「流量分析」，以下说法正确的是？',
+    options:['A. 流量分析只分析店铺内部的访客，不涉及外部渠道','B. 流量分析包括站内实时流量、其他流量来源、站外营销流量三个维度','C. 流量分析主要用于了解客户年龄和职业','D. 流量分析和客户分析是完全相同的概念'],
+    answer:[1],
+    explanation:'流量分析分三个维度：①分析站内实时流量（了解网站日常运营）；②分析其他流量来源（明确引流最多的渠道）；③分析站外营销流量（优化广告投放策略）。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'数据的表现形式不包括以下哪项？',
+    options:['A. 视频和图像','B. 文字和数字','C. 语音和符号','D. 人类的主观思想和感受'],
+    answer:[3],
+    explanation:'数据的表现形式包括：符号、文字、数字、语音、图像、视频等可被记录和传输的形式。人的主观思想和感受无法被直接记录为数据，不属于数据的表现形式。'
+  },
+  {
+    type:'single', typeLabel:'单选题',
+    text:'关于「市场分析」的描述，正确的是？',
+    options:['A. 市场分析只需要分析本企业的销售数据','B. 市场分析能帮助企业确定市场定位、产品定位和发展目标','C. 市场分析的结论一定精准，可完全取代管理经验','D. 市场分析是对单个产品进行评估'],
+    answer:[1],
+    explanation:'市场分析是对企业所在行业及市场的发展现状、发展趋势进行分析（如行业产品销量、行业竞争情况），结合分析结果能帮助企业确定市场定位、产品定位和发展目标等决策性内容。'
+  },
+
+  // ===== 多选题 (5) =====
+  {
+    type:'multi', typeLabel:'多选题',
+    text:'以下哪些属于电子商务「运营数据」的范畴？（多选）',
+    options:['A. 各推广渠道的广告展现量和点击率','B. 行业总销售额和增长率','C. 客户下单量和订单响应时长','D. 客户浏览量和收藏量','E. 竞争对手的营销活动数据'],
+    answer:[0,2,3],
+    explanation:'运营数据是企业自身在经营过程中产生的数据，包括：推广数据（A，广告展现/点击）、销售数据（C，订单量/响应时长）、客户数据（D，浏览量/收藏量）。行业总销售额属于市场数据（行业数据），竞争对手营销活动属于市场数据（竞争数据）。'
+  },
+  {
+    type:'multi', typeLabel:'多选题',
+    text:'电子商务数据分析的「三大核心作用」包括哪些？（多选）',
+    options:['A. 辅助企业运营决策','B. 自动完成客户服务','C. 降低企业运营成本','D. 优化企业市场竞争力','E. 替代企业财务部门'],
+    answer:[0,2,3],
+    explanation:'数据分析的三大核心作用是：①辅助企业运营决策（将数据处理成有价值的信息作为决策依据）；②降低企业运营成本（优化业务流程，合理配置资源）；③优化企业市场竞争力（快速发现市场位置和趋势，及时调整业务）。'
+  },
+  {
+    type:'multi', typeLabel:'多选题',
+    text:'以下关于「市场数据」的说法，正确的有哪些？（多选）',
+    options:['A. 行业数据包括行业总销售额、市场需求变化等','B. 竞争数据能揭示企业在行业中的竞争力情况','C. 市场数据只有竞争数据一个子类','D. 竞争数据包含竞争对手的交易数据和营销活动数据','E. 市场数据是企业外部的宏观数据'],
+    answer:[0,1,3,4],
+    explanation:'市场数据分为行业数据和竞争数据两部分，不是只有一个子类（C错）。行业数据包含销售额、增长率、需求变化等（A对）。竞争数据揭示竞争力（B对），包括对手的交易数据和营销活动数据（D对）。市场数据属于外部宏观数据（E对）。'
+  },
+  {
+    type:'multi', typeLabel:'多选题',
+    text:'产品分析可以帮助企业了解哪些内容？（多选）',
+    options:['A. 产品的受欢迎程度和类型','B. 竞争对手的仓储管理方式','C. 客户的购买情况','D. 产品的利润情况','E. 产品的市场推广效果'],
+    answer:[0,2,3],
+    explanation:'产品分析是对产品相应指标进行分析（点击量、订单量、成交量、客户反馈），可以判断：受欢迎程度和类型（A）、客户购买情况（C）、产品利润情况（D）。竞争对手仓储属于竞争数据，推广效果属于推广/流量分析范畴。'
+  },
+  {
+    type:'multi', typeLabel:'多选题',
+    text:'客户分析中，「客户属性」包含哪些维度？（多选）',
+    options:['A. 客户的年龄和性别','B. 客户使用的浏览器类型','C. 客户的职业和地域','D. 客户的下单频率','E. 客户的爱好和国家'],
+    answer:[0,2,4],
+    explanation:'客户属性（基础人口统计特征）包括：年龄、性别（A）、职业、地域（C）、爱好、国家（E）。客户使用的浏览器属于「客户设备属性」，下单频率属于「客户行为属性」。'
+  },
+
+  // ===== 判断题 (5) =====
+  {
+    type:'judge', typeLabel:'判断题',
+    text:'电子商务数据分析的最终目的是完全取代企业管理者，由系统自动做出所有经营决策。',
+    options:['A. ✅ 正确','B. ❌ 错误'],
+    answer:[1],
+    explanation:'错误！数据分析的作用是「辅助决策」，而非取代决策者。数据分析能提供科学依据，但企业经营还需要结合管理者的经验、判断和对市场的深度理解，两者相辅相成。'
+  },
+  {
+    type:'judge', typeLabel:'判断题',
+    text:'行业产品搜索指数和行业产品交易指数，属于「行业产品数据」范畴，是产品数据的子类。',
+    options:['A. ✅ 正确','B. ❌ 错误'],
+    answer:[0],
+    explanation:'正确！产品数据分为两类：行业产品数据（如行业产品搜索指数、行业产品交易指数，反映整个市场的产品情况）和企业产品数据（如重复购买率、毛利率，反映企业自身产品情况）。'
+  },
+  {
+    type:'judge', typeLabel:'判断题',
+    text:'数据只有数字形式，文字、图像、视频不属于数据。',
+    options:['A. ✅ 正确','B. ❌ 错误'],
+    answer:[1],
+    explanation:'错误！数据的表现形式是多样的，包括符号、文字、数字、语音、图像、视频等多种形式。并非只有数字才是数据。'
+  },
+  {
+    type:'judge', typeLabel:'判断题',
+    text:'分析广告在各推广渠道的点击率和转化率，属于电商数据分析应用中「流量分析」的范畴。',
+    options:['A. ✅ 正确','B. ❌ 错误'],
+    answer:[0],
+    explanation:'正确！流量分析包含分析站外营销流量的维度，即通过分析各渠道广告投放的展现、点击、转化等数据，从而优化广告投放策略，判断最有效的引流渠道。'
+  },
+  {
+    type:'judge', typeLabel:'判断题',
+    text:'数据分析只对大型电商企业有价值，中小型电商卖家不需要关注数据分析。',
+    options:['A. ✅ 正确','B. ❌ 错误'],
+    answer:[1],
+    explanation:'错误！数据分析对各类规模的电商企业都有价值。中小型卖家同样可以通过分析浏览量、转化率、客户来源等数据优化运营决策，降低成本，提高竞争力。数据思维是现代电商人的必备技能。'
+  }
+];
+
+/* ============================================================
+   GAME STATE
+============================================================ */
+let playerName='', playerId='', current=0, score=0;
+let singleCorrect=0, multiCorrect=0, judgeCorrect=0;
+let combo=0;
+
+function startGame(){
+  playerId = document.getElementById('inputId').value.trim();
+  playerName = document.getElementById('inputName').value.trim();
+  if(!playerId){ alert('请输入学号！'); return; }
+  if(!playerName){ alert('请输入姓名！'); return; }
+
+  // Reset state
+  current=0; score=0; singleCorrect=0; multiCorrect=0; judgeCorrect=0; combo=0;
+
+  // Setup header
+  document.getElementById('headerName').textContent = playerName;
+  document.getElementById('headerId').textContent = '学号: ' + playerId;
+  document.getElementById('avatarLetter').textContent = playerName[0];
+  document.getElementById('scoreVal').textContent = '0';
+
+  buildStageRow();
+  showScreen('screenGame');
+  renderQuestion();
+}
+
+function buildStageRow(){
+  const row = document.getElementById('stageRow');
+  row.innerHTML = '';
+  QUESTIONS.forEach((q,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'stage-dot' + (i===0?' current':'');
+    dot.id = 'dot'+i;
+    const icons = {single:'●', multi:'◆', judge:'▲'};
+    dot.textContent = i+1;
+    dot.title = q.typeLabel;
+    row.appendChild(dot);
+  });
+}
+
+function updateDot(idx, result){
+  const dot = document.getElementById('dot'+idx);
+  if(dot){
+    dot.classList.remove('current');
+    if(result==='correct') dot.classList.add('done'), dot.textContent='✓';
+    else dot.classList.add('wrong-dot'), dot.textContent='✗';
+  }
+  if(idx+1 < QUESTIONS.length){
+    const next = document.getElementById('dot'+(idx+1));
+    if(next) next.classList.add('current');
+  }
+}
+
+function updateProgress(){
+  const pct = Math.round((current/QUESTIONS.length)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressTxt').textContent = `第 ${current+1} 题 / 共 ${QUESTIONS.length} 题`;
+  document.getElementById('progressPct').textContent = pct+'%';
+}
+
+function renderQuestion(){
+  updateProgress();
+  const q = QUESTIONS[current];
+  const card = document.getElementById('qCard');
+
+  const typeCls = q.type;
+  const isMulti = q.type==='multi';
+
+  let optsHtml = q.options.map((o,i)=>`
+    <div class="opt" id="opt${i}" onclick="selectOpt(${i})">
+      <div class="opt-key">${['A','B','C','D','E'][i]}</div>
+      <div class="opt-text">${o.replace(/^[A-E]\.\s*/,'')}</div>
+    </div>
+  `).join('');
+
+  card.innerHTML = `
+    <div class="q-type-badge ${typeCls}">${
+      typeCls==='single'?'🔵 单选题':typeCls==='multi'?'🟢 多选题':'🩷 判断题'
+    } &nbsp;·&nbsp; 第 ${current+1} 题</div>
+    <div class="q-text">${q.text}</div>
+    ${isMulti?'<div class="q-hint">💡 提示：本题为多选题，请选择所有正确答案后再提交</div>':''}
+    <div class="options" id="optionsWrap">${optsHtml}</div>
+    <button class="submit-btn" id="submitBtn" onclick="submitAnswer()" disabled>确认提交</button>
+    <div class="feedback" id="feedbackBox"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+      ${current+1<QUESTIONS.length?'继续下一题 →':'查看最终结果 🏆'}
+    </button>
+  `;
+  card.style.animation='none';
+  requestAnimationFrame(()=>{ card.style.animation='slideCard 0.4s cubic-bezier(0.4,0,0.2,1) both'; });
+}
+
+let selectedOpts = new Set();
+
+function selectOpt(i){
+  const q = QUESTIONS[current];
+  const btn = document.getElementById('submitBtn');
+  if(document.getElementById('opt'+i).classList.contains('locked')) return;
+
+  if(q.type==='single'||q.type==='judge'){
+    selectedOpts.clear();
+    q.options.forEach((_,j)=>{
+      document.getElementById('opt'+j).classList.remove('selected');
+    });
+    selectedOpts.add(i);
+    document.getElementById('opt'+i).classList.add('selected');
+  } else {
+    // multi
+    const el = document.getElementById('opt'+i);
+    if(selectedOpts.has(i)){
+      selectedOpts.delete(i);
+      el.classList.remove('selected');
+    } else {
+      selectedOpts.add(i);
+      el.classList.add('selected');
+    }
+  }
+  btn.disabled = (selectedOpts.size===0);
+}
+
+function submitAnswer(){
+  const q = QUESTIONS[current];
+  const selected = [...selectedOpts].sort();
+  const correct = [...q.answer].sort();
+  const isCorrect = JSON.stringify(selected)===JSON.stringify(correct);
+
+  // Lock all options
+  q.options.forEach((_,i)=>{
+    const el=document.getElementById('opt'+i);
+    el.classList.add('locked');
+    el.onclick=null;
+  });
+
+  // Mark correct / wrong
+  q.answer.forEach(i=>{ document.getElementById('opt'+i).classList.add('show-correct'); });
+  selected.forEach(i=>{
+    const el=document.getElementById('opt'+i);
+    if(q.answer.includes(i)){
+      el.classList.add('correct'); el.classList.remove('show-correct');
+    } else {
+      el.classList.add('wrong');
+    }
+  });
+
+  // Score + combo
+  if(isCorrect){
+    score++;
+    combo++;
+    if(q.type==='single') singleCorrect++;
+    else if(q.type==='multi') multiCorrect++;
+    else judgeCorrect++;
+    document.getElementById('scoreVal').textContent = score;
+    updateDot(current,'correct');
+    spawnParticles(['⭐','✨','🎉','💫']);
+    if(combo>=3) showComboToast(combo);
+  } else {
+    combo=0;
+    updateDot(current,'wrong');
+  }
+
+  // Feedback
+  const fb = document.getElementById('feedbackBox');
+  const answerLabels = q.answer.map(i=>['A','B','C','D','E'][i]).join('、');
+  fb.innerHTML = `
+    <div class="fb-header ${isCorrect?'ok':'no'}">
+      ${isCorrect?'🎯 回答正确！+1分':'💔 回答错误'}
+    </div>
+    <div>${q.explanation}</div>
+    <div class="fb-answer">
+      <span>正确答案：</span> ${q.answer.map(i=>`<span class="ak-tag">${['A','B','C','D','E'][i]}</span>`).join(' ')}
+    </div>
+  `;
+  fb.className = 'feedback show ' + (isCorrect?'correct-fb':'wrong-fb');
+
+  // Hide submit, show next
+  document.getElementById('submitBtn').style.display='none';
+  document.getElementById('nextBtn').classList.add('show');
+
+  selectedOpts.clear();
+}
+
+function nextQuestion(){
+  current++;
+  if(current>=QUESTIONS.length){
+    showResult();
+  } else {
+    selectedOpts.clear();
+    renderQuestion();
+    updateProgress();
+  }
+}
+
+function showResult(){
+  showScreen('screenResult');
+
+  const pct = Math.round((score/QUESTIONS.length)*100);
+  document.getElementById('bigScore').textContent = score;
+  document.getElementById('sb1').textContent = singleCorrect;
+  document.getElementById('sb2').textContent = multiCorrect;
+  document.getElementById('sb3').textContent = judgeCorrect;
+  document.getElementById('resultName').textContent = `同学：${playerName}（学号：${playerId}）`;
+
+  let emoji='', grade='', msg='', achievement='', badgeBg='';
+  if(pct>=95){
+    emoji='🏆🌟🥇'; grade='满分王者';
+    achievement=`太厉害了！${playerName}同学，你在「电商数据分析」这关斩获满分！你对数据含义、分类体系和四大应用场景的掌握已经达到了专家级别，老师对你刮目相看！🎊`;
+    badgeBg='linear-gradient(135deg,#FFD700,#FFA500)';
+    document.getElementById('resultBadgeIcon').textContent='🏆';
+  } else if(pct>=80){
+    emoji='🥈⭐✨'; grade='数据精英';
+    achievement=`优秀！${playerName}同学，你以${pct}%的正确率完成闯关，已经掌握了电商数据分析的核心知识！错题值得再回顾，相信你下次可以达到满分！💪`;
+    badgeBg='linear-gradient(135deg,#74B9FF,#6C5CE7)';
+    document.getElementById('resultBadgeIcon').textContent='🥈';
+  } else if(pct>=60){
+    emoji='🥉📚💡'; grade='进步之星';
+    achievement=`加油，${playerName}同学！你完成了闯关，正确率${pct}%，基础知识已经掌握！数据分类和应用场景的区分是重点，建议重新学习知识页面后再挑战一次！📖`;
+    badgeBg='linear-gradient(135deg,#00E5CC,#00B8A0)';
+    document.getElementById('resultBadgeIcon').textContent='🥉';
+  } else {
+    emoji='📖🔁💪'; grade='勇于挑战者';
+    achievement=`勇气可嘉，${playerName}同学！本次正确率${pct}%，部分知识点还需加强。数据的定义、三大分类（市场/运营/产品）以及四大应用（流量/客户/产品/市场分析）是本节核心，加油复习后再来挑战吧！✨`;
+    badgeBg='linear-gradient(135deg,#FF6B9D,#FF4B8C)';
+    document.getElementById('resultBadgeIcon').textContent='📖';
+  }
+
+  document.getElementById('resultBadgeIcon').parentElement.style.background = badgeBg;
+  document.getElementById('resultGreeting').textContent = `${grade} · 闯关完成！`;
+  document.getElementById('resultAchievement').textContent = achievement;
+  document.getElementById('resultEmojis').textContent = emoji;
+
+  // Firework particles
+  setTimeout(()=>spawnParticles(['🎉','⭐','🏆','✨','🎊','💫','🌟'],30), 300);
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function retryGame(){
+  showScreen('screenLogin');
+  document.getElementById('inputName').value='';
+  document.getElementById('inputId').value='';
+}
+
+function spawnParticles(emojis, count=12){
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='particle';
+      p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      p.style.left=Math.random()*100+'vw';
+      p.style.top=Math.random()*60+20+'vh';
+      p.style.animationDuration=(1.5+Math.random())+'s';
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 2500);
+    }, i*80);
+  }
+}
+
+function showComboToast(n){
+  const t=document.getElementById('comboToast');
+  const msgs=['','','','🔥 三连正确！+COMBO','🔥🔥 四连正确！超棒！','🔥🔥🔥 五连正确！无敌了！'];
+  t.textContent = (n<=5? msgs[n] : `🔥×${n} 连续正确！传奇！`);
+  t.style.display='block';
+  t.style.animation='none';
+  requestAnimationFrame(()=>{ t.style.animation='comboIn 2s ease forwards'; });
+  setTimeout(()=>{ t.style.display='none'; }, 2200);
+}
+
+// Enter key support
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const loginActive = document.getElementById('screenLogin').classList.contains('active');
+    if(loginActive) startGame();
+  }
+});
+</script>
+</body>
+</html>
