@@ -1961,14 +1961,14 @@
            create policy "allow all" on student_progress for all using (true);
            alter publication supabase_realtime add table student_progress;
            ============================================= */
-        const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';  
+        const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';   // 形如 https://xxxx.supabase.co
+        const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';  // 形如 eyJh...
 
         // 初始化 Supabase 客户端（如果已配置）
         let _supabase = null;
         const SUPABASE_CONFIGURED = (
             SUPABASE_URL.startsWith('https://') &&
-            SUPABASE_ANON_KEY.startsWith('eyJ')
+            SUPABASE_ANON_KEY.length > 20  // 兼容 eyJ... 和 sb_publishable_... 两种格式
         );
         if (SUPABASE_CONFIGURED && window.supabase) {
             _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
