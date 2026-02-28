@@ -2529,6 +2529,7 @@
          */
         function saveUser(data) {
             data.lastVisit = new Date().toISOString();
+            data.updatedAt = new Date().toISOString(); // 版本时间戳
 
             // 本周XP重置逻辑
             const todayWeekStart = getWeekStart();
@@ -2539,11 +2540,11 @@
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-            // 同步到 Supabase
+            // 同步到 Supabase，返回 Promise 让 completeUnit 可以 await
             if (_supabase) {
                 const completedUnits = ALL_UNITS.filter(id => data.units[id]?.completed).length;
                 const totalStars = ALL_UNITS.reduce((sum, id) => sum + (data.units[id]?.stars || 0), 0);
-                _supabase.from('student_progress').upsert({
+                return _supabase.from('student_progress').upsert({
                     student_id: data.studentId,
                     name: data.name,
                     xp: data.xp,
@@ -2553,10 +2554,11 @@
                     week_start: data.weekStart || todayWeekStart,
                     achievements: data.achievements,
                     units: data.units,
-                    updated_at: new Date().toISOString()
+                    updated_at: data.updatedAt
                 }, { onConflict: 'student_id' })
                     .then(({ error }) => { if (error) console.warn('Supabase sync:', error.message); });
             }
+            return Promise.resolve();
         }
         function showToast(msg, duration = 2500) {
             const el = document.getElementById('toast');
@@ -2820,7 +2822,7 @@
         /* =============================================
            完成单元 · 保存进度 · 返回首页
            ============================================= */
-        function completeUnit() {
+        async function completeUnit() {
             const user = loadUser();
             if (!user) { window.location.href = 'index.html'; return; }
 
@@ -2837,7 +2839,7 @@
                 xpEarned: totalXP
             };
             user.xp += totalXP;
-            user.weekXp = (user.weekXp || 0) + totalXP;  // 累加本周XP
+            user.weekXp = (user.weekXp || 0) + totalXP;
 
             // 检查成就
             const achievements = user.achievements || [];
@@ -2845,16 +2847,18 @@
             if (stars === 3 && !achievements.includes('first_star3')) achievements.push('first_star3');
             user.achievements = achievements;
 
-            saveUser(user);
-
             // 更新汇总显示
             document.getElementById('finalStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
             document.getElementById('finalXP').textContent = `+${totalXP}`;
             document.getElementById('finalScore').textContent = score;
 
+            showToast('☁️ 正在保存进度…', 1500);
+            // await 确保 Supabase 上传完成后再跳转
+            await saveUser(user);
+
             if (stars === 3) launchConfetti();
             showToast(`🎉 已保存！获得 +${totalXP} XP`, 2000);
-            setTimeout(() => { window.location.href = 'index.html'; }, 2200);
+            setTimeout(() => { window.location.href = 'index.html'; }, 1800);
         }
 
         /* =============================================
