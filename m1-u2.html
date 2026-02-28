@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块一·单元二 — 电子商务数据分析的指标</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --primary:#F97316;--primary-d:#EA580C;--primary-l:#FB923C;
+  --primary-ll:#FDBA74;--primary-lll:#FFF7ED;
+  --success:#22C55E;--danger:#EF4444;--warning:#FBBF24;--info:#6366F1;
+  --bg:#FFFBF5;--card:#FFFFFF;
+  --t1:#1C1917;--t2:#57534E;--t3:#A8A29E;
+  --r-s:8px;--r-m:14px;--r-l:20px;--r-f:9999px;
+  --sh-s:0 2px 8px rgba(0,0,0,.06);--sh-m:0 4px 16px rgba(0,0,0,.08);--sh-l:0 8px 30px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC",-apple-system,"PingFang SC",sans-serif;background:var(--bg);color:var(--t1);line-height:1.6}
+
+/* NAV */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(255,251,245,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(249,115,22,.1);height:56px;display:flex;align-items:center;padding:0 24px}
+.nav-inner{max-width:960px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.btn-back{display:flex;align-items:center;gap:5px;padding:6px 14px;background:transparent;border:1.5px solid #E7E5E4;border-radius:var(--r-f);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;text-decoration:none;transition:all .2s;font-family:inherit}
+.btn-back:hover{border-color:var(--primary);color:var(--primary)}
+.nav-bc{font-size:13px;color:var(--t3);display:flex;align-items:center;gap:6px}
+.nav-bc .cur{color:var(--primary);font-weight:700}
+.nav-xp{padding:4px 12px;background:var(--primary-lll);border:1px solid var(--primary-ll);border-radius:var(--r-f);font-size:12px;font-weight:700;color:var(--primary-d)}
+
+/* STEPBAR */
+.stepbar{background:var(--card);border-bottom:1px solid rgba(0,0,0,.04);padding:12px 24px;position:sticky;top:56px;z-index:90}
+.stepbar-inner{max-width:960px;margin:0 auto;display:flex;align-items:center}
+.s-step{flex:1;display:flex;align-items:center}
+.s-dot-w{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
+.s-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #E7E5E4;background:#fff;color:var(--t3);transition:all .3s;cursor:pointer}
+.s-dot.done{background:var(--success);border-color:var(--success);color:#fff}
+.s-dot.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 0 0 4px rgba(249,115,22,.2);animation:pdot 2s ease infinite}
+@keyframes pdot{0%,100%{box-shadow:0 0 0 4px rgba(249,115,22,.2)}50%{box-shadow:0 0 0 8px rgba(249,115,22,0)}}
+.s-label{font-size:10px;color:var(--t3);font-weight:500;white-space:nowrap}
+.s-label.active{color:var(--primary);font-weight:700}
+.s-line{flex:1;height:2px;background:#E7E5E4;margin:0 2px 16px;transition:background .3s}
+.s-line.done{background:var(--success)}
+
+/* WRAP */
+.wrap{max-width:960px;margin:0 auto;padding:0 24px 80px}
+.part{display:none;animation:fiu .5s ease}
+.part.active{display:block}
+@keyframes fiu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* PART HEADER */
+.ph{padding:32px 0 22px;border-bottom:2px solid var(--primary-lll);margin-bottom:26px}
+.ptag{display:inline-flex;align-items:center;gap:5px;padding:3px 12px;background:var(--primary-lll);border:1px solid var(--primary-ll);border-radius:var(--r-f);font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px;letter-spacing:.05em}
+.ph h1{font-size:22px;font-weight:900;margin-bottom:4px}
+.ph p{font-size:13px;color:var(--t2)}
+.ttime{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#F5F5F4;border-radius:var(--r-f);font-size:11px;color:var(--t3);margin-top:6px}
+
+/* CARD */
+.card{background:var(--card);border-radius:var(--r-m);padding:22px 26px;box-shadow:var(--sh-s);border:1px solid rgba(0,0,0,.04);margin-bottom:18px}
+.card-t{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* BUTTONS */
+.btn-next-w{text-align:center;padding:28px 0 8px}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:13px 36px;background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;border:none;border-radius:var(--r-s);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 4px 14px rgba(249,115,22,.35);transition:transform .2s,box-shadow .2s}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(249,115,22,.4)}
+
+/* PART1 */
+.scenario{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--r-l);padding:36px 40px;color:#fff;margin-bottom:22px;position:relative;overflow:hidden}
+.scenario::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 40%,rgba(249,115,22,.18) 0%,transparent 60%)}
+.sc-tag{font-size:11px;font-weight:700;color:var(--primary-ll);letter-spacing:.1em;margin-bottom:10px}
+.sc-title{font-size:24px;font-weight:900;line-height:1.3;margin-bottom:14px}
+.sc-title .hl{color:var(--primary-l)}
+.sc-body{font-size:14px;color:rgba(255,255,255,.8);line-height:1.9;max-width:560px}
+.sc-deco{position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.12}
+.metric-system{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.ms-card{border-radius:var(--r-m);padding:20px 18px;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.ms-card:hover{transform:translateY(-3px);box-shadow:var(--sh-m)}
+.ms-card.c1{background:linear-gradient(135deg,#1e3a5f,#1d4ed8)}
+.ms-card.c2{background:linear-gradient(135deg,#14532d,#16a34a)}
+.ms-card.c3{background:linear-gradient(135deg,#581c87,#9333ea)}
+.ms-card .mc-icon{font-size:28px;margin-bottom:8px}
+.ms-card .mc-name{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
+.ms-card .mc-desc{font-size:11px;color:rgba(255,255,255,.7);line-height:1.6}
+.ms-card .mc-count{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-f)}
+.think-card{background:linear-gradient(135deg,var(--primary-lll),#fff);border:2px dashed var(--primary-ll);border-radius:var(--r-m);padding:22px 26px;margin-bottom:18px}
+.think-card h3{font-size:15px;font-weight:700;color:var(--primary-d);margin-bottom:10px}
+.think-options{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.think-opt{padding:7px 16px;background:#fff;border:2px solid #E7E5E4;border-radius:var(--r-f);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s}
+.think-opt:hover,.think-opt.sel{border-color:var(--primary);color:var(--primary);background:var(--primary-lll)}
+
+/* PART2 */
+.kb-block{margin-bottom:30px}
+.kb-label{display:inline-flex;align-items:center;gap:5px;padding:2px 11px;background:linear-gradient(90deg,var(--primary),var(--primary-l));color:#fff;border-radius:var(--r-f);font-size:11px;font-weight:700;margin-bottom:10px;letter-spacing:.05em}
+.kb-title{font-size:17px;font-weight:800;color:var(--t1);margin-bottom:12px}
+.formula-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.formula-card{background:var(--card);border-radius:var(--r-m);padding:16px 18px;box-shadow:var(--sh-s);border:1px solid rgba(0,0,0,.04);transition:all .25s}
+.formula-card:hover{border-color:var(--primary-ll);box-shadow:var(--sh-m);transform:translateY(-2px)}
+.fc-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.fc-formula{font-size:12px;color:var(--primary-d);background:var(--primary-lll);padding:6px 10px;border-radius:var(--r-s);font-family:monospace;line-height:1.6}
+.fc-tip{font-size:11px;color:var(--t3);margin-top:6px}
+.accordion{border-radius:var(--r-m);overflow:hidden;box-shadow:var(--sh-s);margin-bottom:16px}
+.acc-item{border-bottom:1px solid rgba(0,0,0,.04)}
+.acc-item:last-child{border-bottom:none}
+.acc-head{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;background:var(--card);transition:background .2s;user-select:none}
+.acc-head:hover,.acc-head.open{background:var(--primary-lll)}
+.acc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.acc-name{font-size:14px;font-weight:700;color:var(--t1);flex:1}
+.acc-sub{font-size:11px;color:var(--t3)}
+.acc-arrow{font-size:11px;color:var(--t3);transition:transform .3s}
+.acc-head.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:14px 18px 16px;background:#FAFAF9;border-top:1px solid rgba(0,0,0,.04)}
+.acc-head.open + .acc-body{display:block}
+.mquiz{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid #bae6fd;border-radius:var(--r-m);padding:20px 24px;margin-top:18px}
+.mq-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.mq-tag{padding:2px 10px;background:var(--info);color:#fff;border-radius:var(--r-f);font-size:11px;font-weight:700}
+.mq-title{font-size:14px;font-weight:700;color:#1e40af}
+.quiz-q{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:10px}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.qopt{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:2px solid #dbeafe;border-radius:var(--r-s);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.qopt:hover:not(.disabled){border-color:var(--info);background:#eff6ff}
+.qopt.correct{border-color:var(--success);background:rgba(34,197,94,.06);color:#15803d}
+.qopt.wrong{border-color:var(--danger);background:rgba(239,68,68,.06);color:#b91c1c}
+.qopt.disabled{cursor:default}
+.qopt .ol{width:20px;height:20px;border-radius:50%;background:#dbeafe;color:var(--info);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qopt.correct .ol{background:var(--success);color:#fff}
+.qopt.wrong .ol{background:var(--danger);color:#fff}
+.qfb{margin-top:10px;padding:10px 14px;border-radius:var(--r-s);font-size:13px;font-weight:600;display:none}
+.qfb.show{display:block}
+.qfb.ok{background:rgba(34,197,94,.1);color:#15803d;border-left:3px solid var(--success)}
+.qfb.no{background:rgba(239,68,68,.1);color:#b91c1c;border-left:3px solid var(--danger)}
+.xpop{display:inline-block;margin-left:8px;padding:1px 7px;background:var(--warning);color:#7c2d12;border-radius:var(--r-f);font-size:10px;font-weight:800}
+
+/* PART3 */
+.case-bg{background:linear-gradient(135deg,#0c0a09,#1c1917);border-radius:var(--r-l);padding:30px 36px;color:#fff;margin-bottom:22px;position:relative;overflow:hidden}
+.case-bg::after{content:'🏪';position:absolute;right:28px;bottom:16px;font-size:64px;opacity:.12}
+.case-badge{font-size:11px;font-weight:700;color:var(--primary-ll);letter-spacing:.1em;margin-bottom:8px}
+.case-title{font-size:20px;font-weight:900;margin-bottom:10px}
+.case-body{font-size:14px;color:rgba(255,255,255,.75);line-height:1.9}
+.data-wrap{overflow-x:auto;margin-bottom:18px}
+.dtable{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r-m);overflow:hidden;box-shadow:var(--sh-s);font-size:13px}
+.dtable th{background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;padding:12px 15px;text-align:left;font-weight:700;font-size:12px}
+.dtable td{padding:11px 15px;border-bottom:1px solid #F5F5F4;color:var(--t2)}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tr:hover td{background:var(--primary-lll)}
+.dt-val{font-weight:700;color:var(--t1)}
+.dt-formula{font-size:11px;color:var(--primary-d);background:var(--primary-lll);padding:2px 8px;border-radius:4px;font-family:monospace}
+.calc-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.cs-item{background:var(--card);border-radius:var(--r-m);padding:14px 18px;box-shadow:var(--sh-s);border:1px solid rgba(0,0,0,.04);cursor:pointer;transition:all .25s}
+.cs-item.rev{border-color:var(--primary-ll);background:var(--primary-lll)}
+.cs-head{display:flex;align-items:center;gap:12px}
+.cs-num{width:28px;height:28px;border-radius:50%;background:var(--primary-lll);color:var(--primary);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s}
+.cs-item.rev .cs-num{background:var(--primary);color:#fff}
+.cs-htitle{font-size:14px;font-weight:700;color:var(--t1);flex:1}
+.cs-hint{font-size:11px;color:var(--t3)}
+.cs-body{font-size:13px;color:var(--t2);line-height:1.8;margin-top:10px;padding-top:10px;border-top:1px solid rgba(249,115,22,.1);display:none}
+.cs-item.rev .cs-body{display:block}
+.cs-body strong{color:var(--primary-d)}
+.formula-box{background:#fff;border-left:3px solid var(--primary);padding:8px 12px;border-radius:0 var(--r-s) var(--r-s) 0;margin:8px 0;font-family:monospace;font-size:13px;color:var(--primary-d)}
+
+/* PART4 GAME */
+.game-intro{background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:var(--r-l);padding:26px 30px;color:#fff;margin-bottom:22px;display:flex;align-items:center;gap:20px}
+.gi-icon{font-size:48px;flex-shrink:0}
+.gi-title{font-size:19px;font-weight:900;margin-bottom:5px}
+.gi-body{font-size:13px;color:rgba(255,255,255,.75);line-height:1.7}
+.gi-rules{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.grule{padding:3px 11px;border-radius:var(--r-f);background:rgba(255,255,255,.12);color:rgba(255,255,255,.9);font-size:11px;font-weight:600}
+.calc-game{background:var(--card);border-radius:var(--r-l);padding:24px 28px;box-shadow:var(--sh-m);border:1px solid rgba(0,0,0,.06);margin-bottom:20px}
+.cg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.cg-stats{display:flex;gap:18px}
+.cg-stat{text-align:center}
+.cg-val{font-size:24px;font-weight:900;color:var(--t1)}
+.cg-lab{font-size:11px;color:var(--t3);font-weight:500}
+.timer-bar{width:120px;height:8px;background:#F5F5F4;border-radius:var(--r-f);overflow:hidden}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--success),var(--primary));border-radius:var(--r-f);transition:width .1s linear}
+.timer-fill.warn{background:linear-gradient(90deg,var(--warning),var(--danger))}
+.timer-sec{font-size:14px;font-weight:700;color:var(--t1);min-width:28px}
+.btn-restart{padding:6px 16px;border:2px solid var(--primary);border-radius:var(--r-f);background:transparent;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-restart:hover{background:var(--primary);color:#fff}
+.qcard{background:var(--primary-lll);border:2px solid var(--primary-ll);border-radius:var(--r-m);padding:20px 24px;margin-bottom:16px}
+.qcard-num{font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.08em;margin-bottom:6px}
+.qcard-q{font-size:15px;font-weight:700;color:var(--t1);line-height:1.7}
+.answer-area{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.ans-input{flex:1;min-width:180px;padding:10px 14px;border:2px solid #E7E5E4;border-radius:var(--r-s);font-size:15px;font-weight:700;color:var(--t1);background:#fff;outline:none;transition:border .2s;font-family:inherit}
+.ans-input:focus{border-color:var(--primary)}
+.ans-input.correct-in{border-color:var(--success);background:rgba(34,197,94,.06)}
+.ans-input.wrong-in{border-color:var(--danger);background:rgba(239,68,68,.06);animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ans-unit{font-size:14px;font-weight:600;color:var(--t2)}
+.btn-submit{padding:10px 24px;background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;border:none;border-radius:var(--r-s);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-submit:hover{transform:translateY(-1px)}
+.btn-skip{padding:10px 16px;background:transparent;border:2px solid #E7E5E4;border-radius:var(--r-s);font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-skip:hover{border-color:var(--t3);color:var(--t2)}
+.ans-feedback{padding:10px 14px;border-radius:var(--r-s);font-size:13px;font-weight:600;display:none;margin-bottom:12px}
+.ans-feedback.show{display:block}
+.ans-feedback.ok{background:rgba(34,197,94,.1);color:#15803d;border-left:3px solid var(--success)}
+.ans-feedback.no{background:rgba(239,68,68,.1);color:#b91c1c;border-left:3px solid var(--danger)}
+.q-dots{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.qdot{width:12px;height:12px;border-radius:50%;background:#E7E5E4;transition:all .3s}
+.qdot.done-ok{background:var(--success)}
+.qdot.done-no{background:var(--danger)}
+.qdot.cur{background:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,.25);animation:pdot 2s ease infinite}
+.game-result{display:none;text-align:center;padding:36px 20px;animation:fiu .5s ease}
+.game-result.show{display:block}
+.gr-stars{font-size:38px;letter-spacing:8px;margin-bottom:10px}
+.gr-title{font-size:20px;font-weight:900;margin-bottom:6px}
+.gr-body{font-size:14px;color:var(--t2);margin-bottom:18px}
+.gr-xp{display:inline-block;padding:9px 26px;background:linear-gradient(135deg,var(--warning),#f59e0b);border-radius:var(--r-f);font-size:17px;font-weight:900;color:#7c2d12;margin-bottom:22px}
+.gr-stats{display:flex;justify-content:center;gap:28px;margin-bottom:22px}
+.gr-sv{font-size:26px;font-weight:900;color:var(--primary)}
+.gr-sl{font-size:11px;color:var(--t3);font-weight:500}
+
+/* PART5 */
+.kp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:26px}
+.kp-item{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:var(--r-m);padding:14px 16px;box-shadow:var(--sh-s);border:1px solid rgba(0,0,0,.04)}
+.kp-ico{width:34px;height:34px;border-radius:var(--r-s);background:var(--primary-lll);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.kp-text h4{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.kp-text p{font-size:12px;color:var(--t2);line-height:1.6}
+.formula-sheet{background:var(--card);border-radius:var(--r-l);padding:24px 28px;box-shadow:var(--sh-s);margin-bottom:26px}
+.fs-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:16px}
+.fs-group{margin-bottom:18px}
+.fs-group-name{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.08em;margin-bottom:10px}
+.fs-row{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:var(--r-s);background:#FAFAF9;margin-bottom:6px}
+.fs-row:hover{background:var(--primary-lll)}
+.fs-name{font-size:13px;font-weight:600;color:var(--t1);min-width:130px;flex-shrink:0}
+.fs-eq{font-size:12px;color:var(--primary-d);font-family:monospace;flex:1;line-height:1.6}
+.mindmap{background:var(--card);border-radius:var(--r-l);padding:26px;box-shadow:var(--sh-s);margin-bottom:26px;overflow-x:auto}
+.mm-tree{display:flex;align-items:flex-start;min-width:540px;gap:0}
+.mm-center{background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;font-size:13px;font-weight:800;padding:13px 20px;border-radius:var(--r-m);box-shadow:0 4px 12px rgba(249,115,22,.3);min-width:110px;text-align:center;align-self:center;flex-shrink:0}
+.mm-branches{display:flex;flex-direction:column;gap:14px;flex:1}
+.mm-branch-row{display:flex;align-items:flex-start}
+.mm-hline{width:36px;height:2px;flex-shrink:0;margin-top:17px}
+.mm-branch-content{flex:1}
+.mm-blabel{display:inline-block;padding:7px 14px;border-radius:var(--r-s);font-size:12px;font-weight:700;color:#fff;cursor:pointer;transition:opacity .2s}
+.mm-blabel:hover{opacity:.85}
+.mm-leaves{margin-left:20px;margin-top:7px;display:flex;flex-direction:column;gap:5px;max-height:0;overflow:hidden;transition:max-height .4s ease}
+.mm-leaves.open{max-height:400px}
+.mm-leaf{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t2)}
+.mm-leaf::before{content:'';width:16px;height:1.5px;background:#E7E5E4;flex-shrink:0}
+.mm-leaf-t{padding:2px 9px;background:#F5F5F4;border-radius:var(--r-f);font-weight:500}
+.score-box{background:linear-gradient(135deg,var(--primary-lll),#fff);border:2px solid var(--primary-ll);border-radius:var(--r-l);padding:26px 30px;text-align:center}
+.score-box h3{font-size:17px;font-weight:900;margin-bottom:16px}
+.score-row{display:flex;justify-content:center;gap:30px;margin-bottom:18px}
+.sc-item{text-align:center}
+.sc-val{font-size:28px;font-weight:900;color:var(--primary)}
+.sc-lab{font-size:11px;color:var(--t3);font-weight:500;margin-top:2px}
+.btn-home{display:inline-flex;align-items:center;gap:8px;padding:12px 34px;background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;border:none;border-radius:var(--r-s);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(249,115,22,.3);transition:transform .2s;margin-top:6px}
+.btn-home:hover{transform:translateY(-2px)}
+
+/* TOAST + CONFETTI */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--t1);color:#fff;padding:10px 22px;border-radius:var(--r-f);font-size:13px;font-weight:600;box-shadow:var(--sh-l);z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.confetti-c{position:fixed;inset:0;pointer-events:none;z-index:999}
+.cp{position:absolute;width:8px;height:8px;border-radius:2px;top:-10px;animation:cfall linear forwards}
+@keyframes cfall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+@media(max-width:768px){
+  .metric-system,.formula-grid,.kp-grid{grid-template-columns:1fr}
+  .answer-area{flex-direction:column;align-items:stretch}
+  .ans-input{min-width:0}
+  .game-intro{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <div style="display:flex;align-items:center;gap:10px">
+      <a class="btn-back" href="index.html">← 返回首页</a>
+      <div class="nav-bc"><span>模块一</span><span>›</span><span class="cur">单元二</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:13px;font-weight:600" id="navName">-</span>
+      <span class="nav-xp" id="navXP">⚡ 0 XP</span>
+    </div>
+  </div>
+</nav>
+
+<div class="stepbar">
+  <div class="stepbar-inner">
+    <div class="s-step">
+      <div class="s-dot-w"><div class="s-dot active" id="d1" onclick="goPart(1)">1</div><div class="s-label active" id="l1">情境导入</div></div>
+      <div class="s-line" id="ln12"></div>
+    </div>
+    <div class="s-step">
+      <div class="s-dot-w"><div class="s-dot" id="d2" onclick="goPart(2)">2</div><div class="s-label" id="l2">知识学习</div></div>
+      <div class="s-line" id="ln23"></div>
+    </div>
+    <div class="s-step">
+      <div class="s-dot-w"><div class="s-dot" id="d3" onclick="goPart(3)">3</div><div class="s-label" id="l3">案例实战</div></div>
+      <div class="s-line" id="ln34"></div>
+    </div>
+    <div class="s-step">
+      <div class="s-dot-w"><div class="s-dot" id="d4" onclick="goPart(4)">4</div><div class="s-label" id="l4">计算闯关</div></div>
+      <div class="s-line" id="ln45"></div>
+    </div>
+    <div class="s-step">
+      <div class="s-dot-w"><div class="s-dot" id="d5" onclick="goPart(5)">5</div><div class="s-label" id="l5">小结导图</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══ PART 1 ═══ -->
+<section class="part active" id="part-1">
+  <div class="ph">
+    <div class="ptag">🎬 Part 1 · 情境导入</div>
+    <h1>数字背后的"密码"——你会看吗？</h1>
+    <p>电子商务数据分析的指标 · 单元二</p>
+    <div class="ttime">⏱️ 约 5 分钟</div>
+  </div>
+  <div class="scenario">
+    <div class="sc-deco">📊</div>
+    <div class="sc-tag">🛒 真实场景</div>
+    <h2 class="sc-title">老板拍桌子：<span class="hl">上个月销售额下降了！</span></h2>
+    <div class="sc-body">
+      某电商公司老板拿着一张报表，只看到"销售额：¥80,000（上月¥100,000）"，立刻拍桌子说员工不努力。<br><br>
+      但运营小王不慌不忙打开后台，指着数据说：<br>
+      <strong style="color:#fb923c">「老板，访客数上涨了30%，成交转化率从2%→3.2%，客单价也提高了。问题是上个月双十一拉高了基数，属于正常回落。」</strong><br><br>
+      老板沉默了……这就是懂指标和不懂指标的差距！
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-t">📋 本单元学习的三大指标体系</div>
+    <div class="metric-system">
+      <div class="ms-card c1" onclick="showToast('📊 市场类指标：了解行业、竞争对手的全局视角')">
+        <span class="mc-count">10项</span>
+        <div class="mc-icon">📊</div>
+        <div class="mc-name">市场类指标</div>
+        <div class="mc-desc">描述行业情况和企业在行业中的位置，是制定经营决策的参考依据</div>
+      </div>
+      <div class="ms-card c2" onclick="showToast('⚙️ 运营类指标：客户/推广/销售/供应链4大子类')">
+        <span class="mc-count">40+项</span>
+        <div class="mc-icon">⚙️</div>
+        <div class="mc-name">运营类指标</div>
+        <div class="mc-desc">客户指标 + 推广指标 + 销售指标 + 供应链指标，全面反映运营状态</div>
+      </div>
+      <div class="ms-card c3" onclick="showToast('📦 产品类指标：SKU/SPU、搜索指数、毛利率等')">
+        <span class="mc-count">15项</span>
+        <div class="mc-icon">📦</div>
+        <div class="mc-name">产品类指标</div>
+        <div class="mc-desc">围绕产品流通的各类统计分析，指导产品结构调整和库存管理</div>
+      </div>
+    </div>
+  </div>
+  <div class="think-card">
+    <h3>💭 先想一想：你认为哪个指标对电商运营最重要？</h3>
+    <div class="think-options">
+      <div class="think-opt" onclick="selThink(this)">📈 销售额</div>
+      <div class="think-opt" onclick="selThink(this)">🔄 成交转化率</div>
+      <div class="think-opt" onclick="selThink(this)">👥 访客数（UV）</div>
+      <div class="think-opt" onclick="selThink(this)">💰 客单价</div>
+      <div class="think-opt" onclick="selThink(this)">📦 库存周转率</div>
+    </div>
+    <div id="think-r" style="margin-top:12px;font-size:13px;color:var(--primary-d);font-weight:600;display:none">
+      ✅ 好眼力！其实「销售额 = 访客数 × 成交转化率 × 客单价」，三个指标缺一不可。这也是本单元最核心的公式之一！
+    </div>
+  </div>
+  <div class="btn-next-w"><button class="btn-next" onclick="goPart(2)">开始学习知识点 📖 →</button></div>
+</section>
+
+<!-- ═══ PART 2 ═══ -->
+<section class="part" id="part-2">
+  <div class="ph">
+    <div class="ptag">📖 Part 2 · 知识学习</div>
+    <h1>三大指标体系 · 核心公式精讲</h1>
+    <p>市场类 · 运营类（客户/推广/销售/供应链） · 产品类</p>
+    <div class="ttime">⏱️ 约 25 分钟</div>
+  </div>
+
+  <!-- KP1 -->
+  <div class="kb-block">
+    <div class="kb-label">📌 知识点 1</div>
+    <div class="kb-title">市场类指标</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:14px;color:var(--t2);line-height:1.9">
+        市场类指标主要用于描述<strong>行业情况</strong>和<strong>企业在行业中的发展情况</strong>，是企业制定经营决策时需要参考的重要内容。
+      </div>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="fc-name">① 行业销售量增长率</div>
+        <div class="fc-formula">（本期销售量 − 上期销售量）÷ 上期销售量 × 100%</div>
+        <div class="fc-tip">反映行业整体销量变化趋势</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">② 行业销售额增长率</div>
+        <div class="fc-formula">本期产品销售增额 ÷ 上期产品销售额 × 100%</div>
+        <div class="fc-tip">反映行业整体收入增长速度</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">③ 企业市场占有率</div>
+        <div class="fc-formula">企业销售额 ÷ 行业销售额 × 100%</div>
+        <div class="fc-tip">衡量企业在行业中的市场份额</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">④ 企业市场扩大率</div>
+        <div class="fc-formula">（本期销售额 − 上期销售额）÷ 上期销售额 × 100%</div>
+        <div class="fc-tip">又称市场增长率，反映企业自身成长速度</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">⑤ 竞争对手客单价</div>
+        <div class="fc-formula">竞争对手成交金额 ÷ 竞争对手成交客户数</div>
+        <div class="fc-tip">用于对标竞品定价策略</div>
+      </div>
+    </div>
+    <div class="mquiz" id="q1">
+      <div class="mq-head"><span class="mq-tag">💡 练习</span><span class="mq-title">市场类指标应用</span></div>
+      <div class="quiz-q">某行业上月销售额500万，本月销售额600万，行业销售额增长率是？</div>
+      <div class="quiz-opts">
+        <div class="qopt" onclick="checkQ(this,'q1','A','A')"><span class="ol">A</span>20%</div>
+        <div class="qopt" onclick="checkQ(this,'q1','B','A')"><span class="ol">B</span>16.7%</div>
+        <div class="qopt" onclick="checkQ(this,'q1','C','A')"><span class="ol">C</span>120%</div>
+      </div>
+      <div class="qfb" id="q1-fb"></div>
+    </div>
+  </div>
+
+  <!-- KP2 -->
+  <div class="kb-block">
+    <div class="kb-label">📌 知识点 2</div>
+    <div class="kb-title">运营类指标 — 客户指标</div>
+    <div class="accordion">
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <div class="acc-dot" style="background:#3B82F6"></div>
+          <div class="acc-name">客户基础指标</div>
+          <div class="acc-sub">注册客户数 · 活跃客户数 · 活跃客户比率</div>
+          <div class="acc-arrow">▼</div>
+        </div>
+        <div class="acc-body">
+          <div style="font-size:13px;color:var(--t2);line-height:1.9">
+            <strong>注册客户数</strong>：曾经在平台上注册过的客户总数。<br>
+            <strong>活跃客户数</strong>：在一定时期内有购物消费或登录行为的客户总数。<br>
+            <strong>活跃客户比率</strong> = 活跃客户数 ÷ 客户总数 × 100%
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <div class="acc-dot" style="background:#10B981"></div>
+          <div class="acc-name">客户黏度指标</div>
+          <div class="acc-sub">重复购买率 · 平均购买次数 · 消费频率</div>
+          <div class="acc-arrow">▼</div>
+        </div>
+        <div class="acc-body">
+          <div style="font-size:13px;color:var(--t2);line-height:1.9">
+            <strong>重复购买率</strong>：某时期内产生2次及以上购买行为的客户数 ÷ 购买客户总数 × 100%<br>
+            <strong>消费频率</strong>：在一定时间内客户消费的次数，频率越高说明客户忠诚度和价值越高。<br>
+            <strong>收藏人数 / 加购人数</strong>：分别统计有收藏行为、加入购物车行为的客户去重数。
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <div class="acc-dot" style="background:#EC4899"></div>
+          <div class="acc-name">客户留存指标</div>
+          <div class="acc-sub">客户留存率 · 回购率 · 流失率</div>
+          <div class="acc-arrow">▼</div>
+        </div>
+        <div class="acc-body">
+          <div style="font-size:13px;color:var(--t2);line-height:1.9">
+            <strong>客户留存率</strong>：某时间节点的客户在特定周期内仍有登录或消费的比率。<br>
+            <strong>客户回购率</strong>：上期末活跃客户在下期时间内有购买行为的客户比率。<br>
+            <strong>客户流失率</strong>：一段时间内没有消费的客户比率。<br>
+            <em style="color:var(--primary)">💡 回购率 + 流失率 互为相对概念</em>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KP3 -->
+  <div class="kb-block">
+    <div class="kb-label">📌 知识点 3</div>
+    <div class="kb-title">运营类指标 — 推广指标（转化率体系）</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:14px;color:var(--t2);line-height:1.9;margin-bottom:12px">
+        推广指标按<strong>展现→点击→转化→其他</strong>四个维度分析，核心是各类<strong>转化率</strong>。
+      </div>
+      <div style="background:var(--primary-lll);border-left:4px solid var(--primary);padding:12px 16px;border-radius:0 var(--r-s) var(--r-s) 0;font-family:monospace;font-size:14px;color:var(--primary-d);font-weight:700">
+        转化率 = 进行了有价值行为的访问量 ÷ 总访问量 × 100%
+      </div>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="fc-name">🔢 访客数（UV）</div>
+        <div class="fc-formula">统计周期内访问网站的独立客户数</div>
+        <div class="fc-tip">新访客 + 回访客 = 总访客数（UV）</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">📄 浏览量（PV）</div>
+        <div class="fc-formula">客户浏览网站页面的次数（多次打开累加）</div>
+        <div class="fc-tip">平均访问深度 = PV ÷ UV</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">📝 注册转化率</div>
+        <div class="fc-formula">新增注册客户数 ÷ 新访客总数 × 100%</div>
+        <div class="fc-tip">衡量新访客留存能力</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">❤️ 收藏转化率</div>
+        <div class="fc-formula">添加收藏/关注客户数 ÷ 总访问数 × 100%</div>
+        <div class="fc-tip">反映商品吸引力</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">🛒 下单转化率</div>
+        <div class="fc-formula">产生购买行为的客户数 ÷ 所有到达店铺人数 × 100%</div>
+        <div class="fc-tip">反映店铺转化能力</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">💳 成交转化率</div>
+        <div class="fc-formula">完成付款的客户数 ÷ 该商品总访问数 × 100%</div>
+        <div class="fc-tip">细分：全网/类目/品牌/单品/渠道/事件转化率</div>
+      </div>
+    </div>
+    <div class="mquiz" id="q2">
+      <div class="mq-head"><span class="mq-tag">💡 练习</span><span class="mq-title">UV/PV 区别辨别</span></div>
+      <div class="quiz-q">同一个用户今天先后访问了某网店的首页、商品A页、商品B页，共浏览3个页面，这会产生多少UV和多少PV？</div>
+      <div class="quiz-opts">
+        <div class="qopt" onclick="checkQ(this,'q2','A','C')"><span class="ol">A</span>UV=3，PV=3</div>
+        <div class="qopt" onclick="checkQ(this,'q2','B','C')"><span class="ol">B</span>UV=3，PV=1</div>
+        <div class="qopt" onclick="checkQ(this,'q2','C','C')"><span class="ol">C</span>UV=1，PV=3</div>
+      </div>
+      <div class="qfb" id="q2-fb"></div>
+    </div>
+  </div>
+
+  <!-- KP4 -->
+  <div class="kb-block">
+    <div class="kb-label">📌 知识点 4</div>
+    <div class="kb-title">运营类指标 — 销售指标</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;color:var(--primary-d);background:var(--primary-lll);padding:12px 16px;border-radius:var(--r-s);margin-bottom:12px;font-family:monospace">
+        ⭐ 核心公式：销售额 = 访客数（UV）× 成交转化率 × 客单价
+      </div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.9">
+        这个公式将销售额拆解为三个方向：①提升访客数（引流）、②提升转化率（店铺优化）、③提升客单价（套餐/满减）。运营优化围绕这三个维度展开。
+      </div>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="fc-name">💰 客单价</div>
+        <div class="fc-formula">成交总金额 ÷ 成交客户总数</div>
+        <div class="fc-tip">提高方式：满减、搭配推荐、加购促销</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">🔗 连带率</div>
+        <div class="fc-formula">销售量 ÷ 交易总次数 × 100%</div>
+        <div class="fc-tip">越高说明买家平均购买件数越多</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">📊 动销率</div>
+        <div class="fc-formula">动销品种数 ÷ 仓库总品种数 × 100%</div>
+        <div class="fc-tip">不一定越高越好，需结合企业情况分析</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">📉 滞销率</div>
+        <div class="fc-formula">滞销产品数 ÷ 企业总产品数 × 100%</div>
+        <div class="fc-tip">该值越低越好</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">📋 订单退货率</div>
+        <div class="fc-formula">退货数量 ÷ 同期产品成交数量 × 100%</div>
+        <div class="fc-tip">反映产品质量和描述准确性</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">💹 投资回报率（ROI）</div>
+        <div class="fc-formula">销售利润 ÷ 投资总额 × 100%</div>
+        <div class="fc-tip">广告ROI是投放决策核心指标，一般>3即可接受</div>
+      </div>
+    </div>
+    <div class="mquiz" id="q3">
+      <div class="mq-head"><span class="mq-tag">💡 练习</span><span class="mq-title">销售额公式应用</span></div>
+      <div class="quiz-q">某网店昨日访客数2000人，成交转化率3%，客单价¥150，请问昨日销售额是？</div>
+      <div class="quiz-opts">
+        <div class="qopt" onclick="checkQ(this,'q3','A','A')"><span class="ol">A</span>¥9,000</div>
+        <div class="qopt" onclick="checkQ(this,'q3','B','A')"><span class="ol">B</span>¥300,000</div>
+        <div class="qopt" onclick="checkQ(this,'q3','C','A')"><span class="ol">C</span>¥90,000</div>
+      </div>
+      <div class="qfb" id="q3-fb"></div>
+    </div>
+  </div>
+
+  <!-- KP5 -->
+  <div class="kb-block">
+    <div class="kb-label">📌 知识点 5</div>
+    <div class="kb-title">运营类指标 — 供应链指标</div>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="fc-name">📋 售罄率</div>
+        <div class="fc-formula">销售量 ÷ 总采购数量 × 100%</div>
+        <div class="fc-tip">衡量某时间内货品的卖出比例</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">🔄 库存周转率</div>
+        <div class="fc-formula">360 ÷ 库存周转天数</div>
+        <div class="fc-tip">周转越快，库存占用资金越少，经营效率越高</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">⏱️ 订单满足率</div>
+        <div class="fc-formula">已完成订单数 ÷ 已接收订单总数 × 100%</div>
+        <div class="fc-tip">越高说明供应链履约能力越强</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">🚚 平均配送成本</div>
+        <div class="fc-formula">配送货物总成本 ÷ 配送货物总数量</div>
+        <div class="fc-tip">降低配送成本是利润优化的重要方向</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KP6 -->
+  <div class="kb-block">
+    <div class="kb-label">📌 知识点 6</div>
+    <div class="kb-title">产品类指标</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div style="background:var(--primary-lll);border-radius:var(--r-s);padding:14px 16px">
+          <div style="font-size:13px;font-weight:700;color:var(--primary-d);margin-bottom:4px">SKU（库存量单元）</div>
+          <div style="font-size:12px;color:var(--t2)">库存进出计量的基本单位，可以是件、盒、托盘等。如"红色L码T恤"就是一个SKU</div>
+        </div>
+        <div style="background:#f0fdf4;border-radius:var(--r-s);padding:14px 16px">
+          <div style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:4px">SPU（标准化产品单元）</div>
+          <div style="font-size:12px;color:var(--t2)">一组可复用、易检索的标准化信息集合，描述产品特性。如"2024款T恤"就是一个SPU</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        <strong>毛利率</strong> = （主营收入 - 主营成本）÷ 主营收入 × 100%<br>
+        <strong>重复购买率</strong>：产生重复购买的客户数 ÷ 总购买客户数 × 100%（越高说明产品口碑越好）<br>
+        <strong>产品搜索指数</strong>：通过搜索进入产品详情页的访客数指数化后的指标，反映搜索趋势，不等同于搜索次数。<br>
+        <strong>产品交易指数</strong>：根据订单数、买家数、支付件数、金额等综合计算，数值越大反映交易热度越高。
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-next-w"><button class="btn-next" onclick="goPart(3)">进入案例实战 🔍 →</button></div>
+</section>
+
+<!-- ═══ PART 3 ═══ -->
+<section class="part" id="part-3">
+  <div class="ph">
+    <div class="ptag">🔍 Part 3 · 案例实战</div>
+    <h1>「好货潮品店」双十一数据诊断</h1>
+    <p>综合运用指标，分析一家店铺的真实经营状况</p>
+    <div class="ttime">⏱️ 约 15 分钟</div>
+  </div>
+  <div class="case-bg">
+    <div class="case-badge">📱 案例背景</div>
+    <h2 class="case-title">双十一结束了，数据摆在面前，你读得懂吗？</h2>
+    <div class="case-body">好货潮品店刚经历了双十一大促，老板收到了一份后台数据报告。这些数字意味着什么？哪里做得好，哪里需要改进？让我们用本单元学到的指标，帮老板把这些数字"翻译"成决策建议。</div>
+  </div>
+  <div class="card">
+    <div class="card-t">📊 好货潮品店 · 双十一当日核心数据</div>
+    <div class="data-wrap">
+      <table class="dtable">
+        <thead><tr><th>指标名称</th><th>本期数值</th><th>行业均值</th><th>计算公式</th></tr></thead>
+        <tbody>
+          <tr><td>访客数（UV）</td><td class="dt-val">12,000</td><td>—</td><td class="dt-formula">直接统计</td></tr>
+          <tr><td>浏览量（PV）</td><td class="dt-val">48,000</td><td>—</td><td class="dt-formula">直接统计</td></tr>
+          <tr><td>平均访问深度</td><td class="dt-val">4 页/人</td><td>2.5页</td><td class="dt-formula">PV ÷ UV</td></tr>
+          <tr><td>成交客户数</td><td class="dt-val">480</td><td>—</td><td class="dt-formula">直接统计</td></tr>
+          <tr><td>成交转化率</td><td class="dt-val">4%</td><td>2.5%</td><td class="dt-formula">480 ÷ 12000 × 100%</td></tr>
+          <tr><td>成交总金额</td><td class="dt-val">¥144,000</td><td>—</td><td class="dt-formula">UV × 转化率 × 客单价</td></tr>
+          <tr><td>客单价</td><td class="dt-val">¥300</td><td>¥220</td><td class="dt-formula">144000 ÷ 480</td></tr>
+          <tr><td>广告花费</td><td class="dt-val">¥8,000</td><td>—</td><td class="dt-formula">—</td></tr>
+          <tr><td>退货数量</td><td class="dt-val">24件</td><td>—</td><td class="dt-formula">—</td></tr>
+          <tr><td>成交件数</td><td class="dt-val">600件</td><td>—</td><td class="dt-formula">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-t">🔬 逐步解析 · 点击展开每个分析步骤</div>
+    <div class="calc-steps">
+      <div class="cs-item" id="cs1" onclick="toggleCS('cs1')">
+        <div class="cs-head"><div class="cs-num">1</div><div class="cs-htitle">计算连带率</div><div class="cs-hint">点击展开 👆</div></div>
+        <div class="cs-body">
+          <div class="formula-box">连带率 = 600 ÷ 480 × 100% = 125%</div>
+          <strong>结论：</strong>平均每位顾客购买1.25件，25%的顾客购买了多件。如果进一步优化搭配推荐，连带率还有提升空间。
+        </div>
+      </div>
+      <div class="cs-item" id="cs2" onclick="toggleCS('cs2')">
+        <div class="cs-head"><div class="cs-num">2</div><div class="cs-htitle">计算订单退货率</div><div class="cs-hint">点击展开 👆</div></div>
+        <div class="cs-body">
+          <div class="formula-box">订单退货率 = 24 ÷ 600 × 100% = 4%</div>
+          <strong>结论：</strong>退货率4%在行业中属于正常范围（服装类一般5-10%）。需持续关注退货原因，如尺码问题、图片与实物不符等。
+        </div>
+      </div>
+      <div class="cs-item" id="cs3" onclick="toggleCS('cs3')">
+        <div class="cs-head"><div class="cs-num">3</div><div class="cs-htitle">估算广告 ROI</div><div class="cs-hint">点击展开 👆</div></div>
+        <div class="cs-body">
+          <div class="formula-box">若广告带来40%访客（4800人）→ 带来销售额约¥57,600<br>广告ROI ≈ 57600 ÷ 8000 = 7.2</div>
+          <strong>结论：</strong>ROI=7.2，投放效果优秀！（行业一般ROI>3即可接受）双十一大促流量溢价，广告性价比高，可加大投放。
+        </div>
+      </div>
+      <div class="cs-item" id="cs4" onclick="toggleCS('cs4')">
+        <div class="cs-head"><div class="cs-num">4</div><div class="cs-htitle">综合诊断与运营建议</div><div class="cs-hint">点击展开 👆</div></div>
+        <div class="cs-body">
+          ✅ <strong>优势：</strong>转化率(4%)高于行业(2.5%)，客单价(¥300)高于均值(¥220)，说明产品吸引力强、定价合理<br>
+          ✅ <strong>优势：</strong>平均访问深度4页，顾客愿意深度浏览，店铺内容质量好<br>
+          ⚠️ <strong>改进：</strong>连带率偏低（1.25），建议增加"组合套装"和"满额再减"活动<br>
+          ⚠️ <strong>改进：</strong>持续监控退货率，优化商品详情页的尺码对照表和材质说明
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-next-w"><button class="btn-next" onclick="goPart(4)">去计算闯关 🎮 →</button></div>
+</section>
+
+<!-- ═══ PART 4 ═══ -->
+<section class="part" id="part-4">
+  <div class="ph">
+    <div class="ptag">🎮 Part 4 · 计算闯关</div>
+    <h1>指标计算挑战赛</h1>
+    <p>限时计算真实场景下的电商指标，挑战你的公式运用能力！</p>
+    <div class="ttime">⏱️ 约 12 分钟</div>
+  </div>
+  <div class="game-intro">
+    <div class="gi-icon">🧮</div>
+    <div>
+      <div class="gi-title">计算挑战赛规则</div>
+      <div class="gi-body">共8道计算题，每题30秒内作答。答对得分，超时自动跳过。允许用计算器！</div>
+      <div class="gi-rules">
+        <span class="grule">🎯 8道题</span>
+        <span class="grule">⏱️ 每题30秒</span>
+        <span class="grule">✅ 允许小数点后1位</span>
+        <span class="grule">⭐⭐⭐ 答对≥6题 三星</span>
+      </div>
+    </div>
+  </div>
+  <div class="calc-game" id="calcGame">
+    <div class="cg-header">
+      <div class="cg-stats">
+        <div class="cg-stat"><div class="cg-val" id="cgRight">0</div><div class="cg-lab">答对</div></div>
+        <div class="cg-stat"><div class="cg-val" id="cgIdx">1/8</div><div class="cg-lab">进度</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+          <div class="timer-sec" id="timerSec">30</div>
+        </div>
+        <button class="btn-restart" onclick="initGame()">🔄 重来</button>
+      </div>
+    </div>
+    <div class="q-dots" id="qdots"></div>
+    <div class="qcard">
+      <div class="qcard-num" id="qNum">第 1 题 / 共 8 题</div>
+      <div class="qcard-q" id="qText">准备好了吗？</div>
+    </div>
+    <div class="answer-area">
+      <input class="ans-input" type="number" id="ansInput" placeholder="输入计算结果（数字）" step="0.1" onkeydown="if(event.key==='Enter')submitAns()">
+      <span class="ans-unit" id="ansUnit">%</span>
+      <button class="btn-submit" onclick="submitAns()">提交 ✓</button>
+      <button class="btn-skip" onclick="skipQ()">跳过 →</button>
+    </div>
+    <div class="ans-feedback" id="ansFb"></div>
+  </div>
+  <div class="game-result" id="gameResult">
+    <div class="gr-stars" id="grStars">⭐⭐⭐</div>
+    <div class="gr-title" id="grTitle">计算高手！</div>
+    <div class="gr-body" id="grBody">你的公式运用能力非常出色！</div>
+    <div class="gr-xp" id="grXP">🎉 +30 XP</div>
+    <div class="gr-stats">
+      <div class="cg-stat"><div class="gr-sv" id="grRight">0</div><div class="gr-sl">答对</div></div>
+      <div class="cg-stat"><div class="gr-sv">8</div><div class="gr-sl">总题数</div></div>
+      <div class="cg-stat"><div class="gr-sv" id="grAcc">0%</div><div class="gr-sl">正确率</div></div>
+    </div>
+    <button class="btn-next" onclick="goPart(5)">查看本单元小结 📝 →</button>
+  </div>
+  <div style="text-align:center;padding:16px 0" id="skipGameBtn">
+    <button style="background:linear-gradient(135deg,#78716C,#57534E);color:#fff;border:none;border-radius:var(--r-s);padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="goPart(5)">跳过游戏，直接查看小结 →</button>
+  </div>
+</section>
+
+<!-- ═══ PART 5 ═══ -->
+<section class="part" id="part-5">
+  <div class="ph">
+    <div class="ptag">📝 Part 5 · 小结导图</div>
+    <h1>本单元知识总结</h1>
+    <p>一页纸掌握全部指标体系 · 公式速查表</p>
+    <div class="ttime">⏱️ 约 5 分钟</div>
+  </div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-t">📋 核心要点</div>
+    <div class="kp-grid">
+      <div class="kp-item"><div class="kp-ico">📊</div><div class="kp-text"><h4>市场类指标</h4><p>行业销售量/额增长率、企业市场占有率/扩大率、竞争对手客单价等，用于定位行业位置</p></div></div>
+      <div class="kp-item"><div class="kp-ico">👥</div><div class="kp-text"><h4>客户指标</h4><p>注册/活跃客户数、重复购买率、消费频率、回购率/流失率等，衡量客户黏度和忠诚度</p></div></div>
+      <div class="kp-item"><div class="kp-ico">📢</div><div class="kp-text"><h4>推广指标核心</h4><p>UV/PV、注册/收藏/下单/成交转化率，转化率是电商运营的核心指标</p></div></div>
+      <div class="kp-item"><div class="kp-ico">💰</div><div class="kp-text"><h4>销售额公式</h4><p>销售额 = UV × 成交转化率 × 客单价，三个维度同时发力才能有效提升销售额</p></div></div>
+      <div class="kp-item"><div class="kp-ico">🚚</div><div class="kp-text"><h4>供应链指标</h4><p>售罄率、库存周转率、订单满足率、平均配送成本，反映仓储物流效率</p></div></div>
+      <div class="kp-item"><div class="kp-ico">📦</div><div class="kp-text"><h4>产品类指标</h4><p>SKU/SPU概念、毛利率、重复购买率、产品搜索/交易指数，指导产品运营决策</p></div></div>
+    </div>
+  </div>
+  <div class="formula-sheet">
+    <div class="fs-title">📐 公式速查表</div>
+    <div class="fs-group">
+      <div class="fs-group-name">市场类</div>
+      <div class="fs-row"><span class="fs-name">行业销售额增长率</span><span class="fs-eq">（本期 − 上期）÷ 上期 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">企业市场占有率</span><span class="fs-eq">企业销售额 ÷ 行业销售额 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">竞争对手客单价</span><span class="fs-eq">竞对成交金额 ÷ 竞对成交客户数</span></div>
+    </div>
+    <div class="fs-group">
+      <div class="fs-group-name">推广类（转化率）</div>
+      <div class="fs-row"><span class="fs-name">转化率（通用）</span><span class="fs-eq">有价值行为访问量 ÷ 总访问量 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">平均访问深度</span><span class="fs-eq">PV ÷ UV</span></div>
+      <div class="fs-row"><span class="fs-name">成交转化率</span><span class="fs-eq">完成付款客户数 ÷ 总访问数 × 100%</span></div>
+    </div>
+    <div class="fs-group">
+      <div class="fs-group-name">销售类</div>
+      <div class="fs-row"><span class="fs-name">⭐ 销售额</span><span class="fs-eq">UV × 成交转化率 × 客单价</span></div>
+      <div class="fs-row"><span class="fs-name">客单价</span><span class="fs-eq">成交总金额 ÷ 成交客户总数</span></div>
+      <div class="fs-row"><span class="fs-name">连带率</span><span class="fs-eq">销售量 ÷ 交易总次数 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">动销率</span><span class="fs-eq">动销品种数 ÷ 仓库总品种数 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">订单退货率</span><span class="fs-eq">退货数量 ÷ 同期成交数量 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">投资回报率(ROI)</span><span class="fs-eq">销售利润 ÷ 投资总额 × 100%</span></div>
+    </div>
+    <div class="fs-group">
+      <div class="fs-group-name">供应链类</div>
+      <div class="fs-row"><span class="fs-name">售罄率</span><span class="fs-eq">销售量 ÷ 总采购数量 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">库存周转率</span><span class="fs-eq">360 ÷ 库存周转天数</span></div>
+      <div class="fs-row"><span class="fs-name">订单满足率</span><span class="fs-eq">已完成订单 ÷ 已接收订单 × 100%</span></div>
+    </div>
+    <div class="fs-group">
+      <div class="fs-group-name">产品类</div>
+      <div class="fs-row"><span class="fs-name">毛利率</span><span class="fs-eq">（主营收入 − 主营成本）÷ 主营收入 × 100%</span></div>
+      <div class="fs-row"><span class="fs-name">重复购买率</span><span class="fs-eq">重复购买客户数 ÷ 总购买客户数 × 100%</span></div>
+    </div>
+  </div>
+  <div style="font-size:17px;font-weight:800;margin-bottom:14px">🗺️ 知识导图（点击展开分支）</div>
+  <div class="mindmap">
+    <div class="mm-tree">
+      <div class="mm-center">电商数据<br>分析指标</div>
+      <div class="mm-branches" style="margin-left:0">
+        <div class="mm-branch-row">
+          <div class="mm-hline" style="background:#fdba74"></div>
+          <div class="mm-branch-content">
+            <div class="mm-blabel" style="background:#1d4ed8" onclick="toggleMM('mm1')">📊 市场类指标</div>
+            <div class="mm-leaves" id="mm1">
+              <div class="mm-leaf"><span class="mm-leaf-t">行业销售量/额 + 增长率</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">企业市场占有率/扩大率</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">竞争对手销售额/客单价</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mm-branch-row">
+          <div class="mm-hline" style="background:#fdba74"></div>
+          <div class="mm-branch-content">
+            <div class="mm-blabel" style="background:#16a34a" onclick="toggleMM('mm2')">⚙️ 运营类指标</div>
+            <div class="mm-leaves" id="mm2">
+              <div class="mm-leaf"><span class="mm-leaf-t">客户：注册/活跃/重购率/留存率</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">推广：UV/PV/各类转化率</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">销售：销售额=UV×转化率×客单价</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">供应链：售罄率/库存周转率/满足率</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mm-branch-row">
+          <div class="mm-hline" style="background:#fdba74"></div>
+          <div class="mm-branch-content">
+            <div class="mm-blabel" style="background:#9333ea" onclick="toggleMM('mm3')">📦 产品类指标</div>
+            <div class="mm-leaves" id="mm3">
+              <div class="mm-leaf"><span class="mm-leaf-t">SKU（库存量单元）</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">SPU（标准化产品单元）</span></div>
+              <div class="mm-leaf"><span class="mm-leaf-t">毛利率/重复购买率/搜索指数</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="score-box">
+    <h3>🎉 本单元学习完成！</h3>
+    <div class="score-row">
+      <div class="sc-item"><div class="sc-val" id="finalStars">⭐⭐⭐</div><div class="sc-lab">本单元星级</div></div>
+      <div class="sc-item"><div class="sc-val" id="finalXP">+50</div><div class="sc-lab">获得 XP</div></div>
+      <div class="sc-item"><div class="sc-val" id="finalScore">100</div><div class="sc-lab">本单元得分</div></div>
+    </div>
+    <button class="btn-home" onclick="completeUnit()">🏠 保存进度 · 返回首页</button>
+  </div>
+</section>
+
+</div>
+
+<footer style="text-align:center;padding:18px;font-size:11px;color:var(--t3);border-top:1px solid rgba(0,0,0,.04);background:var(--card)">
+  模块一 · 单元二 · 电子商务数据分析的指标 · 高等教育出版社《电子商务数据分析基础》
+</footer>
+<div class="toast" id="toast"></div>
+<div class="confetti-c" id="confettiC"></div>
+
+<script>
+/* ─── Supabase 配置 ─── */
+const SUPABASE_URL      = '请填入你的Supabase项目URL';
+const SUPABASE_ANON_KEY = '请填入你的anon公开密钥';
+let _sb = null;
+if (SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.startsWith('eyJ') && window.supabase) {
+  _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+const STORAGE_KEY = 'ecommerce_data_analysis_user';
+const ALL_UNITS = ['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+
+/* ─── 状态 ─── */
+let curPart = 1;
+let earnedXP = 0;
+let gameStars = 0;
+let quizCorrect = 0;
+
+/* ─── 工具 ─── */
+function loadUser(){const r=localStorage.getItem(STORAGE_KEY);if(!r)return null;try{return JSON.parse(r)}catch{return null}}
+function getWeekStart(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function saveUser(data){
+  data.lastVisit=new Date().toISOString();
+  data.updatedAt=new Date().toISOString();
+  const ws=getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_sb){
+    const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;
+    const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _sb.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:data.updatedAt},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('Supabase:',error.message)});
+  }
+}
+function showToast(msg,d=2500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),d)}
+function confetti(){const c=document.getElementById('confettiC');const cols=['#F97316','#3B82F6','#8B5CF6','#10B981','#EC4899','#FBBF24'];c.innerHTML='';for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p)}setTimeout(()=>c.innerHTML='',4000)}
+function updateNavXP(){const u=loadUser();if(u)document.getElementById('navXP').textContent=`⚡ ${u.xp+earnedXP} XP`}
+
+/* ─── Part 切换 ─── */
+function goPart(n){
+  document.getElementById(`part-${curPart}`).classList.remove('active');
+  setDot(curPart,'done');
+  curPart=n;
+  document.getElementById(`part-${n}`).classList.add('active');
+  setDot(n,'active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===4 && !gameInited) initGame();
+}
+function setDot(n,st){
+  const d=document.getElementById(`d${n}`);
+  const l=document.getElementById(`l${n}`);
+  d.className=`s-dot ${st}`;
+  l.className=`s-label ${st==='active'?'active':''}`;
+  if(n>1){const ln=document.getElementById(`ln${n-1}${n}`);if(ln&&st==='done')ln.classList.add('done')}
+}
+
+/* ─── Part 1 ─── */
+function selThink(el){
+  document.querySelectorAll('.think-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('think-r').style.display='block';
+}
+
+/* ─── Part 2 即时练习 ─── */
+const Q_EXPS = {
+  q1:'行业销售额增长率 = (600-500)÷500×100% = 100÷500×100% = 20%。',
+  q2:'UV是独立用户数，同一用户只算1个UV；PV是页面浏览次数，浏览了3个页面就是3个PV。',
+  q3:'销售额 = UV × 转化率 × 客单价 = 2000 × 3% × 150 = 60 × 150 = 9000元。'
+};
+function checkQ(el, qid, myKey, correctKey){
+  const opts=document.querySelectorAll(`#${qid} .qopt`);
+  if(el.classList.contains('disabled'))return;
+  const keys=['A','B','C','D'];
+  opts.forEach((o,i)=>{o.dataset.k=keys[i];o.classList.add('disabled')});
+  const fb=document.getElementById(`${qid}-fb`);
+  if(myKey===correctKey){
+    el.classList.add('correct');el.querySelector('.ol').style.cssText='background:var(--success);color:#fff';
+    fb.className='qfb show ok';
+    fb.innerHTML=`✅ 答对了！<span class="xpop">+5 XP</span><br><small style="font-weight:400;margin-top:3px;display:block">${Q_EXPS[qid]||''}</small>`;
+    earnedXP+=5;quizCorrect++;updateNavXP();showToast('✅ 答对了！+5 XP');
+  }else{
+    el.classList.add('wrong');el.querySelector('.ol').style.cssText='background:var(--danger);color:#fff';
+    opts.forEach(o=>{if(o.dataset.k===correctKey){o.classList.add('correct');o.querySelector('.ol').style.cssText='background:var(--success);color:#fff'}});
+    fb.className='qfb show no';
+    fb.innerHTML=`❌ 答错了，正确答案是 ${correctKey}。<br><small style="font-weight:400;margin-top:3px;display:block">${Q_EXPS[qid]||''}</small>`;
+    showToast('❌ 这道题做错了，不要紧！');
+  }
+}
+function toggleAcc(h){h.classList.toggle('open')}
+function toggleCS(id){document.getElementById(id).classList.toggle('rev')}
+function toggleMM(id){document.getElementById(id).classList.toggle('open')}
+
+/* ═══════════════════════
+   🎮 计算闯关游戏
+   ═══════════════════════ */
+const QUESTIONS = [
+  {q:'某行业上月销售量10,000件，本月12,500件。行业销售量增长率是？',ans:25,unit:'%',hint:'（12500-10000）÷10000×100%=25%'},
+  {q:'某企业销售额¥500万，行业总销售额¥2500万。企业市场占有率是？',ans:20,unit:'%',hint:'500÷2500×100%=20%'},
+  {q:'某竞争对手本月成交金额¥90,000，成交客户300人。竞争对手客单价是？',ans:300,unit:'元',hint:'90000÷300=300元'},
+  {q:'某网店今日UV=5000，PV=20000。平均访问深度（每人平均浏览几页）是？',ans:4,unit:'页',hint:'20000÷5000=4页'},
+  {q:'某网店访客数8000人，成交客户数320人。成交转化率是？',ans:4,unit:'%',hint:'320÷8000×100%=4%'},
+  {q:'某商品成交总金额¥36,000，成交客户120人。客单价是？',ans:300,unit:'元',hint:'36000÷120=300元'},
+  {q:'某店铺本月销售件数1500件，交易次数1000次。连带率是？',ans:150,unit:'%',hint:'1500÷1000×100%=150%'},
+  {q:'某仓库采购总数2000件，已售出1600件。售罄率是？',ans:80,unit:'%',hint:'1600÷2000×100%=80%'},
+];
+
+let gameInited=false,curQ=0,gameRight=0,timerVal=30,timerInt=null,answered=[];
+
+function initGame(){
+  gameInited=true;curQ=0;gameRight=0;answered=[];
+  document.getElementById('calcGame').style.display='block';
+  document.getElementById('gameResult').classList.remove('show');
+  document.getElementById('skipGameBtn').style.display='block';
+  renderDots();loadQuestion();
+}
+
+function renderDots(){
+  document.getElementById('qdots').innerHTML=QUESTIONS.map((q,i)=>`<div class="qdot ${i===curQ?'cur':''}" id="qdot-${i}"></div>`).join('');
+}
+
+function updateDot(idx,ok){
+  const d=document.getElementById(`qdot-${idx}`);
+  if(d)d.className=`qdot ${ok?'done-ok':'done-no'}`;
+  const next=document.getElementById(`qdot-${idx+1}`);
+  if(next)next.className='qdot cur';
+}
+
+function loadQuestion(){
+  if(curQ>=QUESTIONS.length){endGame();return}
+  const q=QUESTIONS[curQ];
+  document.getElementById('qNum').textContent=`第 ${curQ+1} 题 / 共 ${QUESTIONS.length} 题`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('ansUnit').textContent=q.unit;
+  const inp=document.getElementById('ansInput');
+  inp.value='';inp.className='ans-input';
+  document.getElementById('ansFb').className='ans-feedback';
+  document.getElementById('cgIdx').textContent=`${curQ+1}/8`;
+  startTimer();
+  setTimeout(()=>inp.focus(),100);
+}
+
+function startTimer(){
+  clearInterval(timerInt);timerVal=30;updateTimerUI();
+  timerInt=setInterval(()=>{timerVal--;updateTimerUI();if(timerVal<=0){clearInterval(timerInt);timeOut()}},1000);
+}
+
+function updateTimerUI(){
+  document.getElementById('timerSec').textContent=timerVal;
+  const pct=timerVal/30*100;
+  const fill=document.getElementById('timerFill');
+  fill.style.width=pct+'%';
+  fill.className='timer-fill'+(timerVal<=10?' warn':'');
+}
+
+function timeOut(){
+  const q=QUESTIONS[curQ];
+  const fb=document.getElementById('ansFb');
+  fb.className='ans-feedback show no';
+  fb.textContent=`⏱️ 超时！正确答案：${q.ans}${q.unit}（${q.hint}）`;
+  answered.push(false);
+  updateDot(curQ,false);
+  curQ++;
+  setTimeout(()=>{document.getElementById('ansFb').className='ans-feedback';if(curQ<QUESTIONS.length)loadQuestion();else endGame();},2000);
+}
+
+function submitAns(){
+  clearInterval(timerInt);
+  const inp=document.getElementById('ansInput');
+  const val=parseFloat(inp.value);
+  const q=QUESTIONS[curQ];
+  const fb=document.getElementById('ansFb');
+  if(isNaN(val)){showToast('请先输入数字！');startTimer();return}
+  const correct=Math.abs(val-q.ans)<0.15;
+  if(correct){
+    inp.className='ans-input correct-in';
+    fb.className='ans-feedback show ok';
+    fb.textContent=`✅ 正确！${q.ans}${q.unit}（${q.hint}）`;
+    gameRight++;answered.push(true);
+    document.getElementById('cgRight').textContent=gameRight;
+  }else{
+    inp.className='ans-input wrong-in';
+    fb.className='ans-feedback show no';
+    fb.textContent=`❌ 答错了，正确答案：${q.ans}${q.unit}（${q.hint}）`;
+    answered.push(false);
+  }
+  updateDot(curQ,correct);
+  curQ++;
+  setTimeout(()=>{fb.className='ans-feedback';if(curQ<QUESTIONS.length)loadQuestion();else endGame();},2000);
+}
+
+function skipQ(){
+  clearInterval(timerInt);
+  const q=QUESTIONS[curQ];
+  const fb=document.getElementById('ansFb');
+  fb.className='ans-feedback show no';
+  fb.textContent=`⏭️ 已跳过。正确答案：${q.ans}${q.unit}（${q.hint}）`;
+  answered.push(false);updateDot(curQ,false);curQ++;
+  setTimeout(()=>{fb.className='ans-feedback';if(curQ<QUESTIONS.length)loadQuestion();else endGame();},1800);
+}
+
+function endGame(){
+  clearInterval(timerInt);
+  const total=QUESTIONS.length;
+  const acc=Math.round(gameRight/total*100);
+  let stars,title,body,xp;
+  if(gameRight>=6){stars='⭐⭐⭐';title='计算高手！';body=`答对${gameRight}题（${acc}%），公式掌握非常扎实！`;xp=30;gameStars=3}
+  else if(gameRight>=4){stars='⭐⭐';title='还不错！';body=`答对${gameRight}题（${acc}%），继续加强公式练习！`;xp=20;gameStars=2}
+  else{stars='⭐';title='继续努力！';body=`答对${gameRight}题（${acc}%），建议回到知识点重新复习公式。`;xp=10;gameStars=1}
+  earnedXP+=xp;updateNavXP();
+  document.getElementById('calcGame').style.display='none';
+  document.getElementById('skipGameBtn').style.display='none';
+  const r=document.getElementById('gameResult');
+  r.classList.add('show');
+  document.getElementById('grStars').textContent=stars;
+  document.getElementById('grTitle').textContent=title;
+  document.getElementById('grBody').textContent=body;
+  document.getElementById('grXP').textContent=`🎉 +${xp} XP`;
+  document.getElementById('grRight').textContent=gameRight;
+  document.getElementById('grAcc').textContent=acc+'%';
+  if(gameStars===3)setTimeout(()=>confetti(),300);
+  showToast(`🎮 游戏结束！获得 +${xp} XP`);
+  // 更新小结页
+  document.getElementById('finalStars').textContent=stars;
+  document.getElementById('finalXP').textContent=`+${earnedXP+20}`;
+  document.getElementById('finalScore').textContent=Math.round(gameRight/total*100);
+}
+
+/* ─── 完成单元 ─── */
+function completeUnit(){
+  const user=loadUser();
+  if(!user){window.location.href='index.html';return}
+  const stars=gameStars||1;
+  const totalXP=earnedXP+20; // 完成奖励20
+  const score=Math.round(gameRight/QUESTIONS.length*100)||60;
+  user.units['m1u2']={completed:true,stars,score,xpEarned:totalXP};
+  user.xp+=totalXP;
+  user.weekXp=(user.weekXp||0)+totalXP;
+  if(!user.achievements.includes('first_unit'))user.achievements.push('first_unit');
+  if(stars===3 && !user.achievements.includes('first_star3'))user.achievements.push('first_star3');
+  saveUser(user);
+  showToast(`🎉 单元二完成！获得 +${totalXP} XP`);
+  setTimeout(()=>window.location.href='index.html',1200);
+}
+
+/* ─── 初始化 ─── */
+(function init(){
+  const user=loadUser();
+  if(user){
+    document.getElementById('navName').textContent=user.name;
+    document.getElementById('navXP').textContent=`⚡ ${user.xp} XP`;
+  }
+})();
+</script>
+</body>
+</html>
