@@ -892,10 +892,10 @@ body{font-family:"Noto Sans SC",-apple-system,"PingFang SC",sans-serif;backgroun
 
 <script>
 /* ─── Supabase 配置 ─── */
-const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_URL      = 'https://ovinpbddeuxpgouefczs.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
 let _sb = null;
-if (SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.startsWith('eyJ') && window.supabase) {
+if (SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 20 && window.supabase) {
   _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 const STORAGE_KEY = 'ecommerce_data_analysis_user';
@@ -919,8 +919,18 @@ function saveUser(data){
   if(_sb){
     const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;
     const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
-    _sb.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:data.updatedAt},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('Supabase:',error.message)});
+    // 返回 Promise，让 completeUnit 可以 await 确保上传完成后再跳转
+    return _sb.from('student_progress').upsert({
+      student_id:data.studentId, name:data.name, xp:data.xp,
+      completed_units:cu, total_stars:ts,
+      week_xp:data.weekXp||0, week_start:data.weekStart||ws,
+      achievements:data.achievements, units:data.units,
+      updated_at:data.updatedAt
+    },{onConflict:'student_id'}).then(({error})=>{
+      if(error) console.warn('Supabase sync error:',error.message);
+    });
   }
+  return Promise.resolve();
 }
 function showToast(msg,d=2500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),d)}
 function confetti(){const c=document.getElementById('confettiC');const cols=['#F97316','#3B82F6','#8B5CF6','#10B981','#EC4899','#FBBF24'];c.innerHTML='';for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p)}setTimeout(()=>c.innerHTML='',4000)}
@@ -1116,7 +1126,7 @@ function endGame(){
 }
 
 /* ─── 完成单元 ─── */
-function completeUnit(){
+async function completeUnit(){
   const user=loadUser();
   if(!user){window.location.href='index.html';return}
   const stars=gameStars||1;
@@ -1127,9 +1137,11 @@ function completeUnit(){
   user.weekXp=(user.weekXp||0)+totalXP;
   if(!user.achievements.includes('first_unit'))user.achievements.push('first_unit');
   if(stars===3 && !user.achievements.includes('first_star3'))user.achievements.push('first_star3');
-  saveUser(user);
+  showToast(`☁️ 正在保存进度…`);
+  // await 确保 Supabase 上传完成后再跳转，防止页面关闭导致数据丢失
+  await saveUser(user);
   showToast(`🎉 单元二完成！获得 +${totalXP} XP`);
-  setTimeout(()=>window.location.href='index.html',1200);
+  setTimeout(()=>window.location.href='index.html',1000);
 }
 
 /* ─── 初始化 ─── */
