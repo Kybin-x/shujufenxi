@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.2 电子商务数据分析指标 · 学习页面</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F3FF;
+  --c1:#7C3AED;--c1l:#EDE9FE;--c1d:#5B21B6;
+  --c2:#0891B2;--c2l:#CFFAFE;
+  --c3:#D97706;--c3l:#FEF3C7;
+  --c4:#059669;--c4l:#D1FAE5;
+  --c5:#DB2777;--c5l:#FCE7F3;
+  --card:#FFFFFF;
+  --text:#1E1B4B;
+  --muted:#6B7280;
+  --radius:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 45%,#C026D3 100%);
+  padding:60px 24px 50px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::after{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.hero-float{position:absolute;font-size:70px;opacity:.12;animation:hfloat 5s ease-in-out infinite;}
+.hero-float:nth-child(1){top:8px;left:4%;animation-delay:0s;}
+.hero-float:nth-child(2){top:20px;right:6%;animation-delay:1.5s;}
+.hero-float:nth-child(3){bottom:8px;left:18%;animation-delay:3s;}
+.hero-float:nth-child(4){bottom:12px;right:22%;animation-delay:2s;}
+@keyframes hfloat{0%,100%{transform:translateY(0)rotate(0);}50%{transform:translateY(-18px)rotate(8deg);}}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.2);border:1.5px dashed rgba(255,255,255,.5);color:#fff;padding:5px 18px;border-radius:20px;font-size:13px;margin-bottom:14px;position:relative;z-index:1;}
+.hero h1{font-family:'Ma Shan Zheng',cursive;font-size:clamp(26px,5vw,46px);color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.2);margin-bottom:8px;position:relative;z-index:1;}
+.hero h2{font-size:clamp(14px,2vw,19px);color:rgba(255,255,255,.88);margin-bottom:22px;position:relative;z-index:1;}
+.hero-tags{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:1;}
+.hero-tag{background:rgba(255,255,255,.18);color:#fff;padding:5px 14px;border-radius:20px;font-size:13px;}
+
+/* ── NAV ── */
+.sticky-nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(16px);
+  border-bottom:3px solid #7C3AED;
+  display:flex;overflow-x:auto;
+  box-shadow:0 2px 20px rgba(124,58,237,.12);
+}
+.nav-item{display:flex;align-items:center;gap:5px;padding:14px 16px;font-size:13px;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;color:#6B7280;text-decoration:none;transition:all .3s;margin-bottom:-3px;}
+.nav-item:hover,.nav-item.active{color:var(--c1);border-bottom-color:var(--c1);}
+
+/* ── CONTAINER ── */
+.container{max-width:1080px;margin:0 auto;padding:36px 20px;}
+
+/* ── SECTION HEADER ── */
+.sec-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:14px;border-bottom:3px dashed;}
+.sec-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:4px 4px 0 rgba(0,0,0,.1);}
+.sec-title{font-size:clamp(17px,3vw,22px);font-weight:700;}
+.sec-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);padding:26px;margin-bottom:22px;box-shadow:0 4px 20px rgba(0,0,0,.06);border:2px solid transparent;transition:transform .3s,box-shadow .3s,border-color .3s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.1);}
+
+/* ── LIFE CASE ── */
+.life-case{border-radius:18px;padding:22px 24px;margin:16px 0;color:#fff;position:relative;overflow:hidden;}
+.life-case::before{content:'💡';position:absolute;right:14px;top:14px;font-size:38px;opacity:.25;}
+.case-tag{display:inline-block;background:rgba(255,255,255,.25);padding:3px 12px;border-radius:10px;font-size:12px;margin-bottom:8px;}
+.life-case h4{font-size:15px;margin-bottom:8px;}
+.life-case p{font-size:13px;line-height:1.75;opacity:.95;}
+
+/* ── FORMULA BOX ── */
+.formula{
+  background:linear-gradient(135deg,#1E1B4B,#312E81);
+  color:#E0E7FF;border-radius:14px;padding:16px 20px;
+  font-family:monospace;font-size:14px;
+  margin:10px 0;line-height:2;
+  border-left:4px solid #818CF8;
+  position:relative;
+}
+.formula .f-label{font-size:12px;color:#A5B4FC;margin-bottom:6px;font-family:'Noto Sans SC',sans-serif;font-style:italic;}
+.formula strong{color:#FCD34D;}
+
+/* ── INDICATOR GRID ── */
+.ind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:16px 0;}
+.ind-card{border-radius:14px;padding:18px 16px;cursor:pointer;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden;}
+.ind-card:hover{transform:scale(1.04);box-shadow:0 8px 28px rgba(0,0,0,.15);}
+.ind-card .ind-icon{font-size:28px;margin-bottom:8px;}
+.ind-card .ind-name{font-size:14px;font-weight:700;margin-bottom:4px;}
+.ind-card .ind-desc{font-size:12px;opacity:.8;line-height:1.5;}
+.ind-card .ind-badge{
+  position:absolute;top:10px;right:10px;
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+}
+
+/* ── FLIP CARDS ── */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin:16px 0;}
+.flip-card{height:160px;perspective:800px;cursor:pointer;}
+.flip-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,0,.2,1);}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-f,.flip-b{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;box-shadow:3px 3px 0 rgba(0,0,0,.08);}
+.flip-b{transform:rotateY(180deg);background:#1E1B4B;color:#fff;}
+.flip-f .fi{font-size:30px;margin-bottom:8px;}
+.flip-f .fn{font-size:14px;font-weight:700;}
+.flip-f .fh{font-size:11px;opacity:.55;margin-top:6px;}
+.flip-b p{font-size:12px;line-height:1.65;}
+
+/* ── TABS ── */
+.tab-wrap{margin:16px 0;}
+.tab-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0;}
+.tab-btn{padding:9px 18px;border:2px solid;border-radius:12px 12px 0 0;border-bottom:none;background:transparent;cursor:pointer;font-size:13px;font-family:'Noto Sans SC',sans-serif;transition:all .3s;position:relative;top:2px;}
+.tab-btn.active{color:#fff!important;}
+.tab-panel{display:none;border:2px solid;border-radius:0 16px 16px 16px;padding:22px;background:#fff;animation:fadeSlide .4s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── ACCORDION ── */
+.acc-wrap{margin:12px 0;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none;transition:filter .2s;}
+.acc-head:hover{filter:brightness(1.05);}
+.acc-htitle{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;}
+.acc-arrow{font-size:16px;transition:transform .35s;}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .5s ease,padding .3s;background:#fff;padding:0 20px;}
+.acc-body.open{max-height:2000px;padding:20px;}
+.acc-wrap.open .acc-arrow{transform:rotate(180deg);}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column;gap:0;margin:12px 0;}
+.step{display:flex;gap:14px;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;left:20px;top:42px;width:2px;height:calc(100% - 8px);background:linear-gradient(to bottom,currentColor,transparent);opacity:.3;}
+.step-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;z-index:1;box-shadow:0 4px 12px rgba(0,0,0,.18);}
+.step-body{flex:1;padding:4px 0 22px;}
+.step-body strong{display:block;font-size:15px;margin-bottom:5px;}
+.step-body p{font-size:13px;color:var(--muted);line-height:1.65;}
+
+/* ── INFO BOX ── */
+.info-box{border-radius:14px;padding:16px 20px;margin:12px 0;display:flex;gap:14px;align-items:flex-start;}
+.info-box.tip{background:#FFF3E0;border-left:4px solid #FF9800;}
+.info-box.blue{background:#E3F2FD;border-left:4px solid #2196F3;}
+.info-box.green{background:#E8F5E9;border-left:4px solid #4CAF50;}
+.info-box.purple{background:#F3E5F5;border-left:4px solid #9C27B0;}
+.ib-icon{font-size:26px;flex-shrink:0;margin-top:2px;}
+.ib-body strong{display:block;font-size:14px;margin-bottom:5px;}
+.ib-body p{font-size:13px;line-height:1.7;color:#555;}
+
+/* ── FUNNEL ── */
+.funnel{display:flex;flex-direction:column;align-items:center;gap:0;margin:16px 0;}
+.funnel-step{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 20px;border-radius:12px;
+  color:#fff;font-weight:700;font-size:14px;
+  width:100%;max-width:460px;
+  transition:transform .2s;cursor:default;
+  position:relative;
+}
+.funnel-step:hover{transform:scale(1.02);}
+.funnel-arrow{text-align:center;font-size:22px;color:var(--muted);line-height:1;margin:2px 0;}
+.funnel-rate{margin-left:auto;font-size:12px;opacity:.85;background:rgba(255,255,255,.2);padding:2px 10px;border-radius:8px;}
+
+/* ── TAG ROW ── */
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.tag{padding:6px 14px;border-radius:12px;font-size:13px;font-weight:700;}
+
+/* ── MINI QUIZ ── */
+.mini-quiz{background:linear-gradient(135deg,#DBEAFE,#EDE9FE);border-radius:16px;padding:18px 22px;margin:18px 0;border:2px dashed #7C3AED;}
+.mini-quiz h5{color:#4F46E5;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.m-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.m-opt{padding:7px 16px;border-radius:10px;border:2px solid #7C3AED;background:#fff;cursor:pointer;font-size:13px;font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+.m-opt:hover{background:#7C3AED;color:#fff;}
+.m-opt.correct{background:#4CAF50;border-color:#4CAF50;color:#fff;}
+.m-opt.wrong{background:#F44336;border-color:#F44336;color:#fff;}
+.m-fb{font-size:13px;margin-top:6px;padding:7px 12px;border-radius:8px;display:none;}
+.m-fb.show{display:block;}
+.m-fb.ok{background:#E8F5E9;color:#2E7D32;}
+.m-fb.no{background:#FFEBEE;color:#C62828;}
+
+/* ── COMPARE TABLE ── */
+.tbl{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+.tbl th{padding:12px 14px;text-align:left;color:#fff;}
+.tbl td{padding:12px 14px;border-bottom:1px solid #F0F0F0;}
+.tbl tr:hover td{background:#FAFAFA;}
+.tbl .pill{display:inline-block;padding:2px 10px;border-radius:8px;font-size:11px;font-weight:700;color:#fff;}
+
+/* ── MINDMAP SVG ── */
+.mindmap-wrap{overflow-x:auto;padding:8px 0;}
+
+/* ── QUIZ SECTION ── */
+.quiz-section{margin-top:48px;}
+.quiz-header{background:linear-gradient(135deg,#059669,#10B981);border-radius:20px 20px 0 0;padding:22px 28px;color:#fff;display:flex;align-items:center;gap:12px;}
+.quiz-body{background:#fff;border-radius:0 0 20px 20px;padding:28px;box-shadow:0 8px 30px rgba(0,0,0,.08);}
+.qz-item{margin-bottom:32px;}
+.qz-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:linear-gradient(135deg,#7C3AED,#DB2777);color:#fff;border-radius:50%;font-weight:700;font-size:14px;margin-right:8px;box-shadow:0 3px 8px rgba(124,58,237,.35);}
+.qz-q{font-size:15px;margin-bottom:14px;display:flex;align-items:center;}
+.qz-opts{display:flex;flex-direction:column;gap:9px;}
+.qz-opt{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border:2px solid #E5E7EB;border-radius:12px;cursor:pointer;transition:all .25s;font-size:13px;background:#FAFAFA;user-select:none;}
+.qz-opt:hover{border-color:var(--c1);background:#EDE9FE;}
+.qz-opt.sel{border-color:var(--c1);background:#EDE9FE;}
+.qz-opt.correct{border-color:#4CAF50!important;background:#E8F5E9!important;}
+.qz-opt.wrong{border-color:#F44336!important;background:#FFEBEE!important;}
+.qz-opt.show-ans{border-color:#4CAF50!important;background:#F1FFF4!important;}
+.qz-opt.locked{cursor:not-allowed;}
+.opt-k{width:26px;height:26px;border-radius:50%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;transition:all .25s;}
+.qz-opt.sel .opt-k{background:var(--c1);color:#fff;}
+.qz-opt.correct .opt-k{background:#4CAF50;color:#fff;}
+.qz-opt.wrong .opt-k{background:#F44336;color:#fff;}
+.qz-opt.show-ans .opt-k{background:#4CAF50;color:#fff;}
+.qz-sub{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;font-weight:700;font-size:15px;border:none;border-radius:12px;cursor:pointer;margin-top:14px;transition:all .3s;font-family:'Noto Sans SC',sans-serif;}
+.qz-sub:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.4);}
+.qz-sub:disabled{opacity:.5;cursor:not-allowed;}
+.qz-fb{display:none;margin-top:12px;padding:14px 18px;border-radius:12px;font-size:13px;line-height:1.7;}
+.qz-fb.show{display:block;animation:fadeSlide .3s;}
+.qz-fb.ok{background:#E8F5E9;border-left:4px solid #4CAF50;color:#1B5E20;}
+.qz-fb.no{background:#FFEBEE;border-left:4px solid #F44336;color:#B71C1C;}
+.qz-fb strong{display:block;font-size:14px;margin-bottom:4px;}
+.score-box{display:none;text-align:center;padding:28px;background:linear-gradient(135deg,#FFF3E0,#FFF8E1);border-radius:16px;margin-top:20px;}
+.score-box.show{display:block;animation:popIn .5s ease;}
+@keyframes popIn{from{transform:scale(.8);opacity:0;}60%{transform:scale(1.05);}to{transform:scale(1);opacity:1;}}
+.sc-emoji{font-size:54px;margin-bottom:10px;}
+.sc-num{font-family:'ZCOOL KuaiLe',cursive;font-size:38px;color:var(--c1);}
+.sc-msg{font-size:15px;color:var(--muted);margin-top:6px;}
+.sc-retry{margin-top:18px;padding:10px 30px;background:var(--c1);color:#fff;border:none;border-radius:20px;font-size:14px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .3s;}
+.sc-retry:hover{background:var(--c1d);}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:all .55s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ── SEC BLOCK ── */
+.sec-block{margin-bottom:52px;}
+
+/* ── RESP ── */
+@media(max-width:600px){.ind-grid{grid-template-columns:repeat(2,1fr);}.flip-grid{grid-template-columns:repeat(2,1fr);}.score-breakdown{grid-template-columns:1fr 1fr;}}
+
+/* color helpers */
+.bg-c1{background:var(--c1);}.bg-c2{background:var(--c2);}.bg-c3{background:var(--c3);}.bg-c4{background:var(--c4);}.bg-c5{background:var(--c5);}
+.border-c1{border-color:var(--c1);}.border-c2{border-color:var(--c2);}.border-c3{border-color:var(--c3);}.border-c4{border-color:var(--c4);}.border-c5{border-color:var(--c5);}
+.txt-c1{color:var(--c1);}.txt-c2{color:var(--c2);}.txt-c3{color:var(--c3);}.txt-c4{color:var(--c4);}.txt-c5{color:var(--c5);}
+.bg-c1l{background:var(--c1l);}.bg-c2l{background:var(--c2l);}.bg-c3l{background:var(--c3l);}.bg-c4l{background:var(--c4l);}.bg-c5l{background:var(--c5l);}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-float">📊</div><div class="hero-float">📈</div>
+  <div class="hero-float">🏷️</div><div class="hero-float">💹</div>
+  <div class="hero-badge">📚 模块一 · 1.2 电子商务数据分析概述</div>
+  <h1>电子商务数据分析的指标</h1>
+  <h2>认识指标 · 读懂公式 · 学会应用</h2>
+  <div class="hero-tags">
+    <span class="hero-tag">⏱ 预计60分钟</span>
+    <span class="hero-tag">📐 5大指标体系</span>
+    <span class="hero-tag">🧮 20+核心公式</span>
+    <span class="hero-tag">✅ 5道测试题</span>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="sticky-nav">
+  <a class="nav-item active" href="#sec-market">🏪 市场指标</a>
+  <a class="nav-item" href="#sec-ops">⚙️ 运营指标</a>
+  <a class="nav-item" href="#sec-promo">📣 推广指标</a>
+  <a class="nav-item" href="#sec-sales">💰 销售指标</a>
+  <a class="nav-item" href="#sec-supply">🚚 供应链指标</a>
+  <a class="nav-item" href="#sec-product">📦 产品指标</a>
+  <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+  <a class="nav-item" href="#sec-quiz">✅ 测试题</a>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════
+     市场类指标
+═══════════════════════════════════════════ -->
+<section id="sec-market" class="sec-block reveal">
+  <div class="sec-header border-c1">
+    <div class="sec-icon bg-c1" style="color:#fff;">🏪</div>
+    <div><div class="sec-title txt-c1">一、市场类指标</div><div class="sec-sub">描述行业情况与企业在行业中的发展地位</div></div>
+  </div>
+
+  <div class="life-case" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);">
+    <div class="case-tag">🛍️ 生活引入</div>
+    <h4>假设你要开一家手机壳淘宝店……</h4>
+    <p>你首先要搞清楚：整个手机壳行业有多大？增长快不快？哪个竞争对手卖得最好、价格定多少？这些问题的答案全部藏在<strong>「市场类指标」</strong>里！</p>
+  </div>
+
+  <div class="card reveal">
+    <h3 class="txt-c1" style="margin-bottom:18px;">📊 市场类指标全览（点击卡片翻转查看定义）</h3>
+    <div class="flip-grid">
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">📦</div><div class="fn txt-c1">行业销售量</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>一定时间内<strong>行业产品的总成交数量</strong>，反映整个行业的市场规模大小。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">📈</div><div class="fn txt-c1">销售量增长率</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>行业销售量增长率 = (本期销售量 - 上期销售量) ÷ 上期销售量 × 100%<br>反映行业成长速度。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">💰</div><div class="fn txt-c1">行业销售额</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>行业内<strong>所有成交数量对应的金额总和</strong>。成交数量越大，行业总销售额越大。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">🚀</div><div class="fn txt-c1">销售额增长率</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>行业销售额增长率 = 行业本期销售增额 ÷ 上期销售额 × 100%<br>判断行业是否在扩张。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">🥧</div><div class="fn txt-c1">市场占有率</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>企业市场占有率 = 企业销售额 ÷ 行业销售额 × 100%<br>占比越高，说明企业越强。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">📉</div><div class="fn txt-c1">市场扩大率</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>市场扩大率 = (本期销售额 - 上期销售额) ÷ 上期销售额 × 100%<br>反映企业自身增长速度。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">⚔️</div><div class="fn txt-c1">竞争对手销售额</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>竞争对手在单位时间内销售产品数量对应的<strong>总销售金额</strong>，用于对比自身竞争力。</p></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-f bg-c1l" style="border:2px solid var(--c1);">
+            <div class="fi">🏷️</div><div class="fn txt-c1">竞争对手客单价</div><div class="fh">👆点击翻转</div>
+          </div>
+          <div class="flip-b"><p>竞争对手客单价 = 竞争对手成交金额 ÷ 竞争对手成交客户数<br>用于制定自身定价策略。</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula">
+      <div class="f-label">📐 核心公式汇总</div>
+      <strong>市场占有率</strong> = 企业销售额 ÷ 行业销售额 × 100%<br>
+      <strong>市场扩大率</strong> = (本期销售额 - 上期销售额) ÷ 上期销售额 × 100%<br>
+      <strong>竞争对手客单价</strong> = 竞争对手成交金额 ÷ 竞争对手成交客户数
+    </div>
+  </div>
+
+  <!-- 小测验 -->
+  <div class="mini-quiz reveal">
+    <h5>⚡ 即时测验：某店铺销售额100万，所在行业总销售额500万，市场占有率是多少？</h5>
+    <div class="m-opts">
+      <button class="m-opt" onclick="mq(this,false,'mq1','500÷100=5%，这是算反了哦！')">A. 5%</button>
+      <button class="m-opt" onclick="mq(this,true,'mq1','✅ 正确！100÷500×100%=20%，市场占有率越高说明企业竞争力越强！')">B. 20%</button>
+      <button class="m-opt" onclick="mq(this,false,'mq1','500-100=400，这是差额，不是占有率。')">C. 400万</button>
+      <button class="m-opt" onclick="mq(this,false,'mq1','50%对应的是250÷500，计算有误。')">D. 50%</button>
+    </div>
+    <div id="mq1" class="m-fb"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     运营类指标 - 客户指标
+═══════════════════════════════════════════ -->
+<section id="sec-ops" class="sec-block reveal">
+  <div class="sec-header border-c2">
+    <div class="sec-icon bg-c2" style="color:#fff;">⚙️</div>
+    <div><div class="sec-title txt-c2">二、运营类指标</div><div class="sec-sub">客户指标 · 推广指标 · 销售指标 · 供应链指标</div></div>
+  </div>
+
+  <div class="life-case" style="background:linear-gradient(135deg,#0891B2,#0E7490);">
+    <div class="case-tag">📱 生活引入</div>
+    <h4>你的手机壳店开起来了，每天在后台看什么数据？</h4>
+    <p>今天多少人来逛了（访客数）？有几个买了（转化率）？老顾客有没有回头（重复购买率）？广告花了多少钱带来多少人（推广ROI）？——这些全是<strong>运营类指标</strong>！</p>
+  </div>
+
+  <!-- 客户指标 tabs -->
+  <div class="card reveal">
+    <h3 class="txt-c2" style="margin-bottom:18px;">👤 客户指标详解</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">客户指标主要用于描述可营销客户的<strong>黏度和忠诚度</strong>，是客户数据化运营的基础。</p>
+
+    <div class="ind-grid">
+      <div class="ind-card" style="background:#E0F7FA;border:2px solid #00BCD4;">
+        <div class="ind-icon">👥</div>
+        <div class="ind-name txt-c2">注册客户数</div>
+        <div class="ind-desc">曾在平台注册过的客户总数，是客户基础池。</div>
+        <div class="ind-badge" style="background:#00BCD4;color:#fff;">1</div>
+      </div>
+      <div class="ind-card" style="background:#E3F2FD;border:2px solid #2196F3;">
+        <div class="ind-icon">🔥</div>
+        <div class="ind-name txt-c2">活跃客户数</div>
+        <div class="ind-desc">一定时期内有购物或登录行为的客户总数。</div>
+        <div class="ind-badge" style="background:#2196F3;color:#fff;">2</div>
+      </div>
+      <div class="ind-card" style="background:#E8EAF6;border:2px solid #5C6BC0;">
+        <div class="ind-icon">📊</div>
+        <div class="ind-name txt-c2">活跃客户比率</div>
+        <div class="ind-desc">活跃客户数 ÷ 客户总数的比例。</div>
+        <div class="ind-badge" style="background:#5C6BC0;color:#fff;">3</div>
+      </div>
+      <div class="ind-card" style="background:#F3E5F5;border:2px solid #9C27B0;">
+        <div class="ind-icon">🔄</div>
+        <div class="ind-name txt-c2">重复购买率</div>
+        <div class="ind-desc">两次及以上购买的客户数 ÷ 购买客户总数。</div>
+        <div class="ind-badge" style="background:#9C27B0;color:#fff;">4</div>
+      </div>
+      <div class="ind-card" style="background:#FCE4EC;border:2px solid #E91E63;">
+        <div class="ind-icon">🛒</div>
+        <div class="ind-name txt-c2">平均购买次数</div>
+        <div class="ind-desc">某时期内每个客户平均购买的次数。</div>
+        <div class="ind-badge" style="background:#E91E63;color:#fff;">5</div>
+      </div>
+      <div class="ind-card" style="background:#E8F5E9;border:2px solid #4CAF50;">
+        <div class="ind-icon">❤️</div>
+        <div class="ind-name txt-c2">收藏人数</div>
+        <div class="ind-desc">有商品收藏行为的客户去重数（意向强烈）。</div>
+        <div class="ind-badge" style="background:#4CAF50;color:#fff;">6</div>
+      </div>
+      <div class="ind-card" style="background:#FFF3E0;border:2px solid #FF9800;">
+        <div class="ind-icon">🛍️</div>
+        <div class="ind-name txt-c2">加购人数</div>
+        <div class="ind-desc">将商品加入购物车的客户去重数。</div>
+        <div class="ind-badge" style="background:#FF9800;color:#fff;">7</div>
+      </div>
+      <div class="ind-card" style="background:#FFF8E1;border:2px solid #FFC107;">
+        <div class="ind-icon">📅</div>
+        <div class="ind-name txt-c2">消费频率</div>
+        <div class="ind-desc">客户消费次数，频率越高说明忠诚度越高。</div>
+        <div class="ind-badge" style="background:#FFC107;color:#fff;">8</div>
+      </div>
+    </div>
+
+    <div class="acc-wrap" id="acc-churn" onclick="toggleAcc('acc-churn')">
+      <div class="acc-head" style="background:linear-gradient(135deg,#0891B2,#0E7490);color:#fff;">
+        <div class="acc-htitle"><span>🔄</span> 客户回购率 vs 客户流失率（展开查看对比）</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body" id="acc-churn-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px;">
+          <div class="info-box green">
+            <div class="ib-icon">♻️</div>
+            <div class="ib-body">
+              <strong>客户回购率</strong>
+              <p>上一期末活跃客户在<strong>下一期内有购买行为</strong>的比率。回购率高说明客户满意度高、品牌忠诚度强。</p>
+            </div>
+          </div>
+          <div class="info-box" style="background:#FFEBEE;border-left:4px solid #F44336;">
+            <div class="ib-icon">👋</div>
+            <div class="ib-body">
+              <strong>客户流失率</strong>
+              <p>一段时间内<strong>没有消费</strong>的客户比率。流失率与回购率是<strong>相对的概念</strong>，两者之和约等于100%。</p>
+            </div>
+          </div>
+        </div>
+        <div class="info-box tip" style="margin-top:12px;">
+          <div class="ib-icon">💡</div>
+          <div class="ib-body"><strong>通俗理解</strong><p>如果你的奶茶店有100个老顾客，下个月有65个再次来买，回购率=65%，流失率=35%。提高回购率是留住客户的关键！</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- mini quiz -->
+    <div class="mini-quiz" style="margin-top:16px;">
+      <h5>⚡ 即时测验：「有10个客户买了产品，5个产生了重复购买」，重复购买率是？</h5>
+      <div class="m-opts">
+        <button class="m-opt" onclick="mq(this,false,'mq2','10%是5÷50，不是这道题的算法。')">A. 10%</button>
+        <button class="m-opt" onclick="mq(this,false,'mq2','30%对应的是3÷10，本题有5个重复购买。')">B. 30%</button>
+        <button class="m-opt" onclick="mq(this,true,'mq2','✅ 正确！5÷10×100%=50%，重复购买率反映客户忠诚度。')">C. 50%</button>
+        <button class="m-opt" onclick="mq(this,false,'mq2','重复购买率不是把人数相加，而是比率。')">D. 15人</button>
+      </div>
+      <div id="mq2" class="m-fb"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     推广指标
+═══════════════════════════════════════════ -->
+<section id="sec-promo" class="sec-block reveal">
+  <div class="sec-header border-c3">
+    <div class="sec-icon bg-c3" style="color:#fff;">📣</div>
+    <div><div class="sec-title txt-c3">三、推广指标</div><div class="sec-sub">流量漏斗 · 转化率体系 · 展现→点击→转化</div></div>
+  </div>
+
+  <div class="life-case" style="background:linear-gradient(135deg,#D97706,#B45309);">
+    <div class="case-tag">🎯 生活引入</div>
+    <h4>你的手机壳做了一次直通车推广……</h4>
+    <p>广告被展示了1万次（<strong>展现量</strong>）→ 有500人点进来（<strong>点击率5%</strong>）→ 有15人下单（<strong>转化率3%</strong>）→ 有12人付款（<strong>成交率80%</strong>）。每个环节的数据就是推广指标！</p>
+  </div>
+
+  <!-- 流量漏斗 -->
+  <div class="card reveal">
+    <h3 class="txt-c3" style="margin-bottom:18px;">🔽 推广流量漏斗模型</h3>
+    <div class="funnel">
+      <div class="funnel-step" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);max-width:480px;">
+        <span>👁️</span><span>展现量（曝光次数）</span>
+        <span class="funnel-rate">100%</span>
+      </div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="background:linear-gradient(135deg,#0891B2,#0E7490);max-width:420px;">
+        <span>🖱️</span><span>点击量（被点击次数）</span>
+        <span class="funnel-rate">点击率</span>
+      </div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="background:linear-gradient(135deg,#D97706,#B45309);max-width:360px;">
+        <span>🛒</span><span>加购 / 收藏 / 关注</span>
+        <span class="funnel-rate">收藏转化率</span>
+      </div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="background:linear-gradient(135deg,#059669,#047857);max-width:300px;">
+        <span>📝</span><span>下单量</span>
+        <span class="funnel-rate">下单转化率</span>
+      </div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="background:linear-gradient(135deg,#DB2777,#BE185D);max-width:240px;">
+        <span>💳</span><span>成交付款</span>
+        <span class="funnel-rate">成交转化率</span>
+      </div>
+    </div>
+    <div class="info-box tip">
+      <div class="ib-icon">💡</div>
+      <div class="ib-body"><strong>漏斗越往下，人越少</strong><p>流量分析就是找到漏斗哪一层「漏」得最严重，集中优化那个环节。比如点击率高但转化率低，说明商品详情页需要优化！</p></div>
+    </div>
+  </div>
+
+  <!-- 展现/访客/浏览指标 -->
+  <div class="card reveal">
+    <h3 class="txt-c3" style="margin-bottom:18px;">📊 流量展现层指标</h3>
+    <div class="tab-wrap">
+      <div class="tab-btns">
+        <button class="tab-btn active" style="color:var(--c3);border-color:var(--c3);" onclick="switchTab('t-uv',this,'var(--c3)')">👤 访客数UV</button>
+        <button class="tab-btn" style="color:var(--c2);border-color:var(--c2);" onclick="switchTab('t-pv',this,'var(--c2)')">📄 浏览量PV</button>
+        <button class="tab-btn" style="color:var(--c4);border-color:var(--c4);" onclick="switchTab('t-other',this,'var(--c4)')">📌 其他指标</button>
+      </div>
+      <div id="t-uv" class="tab-panel active" style="border-color:var(--c3);">
+        <div class="formula"><div class="f-label">访客数（UV）</div>
+        统计周期内访问网站的<strong>独立客户数</strong>，同一人多次访问只计1次。<br><br>
+        🆕 <strong>新访客数</strong>：首次访问网站的客户数；新访客占比 = 新访客数 ÷ UV<br>
+        🔄 <strong>回访客数</strong>：再次访问的客户数；回访客占比 = 回访客数 ÷ UV</div>
+        <div class="life-case" style="background:linear-gradient(135deg,#D97706,#92400E);margin-top:12px;">
+          <div class="case-tag">🌰 举例</div>
+          <h4>今天你的店铺来了100个访客</h4>
+          <p>其中60个是第一次来（新访客），40个是老顾客回来了（回访客）。新访客占比=60%，说明你的广告在吸引新人；回访客占比=40%，说明老顾客对你的产品满意。</p>
+        </div>
+      </div>
+      <div id="t-pv" class="tab-panel" style="border-color:var(--c2);">
+        <div class="formula"><div class="f-label">浏览量（PV / Page View）</div>
+        统计周期内，客户浏览网站页面的<strong>总次数</strong>，多次刷新同一页面也累加。<br><br>
+        <strong>平均访问量（平均访问深度）</strong> = 总PV ÷ 总UV<br>
+        → 每个访客平均浏览了多少个页面，值越高说明内容越吸引人。<br><br>
+        ⏱️ <strong>停留时间</strong>：客户访问期间在网站的时长，实际常取<strong>平均停留时间</strong>。</div>
+      </div>
+      <div id="t-other" class="tab-panel" style="border-color:var(--c4);">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="info-box blue">
+            <div class="ib-icon">🚪</div>
+            <div class="ib-body"><strong>入站次数</strong><p>客户从网站外进入网站的次数。多标签浏览器下一次访问可能产生多次入站。</p></div>
+          </div>
+          <div class="info-box" style="background:#FFF3E0;border-left:4px solid #FF9800;">
+            <div class="ib-icon">💨</div>
+            <div class="ib-body"><strong>跳失率</strong><p>入站后只浏览一个页面就离开的次数 ÷ 入站次数。<strong>越低越好！</strong></p></div>
+          </div>
+          <div class="info-box purple">
+            <div class="ib-icon">⭐</div>
+            <div class="ib-body"><strong>关注数</strong><p>统计日期内新增店铺关注人数（不含取消关注），反映品牌吸引力。</p></div>
+          </div>
+          <div class="info-box green">
+            <div class="ib-icon">🔍</div>
+            <div class="ib-body"><strong>展现量</strong><p>通过搜索关键词展现店铺或商品的次数，影响广告投放决策。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 转化率体系 -->
+  <div class="card reveal">
+    <h3 class="txt-c3" style="margin-bottom:6px;">🎯 转化率指标体系</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">转化率是电商运营的<strong>核心指标</strong>，转化率 = 有价值行为的访问量 ÷ 总访问量 × 100%</p>
+
+    <div class="acc-wrap" id="acc-cr1" onclick="toggleAcc('acc-cr1')">
+      <div class="acc-head" style="background:#E8F5E9;color:#2E7D32;">
+        <div class="acc-htitle" style="color:#2E7D32;"><span>📝</span> 注册转化率 & 收藏转化率</div>
+        <div class="acc-arrow" style="color:#2E7D32;">▼</div>
+      </div>
+      <div class="acc-body" id="acc-cr1-body">
+        <div class="formula"><strong>注册转化率</strong> = 新增注册客户数 ÷ 新访客总数 × 100%<br><strong>收藏转化率</strong> = 添加收藏/关注的客户数 ÷ 网站(商品)总访问数 × 100%</div>
+        <p style="font-size:13px;color:var(--muted);">🌰 100个新访客有8人注册，注册转化率=8%；10000次浏览有300人收藏，收藏转化率=3%。</p>
+      </div>
+    </div>
+
+    <div class="acc-wrap" id="acc-cr2" onclick="toggleAcc('acc-cr2')" style="margin-top:10px;">
+      <div class="acc-head" style="background:#FFF3E0;color:#E65100;">
+        <div class="acc-htitle" style="color:#E65100;"><span>🛒</span> 下单转化率 & 客服转化率</div>
+        <div class="acc-arrow" style="color:#E65100;">▼</div>
+      </div>
+      <div class="acc-body" id="acc-cr2-body">
+        <div class="formula"><strong>下单转化率</strong> = 产生购买行为的客户人数 ÷ 到达店铺的总人数 × 100%<br><strong>咨询转化率</strong> = 最终下单人数 ÷ 询单人数<br><strong>付款转化率</strong> = 最终付款人数 ÷ 下单人数</div>
+        <p style="font-size:13px;color:var(--muted);">客服转化率体现了客服对成交的贡献！咨询了不下单，说明客服话术需要优化。</p>
+      </div>
+    </div>
+
+    <div class="acc-wrap" id="acc-cr3" onclick="toggleAcc('acc-cr3')" style="margin-top:10px;">
+      <div class="acc-head" style="background:#EDE9FE;color:#5B21B6;">
+        <div class="acc-htitle" style="color:#5B21B6;"><span>💳</span> 成交转化率 & 各类转化率</div>
+        <div class="acc-arrow" style="color:#5B21B6;">▼</div>
+      </div>
+      <div class="acc-body" id="acc-cr3-body">
+        <div class="formula"><strong>成交转化率</strong> = 完成付款的客户数 ÷ 商品总访问数 × 100%</div>
+        <div class="tag-row">
+          <span class="tag" style="background:#EDE9FE;color:#5B21B6;">全网转化率</span>
+          <span class="tag" style="background:#DBEAFE;color:#1E40AF;">类目转化率</span>
+          <span class="tag" style="background:#D1FAE5;color:#065F46;">品牌转化率</span>
+          <span class="tag" style="background:#FEF3C7;color:#92400E;">单品转化率</span>
+          <span class="tag" style="background:#FCE7F3;color:#9D174D;">渠道转化率</span>
+          <span class="tag" style="background:#FEE2E2;color:#991B1B;">事件转化率</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px;">不同维度的转化率帮助定位问题：若单品转化率远低于类目平均，说明这款产品详情页需要优化！</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mini-quiz reveal">
+    <h5>⚡ 即时测验：「跳失率」的正确描述是？</h5>
+    <div class="m-opts">
+      <button class="m-opt" onclick="mq(this,false,'mq3','跳失率与购买无关，是页面行为指标。')">A. 访客购买后立即离开的比率</button>
+      <button class="m-opt" onclick="mq(this,true,'mq3','✅ 正确！跳失率 = 只浏览1个页面就离开的次数 ÷ 入站次数，越低越好！')">B. 入站后只浏览一页就离开的次数占入站次数的比例</button>
+      <button class="m-opt" onclick="mq(this,false,'mq3','退款率是另一个指标，不是跳失率。')">C. 客户退款的比率</button>
+      <button class="m-opt" onclick="mq(this,false,'mq3','广告点击后不购买的比率更接近转化率概念。')">D. 广告点击后不购买的比率</button>
+    </div>
+    <div id="mq3" class="m-fb"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     销售指标
+═══════════════════════════════════════════ -->
+<section id="sec-sales" class="sec-block reveal">
+  <div class="sec-header border-c4">
+    <div class="sec-icon bg-c4" style="color:#fff;">💰</div>
+    <div><div class="sec-title txt-c4">四、销售指标</div><div class="sec-sub">揭示企业销售运行状况的核心指标集合</div></div>
+  </div>
+
+  <div class="life-case" style="background:linear-gradient(135deg,#059669,#047857);">
+    <div class="case-tag">💹 生活引入</div>
+    <h4>双十一来了，老板最关心什么？</h4>
+    <p>卖了多少件（销售量）、总共卖了多少钱（销售额）、每件赚了多少（毛利率）、投进去的广告费赚回来多少（投资回报率ROI）——这些都是<strong>销售指标</strong>，直接关系到店铺的盈利！</p>
+  </div>
+
+  <div class="card reveal">
+    <h3 class="txt-c4" style="margin-bottom:18px;">💰 核心销售指标 & 公式</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
+
+      <div style="background:var(--c4l);border-radius:14px;padding:18px;border:2px solid var(--c4);">
+        <div style="font-size:18px;font-weight:700;color:var(--c4);margin-bottom:10px;">📊 销售额 & 利润</div>
+        <div class="formula" style="background:rgba(5,150,105,0.1);border-left-color:var(--c4);color:var(--text);">
+          <strong style="color:var(--c4);">销售额</strong> = 访客数 × 成交转化率 × 客单价<br>
+          <strong style="color:var(--c4);">销售毛利</strong> = 销售收入净额 - 销售成本<br>
+          <strong style="color:var(--c4);">销售毛利率</strong> = 销售毛利 ÷ 销售额 × 100%<br>
+          <strong style="color:var(--c4);">销售利润率</strong> = 销售利润 ÷ 销售额 × 100%
+        </div>
+        <p style="font-size:12px;color:var(--muted);">💡 提升销售额的三个方向：增加访客数、提高转化率、提高客单价！</p>
+      </div>
+
+      <div style="background:#FEF3C7;border-radius:14px;padding:18px;border:2px solid var(--c3);">
+        <div style="font-size:18px;font-weight:700;color:var(--c3);margin-bottom:10px;">🏷️ 客单价 & 件单价</div>
+        <div class="formula" style="background:rgba(217,119,6,0.08);border-left-color:var(--c3);color:var(--text);">
+          <strong style="color:var(--c3);">客单价</strong> = 成交总金额 ÷ 成交客户总数<br>
+          <strong style="color:var(--c3);">件单价</strong> = 产品单价之和 ÷ 产品种类数量
+        </div>
+        <p style="font-size:12px;color:var(--muted);">💡 客单价反映每个客户平均消费金额；件单价反映产品平均单价。</p>
+      </div>
+
+      <div style="background:#DBEAFE;border-radius:14px;padding:18px;border:2px solid var(--c2);">
+        <div style="font-size:18px;font-weight:700;color:var(--c2);margin-bottom:10px;">📦 订单相关指标</div>
+        <div class="formula" style="background:rgba(8,145,178,0.08);border-left-color:var(--c2);color:var(--text);">
+          <strong style="color:var(--c2);">订单转化率</strong> = 有效订单数 ÷ 访客数 × 100%<br>
+          <strong style="color:var(--c2);">退货率</strong> = 退货数量 ÷ 同期成交数量 × 100%<br>
+          <strong style="color:var(--c2);">投资回报率</strong> = 销售利润 ÷ 投资总额 × 100%
+        </div>
+        <p style="font-size:12px;color:var(--muted);">💡 退货率高说明产品质量或描述有问题；ROI越高说明广告效果越好！</p>
+      </div>
+
+      <div style="background:var(--c5l);border-radius:14px;padding:18px;border:2px solid var(--c5);">
+        <div style="font-size:18px;font-weight:700;color:var(--c5);margin-bottom:10px;">🔗 连带率 & 动销率</div>
+        <div class="formula" style="background:rgba(219,39,119,0.07);border-left-color:var(--c5);color:var(--text);">
+          <strong style="color:var(--c5);">连带率</strong> = 销售量 ÷ 交易总次数 × 100%<br>
+          <strong style="color:var(--c5);">动销率</strong> = 动销品种数 ÷ 仓库总品种数 × 100%<br>
+          <strong style="color:var(--c5);">滞销率</strong> = 滞销产品数 ÷ 企业总产品数 × 100%
+        </div>
+        <p style="font-size:12px;color:var(--muted);">💡 连带率反映顾客每次交易平均购买几件；动销率不一定越高越好！</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="mini-quiz reveal">
+    <h5>⚡ 即时测验：某店铺本月访客数10000人，成交转化率2%，客单价100元，销售额是？</h5>
+    <div class="m-opts">
+      <button class="m-opt" onclick="mq(this,false,'mq4','10000×2%=200人成交，200×100=20000元，不是10000元。')">A. 10000元</button>
+      <button class="m-opt" onclick="mq(this,true,'mq4','✅ 正确！10000×2%×100=20000元。销售额=访客数×成交转化率×客单价！')">B. 20000元</button>
+      <button class="m-opt" onclick="mq(this,false,'mq4','1000元计算有误，请重新套公式。')">C. 1000元</button>
+      <button class="m-opt" onclick="mq(this,false,'mq4','200元是成交人数×1元，忘乘客单价了。')">D. 200元</button>
+    </div>
+    <div id="mq4" class="m-fb"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     供应链指标
+═══════════════════════════════════════════ -->
+<section id="sec-supply" class="sec-block reveal">
+  <div class="sec-header border-c5">
+    <div class="sec-icon bg-c5" style="color:#fff;">🚚</div>
+    <div><div class="sec-title txt-c5">五、供应链指标</div><div class="sec-sub">采购·物流·仓储环节的数据追踪</div></div>
+  </div>
+
+  <div class="life-case" style="background:linear-gradient(135deg,#DB2777,#9D174D);">
+    <div class="case-tag">📦 生活引入</div>
+    <h4>你的手机壳卖爆了，但仓库问题来了……</h4>
+    <p>货备多了积压亏钱（库存问题）、货备少了断货（缺货率）、发货太慢买家差评（订单响应时长）——<strong>供应链指标</strong>帮你精准管控进货、发货、库存全链条！</p>
+  </div>
+
+  <div class="card reveal">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+      <div style="background:#FFF0F6;border-radius:14px;padding:18px;border:2px solid var(--c5);">
+        <h4 style="color:var(--c5);margin-bottom:12px;">🏭 库存指标</h4>
+        <div class="formula" style="background:rgba(219,39,119,0.06);border-left-color:var(--c5);color:var(--text);font-size:13px;">
+          <strong style="color:var(--c5);">库存周转率</strong> = 360 ÷ 库存周转天数<br>
+          <strong style="color:var(--c5);">库存周转天数</strong> = 某时间单位天数 × 1/2 × (期初库存数量 + 期末库存数量) ÷ 销售量<br>
+          <strong style="color:var(--c5);">售罄率</strong> = 销售量 ÷ 总采购数量 × 100%
+        </div>
+        <p style="font-size:12px;color:var(--muted);">💡 库存周转率越高，资金利用效率越高；售罄率越高，说明选品越准！</p>
+      </div>
+
+      <div style="background:#F0F9FF;border-radius:14px;padding:18px;border:2px solid var(--c2);">
+        <h4 style="color:var(--c2);margin-bottom:12px;">🚀 物流指标</h4>
+        <div class="formula" style="background:rgba(8,145,178,0.06);border-left-color:var(--c2);color:var(--text);font-size:13px;">
+          <strong style="color:var(--c2);">平均配送成本</strong> = 总配送成本 ÷ 配送货物总数量<br>
+          <strong style="color:var(--c2);">平均送货时间</strong> = 总送货时间 ÷ 送货次数<br>
+          <strong style="color:var(--c2);">订单满足率</strong> = 已完成订单数 ÷ 已接收订单总数 × 100%
+        </div>
+        <p style="font-size:12px;color:var(--muted);">💡 订单响应时长越短、满足率越高，客户满意度越高！</p>
+      </div>
+    </div>
+
+    <div class="acc-wrap" id="acc-supply" onclick="toggleAcc('acc-supply')" style="margin-top:16px;">
+      <div class="acc-head" style="background:linear-gradient(135deg,#DB2777,#9D174D);color:#fff;">
+        <div class="acc-htitle"><span>🤔</span> 想一想：供应链指标如何指导企业优化？（点击展开）</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body" id="acc-supply-body">
+        <div class="steps">
+          <div class="step"><div class="step-num bg-c5">1</div><div class="step-body"><strong>发现库存积压</strong><p>若售罄率低（比如30%），说明大量备货卖不出去，下次要减少采购量，避免资金积压。</p></div></div>
+          <div class="step"><div class="step-num bg-c2">2</div><div class="step-body"><strong>优化物流体验</strong><p>若平均送货时间过长（如7天），考虑换快递合作方或增加仓储节点，提升客户满意度。</p></div></div>
+          <div class="step"><div class="step-num bg-c4">3</div><div class="step-body"><strong>提高订单满足率</strong><p>订单满足率低说明经常断货，需要建立安全库存机制，防止爆款断货导致流量流失。</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     产品类指标
+═══════════════════════════════════════════ -->
+<section id="sec-product" class="sec-block reveal">
+  <div class="sec-header" style="border-color:#6D28D9;">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#6D28D9,#4C1D95);color:#fff;">📦</div>
+    <div><div class="sec-title" style="color:#6D28D9;">六、产品类指标</div><div class="sec-sub">SKU·SPU·搜索指数·交易指数·毛利率</div></div>
+  </div>
+
+  <div class="life-case" style="background:linear-gradient(135deg,#6D28D9,#4C1D95);">
+    <div class="case-tag">🏷️ 生活引入</div>
+    <h4>同款手机壳，有透明/磨砂/印花三款颜色……</h4>
+    <p>这款手机壳叫做一个<strong>SPU（标准化产品单元）</strong>，而「透明版」「磨砂黑版」各自是一个<strong>SKU（库存量单元）</strong>。分清楚才能精准管库存！</p>
+  </div>
+
+  <div class="card reveal">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+      <div style="background:linear-gradient(135deg,#4C1D95,#6D28D9);border-radius:16px;padding:22px;color:#fff;">
+        <div style="font-size:32px;margin-bottom:8px;">📦</div>
+        <h4 style="margin-bottom:8px;">SKU — 库存量单元</h4>
+        <p style="font-size:13px;opacity:.9;line-height:1.65;">库存进出计量的基本单位，可以件、盒、托盘等为单位。<br><br>🌰 「iPhone15透明手机壳」是一个SKU；「iPhone15磨砂黑手机壳」是另一个SKU。</p>
+      </div>
+      <div style="background:linear-gradient(135deg,#0E7490,#0891B2);border-radius:16px;padding:22px;color:#fff;">
+        <div style="font-size:32px;margin-bottom:8px;">🏷️</div>
+        <h4 style="margin-bottom:8px;">SPU — 标准化产品单元</h4>
+        <p style="font-size:13px;opacity:.9;line-height:1.65;">一组可复用、易检索的标准化信息集合，描述一个产品的特性。<br><br>🌰 「iPhone15手机壳」（不区分颜色/款式）是一个SPU，包含多个SKU。</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+      <div class="info-box blue">
+        <div class="ib-icon">🔍</div>
+        <div class="ib-body"><strong>产品搜索指数</strong><p>产品通过搜索进入详情页访客数的<strong>指数化</strong>表示，反映搜索趋势，不等同于搜索次数。</p></div>
+      </div>
+      <div class="info-box purple">
+        <div class="ib-icon">🔥</div>
+        <div class="ib-body"><strong>产品交易指数</strong><p>根据订单数、买家数、支付件数、支付金额等综合计算，数值越大交易热度越高，不等同于交易金额。</p></div>
+      </div>
+      <div class="info-box green">
+        <div class="ib-icon">💹</div>
+        <div class="ib-body"><strong>毛利率</strong><p>毛利率 = 毛利 ÷ 营业收入 × 100%<br>= (主营收入 - 主营成本) ÷ 主营收入 × 100%</p></div>
+      </div>
+      <div class="info-box tip">
+        <div class="ib-icon">📤</div>
+        <div class="ib-body"><strong>跳出率</strong><p>浏览量中没有进一步访问其他页面的浏览量占比，<strong>该值越低越好</strong>。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     知识导图
+═══════════════════════════════════════════ -->
+<section id="sec-map" class="sec-block reveal">
+  <div class="sec-header" style="border-color:#6B7280;">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#374151,#6B7280);color:#fff;">🗺️</div>
+    <div><div class="sec-title">本节知识导图</div><div class="sec-sub">1.2 电子商务数据分析指标 · 五大体系全览</div></div>
+  </div>
+  <div class="card">
+    <div class="mindmap-wrap">
+      <svg viewBox="0 0 980 580" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;">
+        <defs>
+          <filter id="s"><feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity=".12"/></filter>
+          <linearGradient id="gc" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#7C3AED"/><stop offset="100%" style="stop-color:#DB2777"/>
+          </linearGradient>
+        </defs>
+        <!-- center -->
+        <rect x="360" y="255" width="260" height="60" rx="28" fill="url(#gc)" filter="url(#s)"/>
+        <text x="490" y="291" text-anchor="middle" fill="white" font-size="15" font-weight="bold" font-family="Noto Sans SC,sans-serif">电子商务数据分析指标</text>
+
+        <!-- 市场类 top-left -->
+        <line x1="380" y1="258" x2="200" y2="120" stroke="#7C3AED" stroke-width="2" stroke-dasharray="5,3"/>
+        <rect x="60" y="70" width="165" height="100" rx="14" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2" filter="url(#s)"/>
+        <text x="143" y="100" text-anchor="middle" fill="#5B21B6" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">🏪 市场类指标</text>
+        <text x="143" y="118" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">行业销售额/量</text>
+        <text x="143" y="134" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">市场占有率/扩大率</text>
+        <text x="143" y="150" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">竞品销售额/客单价</text>
+
+        <!-- 运营-客户 left -->
+        <line x1="360" y1="278" x2="150" y2="278" stroke="#0891B2" stroke-width="2" stroke-dasharray="5,3"/>
+        <rect x="0" y="228" width="165" height="100" rx="14" fill="#CFFAFE" stroke="#0891B2" stroke-width="2" filter="url(#s)"/>
+        <text x="83" y="258" text-anchor="middle" fill="#0E7490" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">👤 客户指标</text>
+        <text x="83" y="276" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">注册/活跃/重复购买</text>
+        <text x="83" y="292" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">收藏/加购/消费频率</text>
+        <text x="83" y="308" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">回购率/流失率</text>
+
+        <!-- 推广 bottom-left -->
+        <line x1="380" y1="300" x2="200" y2="430" stroke="#D97706" stroke-width="2" stroke-dasharray="5,3"/>
+        <rect x="45" y="385" width="175" height="110" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2" filter="url(#s)"/>
+        <text x="133" y="415" text-anchor="middle" fill="#92400E" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">📣 推广指标</text>
+        <text x="133" y="433" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">UV/PV/展现量/点击量</text>
+        <text x="133" y="449" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">跳失率/停留时间</text>
+        <text x="133" y="465" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">注册/收藏/下单/成交转化率</text>
+        <text x="133" y="481" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">客服转化率</text>
+
+        <!-- 销售 top-right -->
+        <line x1="600" y1="258" x2="770" y2="120" stroke="#059669" stroke-width="2" stroke-dasharray="5,3"/>
+        <rect x="740" y="68" width="175" height="110" rx="14" fill="#D1FAE5" stroke="#059669" stroke-width="2" filter="url(#s)"/>
+        <text x="828" y="98" text-anchor="middle" fill="#065F46" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">💰 销售指标</text>
+        <text x="828" y="116" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">销售额/量/毛利/利润</text>
+        <text x="828" y="132" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">客单价/件单价</text>
+        <text x="828" y="148" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">订单转化率/退货率</text>
+        <text x="828" y="164" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">连带率/动销率/滞销率</text>
+
+        <!-- 供应链 right -->
+        <line x1="620" y1="278" x2="810" y2="278" stroke="#DB2777" stroke-width="2" stroke-dasharray="5,3"/>
+        <rect x="810" y="228" width="165" height="100" rx="14" fill="#FCE7F3" stroke="#DB2777" stroke-width="2" filter="url(#s)"/>
+        <text x="893" y="258" text-anchor="middle" fill="#9D174D" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">🚚 供应链指标</text>
+        <text x="893" y="276" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">库存周转率/售罄率</text>
+        <text x="893" y="292" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">平均配送成本/送货时间</text>
+        <text x="893" y="308" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">订单响应时长/满足率</text>
+
+        <!-- 产品 bottom-right -->
+        <line x1="600" y1="300" x2="770" y2="430" stroke="#6D28D9" stroke-width="2" stroke-dasharray="5,3"/>
+        <rect x="740" y="385" width="175" height="110" rx="14" fill="#EDE9FE" stroke="#6D28D9" stroke-width="2" filter="url(#s)"/>
+        <text x="828" y="415" text-anchor="middle" fill="#4C1D95" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">📦 产品类指标</text>
+        <text x="828" y="433" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">SKU / SPU</text>
+        <text x="828" y="449" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">商品访客数/浏览量</text>
+        <text x="828" y="465" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">搜索指数/交易指数</text>
+        <text x="828" y="481" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Noto Sans SC,sans-serif">毛利率/重复购买率/跳出率</text>
+
+        <text x="490" y="560" text-anchor="middle" fill="#9CA3AF" font-size="12" font-family="Noto Sans SC,sans-serif">🗺️ 1.2 电子商务数据分析指标 · 五大体系知识导图</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     综合测试
+═══════════════════════════════════════════ -->
+<section id="sec-quiz" class="quiz-section reveal">
+  <div class="quiz-header">
+    <span style="font-size:34px;">✅</span>
+    <div><h2 style="font-size:20px;">综合知识测试</h2><p style="font-size:13px;opacity:.85;margin-top:3px;">共 5 道题，完成后查看掌握程度！</p></div>
+  </div>
+  <div class="quiz-body">
+
+    <div class="qz-item" id="qz1">
+      <div class="qz-q"><span class="qz-num">1</span>「企业市场占有率」的计算公式是？</div>
+      <div class="qz-opts">
+        <div class="qz-opt" onclick="selOpt(this,'qz1',false)"><div class="opt-k">A</div><div>企业销售量 ÷ 行业销售量 × 100%</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz1',true)"><div class="opt-k">B</div><div>企业销售额 ÷ 行业销售额 × 100%</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz1',false)"><div class="opt-k">C</div><div>(本期销售额 - 上期销售额) ÷ 上期销售额 × 100%</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz1',false)"><div class="opt-k">D</div><div>企业利润 ÷ 行业总利润 × 100%</div></div>
+      </div>
+      <button class="qz-sub" onclick="submitQz('qz1')" disabled>提交答案</button>
+      <div id="qz1-fb" class="qz-fb"></div>
+    </div>
+
+    <div class="qz-item" id="qz2">
+      <div class="qz-q"><span class="qz-num">2</span>以下哪个公式用于计算「销售额」？</div>
+      <div class="qz-opts">
+        <div class="qz-opt" onclick="selOpt(this,'qz2',false)"><div class="opt-k">A</div><div>访客数 × 点击率 × 客单价</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz2',false)"><div class="opt-k">B</div><div>订单数 × 客单价 × 退货率</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz2',true)"><div class="opt-k">C</div><div>访客数 × 成交转化率 × 客单价</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz2',false)"><div class="opt-k">D</div><div>浏览量 × 下单转化率 × 件单价</div></div>
+      </div>
+      <button class="qz-sub" onclick="submitQz('qz2')" disabled>提交答案</button>
+      <div id="qz2-fb" class="qz-fb"></div>
+    </div>
+
+    <div class="qz-item" id="qz3">
+      <div class="qz-q"><span class="qz-num">3</span>跳失率是指以下哪种情况？</div>
+      <div class="qz-opts">
+        <div class="qz-opt" onclick="selOpt(this,'qz3',false)"><div class="opt-k">A</div><div>客户购买后申请退货的比率</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz3',false)"><div class="opt-k">B</div><div>广告被展现后没有被点击的比率</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz3',true)"><div class="opt-k">C</div><div>访客入站后只浏览一个页面就离开的次数占入站次数的比例</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz3',false)"><div class="opt-k">D</div><div>客户加购后没有下单的比率</div></div>
+      </div>
+      <button class="qz-sub" onclick="submitQz('qz3')" disabled>提交答案</button>
+      <div id="qz3-fb" class="qz-fb"></div>
+    </div>
+
+    <div class="qz-item" id="qz4">
+      <div class="qz-q"><span class="qz-num">4</span>SKU与SPU的区别，以下描述正确的是？</div>
+      <div class="qz-opts">
+        <div class="qz-opt" onclick="selOpt(this,'qz4',false)"><div class="opt-k">A</div><div>SKU是标准化产品单元，SPU是库存量单元</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz4',true)"><div class="opt-k">B</div><div>SKU是库存量单元（如具体颜色/规格），SPU是标准化产品单元（如某款商品）</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz4',false)"><div class="opt-k">C</div><div>SKU和SPU是同一个概念，没有区别</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz4',false)"><div class="opt-k">D</div><div>SPU用于计量库存，SKU用于描述产品特性</div></div>
+      </div>
+      <button class="qz-sub" onclick="submitQz('qz4')" disabled>提交答案</button>
+      <div id="qz4-fb" class="qz-fb"></div>
+    </div>
+
+    <div class="qz-item" id="qz5">
+      <div class="qz-q"><span class="qz-num">5</span>库存周转率越高说明什么？</div>
+      <div class="qz-opts">
+        <div class="qz-opt" onclick="selOpt(this,'qz5',false)"><div class="opt-k">A</div><div>企业库存积压越严重</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz5',true)"><div class="opt-k">B</div><div>资金流动效率越高，库存管理越好</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz5',false)"><div class="opt-k">C</div><div>产品退货量越多</div></div>
+        <div class="qz-opt" onclick="selOpt(this,'qz5',false)"><div class="opt-k">D</div><div>供应链成本越高</div></div>
+      </div>
+      <button class="qz-sub" onclick="submitQz('qz5')" disabled>提交答案</button>
+      <div id="qz5-fb" class="qz-fb"></div>
+    </div>
+
+    <div id="qz-score" class="score-box">
+      <div class="sc-emoji" id="sc-emoji">🎉</div>
+      <div class="sc-num" id="sc-num">0/5</div>
+      <div class="sc-msg" id="sc-msg">加油！</div>
+      <button class="sc-retry" onclick="retryQz()">🔄 重新测试</button>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer style="background:#1E1B4B;color:rgba(255,255,255,.55);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+  <p>📚 <span style="color:#C084FC;">商务数据分析</span> · 模块一 · 1.2 电子商务数据分析指标</p>
+  <p style="margin-top:6px;">中职电子商务专业 · 数据驱动运营 🚀</p>
+</footer>
+
+<script>
+// ── mini quiz ──
+function mq(btn,ok,id,msg){
+  const c=btn.parentElement;if(c.querySelector('.correct,.wrong'))return;
+  c.querySelectorAll('.m-opt').forEach(b=>b.style.pointerEvents='none');
+  btn.classList.add(ok?'correct':'wrong');
+  const fb=document.getElementById(id);fb.textContent=msg;
+  fb.className='m-fb show '+(ok?'ok':'no');
+}
+// ── tabs ──
+function switchTab(id,btn,color){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');b.style.background='transparent';b.style.color=b._color||b.style.color;});
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  btn.style.background=color||'#7C3AED';
+  btn.style.color='#fff';
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const first=document.querySelector('.tab-btn.active');
+  if(first){first.style.background='var(--c3)';first.style.color='#fff';}
+});
+// ── accordion ──
+function toggleAcc(id){
+  const el=document.getElementById(id),body=document.getElementById(id+'-body');
+  el.classList.toggle('open');body.classList.toggle('open');
+}
+// ── quiz ──
+const qzState={qz1:null,qz2:null,qz3:null,qz4:null,qz5:null};
+const qzDone={};
+const qzData={
+  qz1:{ans:true,ok:'✅ 答对了！',exp:'市场占有率 = 企业销售额 ÷ 行业销售额 × 100%，是衡量企业市场地位的核心指标。注意分子分母都是「销售额」而非「销售量」。'},
+  qz2:{ans:true,ok:'✅ 答对了！',exp:'销售额 = 访客数 × 成交转化率 × 客单价，这是电商运营最重要的增长公式，提升任一因子都能提升销售额！'},
+  qz3:{ans:true,ok:'✅ 答对了！',exp:'跳失率 = 入站后只浏览一个页面就离开的次数 ÷ 入站次数，反映页面吸引力，该值越低越好。高跳失率说明着陆页需要优化。'},
+  qz4:{ans:true,ok:'✅ 答对了！',exp:'SKU（库存量单元）是最小的存货单位，如「iPhone15透明手机壳」；SPU（标准化产品单元）是描述产品特性的集合，如「iPhone15手机壳」，包含多个SKU。'},
+  qz5:{ans:true,ok:'✅ 答对了！',exp:'库存周转率 = 360 ÷ 库存周转天数，周转率越高说明商品卖得越快，资金利用效率越高，是衡量库存管理水平的重要指标。'}
+};
+function selOpt(el,qId,isOk){
+  if(qzDone[qId])return;
+  document.querySelectorAll('#'+qId+' .qz-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  qzState[qId]=isOk;
+  document.querySelector('#'+qId+' .qz-sub').disabled=false;
+}
+function submitQz(qId){
+  if(qzDone[qId])return;
+  if(qzState[qId]===null){alert('请先选择答案！');return;}
+  qzDone[qId]=true;
+  const ok=qzState[qId],d=qzData[qId];
+  document.querySelectorAll('#'+qId+' .qz-opt').forEach(o=>{
+    o.classList.add('locked');o.onclick=null;
+    if(o.classList.contains('sel'))o.classList.add(ok?'correct':'wrong');
+  });
+  // show correct if wrong
+  if(!ok){
+    const opts=document.querySelectorAll('#'+qId+' .qz-opt');
+    // find correct option (the one with true flag — re-scan)
+    opts.forEach(o=>{if(o.onclick===null&&!o.classList.contains('wrong')&&!o.classList.contains('correct')&&!o.classList.contains('sel')){}});
+  }
+  const fb=document.getElementById(qId+'-fb');
+  fb.innerHTML=`<strong>${ok?d.ok:'❌ 答错了！'}</strong>${d.exp}`;
+  fb.className='qz-fb show '+(ok?'ok':'no');
+  document.querySelector('#'+qId+' .qz-sub').style.display='none';
+  if(Object.keys(qzDone).length===5)setTimeout(showFinalScore,600);
+}
+function showFinalScore(){
+  const correct=Object.values(qzState).filter(v=>v===true).length;
+  const el=document.getElementById('qz-score');
+  document.getElementById('sc-num').textContent=correct+'/5';
+  const map=[[5,'🏆','满分！你是指标达人！'],[ 4,'🌟','优秀！再巩固一下公式就完美了！'],[3,'😊','良好！继续加油！'],[0,'📖','需要多复习，再来一次！']];
+  for(const [min,em,msg] of map){if(correct>=min){document.getElementById('sc-emoji').textContent=em;document.getElementById('sc-msg').textContent=msg;break;}}
+  el.classList.add('show');el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function retryQz(){
+  ['qz1','qz2','qz3','qz4','qz5'].forEach(id=>{
+    qzState[id]=null;delete qzDone[id];
+    document.querySelectorAll('#'+id+' .qz-opt').forEach(o=>{o.className='qz-opt';o.onclick=null;});
+    // re-attach onclick
+    const section=document.getElementById(id);
+    const opts=section.querySelectorAll('.qz-opt');
+    // We'll just reload — simplest approach
+  });
+  location.reload();
+}
+// ── nav active ──
+const secs=document.querySelectorAll('section[id]');
+const navs=document.querySelectorAll('.nav-item');
+window.addEventListener('scroll',()=>{
+  let cur='';secs.forEach(s=>{if(scrollY>=s.offsetTop-110)cur=s.id;});
+  navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));
+});
+// ── smooth scroll ──
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'});}));
+// ── reveal ──
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
