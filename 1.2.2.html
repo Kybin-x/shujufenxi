@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.2 数据分析指标 · 闯关挑战</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080B1A;--bg2:#0D1130;
+  --surface:rgba(255,255,255,.055);--border:rgba(255,255,255,.11);
+  --gold:#FFD700;--gold2:#FFA500;
+  --teal:#00E5CC;--pink:#FF6B9D;--purple:#C77DFF;
+  --blue:#74B9FF;--green:#00E676;--red:#FF5252;
+  --orange:#FF9500;--cyan:#00D4FF;
+  --text:#F0F0FF;--muted:rgba(240,240,255,.52);
+  --r:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+canvas.stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* SCREENS */
+.screen{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;}
+.screen.active{display:flex;}
+
+/* ── LOGIN ── */
+.login-box{background:linear-gradient(135deg,rgba(13,17,48,.97),rgba(8,11,26,.98));border:1.5px solid var(--border);border-radius:28px;padding:48px 42px;max-width:480px;width:100%;box-shadow:0 0 80px rgba(0,212,255,.1),0 30px 60px rgba(0,0,0,.55);text-align:center;animation:up .8s ease both;}
+@keyframes up{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+.game-logo{width:88px;height:88px;margin:0 auto 18px;border-radius:50%;background:linear-gradient(135deg,#00D4FF,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 0 36px rgba(0,212,255,.4);animation:glow 3s ease-in-out infinite alternate;}
+@keyframes glow{from{box-shadow:0 0 20px rgba(0,212,255,.25);}to{box-shadow:0 0 55px rgba(0,212,255,.65);}}
+.ltitle{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(22px,4.5vw,30px);background:linear-gradient(90deg,var(--cyan),var(--purple),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.lsub{color:var(--muted);font-size:13px;margin-bottom:24px;}
+.badge-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+.bdg{padding:5px 13px;border-radius:18px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;}
+.bdg.s{background:rgba(116,185,255,.14);color:var(--blue);border:1px solid rgba(116,185,255,.28);}
+.bdg.m{background:rgba(0,229,204,.14);color:var(--teal);border:1px solid rgba(0,229,204,.28);}
+.bdg.j{background:rgba(255,107,157,.14);color:var(--pink);border:1px solid rgba(255,107,157,.28);}
+.inp-g{margin-bottom:16px;text-align:left;}
+.inp-g label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:700;}
+.inp-g input{width:100%;padding:13px 17px;background:rgba(255,255,255,.07);border:1.5px solid var(--border);border-radius:13px;color:var(--text);font-size:15px;font-family:'Noto Sans SC',sans-serif;outline:none;transition:border-color .3s,box-shadow .3s;}
+.inp-g input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.13);}
+.inp-g input::placeholder{color:rgba(240,240,255,.2);}
+.start-btn{width:100%;padding:15px;margin-top:6px;background:linear-gradient(135deg,var(--cyan),#0099CC);color:#001A2E;font-weight:900;font-size:17px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:15px;cursor:pointer;letter-spacing:2px;box-shadow:0 8px 28px rgba(0,212,255,.3);transition:all .3s;position:relative;overflow:hidden;}
+.start-btn::after{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:rgba(255,255,255,.3);transform:skewX(-20deg);transition:left .5s;}
+.start-btn:hover::after{left:120%;}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(0,212,255,.42);}
+
+/* ── GAME ── */
+.game-wrap{width:100%;max-width:760px;animation:up .5s ease both;}
+.g-header{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:17px;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;backdrop-filter:blur(10px);flex-wrap:wrap;gap:10px;}
+.pinfo{display:flex;align-items:center;gap:10px;}
+.pavt{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:white;flex-shrink:0;}
+.pname{font-weight:700;font-size:14px;}.pid{font-size:12px;color:var(--muted);}
+.sc-disp{display:flex;align-items:center;gap:6px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);border-radius:11px;padding:7px 15px;}
+.sc-val{font-family:'ZCOOL KuaiLe',cursive;font-size:20px;color:var(--gold);}
+.sc-tot{font-size:12px;color:var(--muted);}
+
+/* progress */
+.pg-wrap{margin-bottom:18px;}
+.pg-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:7px;}
+.pg-track{background:rgba(255,255,255,.08);border-radius:9px;height:9px;overflow:hidden;}
+.pg-fill{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--gold));transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+/* stage dots */
+.sdots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.sdot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid rgba(255,255,255,.18);color:var(--muted);transition:all .4s;}
+.sdot.done{background:var(--green);border-color:var(--green);color:#003;}
+.sdot.wdot{background:var(--red);border-color:var(--red);color:#fff;}
+.sdot.cur{border-color:var(--gold);color:var(--gold);box-shadow:0 0 13px rgba(255,215,0,.45);animation:pc 1s ease-in-out infinite alternate;}
+@keyframes pc{from{box-shadow:0 0 7px rgba(255,215,0,.25);}to{box-shadow:0 0 20px rgba(255,215,0,.65);}}
+
+/* question card */
+.qcard{background:linear-gradient(135deg,rgba(13,17,48,.92),rgba(8,11,26,.96));border:1.5px solid var(--border);border-radius:22px;padding:30px;box-shadow:0 20px 56px rgba(0,0,0,.42);animation:sc .4s cubic-bezier(.4,0,.2,1) both;position:relative;overflow:hidden;}
+.qcard::before{content:'';position:absolute;top:0;right:0;width:200px;height:200px;background:radial-gradient(circle,rgba(0,212,255,.06) 0%,transparent 70%);pointer-events:none;}
+@keyframes sc{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+.qtype-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:18px;font-size:12px;font-weight:700;margin-bottom:16px;}
+.qtype-badge.s{background:rgba(116,185,255,.14);color:var(--blue);border:1px solid rgba(116,185,255,.27);}
+.qtype-badge.m{background:rgba(0,229,204,.14);color:var(--teal);border:1px solid rgba(0,229,204,.27);}
+.qtype-badge.j{background:rgba(255,107,157,.14);color:var(--pink);border:1px solid rgba(255,107,157,.27);}
+.qnum{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.qtxt{font-size:clamp(14px,2.4vw,17px);line-height:1.8;font-weight:700;margin-bottom:20px;}
+.qhint{font-size:12px;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:5px;}
+
+/* formula display in question */
+.qformula{background:rgba(255,255,255,.06);border-left:3px solid var(--cyan);border-radius:10px;padding:10px 14px;font-family:monospace;font-size:13px;color:#A5F3FC;margin-bottom:14px;line-height:1.8;}
+
+/* options */
+.opts{display:flex;flex-direction:column;gap:11px;}
+.opt{display:flex;align-items:flex-start;gap:13px;padding:13px 16px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:14px;cursor:pointer;transition:all .25s;user-select:none;position:relative;overflow:hidden;}
+.opt::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.025));opacity:0;transition:.25s;}
+.opt:hover::before{opacity:1;}
+.opt:hover:not(.locked){border-color:rgba(255,255,255,.27);background:rgba(255,255,255,.07);transform:translateX(4px);}
+.opt.sel:not(.locked){border-color:var(--purple);background:rgba(199,125,255,.11);}
+.opt.correct{border-color:var(--green)!important;background:rgba(0,230,118,.09)!important;animation:cflash .5s;}
+@keyframes cflash{0%,100%{background:rgba(0,230,118,.09);}50%{background:rgba(0,230,118,.22);}}
+.opt.wrong{border-color:var(--red)!important;background:rgba(255,82,82,.09)!important;animation:wshake .4s;}
+@keyframes wshake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.opt.locked{cursor:not-allowed;}
+.opt.show-c{border-color:var(--green)!important;background:rgba(0,230,118,.05)!important;}
+.okey{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;flex-shrink:0;transition:all .25s;}
+.opt.sel:not(.locked) .okey{background:var(--purple);color:#fff;}
+.opt.correct .okey{background:var(--green);color:#003;}
+.opt.wrong .okey{background:var(--red);color:#fff;}
+.opt.show-c .okey{background:var(--green);color:#003;}
+.otxt{font-size:13px;line-height:1.6;padding-top:4px;}
+
+/* sub btn */
+.sub-btn{width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,var(--teal),#00B09B);color:#003;font-weight:900;font-size:15px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:14px;cursor:pointer;letter-spacing:1px;box-shadow:0 5px 22px rgba(0,229,204,.28);transition:all .3s;position:relative;overflow:hidden;}
+.sub-btn::after{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:rgba(255,255,255,.28);transform:skewX(-20deg);transition:left .5s;}
+.sub-btn:hover:not(:disabled)::after{left:120%;}
+.sub-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 9px 30px rgba(0,229,204,.38);}
+.sub-btn:disabled{opacity:.35;cursor:not-allowed;background:rgba(255,255,255,.09);color:var(--muted);box-shadow:none;transform:none;}
+.next-btn{width:100%;margin-top:12px;padding:13px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-weight:900;font-size:15px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:14px;cursor:pointer;letter-spacing:1px;box-shadow:0 5px 22px rgba(199,125,255,.3);transition:all .3s;display:none;position:relative;overflow:hidden;}
+.next-btn.show{display:block;animation:up .3s ease;}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 9px 30px rgba(199,125,255,.42);}
+
+/* feedback */
+.fb{display:none;margin-top:16px;padding:16px 18px;border-radius:14px;font-size:13px;line-height:1.75;animation:up .4s;}
+.fb.show{display:block;}
+.fb.cfb{background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.28);}
+.fb.wfb{background:rgba(255,82,82,.07);border:1px solid rgba(255,82,82,.28);}
+.fb-hd{display:flex;align-items:center;gap:9px;font-weight:900;font-size:15px;margin-bottom:8px;}
+.fb-hd.ok{color:var(--green);}.fb-hd.no{color:var(--red);}
+.fb-ans{font-size:12px;color:var(--muted);margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.ak{padding:2px 10px;border-radius:7px;background:rgba(255,215,0,.14);color:var(--gold);font-size:11px;font-weight:700;border:1px solid rgba(255,215,0,.28);}
+
+/* ── RESULT ── */
+.res-wrap{max-width:620px;width:100%;text-align:center;animation:up .7s ease both;}
+.res-fw{font-size:48px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:22px;animation:bounce .8s ease;}
+@keyframes bounce{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.14);}100%{transform:scale(1);opacity:1;}}
+.res-card{background:linear-gradient(135deg,rgba(13,17,48,.98),rgba(8,11,26,.99));border:1.5px solid var(--border);border-radius:27px;padding:42px 38px;box-shadow:0 0 90px rgba(255,215,0,.08),0 40px 80px rgba(0,0,0,.55);position:relative;overflow:hidden;}
+.res-card::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(255,215,0,.055) 0%,transparent 70%);pointer-events:none;}
+.res-icon{width:96px;height:96px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:46px;}
+.res-grade{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(20px,4vw,28px);color:var(--gold);margin-bottom:7px;}
+.res-nm{font-size:17px;margin-bottom:5px;}
+.res-ach{font-size:clamp(13px,2.2vw,15px);color:var(--muted);line-height:1.75;margin:14px 0 22px;padding:14px;background:rgba(255,255,255,.04);border-radius:13px;border:1px solid var(--border);}
+.sb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 26px;}
+.sb-item{background:rgba(255,255,255,.05);border-radius:13px;padding:14px 8px;border:1px solid var(--border);}
+.sb-icon{font-size:20px;margin-bottom:5px;}
+.sb-type{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.sb-n{font-family:'ZCOOL KuaiLe',cursive;font-size:20px;color:var(--teal);}
+.sb-t{font-size:10px;color:var(--muted);}
+.big-sc{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(46px,8vw,70px);background:linear-gradient(90deg,var(--gold),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:4px;}
+.sc-lbl{font-size:13px;color:var(--muted);margin-bottom:26px;}
+.retry-btn{display:inline-flex;align-items:center;gap:9px;padding:15px 38px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1A1200;font-weight:900;font-size:16px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:18px;cursor:pointer;letter-spacing:2px;box-shadow:0 8px 28px rgba(255,215,0,.32);transition:all .3s;}
+.retry-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 38px rgba(255,215,0,.46);}
+
+/* particles */
+.ptc{position:fixed;pointer-events:none;z-index:999;font-size:22px;animation:ptcfly 2s ease-out forwards;}
+@keyframes ptcfly{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-200px) scale(0);opacity:0;}}
+.combo-t{position:fixed;top:18px;right:18px;z-index:999;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1A1200;font-weight:900;font-size:14px;font-family:'ZCOOL KuaiLe',cursive;padding:11px 20px;border-radius:13px;box-shadow:0 8px 28px rgba(255,215,0,.45);animation:cIn 2.2s ease forwards;display:none;}
+@keyframes cIn{0%{opacity:0;transform:translateX(50px);}15%,75%{opacity:1;transform:translateX(0);}100%{opacity:0;transform:translateX(50px);}}
+
+@media(max-width:500px){.login-box{padding:32px 20px;}.qcard{padding:20px 16px;}.res-card{padding:30px 20px;}.g-header{padding:11px 14px;}}
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars"></canvas>
+<div class="combo-t" id="comboT"></div>
+
+<!-- ── LOGIN ── -->
+<div class="screen active" id="sLogin">
+  <div class="login-box">
+    <div class="game-logo">📊</div>
+    <div class="ltitle">指标闯关 · 挑战赛</div>
+    <div class="lsub">1.2 电子商务数据分析指标</div>
+    <div class="badge-row">
+      <span class="bdg s">🔵 单选 ×10</span>
+      <span class="bdg m">🟢 多选 ×5</span>
+      <span class="bdg j">🩷 判断 ×5</span>
+    </div>
+    <div class="inp-g"><label>📋 学号</label><input type="text" id="iId" placeholder="请输入学号" maxlength="20"></div>
+    <div class="inp-g"><label>✏️ 姓名</label><input type="text" id="iName" placeholder="请输入姓名" maxlength="12"></div>
+    <button class="start-btn" onclick="startGame()">⚡ 开始闯关</button>
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+<div class="screen" id="sGame">
+  <div class="game-wrap">
+    <div class="g-header">
+      <div class="pinfo">
+        <div class="pavt" id="avt">A</div>
+        <div><div class="pname" id="hName">-</div><div class="pid" id="hId">-</div></div>
+      </div>
+      <div class="sc-disp">
+        <span style="font-size:18px;">⭐</span>
+        <div class="sc-val" id="scV">0</div>
+        <div class="sc-tot">/20题</div>
+      </div>
+    </div>
+    <div class="pg-wrap">
+      <div class="pg-meta"><span id="pgTxt">第1题/共20题</span><span id="pgPct">0%</span></div>
+      <div class="pg-track"><div class="pg-fill" id="pgFill" style="width:0%"></div></div>
+    </div>
+    <div class="sdots" id="sdots"></div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+</div>
+
+<!-- ── RESULT ── -->
+<div class="screen" id="sResult">
+  <div class="res-wrap">
+    <div class="res-fw" id="rFw">🎉🏆🎊</div>
+    <div class="res-card">
+      <div class="res-icon" id="rIcon" style="background:linear-gradient(135deg,#FFD700,#FFA500)">🏆</div>
+      <div class="res-grade" id="rGrade">恭喜完成！</div>
+      <div class="res-nm" id="rNm"></div>
+      <div class="res-ach" id="rAch"></div>
+      <div class="big-sc" id="bigSc">0</div>
+      <div class="sc-lbl">综合得分（满分 20 分）</div>
+      <div class="sb-grid">
+        <div class="sb-item"><div class="sb-icon">🔵</div><div class="sb-type">单选题</div><div class="sb-n" id="sb1">0</div><div class="sb-t">/10</div></div>
+        <div class="sb-item"><div class="sb-icon">🟢</div><div class="sb-type">多选题</div><div class="sb-n" id="sb2">0</div><div class="sb-t">/5</div></div>
+        <div class="sb-item"><div class="sb-icon">🩷</div><div class="sb-type">判断题</div><div class="sb-n" id="sb3">0</div><div class="sb-t">/5</div></div>
+      </div>
+      <button class="retry-btn" onclick="retry()">🔄 再战一次</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── STARS ── */
+(()=>{const c=document.getElementById('stars'),x=c.getContext('2d');let s=[];const r=()=>{c.width=innerWidth;c.height=innerHeight;s=[];for(let i=0;i<160;i++)s.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.3,a:Math.random(),sp:Math.random()*.35+.1});};const d=()=>{x.clearRect(0,0,c.width,c.height);s.forEach(p=>{x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fillStyle=`rgba(255,255,255,${p.a})`;x.fill();p.a+=p.sp*.01;if(p.a>1)p.sp=-Math.abs(p.sp);if(p.a<.1)p.sp=Math.abs(p.sp);});requestAnimationFrame(d);};window.addEventListener('resize',r);r();d();})();
+
+/* ── QUESTION BANK ── */
+const Q=[
+/* ====== 单选 10 ====== */
+{type:'single',
+ text:'「企业市场占有率」的正确计算公式是？',
+ opts:['A. 企业销售量 ÷ 行业销售量 × 100%','B. 企业销售额 ÷ 行业销售额 × 100%','C. (本期销售额 - 上期销售额) ÷ 上期销售额 × 100%','D. 企业利润 ÷ 行业总利润 × 100%'],
+ ans:[1],
+ exp:'市场占有率 = 企业销售额 ÷ 行业销售额 × 100%，是衡量企业市场份额的核心指标。注意分子分母都是「销售额」，不是销售量或利润。'
+},
+{type:'single',
+ text:'以下哪个公式能正确计算「销售额」？',
+ opts:['A. 访客数 × 点击率 × 件单价','B. 订单数 × 客单价 × (1-退货率)','C. 访客数 × 成交转化率 × 客单价','D. 浏览量 × 下单转化率 × 毛利率'],
+ ans:[2],
+ exp:'销售额 = 访客数 × 成交转化率 × 客单价，这是电商最核心的销售公式。想提升销售额，可以从增加访客、提高转化率、提升客单价三个方向入手。'
+},
+{type:'single',
+ text:'「跳失率」描述的是以下哪种行为？',
+ opts:['A. 客户购买后申请退款离开的比率','B. 访客入站后只浏览一个页面就离开的次数占入站次数的比例','C. 广告被展现但未被点击的比率','D. 客户加购后没有付款的比率'],
+ ans:[1],
+ exp:'跳失率 = 入站后只浏览1个页面就离开的次数 ÷ 入站次数。该值越低越好，跳失率高说明着陆页内容无法吸引访客继续浏览，需要优化页面内容和设计。'
+},
+{type:'single',
+ text:'「客单价」的计算公式是？',
+ opts:['A. 销售量 ÷ 交易总次数','B. 成交总金额 ÷ 成交客户总数','C. 产品单价之和 ÷ 产品种类数量','D. 销售额 ÷ 订单数量'],
+ ans:[1],
+ exp:'客单价 = 成交总金额 ÷ 成交客户总数，反映每个客户平均消费的金额。注意「件单价」才是产品单价之和÷产品种类数量，两者概念不同。'
+},
+{type:'single',
+ text:'「库存周转率」和「库存周转天数」的关系，以下哪项正确？',
+ opts:['A. 库存周转率 = 库存周转天数 × 360','B. 库存周转率 = 360 ÷ 库存周转天数','C. 库存周转率 = 销售量 ÷ 库存数量','D. 库存周转天数 = 360 × 库存周转率'],
+ ans:[1],
+ exp:'库存周转率 = 360 ÷ 库存周转天数。周转天数越少，周转率越高，说明商品销售越快，资金占用时间越短，经营效率越好。'
+},
+{type:'single',
+ text:'在推广指标中，以下关于UV和PV的描述，正确的是？',
+ opts:['A. UV是浏览量，PV是访客数','B. UV是访客数，PV是浏览量，同一人浏览3个页面UV计1次PV计3次','C. UV和PV是同一个概念','D. UV越大一定代表PV越大'],
+ ans:[1],
+ exp:'UV（Unique Visitor）是独立访客数，同一人多次访问只计1次；PV（Page View）是页面浏览量，每次刷新或打开新页面均累加。一个UV可以产生多个PV。'
+},
+{type:'single',
+ text:'「售罄率」的正确公式是？',
+ opts:['A. 销售量 ÷ 库存数量 × 100%','B. 销售量 ÷ 总采购数量 × 100%','C. 动销品种数 ÷ 仓库总品种数 × 100%','D. 已完成订单数 ÷ 已接收订单总数 × 100%'],
+ ans:[1],
+ exp:'售罄率 = 销售量 ÷ 总采购数量 × 100%，反映某时间段内采购的商品被卖出的比例。售罄率越高说明选品越准确，库存积压越少。'
+},
+{type:'single',
+ text:'「连带率」反映的是什么经营情况？',
+ opts:['A. 客户二次回购的比率','B. 每次交易平均销售的商品件数','C. 商品的毛利率水平','D. 店铺的广告转化效果'],
+ ans:[1],
+ exp:'连带率 = 销售量 ÷ 交易总次数，反映每次交易顾客平均购买了几件商品。连带率越高，说明搭配销售效果越好，每个顾客贡献的销售额越大。'
+},
+{type:'single',
+ text:'以下关于「动销率」的描述，哪项是正确的？',
+ opts:['A. 动销率越高越好，应尽量提高至100%','B. 动销率 = 仓库总品种数 ÷ 动销品种数 × 100%','C. 动销率不一定越高越好，需结合企业情况分析','D. 动销率与滞销率之和一定等于200%'],
+ ans:[2],
+ exp:'动销率 = 动销品种数 ÷ 仓库总品种数 × 100%。动销率不是越高越好，过高可能说明产品种类太单一，缺少备用款；需结合企业实际库存策略综合分析。'
+},
+{type:'single',
+ text:'「平均访问量（平均访问深度）」的含义是？',
+ opts:['A. 统计周期内总浏览次数','B. 平均每个访客访问的页面数（PV ÷ UV）','C. 每次访问的平均停留时间','D. 新访客与回访客的平均比例'],
+ ans:[1],
+ exp:'平均访问量（平均访问深度）= 总PV ÷ 总UV，即每个访客平均浏览了多少个页面。该值越高，说明内容越吸引人，访客在网站中浏览的页面越多。'
+},
+
+/* ====== 多选 5 ====== */
+{type:'multi',
+ text:'以下哪些属于「市场类指标」的范畴？（多选）',
+ opts:['A. 行业销售额增长率','B. 企业市场占有率','C. 客户重复购买率','D. 竞争对手客单价','E. 库存周转率'],
+ ans:[0,1,3],
+ exp:'市场类指标主要包括：行业销售额/量及增长率（A）、企业市场占有率/扩大率（B）、竞争对手销售额/客单价（D）、行业平均成本等。重复购买率是客户指标，库存周转率是供应链指标。'
+},
+{type:'multi',
+ text:'「运营类指标」中的「客户指标」包括哪些？（多选）',
+ opts:['A. 注册客户数','B. 行业总销售额','C. 活跃客户比率','D. 重复购买率','E. 消费频率'],
+ ans:[0,2,3,4],
+ exp:'客户指标主要用于描述客户黏度和忠诚度，包括：注册客户数（A）、活跃客户数/比率（C）、重复购买率（D）、消费频率（E）、平均购买次数、收藏人数、加购人数、客户回购率/流失率等。行业总销售额是市场类指标。'
+},
+{type:'multi',
+ text:'以下哪些是「转化率」的细分类型？（多选）',
+ opts:['A. 注册转化率','B. 库存周转率','C. 收藏转化率','D. 成交转化率','E. 动销率'],
+ ans:[0,2,3],
+ exp:'转化率体系包括：注册转化率（A）、收藏转化率（C）、下单转化率、客服转化率、成交转化率（D），以及全网/类目/品牌/单品/渠道/事件转化率等。库存周转率是供应链指标，动销率是销售指标，都不属于转化率范畴。'
+},
+{type:'multi',
+ text:'「供应链指标」包含哪些核心指标？（多选）',
+ opts:['A. 库存周转率','B. 客户重复购买率','C. 订单满足率','D. 平均配送成本','E. 售罄率'],
+ ans:[0,2,3,4],
+ exp:'供应链指标涉及采购、物流、仓储环节：库存周转率（A）、订单满足率（C）、平均配送成本（D）、售罄率（E），以及采购金额/数量、库存数量/金额/天数、订单响应时长、平均送货时间等。客户重复购买率属于客户指标。'
+},
+{type:'multi',
+ text:'「产品类指标」中，以下哪些描述是正确的？（多选）',
+ opts:['A. SKU是库存量单元，是最小的存货计量单位','B. SPU是标准化产品单元，包含多个SKU','C. 产品搜索指数等同于产品搜索次数','D. 毛利率=毛利÷营业收入×100%','E. 商品跳出率越低越好'],
+ ans:[0,1,3,4],
+ exp:'SKU是库存量单元（A正确），SPU是标准化产品单元一个SPU包含多个SKU（B正确）。产品搜索指数是访客数的指数化表示，不等同于搜索次数（C错误）。毛利率=毛利÷营业收入×100%（D正确）。商品跳出率越低越好（E正确）。'
+},
+
+/* ====== 判断 5 ====== */
+{type:'judge',
+ text:'库存周转率越高，说明企业库存积压越严重，资金利用效率越低。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1],
+ exp:'错误！库存周转率越高表示商品卖得越快，库存在仓库停留的时间越短，资金利用效率越高，经营状况越好。高周转率通常意味着库存积压少，不是积压严重。'
+},
+{type:'judge',
+ text:'UV（访客数）是指统计周期内客户浏览网站页面的总次数，同一人刷新10次计10个UV。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1],
+ exp:'错误！UV（Unique Visitor）是独立访客数，同一人无论访问多少次都只计1次。而PV（浏览量）才是页面浏览总次数，多次刷新会累加。题目描述的是PV的含义，不是UV。'
+},
+{type:'judge',
+ text:'「成交转化率」是电商运营的核心指标，计算公式为：完成付款的客户数 ÷ 商品总访问数 × 100%。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[0],
+ exp:'正确！成交转化率 = 完成付款的客户数 ÷ 商品总访问数 × 100%。它是电商运营核心指标，也是判断营销效果的重要依据，直接反映流量变现的能力。'
+},
+{type:'judge',
+ text:'动销率是评价企业综合情况的指标，动销率越高一定越好，企业应尽量将动销率提升至100%。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1],
+ exp:'错误！动销率不一定越高越好，需要结合企业实际情况分析。例如动销率过高可能意味着产品品类过于单一，缺乏备货品种，反而影响经营灵活性。应综合考量库存策略。'
+},
+{type:'judge',
+ text:'「重复购买率」是指在某时期内产生两次及两次以上购买行为的客户数占购买客户总数的比例。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[0],
+ exp:'正确！重复购买率 = 两次及以上购买客户数 ÷ 购买客户总数。该指标反映客户忠诚度，重复购买率越高，说明顾客对产品或品牌越满意，是运营质量的重要体现。'
+}
+];
+
+/* ── STATE ── */
+let pName='',pId='',cur=0,score=0,sC=0,mC=0,jC=0,combo=0;
+const sel=new Set();
+
+function startGame(){
+  pId=document.getElementById('iId').value.trim();
+  pName=document.getElementById('iName').value.trim();
+  if(!pId){alert('请输入学号！');return;}
+  if(!pName){alert('请输入姓名！');return;}
+  cur=0;score=0;sC=0;mC=0;jC=0;combo=0;
+  document.getElementById('hName').textContent=pName;
+  document.getElementById('hId').textContent='学号: '+pId;
+  document.getElementById('avt').textContent=pName[0];
+  document.getElementById('scV').textContent='0';
+  buildDots();showScr('sGame');renderQ();
+}
+
+function buildDots(){
+  const row=document.getElementById('sdots');row.innerHTML='';
+  Q.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='sdot'+(i===0?' cur':'');d.id='d'+i;d.textContent=i+1;
+    row.appendChild(d);
+  });
+}
+
+function updDot(i,res){
+  const d=document.getElementById('d'+i);
+  if(!d)return;
+  d.classList.remove('cur');
+  d.classList.add(res==='ok'?'done':'wdot');
+  d.textContent=res==='ok'?'✓':'✗';
+  const n=document.getElementById('d'+(i+1));
+  if(n)n.classList.add('cur');
+}
+
+function updPg(){
+  const p=Math.round((cur/Q.length)*100);
+  document.getElementById('pgFill').style.width=p+'%';
+  document.getElementById('pgTxt').textContent=`第 ${cur+1} 题 / 共 ${Q.length} 题`;
+  document.getElementById('pgPct').textContent=p+'%';
+}
+
+function renderQ(){
+  updPg();sel.clear();
+  const q=Q[cur],card=document.getElementById('qcard');
+  const tc=q.type,isM=tc==='multi';
+  const tLabel=tc==='single'?'🔵 单选题':tc==='multi'?'🟢 多选题':'🩷 判断题';
+  const tCls=tc==='single'?'s':tc==='multi'?'m':'j';
+
+  // formula hint for certain questions
+  let hint='';
+  if(cur===0)hint='<div class="qformula">市场占有率 = 企业销售额 ÷ 行业销售额 × 100%</div>';
+  if(cur===1)hint='<div class="qformula">销售额 = 访客数 × 成交转化率 × 客单价</div>';
+  if(cur===3)hint='<div class="qformula">客单价 = 成交总金额 ÷ 成交客户总数</div>';
+  if(cur===4)hint='<div class="qformula">库存周转率 = 360 ÷ 库存周转天数</div>';
+  if(cur===6)hint='<div class="qformula">售罄率 = 销售量 ÷ 总采购数量 × 100%</div>';
+
+  const optsHtml=q.opts.map((o,i)=>`
+    <div class="opt" id="o${i}" onclick="selOpt(${i})">
+      <div class="okey">${['A','B','C','D','E'][i]}</div>
+      <div class="otxt">${o.replace(/^[A-E]\.\s*/,'')}</div>
+    </div>`).join('');
+
+  card.innerHTML=`
+    <div class="qtype-badge ${tCls}">${tLabel} · 第 ${cur+1} 题</div>
+    <div class="qtxt">${q.text}</div>
+    ${hint}
+    ${isM?'<div class="qhint">💡 多选题，请选择所有正确答案后再提交</div>':''}
+    <div class="opts" id="owrap">${optsHtml}</div>
+    <button class="sub-btn" id="sbtn" onclick="submitA()" disabled>确认提交</button>
+    <div class="fb" id="fbBox"></div>
+    <button class="next-btn" id="nbtn" onclick="nextQ()">
+      ${cur+1<Q.length?'继续下一题 →':'查看最终成绩 🏆'}
+    </button>`;
+  card.style.animation='none';requestAnimationFrame(()=>{card.style.animation='sc .4s cubic-bezier(.4,0,.2,1) both';});
+}
+
+function selOpt(i){
+  const q=Q[cur];
+  if(document.getElementById('o'+i).classList.contains('locked'))return;
+  if(q.type==='single'||q.type==='judge'){
+    sel.clear();
+    q.opts.forEach((_,j)=>document.getElementById('o'+j).classList.remove('sel'));
+    sel.add(i);document.getElementById('o'+i).classList.add('sel');
+  }else{
+    const el=document.getElementById('o'+i);
+    if(sel.has(i)){sel.delete(i);el.classList.remove('sel');}
+    else{sel.add(i);el.classList.add('sel');}
+  }
+  document.getElementById('sbtn').disabled=(sel.size===0);
+}
+
+function submitA(){
+  const q=Q[cur];
+  const chosen=[...sel].sort(),correct=[...q.ans].sort();
+  const ok=JSON.stringify(chosen)===JSON.stringify(correct);
+
+  q.opts.forEach((_,i)=>{const el=document.getElementById('o'+i);el.classList.add('locked');el.onclick=null;});
+  q.ans.forEach(i=>document.getElementById('o'+i).classList.add('show-c'));
+  chosen.forEach(i=>{const el=document.getElementById('o'+i);if(q.ans.includes(i)){el.classList.add('correct');el.classList.remove('show-c');}else el.classList.add('wrong');});
+
+  if(ok){
+    score++;combo++;
+    if(q.type==='single')sC++;else if(q.type==='multi')mC++;else jC++;
+    document.getElementById('scV').textContent=score;
+    updDot(cur,'ok');
+    spawnP(['⭐','✨','🎉','💫']);
+    if(combo>=3)showCombo(combo);
+  }else{combo=0;updDot(cur,'no');}
+
+  const ansL=q.ans.map(i=>['A','B','C','D','E'][i]).join('、');
+  const fb=document.getElementById('fbBox');
+  fb.innerHTML=`<div class="fb-hd ${ok?'ok':'no'}">${ok?'🎯 回答正确！+1分':'💔 回答错误'}</div>${q.exp}<div class="fb-ans"><span style="color:var(--gold);font-weight:700;">正确答案：</span>${q.ans.map(i=>`<span class="ak">${['A','B','C','D','E'][i]}</span>`).join(' ')}</div>`;
+  fb.className='fb show '+(ok?'cfb':'wfb');
+  document.getElementById('sbtn').style.display='none';
+  document.getElementById('nbtn').classList.add('show');
+  sel.clear();
+}
+
+function nextQ(){
+  cur++;
+  if(cur>=Q.length)showResult();
+  else{renderQ();updPg();}
+}
+
+function showResult(){
+  showScr('sResult');
+  const pct=Math.round((score/Q.length)*100);
+  document.getElementById('bigSc').textContent=score;
+  document.getElementById('sb1').textContent=sC;
+  document.getElementById('sb2').textContent=mC;
+  document.getElementById('sb3').textContent=jC;
+  document.getElementById('rNm').textContent=`同学：${pName}（学号：${pId}）`;
+
+  let em,grade,ach,bg;
+  if(pct>=95){em='🏆🌟🥇';grade='指标王者';ach=`太棒了！${pName}同学，以近满分的成绩征服了「电商数据分析指标」全部五大体系！市场类、运营类、推广类、销售类、供应链指标全部掌握，你已经具备了专业数据分析师的知识基础！🎊`;bg='linear-gradient(135deg,#FFD700,#FFA500)';}
+  else if(pct>=80){em='🥈⭐✨';grade='数据精英';ach=`优秀！${pName}同学，以${pct}%的正确率完成了指标闯关！公式体系和指标分类掌握得相当扎实，错误的题目再复习一遍，满分就在眼前！💪`;bg='linear-gradient(135deg,#00D4FF,#7C3AED)';}
+  else if(pct>=60){em='🥉📚💡';grade='进步之星';ach=`加油，${pName}同学！正确率${pct}%，基础知识已掌握。建议重点复习：公式计算（销售额、市场占有率）、转化率体系、SKU与SPU的区别，再挑战一次吧！📖`;bg='linear-gradient(135deg,#00E5CC,#00B09B)';}
+  else{em='📖🔁💪';grade='勇于挑战者';ach=`勇气可嘉，${pName}同学！本次正确率${pct}%，五大指标体系的核心概念和公式还需加强。回去对照学习页面认真复习后，相信你下次一定能大幅提升！✨`;bg='linear-gradient(135deg,#FF6B9D,#C026D3)';}
+
+  document.getElementById('rIcon').style.background=bg;
+  document.getElementById('rIcon').textContent=em.split('')[0];
+  document.getElementById('rGrade').textContent=grade+' · 闯关完成！';
+  document.getElementById('rAch').textContent=ach;
+  document.getElementById('rFw').textContent=em;
+  setTimeout(()=>spawnP(['🎉','⭐','🏆','✨','🎊','💫','🌟'],28),300);
+}
+
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function retry(){showScr('sLogin');document.getElementById('iName').value='';document.getElementById('iId').value='';}
+
+function spawnP(emojis,n=12){
+  for(let i=0;i<n;i++)setTimeout(()=>{
+    const p=document.createElement('div');p.className='ptc';
+    p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    p.style.left=Math.random()*100+'vw';p.style.top=Math.random()*60+20+'vh';
+    p.style.animationDuration=(1.5+Math.random())+'s';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),2500);
+  },i*80);
+}
+
+function showCombo(n){
+  const t=document.getElementById('comboT');
+  const msgs=['','','','🔥 三连正确！','🔥🔥 四连！超厉害！','🔥🔥🔥 五连！无敌！'];
+  t.textContent=n<=5?msgs[n]:`🔥×${n} 连续正确！传奇！`;
+  t.style.display='block';t.style.animation='none';
+  requestAnimationFrame(()=>{t.style.animation='cIn 2.2s ease forwards';});
+  setTimeout(()=>t.style.display='none',2300);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('sLogin').classList.contains('active'))startGame();});
+</script>
+</body>
+</html>
