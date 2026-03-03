@@ -1,1 +1,1199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块二·单元一 — 数据采集认知</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#F7F3EC;
+  --bg2:#EDE8DF;
+  --bg3:#E3DBCE;
+  --card:#FFFDF8;
+  --card2:#F2EDE4;
+  --green:#1A7A5E;
+  --green2:#22A07A;
+  --green3:#4DC49A;
+  --greenl:#D4EFDD;
+  --amber:#C07B2A;
+  --amber2:#E8A84A;
+  --amberl:#FDF1D8;
+  --red:#B83232;
+  --redl:#FCE8E8;
+  --blue:#2A5FAA;
+  --bluel:#E3EDF9;
+  --ink:#2C2416;
+  --ink2:#5C4F3A;
+  --ink3:#8C7A60;
+  --border:rgba(92,79,58,.15);
+  --border2:rgba(26,122,94,.25);
+  --r-s:6px;--r-m:12px;--r-l:18px;--r-f:9999px;
+  --sh:0 2px 16px rgba(44,36,22,.1);
+  --sh-g:0 4px 24px rgba(26,122,94,.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC",-apple-system,"PingFang SC",sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
 
+/* paper texture */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5}
+
+/* ─── NAVBAR ─── */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(247,243,236,.92);backdrop-filter:blur(12px);border-bottom:2px solid var(--green2);height:54px;display:flex;align-items:center;padding:0 24px}
+.nav-inner{max-width:980px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.btn-back{display:flex;align-items:center;gap:5px;padding:5px 14px;background:transparent;border:1.5px solid var(--border2);border-radius:var(--r-f);font-size:12px;font-weight:700;color:var(--green);cursor:pointer;text-decoration:none;transition:all .2s;font-family:inherit;letter-spacing:.04em}
+.btn-back:hover{background:var(--greenl);border-color:var(--green)}
+.nav-badge{font-size:12px;color:var(--ink3);font-weight:600}
+.nav-badge .cur{color:var(--green);font-weight:800}
+.nav-xp{padding:3px 12px;background:var(--greenl);border:1.5px solid var(--border2);border-radius:var(--r-f);font-size:11px;font-weight:800;color:var(--green);font-family:"JetBrains Mono",monospace}
+
+/* ─── STEP BAR ─── */
+.stepbar{background:rgba(247,243,236,.85);border-bottom:1px solid var(--border);padding:10px 24px;position:sticky;top:54px;z-index:90;backdrop-filter:blur(8px)}
+.stepbar-inner{max-width:980px;margin:0 auto;display:flex;align-items:center}
+.s-step{flex:1;display:flex;align-items:center}
+.s-dot-w{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:54px}
+.s-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;border:2px solid var(--ink3);background:var(--bg2);color:var(--ink3);transition:all .3s;cursor:pointer;font-family:"JetBrains Mono",monospace}
+.s-dot.done{background:var(--green2);border-color:var(--green);color:#fff}
+.s-dot.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 0 0 4px rgba(26,122,94,.15)}
+.s-label{font-size:9px;color:var(--ink3);font-weight:600;white-space:nowrap;letter-spacing:.04em}
+.s-label.active{color:var(--green);font-weight:800}
+.s-line{flex:1;height:2px;background:var(--bg3);margin:0 2px 14px;transition:background .3s;border-radius:2px}
+.s-line.done{background:var(--green2)}
+
+/* ─── WRAP ─── */
+.wrap{max-width:980px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
+.part{display:none;animation:fiu .5s ease}
+.part.active{display:block}
+@keyframes fiu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── PART HEADER ─── */
+.ph{padding:28px 0 20px;border-bottom:2px dashed var(--border);margin-bottom:24px}
+.ptag{display:inline-flex;align-items:center;gap:5px;padding:2px 11px;background:var(--greenl);border:1.5px solid var(--border2);border-radius:var(--r-f);font-size:10px;font-weight:800;color:var(--green);margin-bottom:10px;letter-spacing:.08em;font-family:"JetBrains Mono",monospace}
+.ph h1{font-size:22px;font-weight:900;margin-bottom:4px;color:var(--ink);font-family:"Noto Serif SC",serif}
+.ph h1 .hl{color:var(--green)}
+.ph p{font-size:13px;color:var(--ink2)}
+.ttime{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:var(--amberl);border-radius:var(--r-f);font-size:10px;color:var(--amber);margin-top:6px;font-family:"JetBrains Mono",monospace;border:1px solid rgba(192,123,42,.2);font-weight:600}
+
+/* ─── CARD ─── */
+.card{background:var(--card);border-radius:var(--r-m);padding:22px 26px;border:1px solid var(--border);margin-bottom:16px;box-shadow:var(--sh);position:relative}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green2);border-radius:3px 0 0 3px}
+.card-t{font-size:14px;font-weight:800;margin-bottom:14px;color:var(--ink);font-family:"Noto Serif SC",serif}
+
+/* ─── BUTTONS ─── */
+.btn-next-w{text-align:center;padding:28px 0 8px}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:12px 32px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:var(--r-s);font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:var(--sh-g);transition:transform .2s,box-shadow .2s;letter-spacing:.04em}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(26,122,94,.3)}
+
+/* ═══ PART 1 ═══ */
+.hero{background:linear-gradient(135deg,#1A3A2A,#0F2818);border-radius:var(--r-l);padding:36px 40px;margin-bottom:20px;position:relative;overflow:hidden;color:#fff}
+.hero::before{content:'📡';position:absolute;right:24px;bottom:8px;font-size:88px;opacity:.08}
+.hero-tag{font-size:10px;font-weight:800;color:var(--green3);letter-spacing:.14em;font-family:"JetBrains Mono",monospace;margin-bottom:12px}
+.hero-title{font-size:22px;font-weight:900;line-height:1.35;margin-bottom:14px;font-family:"Noto Serif SC",serif}
+.hero-title span{color:var(--green3)}
+.hero-body{font-size:13.5px;color:rgba(255,255,255,.78);line-height:1.9;max-width:580px}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:var(--r-f);font-size:11px;font-weight:700;margin-top:14px;border:1px solid;background:rgba(77,196,154,.15);border-color:rgba(77,196,154,.35);color:var(--green3)}
+
+/* 概念卡 */
+.concept-def{background:var(--amberl);border:1.5px solid rgba(192,123,42,.25);border-radius:var(--r-m);padding:20px 24px;margin-bottom:16px}
+.cd-quote{font-size:15px;font-weight:700;color:var(--ink);line-height:1.9;font-family:"Noto Serif SC",serif}
+.cd-quote .em{color:var(--green);font-weight:900}
+.cd-src{font-size:11px;color:var(--ink3);margin-top:8px;font-family:"JetBrains Mono",monospace}
+
+/* 四原则卡片 */
+.principle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+.pg-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r-m);padding:18px 20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.pg-item::after{content:'';position:absolute;right:-20px;bottom:-20px;width:80px;height:80px;border-radius:50%;background:currentColor;opacity:.04;transition:all .3s}
+.pg-item:hover{transform:translateY(-3px);box-shadow:var(--sh-g)}
+.pg-item.green{border-top:3px solid var(--green2);color:var(--green)}
+.pg-item.amber{border-top:3px solid var(--amber2);color:var(--amber)}
+.pg-item.blue{border-top:3px solid var(--blue);color:var(--blue)}
+.pg-item.red{border-top:3px solid var(--red);color:var(--red)}
+.pg-icon{font-size:24px;margin-bottom:8px}
+.pg-name{font-size:14px;font-weight:800;margin-bottom:6px;font-family:"Noto Serif SC",serif}
+.pg-body{font-size:12px;color:var(--ink2);line-height:1.75}
+.pg-detail{display:none;margin-top:10px;font-size:12px;color:var(--ink2);line-height:1.8;padding-top:10px;border-top:1px dashed var(--border)}
+.pg-detail.open{display:block;animation:fiu .3s ease}
+
+/* 思考题 */
+.think-box{background:linear-gradient(135deg,#0F2818,#1A3A2A);border-radius:var(--r-m);padding:20px 24px;margin-bottom:16px;color:#fff}
+.tb-q{font-size:14px;font-weight:700;color:var(--green3);margin-bottom:12px}
+.tb-body{font-size:13px;color:rgba(255,255,255,.75);line-height:1.85}
+.think-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.topt{padding:6px 14px;background:rgba(77,196,154,.1);border:1px solid rgba(77,196,154,.25);border-radius:var(--r-f);font-size:12px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s}
+.topt:hover,.topt.sel{background:rgba(77,196,154,.2);border-color:var(--green3);color:var(--green3)}
+.think-ans{display:none;margin-top:12px;padding:12px 16px;background:rgba(77,196,154,.12);border-radius:var(--r-s);font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;border-left:2px solid var(--green3)}
+.think-ans.show{display:block}
+
+/* ═══ PART 2 ═══ */
+.method-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.mc-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r-m);overflow:hidden;cursor:pointer;transition:border-color .2s;box-shadow:var(--sh)}
+.mc-item:hover,.mc-item.open{border-color:var(--green2)}
+.mc-head{display:flex;align-items:center;gap:14px;padding:14px 18px}
+.mc-icon{width:38px;height:38px;border-radius:var(--r-s);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--greenl)}
+.mc-name{font-size:14px;font-weight:800;color:var(--ink);flex:1;font-family:"Noto Serif SC",serif}
+.mc-tag{padding:2px 9px;border-radius:var(--r-f);font-size:10px;font-weight:700;background:var(--amberl);color:var(--amber);border:1px solid rgba(192,123,42,.2)}
+.mc-arr{color:var(--ink3);transition:transform .3s;font-size:11px}
+.mc-item.open .mc-arr{transform:rotate(180deg)}
+.mc-body{display:none;padding:0 18px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink2);line-height:1.85}
+.mc-item.open .mc-body{display:block;animation:fiu .3s ease}
+.mc-body strong{color:var(--green)}
+.mc-tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mc-tool{padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-f);font-size:11px;font-weight:600;color:var(--ink2)}
+.mc-tool.hl{background:var(--greenl);border-color:var(--border2);color:var(--green)}
+
+/* 即时练习 */
+.mquiz{background:var(--bluel);border:1.5px solid rgba(42,95,170,.2);border-radius:var(--r-m);padding:18px 22px;margin-top:14px}
+.mq-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.mq-tag{padding:2px 9px;background:var(--blue);color:#fff;border-radius:var(--r-f);font-size:10px;font-weight:700;letter-spacing:.06em}
+.mq-title{font-size:13px;font-weight:700;color:var(--blue)}
+.quiz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.qopt{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-s);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--ink2)}
+.qopt:hover:not(.disabled){border-color:var(--blue);background:var(--bluel);color:var(--ink)}
+.qopt.correct{border-color:var(--green2);background:var(--greenl);color:var(--green)}
+.qopt.wrong{border-color:var(--red);background:var(--redl);color:var(--red)}
+.qopt.disabled{cursor:default}
+.qopt .ol{width:20px;height:20px;border-radius:50%;background:var(--bg2);color:var(--ink3);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:"JetBrains Mono",monospace;border:1px solid var(--border)}
+.qopt.correct .ol{background:var(--green2);color:#fff;border-color:var(--green)}
+.qopt.wrong .ol{background:var(--red);color:#fff;border-color:var(--red)}
+.qfb{margin-top:10px;padding:10px 14px;border-radius:var(--r-s);font-size:12px;font-weight:600;display:none;line-height:1.7}
+.qfb.show{display:block}
+.qfb.ok{background:var(--greenl);color:var(--green);border-left:2px solid var(--green2)}
+.qfb.no{background:var(--redl);color:var(--red);border-left:2px solid var(--red)}
+.xpop{display:inline-block;margin-left:6px;padding:1px 7px;background:var(--amber2);color:#fff;border-radius:var(--r-f);font-size:10px;font-weight:800;font-family:"JetBrains Mono",monospace}
+
+/* ═══ PART 3 — CASE ═══ */
+.case-hero{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1.5px solid var(--border);border-radius:var(--r-l);padding:28px 34px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.case-hero::before{content:'🔎';position:absolute;right:22px;bottom:8px;font-size:60px;opacity:.08}
+.ch-tag{font-size:10px;font-weight:800;color:var(--green);letter-spacing:.12em;font-family:"JetBrains Mono",monospace;margin-bottom:8px}
+.ch-title{font-size:18px;font-weight:900;margin-bottom:10px;font-family:"Noto Serif SC",serif;color:var(--ink)}
+.ch-body{font-size:13px;color:var(--ink2);line-height:1.85}
+
+/* 步骤展开卡 */
+.step-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.sstep{background:var(--card);border:1px solid var(--border);border-radius:var(--r-m);overflow:hidden;cursor:pointer;transition:border-color .2s;box-shadow:var(--sh)}
+.sstep:hover,.sstep.open{border-color:var(--green2)}
+.sstep-head{display:flex;align-items:center;gap:12px;padding:14px 18px}
+.ss-num{width:32px;height:32px;border-radius:8px;background:var(--greenl);border:1.5px solid var(--border2);color:var(--green);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:"JetBrains Mono",monospace;transition:all .3s}
+.sstep.open .ss-num{background:var(--green);color:#fff;border-color:var(--green)}
+.ss-title{font-size:14px;font-weight:700;color:var(--ink);flex:1;font-family:"Noto Serif SC",serif}
+.ss-hint{font-size:11px;color:var(--ink3)}
+.ss-arr{color:var(--ink3);transition:transform .3s;font-size:11px}
+.sstep.open .ss-arr{transform:rotate(180deg)}
+.sstep-body{display:none;padding:0 18px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink2);line-height:1.9}
+.sstep.open .sstep-body{display:block;animation:fiu .3s ease}
+.sstep-body strong{color:var(--green)}
+.check-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.cl-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--r-s);padding:12px 14px}
+.cl-item h4{font-size:12px;font-weight:800;color:var(--green);margin-bottom:5px}
+.cl-item p{font-size:11px;color:var(--ink2);line-height:1.7}
+
+/* 案例法律分析 */
+.law-box{background:linear-gradient(135deg,#FFF5F5,#FCE8E8);border:1.5px solid rgba(184,50,50,.2);border-radius:var(--r-m);padding:20px 24px;margin-bottom:16px}
+.law-title{font-size:14px;font-weight:800;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.law-body{font-size:13px;color:var(--ink2);line-height:1.85}
+.law-body strong{color:var(--red)}
+.law-verdict{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;background:var(--redl);border-radius:var(--r-s);font-size:12px;font-weight:700;color:var(--red)}
+
+/* ═══ PART 4 — GAME ═══ */
+.game-hero{background:linear-gradient(135deg,#1A3A2A,#0A2018);border-radius:var(--r-l);padding:24px 28px;margin-bottom:18px;display:flex;align-items:center;gap:20px;color:#fff}
+.gh-icon{font-size:44px;flex-shrink:0}
+.gh-title{font-size:18px;font-weight:900;margin-bottom:5px;font-family:"Noto Serif SC",serif}
+.gh-body{font-size:13px;color:rgba(255,255,255,.72);line-height:1.65}
+.gh-rules{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.grule{padding:2px 10px;border-radius:var(--r-f);background:rgba(77,196,154,.15);border:1px solid rgba(77,196,154,.3);color:var(--green3);font-size:10px;font-weight:700;font-family:"JetBrains Mono",monospace}
+
+/* 得分面板 */
+.score-panel{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:var(--r-m);padding:12px 18px;margin-bottom:14px;flex-wrap:wrap;gap:8px;box-shadow:var(--sh)}
+.sp-stat{text-align:center}
+.sp-val{font-size:22px;font-weight:900;color:var(--green);font-family:"JetBrains Mono",monospace}
+.sp-lab{font-size:10px;color:var(--ink3)}
+.btn-reset{padding:6px 14px;border:1.5px solid var(--border2);border-radius:var(--r-f);background:transparent;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;font-family:"JetBrains Mono",monospace;transition:all .2s}
+.btn-reset:hover{background:var(--greenl)}
+
+/* 游戏标签页 */
+.game-tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-m);padding:4px}
+.gtab{flex:1;padding:8px 6px;background:transparent;border:none;border-radius:var(--r-s);font-size:12px;font-weight:700;color:var(--ink3);cursor:pointer;transition:all .2s;font-family:inherit;text-align:center}
+.gtab.active{background:var(--green);color:#fff}
+.game-area{display:none;animation:fiu .4s ease}
+.game-area.active{display:block}
+
+/* 游戏1：场景判断（采集方法） */
+.scenario-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.sc-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-m);padding:16px 18px;box-shadow:var(--sh)}
+.sc-num{font-size:10px;font-weight:800;color:var(--green);font-family:"JetBrains Mono",monospace;margin-bottom:6px;letter-spacing:.06em}
+.sc-q{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.7}
+.sc-opts{display:flex;flex-wrap:wrap;gap:6px}
+.scopt{padding:5px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-f);font-size:11px;font-weight:700;cursor:pointer;color:var(--ink2);transition:all .2s}
+.scopt:hover:not(.disabled){border-color:var(--green2);background:var(--greenl);color:var(--green)}
+.scopt.correct{background:var(--greenl);border-color:var(--green2);color:var(--green);cursor:default}
+.scopt.wrong{background:var(--redl);border-color:var(--red);color:var(--red);animation:shake .3s ease;cursor:default}
+.scopt.disabled{cursor:default}
+.sc-fb{margin-top:8px;font-size:11px;font-weight:600;display:none}
+.sc-fb.show{display:block}
+.sc-fb.ok{color:var(--green)}
+.sc-fb.no{color:var(--red)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* 游戏2：合规判断 */
+.comply-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.comply-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-m);padding:16px 18px;box-shadow:var(--sh)}
+.cc-q{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.75;padding-left:14px;border-left:3px solid var(--amber2)}
+.cc-opts{display:flex;gap:8px}
+.ccopt{flex:1;padding:9px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-s);font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;color:var(--ink2)}
+.ccopt:hover:not(.ccdisabled){border-color:var(--green2);background:var(--greenl);color:var(--green)}
+.ccopt.ccok{background:var(--greenl);border-color:var(--green2);color:var(--green);cursor:default}
+.ccopt.ccno{background:var(--redl);border-color:var(--red);color:var(--red);cursor:default}
+.ccopt.ccdisabled{cursor:default}
+.cc-fb{margin-top:10px;padding:10px 12px;border-radius:var(--r-s);font-size:12px;font-weight:500;display:none;line-height:1.75}
+.cc-fb.show{display:block}
+.cc-fb.ccfbok{background:var(--greenl);color:var(--green);border-left:2px solid var(--green2)}
+.cc-fb.ccfbno{background:var(--redl);color:var(--red);border-left:2px solid var(--red)}
+
+/* 游戏3：步骤排序 */
+.step-drag-title{font-size:13px;color:var(--ink2);margin-bottom:12px;padding:10px 14px;background:var(--amberl);border-radius:var(--r-s);border:1px solid rgba(192,123,42,.2)}
+.sort-pool{display:flex;flex-direction:column;gap:7px;min-height:40px;border:2px dashed var(--border);border-radius:var(--r-m);padding:12px;transition:border-color .2s;margin-bottom:10px}
+.sort-pool.drag-over{border-color:var(--green2);background:var(--greenl)}
+.sort-pool-label{font-size:10px;color:var(--ink3);font-family:"JetBrains Mono",monospace;margin-bottom:8px;letter-spacing:.06em}
+.drag-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-s);cursor:grab;transition:all .2s;font-size:13px;font-weight:600;color:var(--ink);box-shadow:var(--sh);user-select:none}
+.drag-item:hover{border-color:var(--green2);background:var(--greenl)}
+.drag-item.dragging{opacity:.4;cursor:grabbing}
+.drag-item.dcorrect{border-color:var(--green2);background:var(--greenl);color:var(--green)}
+.drag-item.dwrong{border-color:var(--red);background:var(--redl);color:var(--red);animation:shake .3s ease}
+.di-handle{color:var(--ink3);font-size:13px}
+.di-num{width:22px;height:22px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--ink3);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:"JetBrains Mono",monospace;transition:all .3s}
+.drag-item.dcorrect .di-num{background:var(--green2);color:#fff;border-color:var(--green)}
+.drag-item.dwrong .di-num{background:var(--red);color:#fff;border-color:var(--red)}
+
+.btn-check{padding:10px 22px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:var(--r-s);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;margin-right:8px}
+.btn-check:hover{transform:translateY(-1px);box-shadow:var(--sh-g)}
+.btn-reset-g{padding:10px 16px;border:1.5px solid var(--border);border-radius:var(--r-s);background:transparent;color:var(--ink3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-reset-g:hover{border-color:var(--ink2);color:var(--ink2)}
+.game-fb{padding:12px 16px;border-radius:var(--r-s);font-size:13px;font-weight:600;display:none;margin-top:10px}
+.game-fb.show{display:block}
+.game-fb.gok{background:var(--greenl);color:var(--green);border-left:2px solid var(--green2)}
+.game-fb.gpartial{background:var(--amberl);color:var(--amber);border-left:2px solid var(--amber2)}
+.game-fb.gno{background:var(--redl);color:var(--red);border-left:2px solid var(--red)}
+
+/* 结算 */
+.result-box{display:none;text-align:center;padding:32px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-l);margin-top:14px;box-shadow:var(--sh)}
+.result-box.show{display:block;animation:fiu .5s ease}
+.rb-stars{font-size:34px;letter-spacing:8px;margin-bottom:8px}
+.rb-title{font-size:20px;font-weight:900;margin-bottom:6px;font-family:"Noto Serif SC",serif;color:var(--ink)}
+.rb-body{font-size:13px;color:var(--ink2);margin-bottom:14px}
+.rb-xp{display:inline-block;padding:7px 22px;background:linear-gradient(135deg,var(--amber),var(--amber2));border-radius:var(--r-f);font-size:15px;font-weight:900;color:#fff;margin-bottom:18px;font-family:"JetBrains Mono",monospace}
+.rb-stats{display:flex;justify-content:center;gap:28px;margin-bottom:18px}
+.rb-sv{font-size:24px;font-weight:900;color:var(--green);font-family:"JetBrains Mono",monospace}
+.rb-sl{font-size:10px;color:var(--ink3);margin-top:2px}
+
+/* ═══ PART 5 ═══ */
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:22px}
+.sg-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r-m);padding:18px 20px;box-shadow:var(--sh)}
+.sg-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sg-icon{font-size:20px}
+.sg-title{font-size:14px;font-weight:800;color:var(--ink);font-family:"Noto Serif SC",serif}
+.sg-body{font-size:12px;color:var(--ink2);line-height:1.8}
+.sg-body li{margin-bottom:4px;padding-left:14px;position:relative}
+.sg-body li::before{content:'▸';position:absolute;left:0;color:var(--green2)}
+
+.key-box{background:var(--amberl);border:1.5px solid rgba(192,123,42,.25);border-radius:var(--r-l);padding:22px 26px;margin-bottom:20px}
+.key-box h3{font-size:14px;font-weight:800;color:var(--amber);margin-bottom:12px;font-family:"Noto Serif SC",serif}
+.key-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ki{background:var(--card);border-radius:var(--r-s);padding:12px 14px;border:1px solid var(--border)}
+.ki h4{font-size:12px;font-weight:800;color:var(--green);margin-bottom:4px}
+.ki p{font-size:11px;color:var(--ink2);line-height:1.7}
+
+.finish-box{background:linear-gradient(135deg,#1A3A2A,#0A2018);border-radius:var(--r-l);padding:28px 32px;text-align:center;color:#fff}
+.finish-box h3{font-size:17px;font-weight:900;margin-bottom:14px;font-family:"Noto Serif SC",serif;color:var(--green3)}
+.score-row{display:flex;justify-content:center;gap:28px;margin-bottom:18px}
+.sc-val{font-size:24px;font-weight:900;color:var(--green3);font-family:"JetBrains Mono",monospace}
+.sc-lab{font-size:10px;color:rgba(255,255,255,.55);margin-top:3px}
+.btn-home{display:inline-flex;align-items:center;gap:8px;padding:12px 30px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:var(--r-s);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:var(--sh-g);transition:transform .2s;letter-spacing:.04em}
+.btn-home:hover{transform:translateY(-2px)}
+
+/* toast + confetti */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:var(--r-f);font-size:12px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:500;transition:transform .3s;white-space:nowrap;font-family:"JetBrains Mono",monospace}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.confetti-c{position:fixed;inset:0;pointer-events:none;z-index:999}
+.cp{position:absolute;top:-10px;width:7px;height:7px;border-radius:2px;animation:cfall linear forwards}
+@keyframes cfall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+@media(max-width:768px){
+  .principle-grid{grid-template-columns:1fr}
+  .check-list{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+  .key-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div style="display:flex;align-items:center;gap:10px">
+      <a class="btn-back" href="index.html">← HOME</a>
+      <div class="nav-badge">模块二 › <span class="cur">单元一</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;font-weight:600;color:var(--ink2)" id="navName">-</span>
+      <span class="nav-xp" id="navXP">0 XP</span>
+    </div>
+  </div>
+</nav>
+
+<!-- STEP BAR -->
+<div class="stepbar">
+  <div class="stepbar-inner">
+    <div class="s-step"><div class="s-dot-w"><div class="s-dot active" id="d1" onclick="goPart(1)">01</div><div class="s-label active" id="l1">情境导入</div></div><div class="s-line" id="ln12"></div></div>
+    <div class="s-step"><div class="s-dot-w"><div class="s-dot" id="d2" onclick="goPart(2)">02</div><div class="s-label" id="l2">知识学习</div></div><div class="s-line" id="ln23"></div></div>
+    <div class="s-step"><div class="s-dot-w"><div class="s-dot" id="d3" onclick="goPart(3)">03</div><div class="s-label" id="l3">案例实战</div></div><div class="s-line" id="ln34"></div></div>
+    <div class="s-step"><div class="s-dot-w"><div class="s-dot" id="d4" onclick="goPart(4)">04</div><div class="s-label" id="l4">闯关挑战</div></div><div class="s-line" id="ln45"></div></div>
+    <div class="s-step"><div class="s-dot-w"><div class="s-dot" id="d5" onclick="goPart(5)">05</div><div class="s-label" id="l5">小结回顾</div></div></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════ PART 1 ═══════════ -->
+<section class="part active" id="part-1">
+  <div class="ph">
+    <div class="ptag">// PART_01 · SCENARIO</div>
+    <h1>数据采集：<span class="hl">电商运营的"原材料"</span></h1>
+    <p>基础数据采集 · 模块二 · 单元一 数据采集认知</p>
+    <div class="ttime">⏱ ~5 min</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-tag">// OPENING STORY</div>
+    <h2 class="hero-title">没有数据，运营就是<span>瞎猜</span></h2>
+    <div class="hero-body">
+      两家同类目的女装店，A店老板每天凭感觉补货、凭经验选款；B店运营每周采集行业销量数据、竞品价格、自店访客来源，用数据决策选款和定价。<br><br>
+      三个月后，A店积压了大量滞销库存，B店爆款率达到60%。<br><br>
+      <strong style="color:var(--green3)">数据采集，是所有数据分析工作的第一步——也是最关键的一步。没有高质量的数据输入，后续所有分析都是"垃圾进垃圾出"。</strong>
+    </div>
+    <div class="hero-pill">📊 本单元核心：概念 · 四原则 · 五方法 · 三步骤</div>
+  </div>
+
+  <div class="concept-def">
+    <div class="cd-quote">
+      数据采集（也叫<span class="em">数据获取</span>），是指通过在平台源程序中预设工具或程序代码，获取<span class="em">商品状态变化</span>、<span class="em">资金状态变化</span>、<span class="em">流量状态变化</span>、<span class="em">用户行为和信息</span>等数据内容的过程，为后续进行数据分析提供数据准备。
+    </div>
+    <div class="cd-src">// 定义来源：《电子商务数据分析基础》高等教育出版社</div>
+  </div>
+
+  <div class="card">
+    <div class="card-t">🎯 数据采集在电商中采集什么？</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+      <div style="padding:12px;background:var(--bg2);border-radius:var(--r-s);border:1px solid var(--border)"><div style="font-size:11px;font-weight:800;color:var(--green);margin-bottom:5px">📦 商品状态变化</div><div style="font-size:11px;color:var(--ink2)">价格波动、库存变动、新品上架、下架记录</div></div>
+      <div style="padding:12px;background:var(--bg2);border-radius:var(--r-s);border:1px solid var(--border)"><div style="font-size:11px;font-weight:800;color:var(--amber);margin-bottom:5px">💰 资金状态变化</div><div style="font-size:11px;color:var(--ink2)">销售额、退款金额、广告费用、利润数据</div></div>
+      <div style="padding:12px;background:var(--bg2);border-radius:var(--r-s);border:1px solid var(--border)"><div style="font-size:11px;font-weight:800;color:var(--blue);margin-bottom:5px">📡 流量状态变化</div><div style="font-size:11px;color:var(--ink2)">UV、PV、跳失率、来源渠道、峰值时段</div></div>
+      <div style="padding:12px;background:var(--bg2);border-radius:var(--r-s);border:1px solid var(--border)"><div style="font-size:11px;font-weight:800;color:var(--red);margin-bottom:5px">👤 用户行为和信息</div><div style="font-size:11px;color:var(--ink2)">收藏、加购、评价、复购、停留时长</div></div>
+    </div>
+  </div>
+
+  <div class="think-box">
+    <div class="tb-q">💭 想一想：B店运营每周采集数据，对应的是哪种采集方法？</div>
+    <div class="tb-body">B店从生意参谋后台获取自店数据，从行业报告获取市场数据……</div>
+    <div class="think-opts">
+      <div class="topt" onclick="selT1(this,'A')">A. 都是网页数据采集</div>
+      <div class="topt" onclick="selT1(this,'B')">B. 直接获取 + 间接获取</div>
+      <div class="topt" onclick="selT1(this,'C')">C. 都是系统日志采集</div>
+      <div class="topt" onclick="selT1(this,'D')">D. 都是报表采集</div>
+    </div>
+    <div class="think-ans" id="t1ans"></div>
+  </div>
+
+  <div class="btn-next-w">
+    <button class="btn-next" onclick="goPart(2)">进入知识学习 →</button>
+  </div>
+</section>
+
+
+<!-- ═══════════ PART 2 ═══════════ -->
+<section class="part" id="part-2">
+  <div class="ph">
+    <div class="ptag">// PART_02 · KNOWLEDGE</div>
+    <h1>四原则 · 五方法 · 三步骤</h1>
+    <p>掌握数据采集的完整知识体系</p>
+    <div class="ttime">⏱ ~20 min</div>
+  </div>
+
+  <!-- 四原则 -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-t">⚖️ 二、数据采集的四大原则（点击展开详解）</div>
+    <div class="principle-grid">
+      <div class="pg-item green" onclick="togglePG(this)">
+        <div class="pg-icon">⚡</div>
+        <div class="pg-name">及时性</div>
+        <div class="pg-body">尽可能获取最新数据，只有最新数据才能发现当前问题并预测变化趋势。</div>
+        <div class="pg-detail">
+          <strong>为什么重要？</strong>电商行业变化极快，昨天的竞品价格和今天可能完全不同。<br>
+          <strong>实操建议：</strong>高频指标（流量/转化率）至少每日采集；行业数据每周更新；月度报告月初采集。
+        </div>
+      </div>
+      <div class="pg-item amber" onclick="togglePG(this)">
+        <div class="pg-icon">📅</div>
+        <div class="pg-name">有效性</div>
+        <div class="pg-body">注意数值期限的有效性，过期数据会导致分析结论失去参考价值。</div>
+        <div class="pg-detail">
+          <strong>典型误区：</strong>用去年双十一的流量数据来预测今年的库存备货，导致严重偏差。<br>
+          <strong>原则：</strong>明确数据的采集周期和有效期，超过有效期的数据需重新采集。
+        </div>
+      </div>
+      <div class="pg-item blue" onclick="togglePG(this)">
+        <div class="pg-icon">🎯</div>
+        <div class="pg-name">准确性</div>
+        <div class="pg-body">确保摘录的数据准确无误，避免数据参与计算时出现较大偏差。</div>
+        <div class="pg-detail">
+          <strong>典型错误：</strong>把"销售量 12,500"手动录入时写成了"1,250"，导致计算的毛利率相差10倍。<br>
+          <strong>检验方法：</strong>采集后通过求和/平均与原始数据比对，发现不匹配立即排查。
+        </div>
+      </div>
+      <div class="pg-item red" onclick="togglePG(this)">
+        <div class="pg-icon">⚖️</div>
+        <div class="pg-name">合法性</div>
+        <div class="pg-body">只能采集已公布的公开数据或经对方同意的数据，不能使用非法手段获取。</div>
+        <div class="pg-detail">
+          <strong>合法来源：</strong>平台公开数据、行业报告、经用户授权的问卷<br>
+          <strong>非法行为（违法！）：</strong>商业间谍、非法窃取竞争对手内部数据、未经同意购买客户资料<br>
+          <strong>法律后果：</strong>违反《反不正当竞争法》《个人信息保护法》，可能面临罚款甚至刑事责任。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 五种方法 -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-t">🛠️ 三、数据采集的五种方法（点击展开）</div>
+    <div class="method-cards">
+
+      <div class="mc-item" onclick="toggleMC(this)">
+        <div class="mc-head">
+          <div class="mc-icon">🌐</div>
+          <div class="mc-name">① 网页数据采集</div>
+          <div class="mc-tag">最常用</div>
+          <div class="mc-arr">▼</div>
+        </div>
+        <div class="mc-body">
+          在采集行业及竞争对手数据时，电商平台上的商品属性数据（标题、品牌、价格、销量、评价）可以<strong>直接摘录</strong>，或使用<strong>爬虫采集工具</strong>批量采集。
+          <div class="mc-tools">
+            <div class="mc-tool hl">🧭 生意参谋</div>
+            <div class="mc-tool hl">🏪 京东商智</div>
+            <div class="mc-tool">火车采集器</div>
+            <div class="mc-tool">八爪鱼采集器</div>
+            <div class="mc-tool">手动摘录</div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--ink3);background:var(--bg2);padding:8px 10px;border-radius:var(--r-s)">
+            ⚠️ 注意：爬虫采集要遵守平台服务条款，不得过度抓取或采集非公开数据。
+          </div>
+        </div>
+      </div>
+
+      <div class="mc-item" onclick="toggleMC(this)">
+        <div class="mc-head">
+          <div class="mc-icon">📋</div>
+          <div class="mc-name">② 系统日志数据采集</div>
+          <div class="mc-tag">内部数据</div>
+          <div class="mc-arr">▼</div>
+        </div>
+        <div class="mc-body">
+          网站日志中记录了<strong>访客IP地址、访问时间、访问次数、停留时间、访客来源</strong>等数据。通过采集分析这些日志，可以挖掘业务平台的潜在价值。<br><br>
+          典型应用：通过日志发现某时段流量异常，判断是否有恶意刷单；分析访客来源优化推广投放。
+          <div class="mc-tools">
+            <div class="mc-tool hl">服务器访问日志</div>
+            <div class="mc-tool">ELK日志系统</div>
+            <div class="mc-tool">CDN日志</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mc-item" onclick="toggleMC(this)">
+        <div class="mc-head">
+          <div class="mc-icon">🗄️</div>
+          <div class="mc-name">③ 数据库采集</div>
+          <div class="mc-tag">技术门槛高</div>
+          <div class="mc-arr">▼</div>
+        </div>
+        <div class="mc-body">
+          通过数据库采集系统直接与企业业务后台服务器结合，将业务后台每时每刻产生的<strong>大量业务记录</strong>写入数据库，再由特定处理系统进行数据分析。<br><br>
+          典型场景：ERP系统、订单管理系统的销售数据，直接从数据库中查询导出。
+          <div class="mc-tools">
+            <div class="mc-tool hl">ERP系统</div>
+            <div class="mc-tool hl">OMS订单系统</div>
+            <div class="mc-tool">MySQL</div>
+            <div class="mc-tool">数据仓库</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mc-item" onclick="toggleMC(this)">
+        <div class="mc-head">
+          <div class="mc-icon">📊</div>
+          <div class="mc-name">④ 报表采集</div>
+          <div class="mc-tag">小店常用</div>
+          <div class="mc-arr">▼</div>
+        </div>
+        <div class="mc-body">
+          对于<strong>没有统计功能的独立站点</strong>（如小型独立外贸网站），每天咨询客户数、订单数等指标没有自动统计，可以通过<strong>每日、每周的工作报表</strong>手动记录采集。<br><br>
+          典型示例：客服每日填写"咨询人数/接待人数/询单人数/销售额"汇总表。
+          <div class="mc-tools">
+            <div class="mc-tool hl">Excel日报表</div>
+            <div class="mc-tool hl">飞书多维表格</div>
+            <div class="mc-tool">钉钉日志</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mc-item" onclick="toggleMC(this)">
+        <div class="mc-head">
+          <div class="mc-icon">📝</div>
+          <div class="mc-name">⑤ 调查问卷采集</div>
+          <div class="mc-tag">用户洞察</div>
+          <div class="mc-arr">▼</div>
+        </div>
+        <div class="mc-body">
+          在采集<strong>用户需求、习惯、喜好、产品使用反馈</strong>等数据时常用问卷。通过设计针对性问卷，采用<strong>实际走访、电话沟通、网络填表</strong>等方式进行信息采集。<br><br>
+          适用场景：新品开发前的需求调研、活动后的用户满意度调研、品牌认知度测量。
+          <div class="mc-tools">
+            <div class="mc-tool hl">问卷星</div>
+            <div class="mc-tool hl">腾讯问卷</div>
+            <div class="mc-tool">SurveyMonkey</div>
+            <div class="mc-tool">现场走访</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 即时练习1 -->
+  <div class="mquiz" id="iq1">
+    <div class="mq-head"><span class="mq-tag">QUIZ 01</span><span class="mq-title">采集原则辨析</span></div>
+    <div class="quiz-q">在进行数据采集时，确保"摘录的数据数值准确无误"对应哪个原则？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="checkIQ(this,'iq1','A','C')"><span class="ol">A</span>及时性</div>
+      <div class="qopt" onclick="checkIQ(this,'iq1','B','C')"><span class="ol">B</span>有效性</div>
+      <div class="qopt" onclick="checkIQ(this,'iq1','C','C')"><span class="ol">C</span>准确性</div>
+      <div class="qopt" onclick="checkIQ(this,'iq1','D','C')"><span class="ol">D</span>合法性</div>
+    </div>
+    <div class="qfb" id="iq1-fb"></div>
+  </div>
+
+  <!-- 即时练习2 -->
+  <div class="mquiz" id="iq2" style="margin-top:12px">
+    <div class="mq-head"><span class="mq-tag">QUIZ 02</span><span class="mq-title">采集方法识别</span></div>
+    <div class="quiz-q">某电商运营通过服务器访问日志，分析用户的访问时间和来源渠道，这属于哪种数据采集方法？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="checkIQ(this,'iq2','A','B')"><span class="ol">A</span>网页数据采集</div>
+      <div class="qopt" onclick="checkIQ(this,'iq2','B','B')"><span class="ol">B</span>系统日志数据采集</div>
+      <div class="qopt" onclick="checkIQ(this,'iq2','C','B')"><span class="ol">C</span>数据库采集</div>
+      <div class="qopt" onclick="checkIQ(this,'iq2','D','B')"><span class="ol">D</span>报表采集</div>
+    </div>
+    <div class="qfb" id="iq2-fb"></div>
+  </div>
+
+  <!-- 即时练习3 -->
+  <div class="mquiz" id="iq3" style="margin-top:12px">
+    <div class="mq-head"><span class="mq-tag">QUIZ 03</span><span class="mq-title">采集步骤</span></div>
+    <div class="quiz-q">数据采集完成后，需要对数据进行"数据检查"。以下哪项不属于数据检查的内容？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="checkIQ(this,'iq3','A','D')"><span class="ol">A</span>完整性检查（核心指标数据是否齐全）</div>
+      <div class="qopt" onclick="checkIQ(this,'iq3','B','D')"><span class="ol">B</span>准确性检查（通过求和/平均比对原始数据）</div>
+      <div class="qopt" onclick="checkIQ(this,'iq3','C','D')"><span class="ol">C</span>规范性检查（是否有重复编码或一数多标）</div>
+      <div class="qopt" onclick="checkIQ(this,'iq3','D','D')"><span class="ol">D</span>盈利性检查（数据是否能产生商业价值）</div>
+    </div>
+    <div class="qfb" id="iq3-fb"></div>
+  </div>
+
+  <div class="btn-next-w">
+    <button class="btn-next" onclick="goPart(3)">进入案例实战 →</button>
+  </div>
+</section>
+
+
+<!-- ═══════════ PART 3 ═══════════ -->
+<section class="part" id="part-3">
+  <div class="ph">
+    <div class="ptag">// PART_03 · CASE</div>
+    <h1>案例分析：这种采集合法吗？</h1>
+    <p>运用四原则和三步骤分析真实场景</p>
+    <div class="ttime">⏱ ~12 min</div>
+  </div>
+
+  <div class="case-hero">
+    <div class="ch-tag">// CASE STUDY · 教材课后思考题</div>
+    <h2 class="ch-title">某电商企业：购买客户资料发营销短信</h2>
+    <div class="ch-body">
+      某电子商务企业为了让更多客户了解并浏览自己的网店，通过<strong>购买客户资料</strong>的手段获取客户联系信息，并通过短信、邮件等方式对客户进行营销。<br><br>
+      <strong>问题：这种数据采集方式会不会受到法律保护？请说明原因。</strong>
+    </div>
+  </div>
+
+  <!-- 三步骤分析 -->
+  <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Noto Serif SC',serif">📋 按照数据采集三步骤逐一分析</div>
+  <div class="step-cards">
+
+    <div class="sstep" id="ss1" onclick="toggleSS('ss1')">
+      <div class="sstep-head">
+        <div class="ss-num">STEP 1</div>
+        <div class="ss-title">确定采集范围及人员分工</div>
+        <div class="ss-hint">// 分析目标是否清晰</div>
+        <div class="ss-arr">▼</div>
+      </div>
+      <div class="sstep-body">
+        该企业的采集目标是"客户联系信息"（手机号/邮箱），这一目标本身是合理的——电商企业确实需要联系客户进行营销。<br><br>
+        ✅ <strong>采集目标明确</strong>：获取潜在客户联系方式<br>
+        ❌ <strong>采集途径违规</strong>：选择了"购买客户资料"这一违法途径，而非通过合法渠道（用户主动注册、平台授权等）
+      </div>
+    </div>
+
+    <div class="sstep" id="ss2" onclick="toggleSS('ss2')">
+      <div class="sstep-head">
+        <div class="ss-num">STEP 2</div>
+        <div class="ss-title">建立必要的数据指标规范</div>
+        <div class="ss-hint">// 数据来源是否合规</div>
+        <div class="ss-arr">▼</div>
+      </div>
+      <div class="sstep-body">
+        数据采集需要建立数据指标的<strong>合法来源规范</strong>。客户联系信息属于个人隐私数据，其采集必须满足：<br><br>
+        ① <strong>用户知情同意</strong>（用户主动填写、勾选授权）<br>
+        ② <strong>最小必要原则</strong>（只采集业务必需的信息）<br>
+        ③ <strong>来源可追溯</strong>（能证明数据的合法来源）<br><br>
+        该企业购买的客户资料完全无法满足以上三条要求。
+      </div>
+    </div>
+
+    <div class="sstep" id="ss3" onclick="toggleSS('ss3')">
+      <div class="sstep-head">
+        <div class="ss-num">STEP 3</div>
+        <div class="ss-title">数据检查（合规性维度）</div>
+        <div class="ss-hint">// 合法性原则的检验</div>
+        <div class="ss-arr">▼</div>
+      </div>
+      <div class="sstep-body">
+        数据检查不仅要检查完整性、准确性和规范性，还需要对数据来源进行<strong>合规性审查</strong>：<br><br>
+        <div class="check-list">
+          <div class="cl-item"><h4>✅ 完整性</h4><p>客户联系信息字段完整（姓名、手机、邮箱）——这点"通过"</p></div>
+          <div class="cl-item" style="border-color:var(--red)"><h4 style="color:var(--red)">❌ 准确性</h4><p>购买来的数据质量无法保证，可能有大量过期或错误信息</p></div>
+          <div class="cl-item" style="border-color:var(--red)"><h4 style="color:var(--red)">❌ 合规性</h4><p>数据来源不合法，无法通过合规审查，整批数据应当销毁</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 法律分析 -->
+  <div class="law-box">
+    <div class="law-title">⚖️ 法律分析：不受法律保护，且构成违法</div>
+    <div class="law-body">
+      根据数据采集的<strong>合法性原则</strong>，该企业的行为违反了多项法律法规：<br><br>
+      ① <strong>《个人信息保护法》（2021年）</strong>：未经用户同意收集个人信息，且将其用于商业营销，违反"告知-同意"原则，最高可罚5000万元或年营业额5%。<br>
+      ② <strong>《反不正当竞争法》</strong>：购买客户资料属于通过非法手段获取竞争优势。<br>
+      ③ <strong>《网络安全法》</strong>：非法买卖个人信息，情节严重者构成犯罪。<br><br>
+      同时，向未授权用户发送营销短信还违反《通信短信息和语音呼叫服务管理规定》，可被处以行政处罚。
+    </div>
+    <div class="law-verdict">
+      🚫 结论：该数据采集行为<strong style="margin:0 4px">不受法律保护</strong>，企业存在承担民事责任、行政处罚乃至刑事责任的风险。合法做法是通过用户主动注册、平台导购、合规活动等方式获取经用户授权的联系信息。
+    </div>
+  </div>
+
+  <div class="btn-next-w">
+    <button class="btn-next" onclick="goPart(4)">进入闯关挑战 →</button>
+  </div>
+</section>
+
+
+<!-- ═══════════ PART 4 ═══════════ -->
+<section class="part" id="part-4">
+  <div class="ph">
+    <div class="ptag">// PART_04 · CHALLENGE</div>
+    <h1>三关挑战：原则 · 方法 · 步骤</h1>
+    <p>用游戏检验你对数据采集知识的掌握程度</p>
+    <div class="ttime">⏱ ~12 min</div>
+  </div>
+
+  <div class="game-hero">
+    <div class="gh-icon">🕵️</div>
+    <div>
+      <div class="gh-title">数据采集侦探挑战</div>
+      <div class="gh-body">第一关：场景判断（5个场景找到对应的采集方法）<br>第二关：合规审查（6个案例判断是否违反合法性原则）<br>第三关：步骤排序（拖拽排列三步骤）</div>
+      <div class="gh-rules"><span class="grule">3 LEVELS</span><span class="grule">SCENARIO JUDGE</span><span class="grule">MAX +40 XP</span></div>
+    </div>
+  </div>
+
+  <div class="score-panel">
+    <div style="display:flex;gap:22px">
+      <div class="sp-stat"><div class="sp-val" id="gScore">0</div><div class="sp-lab">总得分</div></div>
+      <div class="sp-stat"><div class="sp-val" id="gLvl">1/3</div><div class="sp-lab">当前关卡</div></div>
+    </div>
+    <button class="btn-reset" onclick="resetGame()">↺ RESET</button>
+  </div>
+
+  <div class="game-tabs">
+    <button class="gtab active" id="gtab1" onclick="swTab(1)">🔍 第一关：场景判断</button>
+    <button class="gtab" id="gtab2" onclick="swTab(2)">⚖️ 第二关：合规审查</button>
+    <button class="gtab" id="gtab3" onclick="swTab(3)">🔀 第三关：步骤排序</button>
+  </div>
+
+  <!-- 第一关：场景判断 -->
+  <div class="game-area active" id="game1">
+    <div class="scenario-cards" id="scenCards"></div>
+    <div class="game-fb" id="fb1"></div>
+  </div>
+
+  <!-- 第二关：合规审查 -->
+  <div class="game-area" id="game2">
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:12px;padding:10px 14px;background:var(--amberl);border-radius:var(--r-s);border:1px solid rgba(192,123,42,.2)">
+      ⚖️ 以下6个场景，请判断是否符合数据采集的<strong>合法性原则</strong>（合法 ✅ / 违法 ❌）
+    </div>
+    <div class="comply-cards" id="complyCards"></div>
+    <div style="margin-top:10px;text-align:center">
+      <button class="btn-check" onclick="finishComply()">提交所有判断 ✓</button>
+    </div>
+    <div class="game-fb" id="fb2"></div>
+  </div>
+
+  <!-- 第三关：步骤排序 -->
+  <div class="game-area" id="game3">
+    <div class="step-drag-title">⬇️ 将下方三个数据采集步骤拖拽到排序区，按正确顺序排列（步骤1→步骤3）</div>
+    <div class="sort-pool" id="sortZone3"><div class="sort-pool-label">// 拖拽到这里完成排序</div></div>
+    <div class="sort-pool" id="itemPool3" style="border-style:solid;border-color:var(--border)"><div class="sort-pool-label">// 待排序步骤（已随机打乱）</div></div>
+    <div style="margin-top:10px">
+      <button class="btn-check" onclick="checkSort3()">验证顺序 ✓</button>
+      <button class="btn-reset-g" onclick="resetSort3()">重新打乱 ↺</button>
+    </div>
+    <div class="game-fb" id="fb3"></div>
+  </div>
+
+  <!-- 最终结算 -->
+  <div class="result-box" id="finalResult">
+    <div class="rb-stars" id="rbStars">⭐⭐⭐</div>
+    <div class="rb-title" id="rbTitle">数据采集专家！</div>
+    <div class="rb-body" id="rbBody">三关全部通过！</div>
+    <div class="rb-xp" id="rbXP">+40 XP</div>
+    <div class="rb-stats">
+      <div><div class="rb-sv" id="rbSc">0</div><div class="rb-sl">总得分</div></div>
+      <div><div class="rb-sv" id="rbPa">3/3</div><div class="rb-sl">通过关卡</div></div>
+    </div>
+    <button class="btn-next" onclick="goPart(5)">查看单元小结 →</button>
+  </div>
+  <div style="text-align:center;padding:12px 0 0" id="skipBtn">
+    <button class="btn-next" style="background:linear-gradient(135deg,#5c4f3a,#2c2416)" onclick="goPart(5)">跳过，直接查看小结 →</button>
+  </div>
+</section>
+
+
+<!-- ═══════════ PART 5 ═══════════ -->
+<section class="part" id="part-5">
+  <div class="ph">
+    <div class="ptag">// PART_05 · SUMMARY</div>
+    <h1>单元小结 · 知识地图</h1>
+    <p>概念 · 四原则 · 五方法 · 三步骤 — 全掌握</p>
+    <div class="ttime">⏱ ~5 min</div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sg-item">
+      <div class="sg-head"><span class="sg-icon">📖</span><span class="sg-title">一、数据采集的概念</span></div>
+      <div class="sg-body">通过预设工具或程序代码，获取商品、资金、流量、用户行为等数据，为后续分析提供数据准备。<br><br>也叫<strong>数据获取</strong>，是数据分析流程的第2步。</div>
+    </div>
+    <div class="sg-item">
+      <div class="sg-head"><span class="sg-icon">⚖️</span><span class="sg-title">二、四大原则</span></div>
+      <div class="sg-body"><ul>
+        <li><strong>及时性</strong>：采集最新数据，及时发现问题</li>
+        <li><strong>有效性</strong>：注意数值期限，过期数据无效</li>
+        <li><strong>准确性</strong>：确保数据准确，避免计算偏差</li>
+        <li><strong>合法性</strong>：只用公开或授权数据，不违法</li>
+      </ul></div>
+    </div>
+    <div class="sg-item">
+      <div class="sg-head"><span class="sg-icon">🛠️</span><span class="sg-title">三、五种采集方法</span></div>
+      <div class="sg-body"><ul>
+        <li>🌐 <strong>网页数据采集</strong>：爬虫/手动摘录</li>
+        <li>📋 <strong>系统日志采集</strong>：服务器访问日志</li>
+        <li>🗄️ <strong>数据库采集</strong>：ERP/订单系统直连</li>
+        <li>📊 <strong>报表采集</strong>：日报/周报手动汇总</li>
+        <li>📝 <strong>调查问卷</strong>：用户需求/反馈调研</li>
+      </ul></div>
+    </div>
+    <div class="sg-item">
+      <div class="sg-head"><span class="sg-icon">🪜</span><span class="sg-title">四、三大采集步骤</span></div>
+      <div class="sg-body"><ul>
+        <li><strong>①确定采集范围及人员分工</strong>：明确指标/时间/途径/人员</li>
+        <li><strong>②建立必要的数据指标规范</strong>：唯一标识，贯穿查询、分析、应用全流程</li>
+        <li><strong>③数据检查</strong>：完整性 + 准确性 + 规范性</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="key-box">
+    <h3>📌 KEY POINTS — 易错点提醒</h3>
+    <div class="key-grid">
+      <div class="ki"><h4>⚠️ 合法性是红线</h4><p>买卖个人信息、非法爬取平台数据、商业间谍——这些都是违法行为，不只是"不合规"，而是有法律风险的。</p></div>
+      <div class="ki"><h4>🔄 方法要匹配场景</h4><p>用户反馈用问卷；竞品数据用网页采集；自店内部数据用数据库或报表采集——方法选对，事半功倍。</p></div>
+      <div class="ki"><h4>📐 规范先行</h4><p>数据采集前必须建立指标规范（唯一标识），否则多人采集的数据无法合并分析，造成"数据孤岛"。</p></div>
+      <div class="ki"><h4>🔍 采集完必须检查</h4><p>完整性、准确性、规范性三维检查，缺一不可。很多数据分析错误不是分析方法的问题，而是采集阶段就出了偏差。</p></div>
+    </div>
+  </div>
+
+  <div class="finish-box">
+    <h3>✅ 单元一完成！继续学习数据采集渠道与工具</h3>
+    <div class="score-row">
+      <div><div class="sc-val" id="finalStars">⭐⭐⭐</div><div class="sc-lab">本单元星级</div></div>
+      <div><div class="sc-val" id="finalXP">+50</div><div class="sc-lab">获得 XP</div></div>
+      <div><div class="sc-val" id="finalScore">100</div><div class="sc-lab">本单元得分</div></div>
+    </div>
+    <button class="btn-home" onclick="completeUnit()">💾 保存进度 · 返回首页</button>
+  </div>
+</section>
+
+</div>
+<footer style="text-align:center;padding:14px;font-size:10px;color:var(--ink3);border-top:2px dashed var(--border);background:var(--bg2);position:relative;z-index:1;font-family:'JetBrains Mono',monospace">
+  M2-U1 · 数据采集认知 · 高等教育出版社《电子商务数据分析基础》
+</footer>
+
+<div class="toast" id="toast"></div>
+<div class="confetti-c" id="confettiC"></div>
+
+<script>
+/* ─── Supabase ─── */
+const SUPABASE_URL      = 'https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _supabase = null;
+if(SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 20 && window.supabase){
+  _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+const STORAGE_KEY = 'ecommerce_data_analysis_user';
+const ALL_UNITS = ['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+
+let curPart=1, earnedXP=0, gameStars=0, gameScore=0;
+
+/* ─── 工具函数 ─── */
+function loadUser(){const r=localStorage.getItem(STORAGE_KEY);if(!r)return null;try{return JSON.parse(r)}catch{return null}}
+function getWeekStart(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+async function saveUser(data){
+  data.lastVisit=new Date().toISOString();
+  data.updatedAt=new Date().toISOString();
+  const ws=getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_supabase){
+    const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;
+    const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    return _supabase.from('student_progress').upsert({
+      student_id:data.studentId,name:data.name,xp:data.xp,
+      completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,
+      week_start:data.weekStart||ws,achievements:data.achievements,
+      units:data.units,updated_at:data.updatedAt
+    },{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('Supabase:',error.message)});
+  }
+  return Promise.resolve();
+}
+function showToast(msg,d=2500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),d)}
+function confetti(){const c=document.getElementById('confettiC');const cols=['#1A7A5E','#22A07A','#C07B2A','#E8A84A','#2A5FAA','#B83232'];c.innerHTML='';for(let i=0;i<65;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[i%cols.length]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;animation-duration:${2+Math.random()*2.5}s;animation-delay:${Math.random()*.6}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p)}setTimeout(()=>c.innerHTML='',5000)}
+function updateNavXP(){const u=loadUser();if(u)document.getElementById('navXP').textContent=`${u.xp+earnedXP} XP`}
+
+/* ─── Part 导航 ─── */
+function goPart(n){
+  document.getElementById(`part-${curPart}`).classList.remove('active');
+  setDot(curPart,'done');curPart=n;
+  document.getElementById(`part-${n}`).classList.add('active');
+  setDot(n,'active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===4&&!gameInited)initGameAll();
+}
+function setDot(n,st){
+  document.getElementById(`d${n}`).className=`s-dot ${st}`;
+  document.getElementById(`l${n}`).className=`s-label ${st==='active'?'active':''}`;
+  if(n>1){const ln=document.getElementById(`ln${n-1}${n}`);if(ln&&st==='done')ln.classList.add('done')}
+}
+
+/* ─── Part1 互动 ─── */
+const t1map={
+  A:'A 不完全对。B站从生意参谋获取自店数据属于"直接获取"，从行业报告获取市场数据属于"间接获取"，两种方式都用到了，且都属于网页/平台数据采集。',
+  B:'✅ 正确！B站从生意参谋后台获取自店流量、销售数据是直接获取；从行业报告获取市场均值是间接获取。两种采集方式配合使用，才能全面了解经营状况。',
+  C:'C 错误。系统日志采集主要用于分析服务器访问记录，B站采集的是业务数据，不是日志数据。',
+  D:'D 错误。报表采集是通过手动填写日报/周报的方式采集，B站用的是生意参谋这类平台工具，不是手工报表。'
+};
+function selT1(el,k){
+  document.querySelectorAll('.topt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  const ans=document.getElementById('t1ans');
+  ans.className='think-ans show';ans.textContent=t1map[k];
+}
+
+/* ─── Part2 accordion ─── */
+function togglePG(el){
+  const d=el.querySelector('.pg-detail');d.classList.toggle('open');
+}
+function toggleMC(el){el.classList.toggle('open')}
+
+/* ─── Part2 即时练习 ─── */
+const iqExpl={
+  iq1:'准确性原则要求确保摘录的数据准确无误。数值本身可能较大，计算后如有偏差会造成严重影响，因此必须在采集阶段就保证数值的准确性。',
+  iq2:'系统日志数据采集指从网站日志中采集访客IP、访问时间、停留时长、来源等数据，用于挖掘平台日志的潜在价值。',
+  iq3:'"盈利性检查"不属于数据采集的检查内容。数据检查的三个维度是：完整性（字段是否齐全）、准确性（数值是否正确）、规范性（是否有重复或多标问题）。'
+};
+function checkIQ(el,qid,myK,correctK){
+  const opts=document.querySelectorAll(`#${qid} .qopt`);
+  if(el.classList.contains('disabled'))return;
+  const keys=['A','B','C','D'];opts.forEach((o,i)=>{o.dataset.k=keys[i];o.classList.add('disabled')});
+  const fb=document.getElementById(`${qid}-fb`);
+  if(myK===correctK){
+    el.classList.add('correct');el.querySelector('.ol').style.cssText='background:var(--green2);color:#fff;border-color:var(--green)';
+    fb.className='qfb show ok';fb.innerHTML=`✅ 正确！<span class="xpop">+5 XP</span><br><small style="font-weight:400;display:block;margin-top:3px">${iqExpl[qid]}</small>`;
+    earnedXP+=5;updateNavXP();showToast('✅ 答对了！+5 XP');
+  }else{
+    el.classList.add('wrong');el.querySelector('.ol').style.cssText='background:var(--red);color:#fff;border-color:var(--red)';
+    opts.forEach(o=>{if(o.dataset.k===correctK){o.classList.add('correct');o.querySelector('.ol').style.cssText='background:var(--green2);color:#fff;border-color:var(--green)'}});
+    fb.className='qfb show no';fb.innerHTML=`❌ 答错了，正确答案是 ${correctK}。<br><small style="font-weight:400;display:block;margin-top:3px">${iqExpl[qid]}</small>`;
+    showToast('❌ 这道题需要再复习一下');
+  }
+}
+
+/* ─── Part3 accordion ─── */
+function toggleSS(id){document.getElementById(id).classList.toggle('open')}
+
+/* ═══ GAME ═══ */
+let gameInited=false;
+let g1Score=0,g2Score=0,g3Score=0;
+let complyAnswers={};
+
+/* 游戏1数据 */
+const SCENARIOS=[
+  {q:'运营小王在淘宝搜索"女装连衣裙"，手动记录TOP10商品的价格、销量、评价数量，用于竞品分析。',correct:'网页数据采集',opts:['网页数据采集','系统日志数据采集','数据库采集','报表采集','调查问卷采集'],exp:'✅ 从平台网页上直接摘录商品数据（价格、销量、评价），属于网页数据采集。'},
+  {q:'技术部通过分析服务器访问记录，发现每天凌晨2点有大量异常访问，可能是竞争对手在抓取商品数据。',correct:'系统日志数据采集',opts:['网页数据采集','系统日志数据采集','调查问卷采集','报表采集','数据库采集'],exp:'✅ 分析服务器访问日志（IP、访问时间、频次），属于系统日志数据采集。'},
+  {q:'数据分析师从公司ERP系统中导出了过去一年的所有订单记录，包括商品ID、数量、金额、买家信息。',correct:'数据库采集',opts:['网页数据采集','报表采集','数据库采集','调查问卷采集','系统日志数据采集'],exp:'✅ 直接从企业业务后台数据库（ERP系统）中导出数据，属于数据库采集。'},
+  {q:'某独立站没有自动统计功能，客服每天下班前在Excel表格中填写今日咨询人数、成交单数和销售额。',correct:'报表采集',opts:['数据库采集','系统日志数据采集','报表采集','网页数据采集','调查问卷采集'],exp:'✅ 通过每日工作报表手动记录业务数据，属于报表采集，适用于没有统计功能的独立站点。'},
+  {q:'产品部门设计了一份线上问卷，调查消费者对新款手提包的颜色偏好、价格接受度和购买场景。',correct:'调查问卷采集',opts:['网页数据采集','调查问卷采集','报表采集','数据库采集','系统日志数据采集'],exp:'✅ 通过问卷采集用户需求、偏好等主观数据，属于调查问卷采集。'},
+];
+
+/* 游戏2数据 */
+const COMPLY_DATA=[
+  {q:'A店通过生意参谋后台查看自家店铺的访客数、转化率和销售额数据，用于优化运营策略。',answer:true,exp:'✅ 合法！这是经平台授权的自家店铺数据，完全符合合法性原则。'},
+  {q:'B店运营通过公开的行业报告（艾瑞咨询）获取女装类目市场规模和增长趋势数据。',answer:true,exp:'✅ 合法！公开发布的行业报告数据属于公开数据，可以合法引用（注明来源）。'},
+  {q:'C店通过第三方渠道购买了竞争对手10万条会员手机号码，用于发送促销短信。',answer:false,exp:'❌ 违法！购买他人客户资料属于非法获取个人信息，违反《个人信息保护法》，情节严重可追究刑事责任。'},
+  {q:'D店运营在竞品店铺详情页，手动截图记录竞品的主图、价格和评价关键词，用于优化自家产品描述。',answer:true,exp:'✅ 合法！记录平台上公开展示的商品信息（价格、图片、评价）属于合法的市场调研，不涉及窃取非公开数据。'},
+  {q:'E公司通过黑客手段侵入竞争对手服务器，获取其客户数据库和销售报表。',answer:false,exp:'❌ 严重违法！入侵他人计算机系统属于《网络安全法》《刑法》明确禁止的行为，构成犯罪。'},
+  {q:'F电商企业在用户注册时，通过勾选"我已阅读并同意《用户协议》"的方式，收集用户的手机号和地址。',answer:true,exp:'✅ 合法（基本合规）！用户明确同意收集个人信息，符合"告知-同意"原则。但需确保协议内容清晰，用户真正知情。'},
+];
+
+function initGameAll(){
+  gameInited=true;
+  renderScenarios();
+  renderComply();
+  initSort3();
+}
+
+function renderScenarios(){
+  const wrap=document.getElementById('scenCards');
+  wrap.innerHTML=SCENARIOS.map((s,si)=>`
+    <div class="sc-card">
+      <div class="sc-num">// SCENARIO_${String(si+1).padStart(2,'0')}</div>
+      <div class="sc-q">${s.q}</div>
+      <div class="sc-opts">
+        ${s.opts.map(o=>`<div class="scopt" data-si="${si}" data-ans="${o}" onclick="checkSC(this,${si},'${o}')">${o}</div>`).join('')}
+      </div>
+      <div class="sc-fb" id="scfb${si}"></div>
+    </div>`).join('');
+}
+
+let scAnswered=0;
+function checkSC(el,si,ans){
+  if(el.classList.contains('disabled'))return;
+  const opts=document.querySelectorAll(`[data-si="${si}"]`);
+  opts.forEach(o=>o.classList.add('disabled'));
+  const fb=document.getElementById(`scfb${si}`);
+  if(ans===SCENARIOS[si].correct){
+    el.classList.add('correct');
+    fb.className='sc-fb show ok';fb.textContent=SCENARIOS[si].exp;
+    g1Score+=4;document.getElementById('gScore').textContent=gameScore+g1Score+g2Score+g3Score;
+    scAnswered++;showToast(`✅ 正确！+4分`);
+    if(scAnswered===5){
+      const fb1=document.getElementById('fb1');
+      fb1.className='game-fb show gok';
+      fb1.innerHTML=`🎯 第一关全部完成！得 ${g1Score} 分<span class="xpop">+${Math.round(g1Score/20*15)} XP</span>`;
+      earnedXP+=Math.round(g1Score/20*15);updateNavXP();
+      setTimeout(()=>swTab(2),1500);
+    }
+  }else{
+    el.classList.add('wrong');
+    const correct=document.querySelector(`[data-si="${si}"][data-ans="${SCENARIOS[si].correct}"]`);
+    if(correct)correct.classList.add('correct');
+    fb.className='sc-fb show no';fb.textContent=`❌ 不对，正确答案是"${SCENARIOS[si].correct}"。${SCENARIOS[si].exp}`;
+    scAnswered++;
+    if(scAnswered===5){
+      const fb1=document.getElementById('fb1');
+      fb1.className='game-fb show gpartial';
+      fb1.innerHTML=`第一关完成！得 ${g1Score} 分（满分20分）`;
+      setTimeout(()=>swTab(2),1500);
+    }
+  }
+}
+
+function renderComply(){
+  const wrap=document.getElementById('complyCards');
+  wrap.innerHTML=COMPLY_DATA.map((c,ci)=>`
+    <div class="comply-card">
+      <div class="cc-q">${c.q}</div>
+      <div class="cc-opts">
+        <div class="ccopt" data-ci="${ci}" data-val="true" onclick="selComply(${ci},true,this)">✅ 合法</div>
+        <div class="ccopt" data-ci="${ci}" data-val="false" onclick="selComply(${ci},false,this)">❌ 违法</div>
+      </div>
+      <div class="cc-fb" id="ccfb${ci}"></div>
+    </div>`).join('');
+}
+
+function selComply(ci,val,el){
+  if(el.classList.contains('ccdisabled'))return;
+  document.querySelectorAll(`[data-ci="${ci}"]`).forEach(o=>{o.style.borderColor='';o.style.background=''});
+  el.style.borderColor='var(--green2)';el.style.background='var(--greenl)';el.style.color='var(--green)';
+  complyAnswers[ci]=val;
+}
+
+function finishComply(){
+  if(Object.keys(complyAnswers).length<COMPLY_DATA.length){showToast('⚠️ 请先对所有场景做出判断');return}
+  let correct=0;
+  COMPLY_DATA.forEach((c,ci)=>{
+    const chosen=complyAnswers[ci];
+    document.querySelectorAll(`[data-ci="${ci}"]`).forEach(o=>o.classList.add('ccdisabled'));
+    const fb=document.getElementById(`ccfb${ci}`);
+    if(chosen===c.answer){
+      correct++;
+      document.querySelector(`[data-ci="${ci}"][data-val="${chosen}"]`).classList.add('ccok');
+    }else{
+      document.querySelector(`[data-ci="${ci}"][data-val="${chosen}"]`).classList.add('ccno');
+      const corEl=document.querySelector(`[data-ci="${ci}"][data-val="${c.answer}"]`);
+      if(corEl)corEl.classList.add('ccok');
+    }
+    fb.className=`cc-fb show ${chosen===c.answer?'ccfbok':'ccfbno'}`;fb.textContent=c.exp;
+  });
+  g2Score=correct*2;
+  const xp=correct>=5?15:correct>=4?10:5;
+  earnedXP+=xp;updateNavXP();
+  const fb2=document.getElementById('fb2');
+  fb2.className=`game-fb show ${correct>=5?'gok':correct>=3?'gpartial':'gno'}`;
+  fb2.innerHTML=`⚖️ 第二关：${correct}/6 判断正确，得 ${g2Score} 分<span class="xpop">+${xp} XP</span>`;
+  showToast(`第二关完成！答对 ${correct}/6`);
+  setTimeout(()=>swTab(3),1500);
+}
+
+/* 第三关：步骤排序 */
+const STEPS3=['确定采集范围及人员分工','建立必要的数据指标规范','数据检查'];
+const STEP_ICONS3=['🎯','📐','🔍'];
+function initSort3(){
+  const pool=document.getElementById('itemPool3');
+  const zone=document.getElementById('sortZone3');
+  Array.from(pool.querySelectorAll('.drag-item')).forEach(el=>el.remove());
+  Array.from(zone.querySelectorAll('.drag-item')).forEach(el=>el.remove());
+  const shuffled=[...STEPS3].map((s,i)=>({s,i})).sort(()=>Math.random()-.5);
+  shuffled.forEach(({s})=>{
+    const el=document.createElement('div');
+    el.className='drag-item';el.draggable=true;el.dataset.text=s;
+    el.innerHTML=`<span class="di-handle">⠿</span><span class="di-num">?</span><span>${STEP_ICONS3[STEPS3.indexOf(s)]} ${s}</span>`;
+    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text',s);el.classList.add('dragging')});
+    el.addEventListener('dragend',()=>{el.classList.remove('dragging');document.querySelectorAll('.sort-pool').forEach(z=>z.classList.remove('drag-over'))});
+    pool.appendChild(el);
+  });
+  document.querySelectorAll('.sort-pool').forEach(z=>{
+    z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag-over')});
+    z.addEventListener('dragleave',()=>z.classList.remove('drag-over'));
+    z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('drag-over');const t=e.dataTransfer.getData('text');const d=document.querySelector('.drag-item[data-text="'+t+'"]');if(d)z.appendChild(d)});
+  });
+  document.getElementById('fb3').className='game-fb';
+}
+function resetSort3(){initSort3()}
+function checkSort3(){
+  const zone=document.getElementById('sortZone3');
+  const items=Array.from(zone.querySelectorAll('.drag-item'));
+  if(items.length===0){showToast('请先把步骤拖到排序区！');return}
+  let correct=0;
+  items.forEach((item,i)=>{
+    item.querySelector('.di-num').textContent=i+1;
+    if(item.dataset.text===STEPS3[i]){item.classList.remove('dwrong');item.classList.add('dcorrect');correct++}
+    else{item.classList.remove('dcorrect');item.classList.add('dwrong')}
+  });
+  const xp=correct===3?10:0;
+  if(xp>0){earnedXP+=xp;updateNavXP()}
+  g3Score=correct===3?10:correct*2;
+  const fb3=document.getElementById('fb3');
+  if(correct===3){
+    fb3.className='game-fb show gok';
+    fb3.innerHTML=`🎯 三步全对！得 ${g3Score} 分<span class="xpop">+${xp} XP</span>`;
+    showToast('🎯 排序完全正确！+10 XP');
+    setTimeout(()=>showFinal(),1500);
+  }else{
+    fb3.className='game-fb show gpartial';
+    fb3.innerHTML=`⚠️ ${correct}/3 步骤位置正确，绿色正确，红色需调整。`;
+  }
+}
+function showFinal(){
+  const total=g1Score+g2Score+g3Score;
+  gameScore=total;
+  let stars,title,body,xp;
+  if(total>=35){stars='⭐⭐⭐';title='数据采集专家！';body=`总分 ${total}/50，三关全部出色完成！`;xp=40;gameStars=3}
+  else if(total>=22){stars='⭐⭐';title='掌握得不错！';body=`总分 ${total}/50，继续加强记忆就能全掌握！`;xp=25;gameStars=2}
+  else{stars='⭐';title='再努力一下！';body=`总分 ${total}/50，建议回到知识学习重新复习。`;xp=15;gameStars=1}
+  earnedXP+=xp;updateNavXP();
+  document.getElementById('rbStars').textContent=stars;
+  document.getElementById('rbTitle').textContent=title;
+  document.getElementById('rbBody').textContent=body;
+  document.getElementById('rbXP').textContent=`+${xp} XP`;
+  document.getElementById('rbSc').textContent=total;
+  document.getElementById('rbPa').textContent=`${[g1Score>0,g2Score>0,g3Score>0].filter(Boolean).length}/3`;
+  document.getElementById('finalResult').classList.add('show');
+  document.getElementById('skipBtn').style.display='none';
+  document.getElementById('finalStars').textContent=stars;
+  document.getElementById('finalXP').textContent=`+${earnedXP+20}`;
+  document.getElementById('finalScore').textContent=Math.round(total/50*100);
+  if(gameStars===3)confetti();
+}
+function swTab(n){
+  for(let i=1;i<=3;i++){
+    document.getElementById(`gtab${i}`).classList.toggle('active',i===n);
+    document.getElementById(`game${i}`).classList.toggle('active',i===n);
+  }
+  document.getElementById('gLvl').textContent=`${n}/3`;
+}
+function resetGame(){
+  g1Score=0;g2Score=0;g3Score=0;gameScore=0;scAnswered=0;complyAnswers={};
+  document.getElementById('gScore').textContent='0';
+  document.getElementById('finalResult').classList.remove('show');
+  document.getElementById('skipBtn').style.display='block';
+  for(let i=1;i<=3;i++)document.getElementById(`fb${i}`).className='game-fb';
+  renderScenarios();renderComply();initSort3();swTab(1);
+  showToast('游戏已重置 ↺');
+}
+
+/* ─── 完成单元 ─── */
+async function completeUnit(){
+  const user=loadUser();
+  if(!user){window.location.href='index.html';return}
+  const stars=gameStars||1;
+  const totalXP=earnedXP+20;
+  const score=Math.round(gameScore/50*100)||60;
+  user.units['m2u1']={completed:true,stars,score,xpEarned:totalXP};
+  user.xp+=totalXP;user.weekXp=(user.weekXp||0)+totalXP;
+  if(!user.achievements.includes('first_unit'))user.achievements.push('first_unit');
+  if(stars===3&&!user.achievements.includes('first_star3'))user.achievements.push('first_star3');
+  showToast('☁️ 正在保存进度…');
+  await saveUser(user);
+  showToast(`🎉 单元一完成！获得 +${totalXP} XP`);
+  setTimeout(()=>window.location.href='index.html',1000);
+}
+
+/* ─── Init ─── */
+(function init(){
+  const user=loadUser();
+  if(user){
+    document.getElementById('navName').textContent=user.name;
+    document.getElementById('navXP').textContent=`${user.xp} XP`;
+  }
+})();
+</script>
+</body>
+</html>
