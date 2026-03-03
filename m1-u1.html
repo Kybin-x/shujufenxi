@@ -2826,38 +2826,46 @@
             const user = loadUser();
             if (!user) { window.location.href = 'index.html'; return; }
 
-            // 计算得分（3道题各10分 + 完成奖励20分 + 游戏奖励10分）
+            // 计算得分与星级（5星体系：更宽松的阈值）
             const score = Math.min(100, 20 + earnedXP);
-            const stars = gameStars || (score >= 90 ? 3 : score >= 75 ? 2 : 1);
+            const stars = gameStars || (score >= 95 ? 5 : score >= 80 ? 4 : score >= 65 ? 3 : score >= 45 ? 2 : 1);
             const totalXP = earnedXP + 20; // 完成奖励
 
-            // 更新单元数据
+            // ── 防刷机制：已完成单元不重复加 XP ──
+            const alreadyDone = user.units['m1u1']?.completed && user.units['m1u1']?.xpEarned > 0;
+            const actualXP    = alreadyDone ? 0 : totalXP;
+
+            // 保留最高星星/分数，XP 仅首次记录
+            const prevStars    = user.units['m1u1']?.stars    || 0;
+            const prevScore    = user.units['m1u1']?.score    || 0;
+            const prevXPEarned = user.units['m1u1']?.xpEarned || 0;
             user.units['m1u1'] = {
-                completed: true,
-                stars: stars,
-                score: score,
-                xpEarned: totalXP
+                completed:  true,
+                stars:      Math.max(prevStars, stars),
+                score:      Math.max(prevScore, score),
+                xpEarned:   alreadyDone ? prevXPEarned : totalXP,
             };
-            user.xp += totalXP;
-            user.weekXp = (user.weekXp || 0) + totalXP;
+            user.xp          += actualXP;
+            user.weekXp       = (user.weekXp || 0) + actualXP;
 
             // 检查成就
             const achievements = user.achievements || [];
             if (!achievements.includes('first_unit')) achievements.push('first_unit');
-            if (stars === 3 && !achievements.includes('first_star3')) achievements.push('first_star3');
+            if (stars >= 3 && !achievements.includes('first_star3')) achievements.push('first_star3');
             user.achievements = achievements;
 
-            // 更新汇总显示
-            document.getElementById('finalStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
-            document.getElementById('finalXP').textContent = `+${totalXP}`;
+            // 更新汇总显示（显示实际获得XP）
+            document.getElementById('finalStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
+            document.getElementById('finalXP').textContent = `+${actualXP}`;
             document.getElementById('finalScore').textContent = score;
 
-            showToast('☁️ 正在保存进度…', 1500);
-            // await 确保 Supabase 上传完成后再跳转
+            showToast(alreadyDone ? '🔄 已重新提交，XP不重复计入' : '☁️ 正在保存进度…', 1500);
             await saveUser(user);
 
-            if (stars === 3) launchConfetti();
-            showToast(`🎉 已保存！获得 +${totalXP} XP`, 2000);
+            if (stars >= 4) launchConfetti();
+            showToast(alreadyDone
+                ? `🌟 星星已更新为 ${'⭐'.repeat(stars)}，XP不重复计入`
+                : `🎉 已保存！获得 +${actualXP} XP`, 2000);
             setTimeout(() => { window.location.href = 'index.html'; }, 1800);
         }
 
