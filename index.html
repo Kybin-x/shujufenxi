@@ -741,7 +741,7 @@
         // ================= Admin =================
         function openAdminPanel() { document.getElementById('adminOverlay').classList.remove('hidden'); if(sessionStorage.getItem('ad')==='1') { document.getElementById('adminLoginArea').style.display='none'; document.getElementById('adminMainArea').classList.remove('hidden'); renderAdminUnitGrid(); } }
         function closeAdminPanel() { document.getElementById('adminOverlay').classList.add('hidden'); }
-        function verifyAdmin() { if(document.getElementById('adminPwdInput').value==='teacher2025') { sessionStorage.setItem('ad','1'); document.getElementById('adminLoginArea').style.display='none'; document.getElementById('adminMainArea').classList.remove('hidden'); renderAdminUnitGrid(); } else document.getElementById('adminPwdErr').classList.remove('hidden'); }
+        function verifyAdmin() { if(document.getElementById('adminPwdInput').value==='kyb123') { sessionStorage.setItem('ad','1'); document.getElementById('adminLoginArea').style.display='none'; document.getElementById('adminMainArea').classList.remove('hidden'); renderAdminUnitGrid(); } else document.getElementById('adminPwdErr').classList.remove('hidden'); }
         function switchAdminTab(t) { ['units','export','scores'].forEach(x => { document.getElementById(`atab-${x}`).classList.toggle('active',x===t); document.getElementById(`acontent-${x}`).classList.toggle('active',x===t); }); }
         
         let pending = null;
