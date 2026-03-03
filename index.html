@@ -1470,7 +1470,201 @@
                 flex-wrap: wrap;
             }
         }
-    </style>
+    
+        /* ══════════════════════════════════════════
+           🔐 管理员面板样式
+        ══════════════════════════════════════════ */
+        .btn-admin-entry {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #1e3a5f, #2a5fa0);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit;
+            letter-spacing: .03em;
+        }
+        .btn-admin-entry:hover { opacity: .85; transform: translateY(-1px); }
+
+        .admin-overlay {
+            position: fixed; inset: 0; z-index: 1500;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 40px 16px 16px;
+            overflow-y: auto;
+        }
+        .admin-overlay.hidden { display: none; }
+
+        .admin-panel {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%; max-width: 860px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+            overflow: hidden;
+            animation: apSlide .3s ease;
+        }
+        @keyframes apSlide { from{opacity:0;transform:translateY(-24px)} to{opacity:1;transform:translateY(0)} }
+
+        .ap-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #1e3a5f, #2a5fa0);
+            color: #fff;
+        }
+        .ap-title { font-size: 16px; font-weight: 800; letter-spacing: .04em; }
+        .ap-close {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: rgba(255,255,255,.15); border: none;
+            color: #fff; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .2s;
+        }
+        .ap-close:hover { background: rgba(255,255,255,.3); }
+
+        #adminLoginArea, #adminMainArea { padding: 24px; }
+
+        .ap-section-title {
+            font-size: 14px; font-weight: 800; color: #1e3a5f;
+            margin-bottom: 14px;
+        }
+        .ap-subtitle { font-size: 11px; font-weight: 400; color: #888; margin-left: 8px; }
+
+        .ap-login-row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .ap-input {
+            flex: 1; padding: 9px 14px;
+            border: 1.5px solid #e0e0e0; border-radius: 8px;
+            font-size: 13px; font-family: inherit;
+            outline: none; transition: border-color .2s;
+        }
+        .ap-input:focus { border-color: #2a5fa0; }
+        .ap-hint { font-size: 11px; color: #999; }
+        .ap-err { font-size: 12px; color: #c0392b; margin-top: 6px; font-weight: 600; }
+        .ap-err.hidden { display: none; }
+
+        .ap-tabs {
+            display: flex; gap: 2px;
+            padding: 0 24px;
+            border-bottom: 2px solid #eee;
+            background: #f8f9fa;
+        }
+        .ap-tab {
+            padding: 10px 16px;
+            background: transparent; border: none;
+            font-size: 12px; font-weight: 700; color: #888;
+            cursor: pointer; transition: all .2s;
+            border-bottom: 2px solid transparent; margin-bottom: -2px;
+            font-family: inherit;
+        }
+        .ap-tab.active { color: #2a5fa0; border-bottom-color: #2a5fa0; }
+        .ap-tab:hover:not(.active) { color: #555; }
+
+        .ap-tab-content { display: none; padding: 20px 24px 24px; }
+        .ap-tab-content.active { display: block; }
+
+        /* 按钮 */
+        .ap-btn {
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 12px; font-weight: 700;
+            border: 1.5px solid #ddd; background: #fff;
+            color: #555; cursor: pointer; font-family: inherit;
+            transition: all .2s;
+        }
+        .ap-btn:hover { border-color: #aaa; color: #333; }
+        .ap-btn-primary { background: #2a5fa0; color: #fff; border-color: #2a5fa0; }
+        .ap-btn-primary:hover { background: #1e3a5f; border-color: #1e3a5f; }
+        .ap-btn-success { background: #27ae60; color: #fff; border-color: #27ae60; }
+        .ap-btn-success:hover { background: #219a52; }
+        .ap-btn-warn { background: #e67e22; color: #fff; border-color: #e67e22; }
+        .ap-btn-warn:hover { background: #ca6f1e; }
+
+        /* 单元开放管理 */
+        .ap-unit-actions { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .ap-unit-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; max-height: 360px; overflow-y: auto;
+            padding: 2px; margin-bottom: 14px;
+        }
+        @media(max-width:600px){ .ap-unit-grid{ grid-template-columns: repeat(2,1fr); } }
+        .ap-unit-toggle {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px;
+            border: 1.5px solid #e0e0e0; border-radius: 8px;
+            background: #fff; cursor: pointer; transition: all .2s;
+            user-select: none;
+        }
+        .ap-unit-toggle.open { border-color: #27ae60; background: #f0faf4; }
+        .ap-unit-toggle.closed { border-color: #e0e0e0; background: #f9f9f9; }
+        .ap-unit-icon { font-size: 14px; }
+        .ap-unit-label { font-size: 11px; font-weight: 700; color: #333; flex: 1; line-height: 1.4; }
+        .ap-unit-switch {
+            width: 34px; height: 18px; border-radius: 9px;
+            background: #ccc; position: relative; flex-shrink: 0;
+            transition: background .2s;
+        }
+        .ap-unit-toggle.open .ap-unit-switch { background: #27ae60; }
+        .ap-unit-switch::after {
+            content: ''; position: absolute;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: #fff; top: 2px; left: 2px;
+            transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+        }
+        .ap-unit-toggle.open .ap-unit-switch::after { left: 18px; }
+        .ap-save-row { display: flex; align-items: center; gap: 12px; }
+        .ap-save-hint { font-size: 11px; color: #27ae60; font-weight: 600; }
+
+        /* 导出 */
+        .ap-export-opts {
+            display: flex; flex-wrap: wrap; gap: 12px;
+            margin-bottom: 14px; padding: 14px;
+            background: #f8f9fa; border-radius: 8px;
+        }
+        .ap-check-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 600; color: #555; cursor: pointer;
+        }
+        .ap-check-label input { cursor: pointer; }
+        .ap-export-actions { display: flex; gap: 8px; margin-bottom: 14px; }
+        .ap-export-preview { border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+        .ap-preview-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 14px; background: #f0f4f8;
+            font-size: 12px; font-weight: 700; color: #555;
+        }
+        .ap-table-wrap { overflow-x: auto; max-height: 340px; overflow-y: auto; }
+        .ap-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .ap-table th {
+            background: #1e3a5f; color: #fff;
+            padding: 7px 10px; text-align: left;
+            font-weight: 700; white-space: nowrap;
+            position: sticky; top: 0; z-index: 1;
+        }
+        .ap-table td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; color: #333; white-space: nowrap; }
+        .ap-table tr:nth-child(even) td { background: #f8f9fa; }
+        .ap-table tr:hover td { background: #e8f0fe; }
+
+        /* 积分榜 */
+        .ap-score-actions { display: flex; gap: 8px; margin-bottom: 14px; }
+        .ap-score-list { max-height: 400px; overflow-y: auto; }
+        .ap-score-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .ap-score-rank { width: 28px; text-align: center; font-weight: 800; color: #888; font-size: 11px; }
+        .ap-score-name { flex: 1; font-weight: 700; }
+        .ap-score-id { font-size: 11px; color: #999; }
+        .ap-score-xp { font-weight: 800; color: #f39c12; font-family: monospace; width: 72px; text-align: right; }
+        .ap-score-units { color: #27ae60; font-size: 11px; width: 55px; text-align: right; }
+        .ap-score-stars { color: #e67e22; font-size: 11px; width: 50px; text-align: right; }
+        .ap-score-flag { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: #ffeaa7; color: #d35400; font-weight: 700; }
+        .ap-score-flag.clean { background: #d5f5e3; color: #1e8449; }
+        .ap-empty { text-align: center; color: #aaa; padding: 40px; font-size: 13px; }
+
+        </style>
 </head>
 
 <body>
@@ -1518,6 +1712,7 @@
                         <div class="navbar-level-badge" id="navbarLevel">🌱 数据小白</div>
                     </div>
                 </div>
+                <button class="btn-admin-entry" onclick="openAdminPanel()" id="adminEntryBtn" title="管理员入口">⚙️ 管理</button>
                 <button class="btn-logout" onclick="handleLogout()">退出</button>
             </div>
         </div>
@@ -1609,7 +1804,7 @@
                             <div class="unit-status-icon" id="status-m1u1">🔓</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元一：认识电商数据分析</div>
-                                <div class="unit-stars" id="stars-m1u1">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m1u1">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m1u1">+50 XP</div>
                         </div>
@@ -1618,7 +1813,7 @@
                             <div class="unit-status-icon" id="status-m1u2">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元二：电商数据分析指标</div>
-                                <div class="unit-stars" id="stars-m1u2">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m1u2">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m1u2">+50 XP</div>
                         </div>
@@ -1627,7 +1822,7 @@
                             <div class="unit-status-icon" id="status-m1u3">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元三：数据分析基本流程</div>
-                                <div class="unit-stars" id="stars-m1u3">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m1u3">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m1u3">+50 XP</div>
                         </div>
@@ -1664,7 +1859,7 @@
                             <div class="unit-status-icon" id="status-m2u1">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元一：认识电商数据采集</div>
-                                <div class="unit-stars" id="stars-m2u1">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m2u1">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m2u1">+50 XP</div>
                         </div>
@@ -1673,7 +1868,7 @@
                             <div class="unit-status-icon" id="status-m2u2">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元二：数据采集渠道与工具</div>
-                                <div class="unit-stars" id="stars-m2u2">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m2u2">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m2u2">+50 XP</div>
                         </div>
@@ -1682,7 +1877,7 @@
                             <div class="unit-status-icon" id="status-m2u3">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元三：市场数据采集</div>
-                                <div class="unit-stars" id="stars-m2u3">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m2u3">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m2u3">+50 XP</div>
                         </div>
@@ -1691,7 +1886,7 @@
                             <div class="unit-status-icon" id="status-m2u4">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元四：运营数据采集</div>
-                                <div class="unit-stars" id="stars-m2u4">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m2u4">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m2u4">+50 XP</div>
                         </div>
@@ -1700,7 +1895,7 @@
                             <div class="unit-status-icon" id="status-m2u5">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元五：产品数据采集</div>
-                                <div class="unit-stars" id="stars-m2u5">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m2u5">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m2u5">+50 XP</div>
                         </div>
@@ -1737,7 +1932,7 @@
                             <div class="unit-status-icon" id="status-m3u1">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元一：认识数据分类处理</div>
-                                <div class="unit-stars" id="stars-m3u1">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m3u1">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m3u1">+50 XP</div>
                         </div>
@@ -1746,7 +1941,7 @@
                             <div class="unit-status-icon" id="status-m3u2">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元二：数据分类与统计</div>
-                                <div class="unit-stars" id="stars-m3u2">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m3u2">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m3u2">+50 XP</div>
                         </div>
@@ -1755,7 +1950,7 @@
                             <div class="unit-status-icon" id="status-m3u3">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元三：数据处理</div>
-                                <div class="unit-stars" id="stars-m3u3">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m3u3">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m3u3">+50 XP</div>
                         </div>
@@ -1764,7 +1959,7 @@
                             <div class="unit-status-icon" id="status-m3u4">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元四：数据计算</div>
-                                <div class="unit-stars" id="stars-m3u4">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m3u4">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m3u4">+50 XP</div>
                         </div>
@@ -1801,7 +1996,7 @@
                             <div class="unit-status-icon" id="status-m4u1">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元一：描述性统计分析</div>
-                                <div class="unit-stars" id="stars-m4u1">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m4u1">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m4u1">+50 XP</div>
                         </div>
@@ -1810,7 +2005,7 @@
                             <div class="unit-status-icon" id="status-m4u2">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元二：趋势分析</div>
-                                <div class="unit-stars" id="stars-m4u2">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m4u2">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m4u2">+50 XP</div>
                         </div>
@@ -1819,7 +2014,7 @@
                             <div class="unit-status-icon" id="status-m4u3">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元三：对比分析</div>
-                                <div class="unit-stars" id="stars-m4u3">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m4u3">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m4u3">+50 XP</div>
                         </div>
@@ -1828,7 +2023,7 @@
                             <div class="unit-status-icon" id="status-m4u4">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元四：其他分析方法</div>
-                                <div class="unit-stars" id="stars-m4u4">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m4u4">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m4u4">+50 XP</div>
                         </div>
@@ -1865,7 +2060,7 @@
                             <div class="unit-status-icon" id="status-m5u1">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元一：电商数据监控</div>
-                                <div class="unit-stars" id="stars-m5u1">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m5u1">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m5u1">+50 XP</div>
                         </div>
@@ -1874,7 +2069,7 @@
                             <div class="unit-status-icon" id="status-m5u2">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元二：数据报表制作</div>
-                                <div class="unit-stars" id="stars-m5u2">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m5u2">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m5u2">+50 XP</div>
                         </div>
@@ -1883,7 +2078,7 @@
                             <div class="unit-status-icon" id="status-m5u3">🔒</div>
                             <div class="unit-info">
                                 <div class="unit-name">单元三：数据图表制作</div>
-                                <div class="unit-stars" id="stars-m5u3">☆☆☆</div>
+                                <div class="unit-stars" id="stars-m5u3">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m5u3">+50 XP</div>
                         </div>
@@ -2028,6 +2223,45 @@
            📦 常量与数据定义
            ============================================= */
         const STORAGE_KEY = 'ecommerce_data_analysis_user';
+        const ADMIN_KEY   = 'ecommerce_admin_config';
+
+        /** 管理员密码（明文，教学场景足够；生产请换哈希） */
+        const ADMIN_PASSWORD = 'teacher2025';
+
+        /**
+         * 读取管理员配置（单元开放状态 + 启用的功能）
+         * @returns {{unlockedUnits: string[], adminMode: boolean}}
+         */
+        function loadAdminConfig() {
+            try {
+                const raw = localStorage.getItem(ADMIN_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch {}
+            // 默认：只开放第1个单元
+            return { unlockedUnits: ['m1u1'], adminMode: false };
+        }
+
+        function saveAdminConfig(cfg) {
+            localStorage.setItem(ADMIN_KEY, JSON.stringify(cfg));
+            // 同步到 Supabase admin_config 表（如果存在）
+            if (_supabase) {
+                _supabase.from('admin_config').upsert(
+                    { id: 'main', config: cfg, updated_at: new Date().toISOString() },
+                    { onConflict: 'id' }
+                ).then(({ error }) => { if (error) console.warn('admin cfg sync:', error.message); });
+            }
+        }
+
+        /** 从 Supabase 拉取管理员配置（页面加载时调用一次） */
+        async function loadAdminConfigFromCloud() {
+            if (!_supabase) return;
+            try {
+                const { data } = await _supabase.from('admin_config').select('config').eq('id','main').maybeSingle();
+                if (data?.config) {
+                    localStorage.setItem(ADMIN_KEY, JSON.stringify(data.config));
+                }
+            } catch {}
+        }
 
         /** 等级系统 */
         const LEVELS = [
@@ -2112,7 +2346,8 @@
          * @returns {string} 星星字符串
          */
         function starsToStr(stars) {
-            return '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+            const s = Math.min(5, Math.max(0, stars || 0));
+            return '⭐'.repeat(s) + '☆'.repeat(5 - s);
         }
 
         /**
@@ -2306,26 +2541,32 @@
          * @param {object} user - 用户数据
          */
         function renderLearningMap(user) {
+            const cfg = loadAdminConfig();
             ALL_UNITS.forEach((unitId, idx) => {
                 const unitData = user.units[unitId] || {};
                 const statusEl = document.getElementById(`status-${unitId}`);
-                const starsEl = document.getElementById(`stars-${unitId}`);
-                const unitEl = document.getElementById(`unit-${unitId}`);
+                const starsEl  = document.getElementById(`stars-${unitId}`);
+                const unitEl   = document.getElementById(`unit-${unitId}`);
                 if (!statusEl) return;
 
+                const adminUnlocked = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
+                const seqUnlocked   = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
+
                 if (unitData.completed) {
-                    // 已完成
                     statusEl.textContent = '✅';
                     statusEl.className = 'unit-status-icon done';
                     starsEl.textContent = starsToStr(unitData.stars);
+                    unitEl.classList.remove('locked');
                     unitEl.classList.add('completed');
-                } else if (idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed) {
-                    // 当前可解锁（第一个单元，或上一个已完成）
-                    statusEl.textContent = '▶️';
+                    // 显示已获得的真实XP（防刷后仅首次计入）
+                    const xpEl = document.getElementById(`xp-${unitId}`);
+                    if (xpEl) xpEl.textContent = `+${unitData.xpEarned || 0} XP ✓`;
+                } else if (adminUnlocked || seqUnlocked) {
+                    // 管理员开放 or 顺序解锁
+                    statusEl.textContent = adminUnlocked && !seqUnlocked ? '🔓' : '▶️';
                     statusEl.className = 'unit-status-icon active';
                     unitEl.classList.remove('locked');
                 } else {
-                    // 锁定状态
                     statusEl.textContent = '🔒';
                     statusEl.className = 'unit-status-icon locked-icon';
                     unitEl.classList.add('locked');
@@ -2601,14 +2842,22 @@
             const user = loadUser();
             if (!user) return;
 
-            // 检查是否锁定（第一个单元不锁）
+            const cfg = loadAdminConfig();
             const idx = ALL_UNITS.indexOf(unitId);
-            if (idx > 0 && !user.units[ALL_UNITS[idx - 1]]?.completed) {
-                showToast('🔒 请先完成上一个单元再解锁哦！');
+
+            // ── 开放状态检查 ──
+            // 如果管理员显式开放了该单元 → 直接进入（不管前置是否完成）
+            const adminUnlocked = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
+            // 原来的顺序解锁逻辑
+            const seqUnlocked = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
+            // 已完成的单元永远可重进
+            const completed = user.units[unitId]?.completed;
+
+            if (!adminUnlocked && !seqUnlocked && !completed) {
+                showToast('🔒 该单元暂未开放，请等待老师解锁！');
                 return;
             }
 
-            // 存入sessionStorage供单元页面读取
             sessionStorage.setItem('currentUnit', unitId);
             window.location.href = url;
         }
@@ -2855,7 +3104,450 @@
             loadLeaderboard();
             subscribeLeaderboard();
         })();
+    
+        /* ══════════════════════════════════════════════════
+           🔐 管理员面板逻辑
+        ══════════════════════════════════════════════════ */
+
+        const ADMIN_VERIFIED_KEY = 'ecommerce_admin_verified';
+
+        /** 单元名称映射 */
+        const UNIT_NAMES = {
+            m1u1:'M1-U1 认识电商数据分析', m1u2:'M1-U2 数据分析指标', m1u3:'M1-U3 分析基本流程',
+            m2u1:'M2-U1 认识数据采集',    m2u2:'M2-U2 采集渠道与工具', m2u3:'M2-U3 市场数据采集',
+            m2u4:'M2-U4 运营数据采集',    m2u5:'M2-U5 产品数据采集',
+            m3u1:'M3-U1 数据分类',        m3u2:'M3-U2 数据清洗',       m3u3:'M3-U3 数据转化',
+            m3u4:'M3-U4 数据提取',
+            m4u1:'M4-U1 描述性分析',      m4u2:'M4-U2 对比分析',       m4u3:'M4-U3 趋势分析',
+            m4u4:'M4-U4 漏斗分析',
+            m5u1:'M5-U1 可视化基础',      m5u2:'M5-U2 图表设计',       m5u3:'M5-U3 报告撰写',
+        };
+
+        /* ─── 面板开关 ─── */
+        function openAdminPanel() {
+            document.getElementById('adminOverlay').classList.remove('hidden');
+            // 如果上次已验证，直接显示功能区
+            if (sessionStorage.getItem(ADMIN_VERIFIED_KEY) === '1') {
+                document.getElementById('adminLoginArea').style.display = 'none';
+                document.getElementById('adminMainArea').classList.remove('hidden');
+                renderAdminUnitGrid();
+            }
+        }
+        function closeAdminPanel() {
+            document.getElementById('adminOverlay').classList.add('hidden');
+        }
+        // 点击遮罩关闭
+        document.getElementById('adminOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeAdminPanel();
+        });
+
+        /* ─── 密码验证 ─── */
+        function verifyAdmin() {
+            const pwd = document.getElementById('adminPwdInput').value;
+            const errEl = document.getElementById('adminPwdErr');
+            if (pwd === ADMIN_PASSWORD) {
+                sessionStorage.setItem(ADMIN_VERIFIED_KEY, '1');
+                document.getElementById('adminLoginArea').style.display = 'none';
+                document.getElementById('adminMainArea').classList.remove('hidden');
+                errEl.classList.add('hidden');
+                renderAdminUnitGrid();
+            } else {
+                errEl.classList.remove('hidden');
+                document.getElementById('adminPwdInput').value = '';
+                document.getElementById('adminPwdInput').focus();
+            }
+        }
+
+        /* ─── Tab 切换 ─── */
+        function switchAdminTab(tab) {
+            ['units','export','scores'].forEach(t => {
+                document.getElementById(`atab-${t}`).classList.toggle('active', t === tab);
+                document.getElementById(`acontent-${t}`).classList.toggle('active', t === tab);
+            });
+        }
+
+        /* ══════════════════════════════════════════════════
+           📚 Tab1: 单元开放管理
+        ══════════════════════════════════════════════════ */
+
+        // 临时状态（保存前不生效）
+        let pendingUnlocked = null;
+
+        function renderAdminUnitGrid() {
+            const cfg = loadAdminConfig();
+            // 初始化 pendingUnlocked
+            if (!pendingUnlocked) {
+                pendingUnlocked = new Set(cfg.unlockedUnits || []);
+            }
+            const grid = document.getElementById('adminUnitGrid');
+            grid.innerHTML = ALL_UNITS.map(uid => {
+                const isOpen = pendingUnlocked.has(uid);
+                return `
+                <div class="ap-unit-toggle ${isOpen ? 'open' : 'closed'}"
+                     id="autog-${uid}" onclick="toggleAdminUnit('${uid}')">
+                    <span class="ap-unit-icon">${isOpen ? '🔓' : '🔒'}</span>
+                    <span class="ap-unit-label">${UNIT_NAMES[uid] || uid}</span>
+                    <div class="ap-unit-switch"></div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleAdminUnit(uid) {
+            if (!pendingUnlocked) pendingUnlocked = new Set();
+            if (pendingUnlocked.has(uid)) {
+                pendingUnlocked.delete(uid);
+            } else {
+                pendingUnlocked.add(uid);
+            }
+            renderAdminUnitGrid();
+        }
+
+        function adminOpenAll() {
+            pendingUnlocked = new Set(ALL_UNITS);
+            renderAdminUnitGrid();
+        }
+        function adminCloseAll() {
+            pendingUnlocked = new Set(['m1u1']); // 至少保留第1个
+            renderAdminUnitGrid();
+        }
+        function adminResetSequential() {
+            // 只开放第1个单元（其余靠顺序完成解锁）
+            pendingUnlocked = new Set(['m1u1']);
+            renderAdminUnitGrid();
+        }
+
+        async function saveAdminUnits() {
+            const cfg = loadAdminConfig();
+            cfg.unlockedUnits = [...pendingUnlocked];
+            cfg.updatedAt = new Date().toISOString();
+            saveAdminConfig(cfg);
+
+            const hint = document.getElementById('adminSaveHint');
+            hint.textContent = '⏳ 正在同步到云端…';
+
+            // saveAdminConfig 已经调用了 Supabase upsert，等待 1.5s 确认
+            await new Promise(r => setTimeout(r, 1500));
+            hint.textContent = '✅ 已保存并同步到全班！';
+            setTimeout(() => { hint.textContent = ''; }, 4000);
+
+            // 刷新首页单元状态
+            const user = loadUser();
+            if (user) renderLearningMap(user);
+        }
+
+        /* ══════════════════════════════════════════════════
+           📊 Tab2: 学生数据导出
+        ══════════════════════════════════════════════════ */
+
+        let cachedStudentRows = null;
+
+        async function fetchAllStudents() {
+            if (!_supabase) {
+                alert('⚠️ 未连接 Supabase，无法获取全班数据。请先配置 Supabase。');
+                return null;
+            }
+            const { data, error } = await _supabase
+                .from('student_progress')
+                .select('*')
+                .order('xp', { ascending: false });
+            if (error) { alert('拉取数据失败：' + error.message); return null; }
+            cachedStudentRows = data;
+            return data;
+        }
+
+        function buildCSVRow(row, opts) {
+            const units = row.units || {};
+            const cells = [
+                `"${(row.name || '').replace(/"/g, '""')}"`,
+                `"${row.student_id}"`,
+            ];
+            if (opts.xp)     cells.push(row.xp || 0);
+            if (opts.units)  cells.push(row.completed_units || 0);
+            if (opts.stars)  cells.push(row.total_stars || 0);
+            if (opts.detail) {
+                ALL_UNITS.forEach(uid => {
+                    const u = units[uid] || {};
+                    cells.push(u.completed ? (u.stars || 0) : '');
+                    cells.push(u.completed ? (u.score  || 0) : '');
+                });
+            }
+            if (opts.achieve) cells.push(`"${(row.achievements || []).join('|')}"`);
+            return cells.join(',');
+        }
+
+        function buildCSVHeader(opts) {
+            const h = ['姓名','学号'];
+            if (opts.xp)     h.push('经验值XP');
+            if (opts.units)  h.push('完成单元数');
+            if (opts.stars)  h.push('总星星数');
+            if (opts.detail) {
+                ALL_UNITS.forEach(uid => {
+                    const n = (UNIT_NAMES[uid]||uid).replace(/,/g,'');
+                    h.push(`${n}_星`, `${n}_分`);
+                });
+            }
+            if (opts.achieve) h.push('成就徽章');
+            return h.join(',');
+        }
+
+        async function exportStudentData() {
+            const rows = await fetchAllStudents();
+            if (!rows || rows.length === 0) { alert('暂无学生数据'); return; }
+            const opts = getExportOpts();
+            const lines = ['﻿' + buildCSVHeader(opts)]; // BOM for Excel
+            rows.forEach(r => lines.push(buildCSVRow(r, opts)));
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+            a.href = url; a.download = `学生成绩_${ts}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+        }
+
+        function getExportOpts() {
+            return {
+                xp:      document.getElementById('expXP').checked,
+                units:   document.getElementById('expUnits').checked,
+                stars:   document.getElementById('expStars').checked,
+                detail:  document.getElementById('expDetail').checked,
+                achieve: document.getElementById('expAchieve').checked,
+            };
+        }
+
+        async function previewStudentData() {
+            const rows = await fetchAllStudents();
+            if (!rows || rows.length === 0) { alert('暂无学生数据'); return; }
+            const opts = getExportOpts();
+            const preview = document.getElementById('exportPreview');
+            const table = document.getElementById('previewTable');
+            document.getElementById('previewCount').textContent = `共 ${rows.length} 名学生`;
+
+            // 构建表头（只显示前20列避免撑破预览）
+            const headerCells = ['姓名','学号'];
+            if (opts.xp)    headerCells.push('XP');
+            if (opts.units) headerCells.push('单元');
+            if (opts.stars) headerCells.push('星星');
+            // 详情列太多，预览只显示摘要
+            const showDetail = opts.detail;
+
+            let html = '<thead><tr>' + headerCells.map(h => `<th>${h}</th>`).join('');
+            if (showDetail) {
+                ALL_UNITS.forEach(uid => {
+                    const n = (UNIT_NAMES[uid]||uid).split(' ')[0];
+                    html += `<th>${n}⭐</th><th>${n}分</th>`;
+                });
+            }
+            html += '</tr></thead><tbody>';
+
+            rows.slice(0, 50).forEach(row => {
+                const units = row.units || {};
+                html += '<tr>';
+                html += `<td><b>${row.name || '-'}</b></td><td>${row.student_id}</td>`;
+                if (opts.xp)    html += `<td>${row.xp || 0}</td>`;
+                if (opts.units) html += `<td>${row.completed_units || 0}</td>`;
+                if (opts.stars) html += `<td>${row.total_stars || 0}</td>`;
+                if (showDetail) {
+                    ALL_UNITS.forEach(uid => {
+                        const u = units[uid] || {};
+                        html += `<td>${u.completed ? (u.stars||0) : '-'}</td>`;
+                        html += `<td>${u.completed ? (u.score||0) : '-'}</td>`;
+                    });
+                }
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            table.innerHTML = html;
+            preview.style.display = 'block';
+        }
+
+        /* ══════════════════════════════════════════════════
+           🏆 Tab3: 实时积分榜 + 异常检测
+        ══════════════════════════════════════════════════ */
+
+        // 每个单元最高可获得 XP 上限（首次完成满星）
+        // 首次登录15 + 每单元最高约75XP，19单元 = 理论上限约 1440 XP
+        const MAX_XP_PER_UNIT = 80;  // 单个单元最高XP（含各奖励）
+        const MAX_TOTAL_XP = 15 + ALL_UNITS.length * MAX_XP_PER_UNIT; // ~1535
+
+        async function loadAdminScores() {
+            const rows = await fetchAllStudents();
+            if (!rows) return;
+            const list = document.getElementById('adminScoreList');
+            if (!rows.length) { list.innerHTML = '<div class="ap-empty">暂无学生数据</div>'; return; }
+
+            list.innerHTML = rows.map((row, i) => {
+                const isAnomaly = (row.xp || 0) > MAX_TOTAL_XP;
+                const flag = isAnomaly
+                    ? `<span class="ap-score-flag">⚠️ 异常</span>`
+                    : `<span class="ap-score-flag clean">✅ 正常</span>`;
+                return `
+                <div class="ap-score-row">
+                    <div class="ap-score-rank">${i+1}</div>
+                    <div>
+                        <div class="ap-score-name">${row.name || '-'}</div>
+                        <div class="ap-score-id">${row.student_id}</div>
+                    </div>
+                    <div class="ap-score-units">📚 ${row.completed_units||0}单元</div>
+                    <div class="ap-score-stars">⭐ ${row.total_stars||0}星</div>
+                    <div class="ap-score-xp">⚡ ${row.xp||0} XP</div>
+                    ${flag}
+                    ${isAnomaly ? `<button class="ap-btn" style="padding:4px 8px;font-size:10px;color:#c0392b;border-color:#c0392b"
+                        onclick="resetOneStudent('${row.student_id}','${row.name}')">重置</button>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        // 重置单个学生的XP为合理上限（保留完成状态和星星）
+        async function resetOneStudent(sid, name) {
+            if (!confirm(`⚠️ 确定要重置 ${name} 的经验值吗？\n\n将根据其完成单元数重新计算真实XP，不可恢复。`)) return;
+            const { data: row } = await _supabase
+                .from('student_progress').select('*').eq('student_id', sid).maybeSingle();
+            if (!row) { alert('未找到该学生数据'); return; }
+
+            // 根据各单元实际 xpEarned 字段重新累加（仅取记录的首次XP）
+            const units = row.units || {};
+            let realXP = 15; // 登录奖励
+            ALL_UNITS.forEach(uid => {
+                const u = units[uid] || {};
+                if (u.completed && u.xpEarned) {
+                    // xpEarned 只取合理范围内的值
+                    realXP += Math.min(MAX_XP_PER_UNIT, u.xpEarned || 0);
+                }
+            });
+
+            const { error } = await _supabase.from('student_progress').update({
+                xp: realXP,
+                week_xp: Math.min(row.week_xp || 0, realXP),
+                updated_at: new Date().toISOString()
+            }).eq('student_id', sid);
+
+            if (error) { alert('重置失败：' + error.message); return; }
+            alert(`✅ 已将 ${name} 的XP重置为 ${realXP}（基于实际完成记录计算）`);
+            loadAdminScores(); // 刷新列表
+        }
+
+        // 批量重置所有异常学生
+        async function resetStudentXP() {
+            if (!cachedStudentRows) {
+                alert('请先点击"刷新数据"加载学生列表');
+                return;
+            }
+            const anomalies = cachedStudentRows.filter(r => (r.xp||0) > MAX_TOTAL_XP);
+            if (anomalies.length === 0) { alert('✅ 暂无异常积分学生'); return; }
+            if (!confirm(`发现 ${anomalies.length} 名学生积分异常（超过理论上限${MAX_TOTAL_XP} XP）。\n\n确定批量重置？`)) return;
+
+            for (const row of anomalies) {
+                await resetOneStudent(row.student_id, row.name);
+            }
+        }
+
     </script>
+
+
+    <!-- ══════════════════════════════════════════
+         🔐 管理员面板（overlay）
+    ═══════════════════════════════════════════ -->
+    <div class="admin-overlay hidden" id="adminOverlay">
+      <div class="admin-panel">
+        <!-- 标题栏 -->
+        <div class="ap-header">
+          <div class="ap-title">⚙️ 教师管理后台</div>
+          <button class="ap-close" onclick="closeAdminPanel()">✕</button>
+        </div>
+
+        <!-- 密码登录区（未验证时显示） -->
+        <div id="adminLoginArea">
+          <div class="ap-section-title">🔑 管理员登录</div>
+          <div class="ap-login-row">
+            <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30"
+              onkeydown="if(event.key==='Enter')verifyAdmin()" />
+            <button class="ap-btn ap-btn-primary" onclick="verifyAdmin()">登录</button>
+          </div>
+          <div class="ap-hint">默认密码：teacher2025</div>
+          <div class="ap-err hidden" id="adminPwdErr">❌ 密码错误，请重试</div>
+        </div>
+
+        <!-- 管理功能区（验证后显示） -->
+        <div id="adminMainArea" class="hidden">
+
+          <!-- Tab导航 -->
+          <div class="ap-tabs">
+            <button class="ap-tab active" onclick="switchAdminTab('units')" id="atab-units">📚 单元开放管理</button>
+            <button class="ap-tab" onclick="switchAdminTab('export')" id="atab-export">📊 学生数据导出</button>
+            <button class="ap-tab" onclick="switchAdminTab('scores')" id="atab-scores">🏆 实时排名</button>
+          </div>
+
+          <!-- ── Tab 1: 单元开放管理 ── -->
+          <div class="ap-tab-content active" id="acontent-units">
+            <div class="ap-section-title">📚 单元开放状态管理
+              <span class="ap-subtitle">（改变后全班实时生效，无需刷新）</span>
+            </div>
+            <div class="ap-unit-actions">
+              <button class="ap-btn ap-btn-success" onclick="adminOpenAll()">✅ 全部开放</button>
+              <button class="ap-btn ap-btn-warn" onclick="adminCloseAll()">🔒 全部关闭</button>
+              <button class="ap-btn" onclick="adminResetSequential()">🔁 恢复顺序解锁</button>
+            </div>
+            <div class="ap-unit-grid" id="adminUnitGrid"></div>
+            <div class="ap-save-row">
+              <button class="ap-btn ap-btn-primary" onclick="saveAdminUnits()">💾 保存并同步到全班</button>
+              <span class="ap-save-hint" id="adminSaveHint"></span>
+            </div>
+          </div>
+
+          <!-- ── Tab 2: 数据导出 ── -->
+          <div class="ap-tab-content" id="acontent-export">
+            <div class="ap-section-title">📊 学生数据导出
+              <span class="ap-subtitle">（从 Supabase 拉取全班最新数据）</span>
+            </div>
+            <div class="ap-export-opts">
+              <label class="ap-check-label">
+                <input type="checkbox" id="expXP" checked> 经验值(XP)
+              </label>
+              <label class="ap-check-label">
+                <input type="checkbox" id="expUnits" checked> 完成单元数
+              </label>
+              <label class="ap-check-label">
+                <input type="checkbox" id="expStars" checked> 总星星数
+              </label>
+              <label class="ap-check-label">
+                <input type="checkbox" id="expDetail" checked> 各单元详情(星/分)
+              </label>
+              <label class="ap-check-label">
+                <input type="checkbox" id="expAchieve"> 成就徽章
+              </label>
+            </div>
+            <div class="ap-export-actions">
+              <button class="ap-btn ap-btn-primary" onclick="exportStudentData()">⬇️ 导出 CSV</button>
+              <button class="ap-btn" onclick="previewStudentData()">👁️ 预览数据</button>
+            </div>
+            <div class="ap-export-preview" id="exportPreview" style="display:none">
+              <div class="ap-preview-header">
+                <span id="previewCount">-</span>
+                <button class="ap-btn" style="padding:4px 10px;font-size:11px" onclick="document.getElementById('exportPreview').style.display='none'">关闭</button>
+              </div>
+              <div class="ap-table-wrap">
+                <table class="ap-table" id="previewTable"></table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Tab 3: 实时排名 ── -->
+          <div class="ap-tab-content" id="acontent-scores">
+            <div class="ap-section-title">🏆 全班实时积分榜
+              <span class="ap-subtitle">（含防刷后真实得分）</span>
+            </div>
+            <div class="ap-score-actions">
+              <button class="ap-btn ap-btn-primary" onclick="loadAdminScores()">🔄 刷新数据</button>
+              <button class="ap-btn ap-btn-warn" onclick="resetStudentXP()" id="btnResetXP">⚠️ 重置异常分数</button>
+            </div>
+            <div class="ap-score-list" id="adminScoreList">
+              <div class="ap-empty">点击"刷新数据"加载全班成绩</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
 
 </body>
 
