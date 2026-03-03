@@ -1030,7 +1030,7 @@
             setTimeout(() => { document.getElementById('progressFill').style.width = pct + '%'; }, 800);
         }
 
-        // 🟢 修复 1：修改开放状态判断逻辑，如果 admin 未开启则强制锁定
+        // 🟢 修复：地图渲染时，关闭状态优先级最高，覆盖完成状态
         function renderLearningMap(user) {
             const cfg = loadAdminConfig();
             ALL_UNITS.forEach((unitId, idx) => {
@@ -1040,24 +1040,39 @@
                 const unitEl   = document.getElementById(`unit-${unitId}`);
                 if (!statusEl) return;
 
-                // 只有被管理端开启，才能算是发布的单元
+                // 判断管理员是否发布了该单元
                 const isPublished = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
-                // 顺序判断：第一课或者上一课已完成
+                // 判断前置任务是否完成
                 const seqUnlocked = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
 
-                if (unitData.completed) {
-                    statusEl.textContent = '✅'; statusEl.className = 'unit-status-icon done';
+                // 规则 1：只要管理员没发布，强制上锁（无视是否完成过）
+                if (!isPublished) {
+                    statusEl.textContent = '🔒'; 
+                    statusEl.className = 'unit-status-icon locked-icon'; 
+                    unitEl.classList.add('locked'); 
+                    unitEl.classList.remove('completed');
+                } 
+                // 规则 2：管理员发布了，且该单元已完成
+                else if (unitData.completed) {
+                    statusEl.textContent = '✅'; 
+                    statusEl.className = 'unit-status-icon done';
                     starsEl.textContent = starsToStr(unitData.stars);
-                    unitEl.classList.remove('locked'); unitEl.classList.add('completed');
+                    unitEl.classList.remove('locked'); 
+                    unitEl.classList.add('completed');
                     const xpEl = document.getElementById(`xp-${unitId}`);
                     if (xpEl) xpEl.textContent = `+${unitData.xpEarned || 0} XP ✓`;
-                } else if (isPublished && seqUnlocked) {
-                    // 必须既被老师发布，又满足顺序解锁条件
+                } 
+                // 规则 3：管理员发布了，前置任务已完成（当前可做）
+                else if (seqUnlocked) {
                     statusEl.textContent = '▶️';
-                    statusEl.className = 'unit-status-icon active'; unitEl.classList.remove('locked');
-                } else {
-                    // 如果老师锁了，或者还没学到这里，都是锁定状态
-                    statusEl.textContent = '🔒'; statusEl.className = 'unit-status-icon locked-icon'; unitEl.classList.add('locked');
+                    statusEl.className = 'unit-status-icon active'; 
+                    unitEl.classList.remove('locked');
+                } 
+                // 规则 4：前置任务还没做完
+                else {
+                    statusEl.textContent = '🔒'; 
+                    statusEl.className = 'unit-status-icon locked-icon'; 
+                    unitEl.classList.add('locked');
                 }
             });
 
@@ -1086,7 +1101,7 @@
 
         function renderAll(user) { renderNavbar(user); renderHero(user); renderLearningMap(user); renderBadges(user); }
 
-        // 🟢 修复 3：增加姓名（纯汉字）和学号（9位数字）的格式校验
+        // 🟢 修复：本地进度认领逻辑增加学号绑定校验
         async function handleLogin() {
             const name      = document.getElementById('inputName').value.trim();
             const studentId = document.getElementById('inputId').value.trim();
@@ -1105,13 +1120,21 @@
             function setStatus(type, msg) { statusEl.className = 'login-sync-status show ' + type; spinEl.style.display = type === 'syncing' ? 'block' : 'none'; msgEl.textContent = msg; }
             btnEl.classList.add('loading');
 
+            // 【离线模式】防串号逻辑
             if (!_supabase) {
                 btnEl.classList.remove('loading');
                 let user = loadUser();
-                if (!user) {
-                    user = createUser(name, studentId); saveUser(user);
-                    setTimeout(() => launchConfetti(), 500); setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
-                } else { user.name = name; user.studentId = studentId; saveUser(user); showToast(`👋 欢迎回来，${name}！继续加油`); }
+                // 如果本地没有进度，或者本地进度的学号跟当前输入的学号不一致，强制创建新账号
+                if (!user || user.studentId !== studentId) {
+                    user = createUser(name, studentId); 
+                    saveUser(user);
+                    setTimeout(() => launchConfetti(), 500); 
+                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
+                } else { 
+                    user.name = name; // 同一个人，允许更新姓名
+                    saveUser(user); 
+                    showToast(`👋 欢迎回来，${name}！继续加油`); 
+                }
                 document.getElementById('loginOverlay').classList.add('hidden'); renderAll(user); return;
             }
 
@@ -1121,22 +1144,31 @@
                 if (error) throw error;
                 const localUser = loadUser(); let finalUser = null; let isNewUser = false;
 
-                if (rows) {
+                if (rows) { // 云端存在该学生数据
                     const cloudUpdated = new Date(rows.updated_at || 0).getTime();
                     const localUpdated = localUser ? new Date(localUser.updatedAt || localUser.lastVisit || 0).getTime() : 0;
-                    if (localUser && localUpdated > cloudUpdated) {
+                    
+                    // 【在线模式】必须满足“本地存在”且“本地学号匹配”且“本地更新”，才能采用本地数据覆盖
+                    if (localUser && localUser.studentId === studentId && localUpdated > cloudUpdated) {
                         setStatus('found', `📱 发现本地进度更新，以本地数据为准（${localUser.xp} XP）`);
                         finalUser = localUser; finalUser.name = name;
                     } else {
+                        // 否则拉取云端数据
                         setStatus('found', `☁️ 已找到云端进度！${rows.name} · ${rows.xp} XP · ${rows.completed_units} 单元`);
-                        finalUser = { name: name, studentId: studentId, xp: rows.xp || 0, weekXp: rows.week_xp || 0, weekStart: rows.week_start || getWeekStart(), createdAt: localUser?.createdAt || new Date().toISOString(), updatedAt: rows.updated_at, units: rows.units || buildEmptyUnits(), achievements: rows.achievements || ['first_login'] };
+                        finalUser = { name: name, studentId: studentId, xp: rows.xp || 0, weekXp: rows.week_xp || 0, weekStart: rows.week_start || getWeekStart(), createdAt: rows.created_at || new Date().toISOString(), updatedAt: rows.updated_at, units: rows.units || buildEmptyUnits(), achievements: rows.achievements || ['first_login'] };
                     }
                     await new Promise(r => setTimeout(r, 800));
-                } else {
-                    if (localUser) {
-                        setStatus('found', `📂 发现本地进度（${localUser.xp} XP），正在上传到云端…`); finalUser = localUser; finalUser.name = name; await new Promise(r => setTimeout(r, 600));
-                    } else {
-                        isNewUser = true; setStatus('new-user', '✨ 新同学！正在创建你的学习档案…'); finalUser = createUser(name, studentId); await new Promise(r => setTimeout(r, 500));
+                } else { // 云端不存在该学生数据
+                    // 只有本地学号一致，才证明是本地做完准备首次上传
+                    if (localUser && localUser.studentId === studentId) {
+                        setStatus('found', `📂 发现本地进度（${localUser.xp} XP），正在上传到云端…`); 
+                        finalUser = localUser; finalUser.name = name; 
+                        await new Promise(r => setTimeout(r, 600));
+                    } else { // 彻底的新账号
+                        isNewUser = true; 
+                        setStatus('new-user', '✨ 新同学！正在创建你的学习档案…'); 
+                        finalUser = createUser(name, studentId); 
+                        await new Promise(r => setTimeout(r, 500));
                     }
                 }
 
@@ -1149,9 +1181,16 @@
             } catch (err) {
                 console.error('Login sync error:', err);
                 setStatus('error', '⚠️ 云端连接失败，使用本地数据登录'); await new Promise(r => setTimeout(r, 1200));
+                
+                // 【云端异常/离线fallback】防串号逻辑
                 let user = loadUser();
-                if (!user) { user = createUser(name, studentId); saveUser(user); setTimeout(() => launchConfetti(), 400); setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500); }
-                else { user.name = name; user.studentId = studentId; saveUser(user); showToast(`👋 欢迎回来（离线模式），${name}！`); }
+                if (!user || user.studentId !== studentId) { 
+                    user = createUser(name, studentId); saveUser(user); 
+                    setTimeout(() => launchConfetti(), 400); 
+                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500); 
+                } else { 
+                    user.name = name; saveUser(user); showToast(`👋 欢迎回来（离线模式），${name}！`); 
+                }
                 btnEl.classList.remove('loading'); statusEl.classList.remove('show'); document.getElementById('loginOverlay').classList.add('hidden'); renderAll(user);
             }
         }
@@ -1167,19 +1206,26 @@
 
         function toggleModule(moduleId) { document.getElementById(`${moduleId}-card`).classList.toggle('expanded'); }
 
-        // 🟢 修复 1：修改跳转检测逻辑，如果没被开启或前置未完成则拦截
+        // 🟢 修复：点击单元跳转时，强制拦截未发布的单元
         function goToUnit(unitId, url) {
             const user = loadUser(); if (!user) return;
             const cfg = loadAdminConfig(); const idx = ALL_UNITS.indexOf(unitId);
             
             const isPublished = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
             const seqUnlocked = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
-            const completed = user.units[unitId]?.completed;
 
-            if (!completed && (!isPublished || !seqUnlocked)) { 
-                showToast('🔒 该单元暂未开放或前置单元未完成！'); 
+            // 规则 1：只要没发布，无论如何都不准进
+            if (!isPublished) {
+                showToast('🔒 该单元已被管理员关闭，暂不可访问！');
+                return;
+            }
+            // 规则 2：已经发布了，但前置任务没做完，且自己本身也没完成（防止意外漏洞）
+            if (!seqUnlocked && !user.units[unitId]?.completed) { 
+                showToast('🔒 请先完成前置单元！'); 
                 return; 
             }
+            
+            // 允许进入
             sessionStorage.setItem('currentUnit', unitId); window.location.href = url;
         }
 
@@ -1422,21 +1468,16 @@
         /* ─── 异常分数检测与重置 ─── */
         const MAX_XP_PER_UNIT = 80;
 
-        // 🟢 修复 2：根据学生完成单元数计算合理最高分，代替一刀切的最大分值
         function isStudentAbnormal(row) {
             const completedUnits = row.completed_units || 0;
-            // 计算最大合理经验值: 基础 15 分 + (完成单元数 × 单个单元最大 80 分)
             const maxAllowedXp = 15 + completedUnits * MAX_XP_PER_UNIT;
             
-            // 超过最大合法的计算分值即为异常
             if ((row.xp || 0) > maxAllowedXp) return true;
             
             const units = row.units || {};
             for (let i = 0; i < ALL_UNITS.length; i++) {
                 const uid = ALL_UNITS[i];
-                // 如果单课超标 80 分，是异常
                 if (units[uid] && (units[uid].xpEarned > MAX_XP_PER_UNIT)) return true;
-                // 如果单元未完成（没标记为 completed），却有分数，这也是利用漏洞刷的分，判定为异常
                 if (units[uid] && !units[uid].completed && (units[uid].xpEarned > 0)) return true;
             }
             return false;
