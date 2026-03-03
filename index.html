@@ -350,11 +350,11 @@
 
             <div class="login-field">
                 <label for="inputName">👤 你的姓名</label>
-                <input type="text" id="inputName" placeholder="请输入你的真实姓名" maxlength="20" autocomplete="off" />
+                <input type="text" id="inputName" placeholder="请输入你的真实姓名（仅限汉字）" maxlength="20" autocomplete="off" />
             </div>
             <div class="login-field">
                 <label for="inputId">🎓 学号</label>
-                <input type="text" id="inputId" placeholder="请输入你的学号" maxlength="20" autocomplete="off" />
+                <input type="text" id="inputId" placeholder="请输入你的9位数字学号" maxlength="9" autocomplete="off" />
             </div>
 
             <div class="login-sync-status" id="loginSyncStatus">
@@ -682,7 +682,7 @@
                             id="unit-m4u4">
                             <div class="unit-status-icon" id="status-m4u4">🔒</div>
                             <div class="unit-info">
-                                <div class="unit-name">单元四：其他分析方法</div>
+                                <div class="unit-name">单元四：漏斗分析</div>
                                 <div class="unit-stars" id="stars-m4u4">☆☆☆☆☆</div>
                             </div>
                             <div class="unit-xp" id="xp-m4u4">+50 XP</div>
@@ -827,14 +827,13 @@
           </div>
 
           <div class="ap-tab-content active" id="acontent-units">
-            <div class="ap-section-title">📚 单元开放状态管理 <span class="ap-subtitle">（改变后全班实时生效，未解锁依然支持依顺序解锁）</span></div>
+            <div class="ap-section-title">📚 单元开放状态管理 <span class="ap-subtitle">（改变后全班实时生效，必须开启且满足顺序才可访问）</span></div>
             <div class="ap-unit-actions" style="margin-bottom: 8px;">
-              <button class="ap-btn ap-btn-success" onclick="adminOpenAll()">✅ 全部开放</button>
+              <button class="ap-btn ap-btn-success" onclick="adminOpenAll()">✅ 全部发布 (按顺序解锁)</button>
               <button class="ap-btn ap-btn-warn" onclick="adminCloseAll()">🔒 全部关闭</button>
-              <button class="ap-btn" onclick="adminResetSequential()">🔁 仅保留顺序解锁</button>
             </div>
             <div class="ap-unit-actions" style="margin-bottom: 14px; background: #f0f4f8; padding: 10px; border-radius: 8px; align-items: center;">
-              <span style="font-size: 12px; font-weight: bold; color: #1e3a5f; margin-right: 8px;">按模块批量切换：</span>
+              <span style="font-size: 12px; font-weight: bold; color: #1e3a5f; margin-right: 8px;">按模块批量发布：</span>
               <button class="ap-btn" onclick="toggleModuleAdmin('m1')">模块一</button>
               <button class="ap-btn" onclick="toggleModuleAdmin('m2')">模块二</button>
               <button class="ap-btn" onclick="toggleModuleAdmin('m3')">模块三</button>
@@ -1031,6 +1030,7 @@
             setTimeout(() => { document.getElementById('progressFill').style.width = pct + '%'; }, 800);
         }
 
+        // 🟢 修复 1：修改开放状态判断逻辑，如果 admin 未开启则强制锁定
         function renderLearningMap(user) {
             const cfg = loadAdminConfig();
             ALL_UNITS.forEach((unitId, idx) => {
@@ -1040,8 +1040,10 @@
                 const unitEl   = document.getElementById(`unit-${unitId}`);
                 if (!statusEl) return;
 
-                const adminUnlocked = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
-                const seqUnlocked   = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
+                // 只有被管理端开启，才能算是发布的单元
+                const isPublished = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
+                // 顺序判断：第一课或者上一课已完成
+                const seqUnlocked = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
 
                 if (unitData.completed) {
                     statusEl.textContent = '✅'; statusEl.className = 'unit-status-icon done';
@@ -1049,10 +1051,12 @@
                     unitEl.classList.remove('locked'); unitEl.classList.add('completed');
                     const xpEl = document.getElementById(`xp-${unitId}`);
                     if (xpEl) xpEl.textContent = `+${unitData.xpEarned || 0} XP ✓`;
-                } else if (adminUnlocked || seqUnlocked) {
-                    statusEl.textContent = adminUnlocked && !seqUnlocked ? '🔓' : '▶️';
+                } else if (isPublished && seqUnlocked) {
+                    // 必须既被老师发布，又满足顺序解锁条件
+                    statusEl.textContent = '▶️';
                     statusEl.className = 'unit-status-icon active'; unitEl.classList.remove('locked');
                 } else {
+                    // 如果老师锁了，或者还没学到这里，都是锁定状态
                     statusEl.textContent = '🔒'; statusEl.className = 'unit-status-icon locked-icon'; unitEl.classList.add('locked');
                 }
             });
@@ -1082,12 +1086,19 @@
 
         function renderAll(user) { renderNavbar(user); renderHero(user); renderLearningMap(user); renderBadges(user); }
 
+        // 🟢 修复 3：增加姓名（纯汉字）和学号（9位数字）的格式校验
         async function handleLogin() {
             const name      = document.getElementById('inputName').value.trim();
             const studentId = document.getElementById('inputId').value.trim();
+
             if (!name) { showToast('⚠️ 请输入你的姓名'); document.getElementById('inputName').focus(); return; }
+            const nameRegex = /^[\u4e00-\u9fa5]+$/;
+            if (!nameRegex.test(name)) { showToast('⚠️ 姓名只能输入纯汉字'); document.getElementById('inputName').focus(); return; }
+            if (name.length < 2) { showToast('⚠️ 姓名至少需要2个汉字'); document.getElementById('inputName').focus(); return; }
+
             if (!studentId) { showToast('⚠️ 请输入你的学号'); document.getElementById('inputId').focus(); return; }
-            if (name.length < 2) { showToast('⚠️ 姓名至少需要2个字'); return; }
+            const idRegex = /^\d{9}$/;
+            if (!idRegex.test(studentId)) { showToast('⚠️ 学号必须是9位纯数字'); document.getElementById('inputId').focus(); return; }
 
             const btnEl = document.getElementById('btnLogin'); const statusEl = document.getElementById('loginSyncStatus');
             const msgEl = document.getElementById('syncMsg'); const spinEl = document.getElementById('syncSpinner');
@@ -1156,14 +1167,19 @@
 
         function toggleModule(moduleId) { document.getElementById(`${moduleId}-card`).classList.toggle('expanded'); }
 
+        // 🟢 修复 1：修改跳转检测逻辑，如果没被开启或前置未完成则拦截
         function goToUnit(unitId, url) {
             const user = loadUser(); if (!user) return;
             const cfg = loadAdminConfig(); const idx = ALL_UNITS.indexOf(unitId);
-            const adminUnlocked = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
+            
+            const isPublished = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
             const seqUnlocked = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
             const completed = user.units[unitId]?.completed;
 
-            if (!adminUnlocked && !seqUnlocked && !completed) { showToast('🔒 该单元暂未开放，请等待老师解锁！'); return; }
+            if (!completed && (!isPublished || !seqUnlocked)) { 
+                showToast('🔒 该单元暂未开放或前置单元未完成！'); 
+                return; 
+            }
             sessionStorage.setItem('currentUnit', unitId); window.location.href = url;
         }
 
@@ -1320,9 +1336,8 @@
             renderAdminUnitGrid();
         }
 
-        function adminOpenAll() { pendingUnlocked = new Set(ALL_UNITS); renderAdminUnitGrid(); }
-        function adminCloseAll() { pendingUnlocked = new Set(); renderAdminUnitGrid(); } // 允许全关，依靠顺序解锁
-        function adminResetSequential() { pendingUnlocked = new Set(); renderAdminUnitGrid(); } // 清空手动解锁，仅靠做完前置解锁
+        function adminOpenAll() { pendingUnlocked = new Set(ALL_UNITS); renderAdminUnitGrid(); } // 发布所有，学生将通过顺序依次解锁
+        function adminCloseAll() { pendingUnlocked = new Set(); renderAdminUnitGrid(); } // 关闭所有，学生全都不能访问
 
         async function saveAdminUnits() {
             const cfg = loadAdminConfig(); cfg.unlockedUnits = [...pendingUnlocked]; cfg.updatedAt = new Date().toISOString(); saveAdminConfig(cfg);
@@ -1406,14 +1421,23 @@
 
         /* ─── 异常分数检测与重置 ─── */
         const MAX_XP_PER_UNIT = 80;
-        const MAX_TOTAL_XP = 15 + ALL_UNITS.length * MAX_XP_PER_UNIT;
 
+        // 🟢 修复 2：根据学生完成单元数计算合理最高分，代替一刀切的最大分值
         function isStudentAbnormal(row) {
-            if ((row.xp || 0) > MAX_TOTAL_XP) return true;
+            const completedUnits = row.completed_units || 0;
+            // 计算最大合理经验值: 基础 15 分 + (完成单元数 × 单个单元最大 80 分)
+            const maxAllowedXp = 15 + completedUnits * MAX_XP_PER_UNIT;
+            
+            // 超过最大合法的计算分值即为异常
+            if ((row.xp || 0) > maxAllowedXp) return true;
+            
             const units = row.units || {};
             for (let i = 0; i < ALL_UNITS.length; i++) {
                 const uid = ALL_UNITS[i];
+                // 如果单课超标 80 分，是异常
                 if (units[uid] && (units[uid].xpEarned > MAX_XP_PER_UNIT)) return true;
+                // 如果单元未完成（没标记为 completed），却有分数，这也是利用漏洞刷的分，判定为异常
+                if (units[uid] && !units[uid].completed && (units[uid].xpEarned > 0)) return true;
             }
             return false;
         }
