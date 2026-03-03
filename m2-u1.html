@@ -1173,13 +1173,29 @@ function resetGame(){
 async function completeUnit(){
   const user=loadUser();
   if(!user){window.location.href='index.html';return}
-  const stars=gameStars||1;
+  const score=Math.max(Math.round((gameScore||0)/50*100),55);
+  // 5星体系：更宽松的阈值
+  const stars=gameStars>=3?5:gameStars>=2?4:gameStars>=1?3:
+              (score>=90?4:score>=70?3:score>=55?2:1);
   const totalXP=earnedXP+20;
-  const score=Math.round(gameScore/50*100)||60;
-  user.units['m2u1']={completed:true,stars,score,xpEarned:totalXP};
-  user.xp+=totalXP;user.weekXp=(user.weekXp||0)+totalXP;
+  // 保留最高星星和分数，XP只在首次记录
+  // ── 防刷机制：已完成单元不重复加 XP ──
+  const alreadyDone = user.units['m2u1']?.completed && user.units['m2u1']?.xpEarned > 0;
+  const actualXP    = alreadyDone ? 0 : totalXP;
+  // 保留最高星星/分数，XP 仅首次记录
+  const prevXPEarned = user.units['m2u1']?.xpEarned || 0;
+  const prevStars    = user.units['m2u1']?.stars    || 0;
+  const prevScore    = user.units['m2u1']?.score    || 0;
+  user.units['m2u1']={
+    completed: true,
+    stars:     Math.max(prevStars, stars),
+    score:     Math.max(prevScore, score),
+    xpEarned:  alreadyDone ? prevXPEarned : totalXP
+  };
+  user.xp += actualXP;
+  user.weekXp=(user.weekXp||0)+actualXP;
   if(!user.achievements.includes('first_unit'))user.achievements.push('first_unit');
-  if(stars===3&&!user.achievements.includes('first_star3'))user.achievements.push('first_star3');
+  if(stars>=3&&!user.achievements.includes('first_star3'))user.achievements.push('first_star3');
   showToast('☁️ 正在保存进度…');
   await saveUser(user);
   showToast(`🎉 单元一完成！获得 +${totalXP} XP`);
