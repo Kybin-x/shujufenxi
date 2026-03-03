@@ -415,7 +415,7 @@
         </section>
     </main>
 
-    <footer class="footer"><p>© 2026 电子商务数据分析基础 · 寇老师制作</p></footer>
+    <footer class="footer"><p>© 2025 电子商务数据分析基础 · 高等教育出版社</p></footer>
     <div class="toast" id="toast"></div>
     <div class="confetti-container" id="confettiContainer"></div>
 
@@ -431,7 +431,7 @@
             <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30" onkeydown="if(event.key==='Enter')verifyAdmin()" />
             <button class="ap-btn ap-btn-primary" onclick="verifyAdmin()">登录</button>
           </div>
-          <div class="ap-hint">Input the Password</div>
+         
           <div class="ap-err hidden" id="adminPwdErr">❌ 密码错误</div>
         </div>
         <div id="adminMainArea" class="hidden">
@@ -502,7 +502,7 @@
 
         const STORAGE_KEY = 'ecommerce_data_analysis_user';
         const ADMIN_KEY   = 'ecommerce_admin_config';
-        const ADMIN_PASSWORD = 'kyb123';
+        const ADMIN_PASSWORD = 'teacher2025';
 
         const LEVELS = [
             { min: 0, name: '数据小白', icon: '🌱' }, { min: 100, name: '数据新手', icon: '🌿' },
@@ -529,22 +529,29 @@
 
         function loadAdminConfig() { try { const r = localStorage.getItem(ADMIN_KEY); if (r) return JSON.parse(r); } catch {} return { unlockedUnits: ['m1u1'] }; }
         
-        // 🚨 修复点：管理员保存后同步云端
+        // 🚨 巧妙的云端保存策略：寄存在 student_progress 现有的表中，免去了数据库建表的麻烦！
         function saveAdminConfig(cfg) { 
             localStorage.setItem(ADMIN_KEY, JSON.stringify(cfg)); 
             if (_supabase) {
-                _supabase.from('admin_config').upsert({ id: 'main', config: cfg, updated_at: new Date().toISOString() }, { onConflict: 'id' })
-                .then(({ error }) => { if (error) console.error('Admin sync err:', error); }); 
+                // 利用现成的数据表，存为一个名为 admin_system_config 的特殊假学生
+                _supabase.from('student_progress').upsert({ 
+                    student_id: 'admin_system_config', 
+                    name: 'System Admin', 
+                    xp: -1, // 负数经验值，防止上榜
+                    units: cfg, // 把配置塞进 JSON 里
+                    updated_at: new Date().toISOString() 
+                }, { onConflict: 'student_id' })
+                .then(({ error }) => { if (error) console.error('Admin sync err:', error.message); }); 
             }
         }
         
-        // 🚨 修复点：学生启动时从云端加载配置
+        // 🚨 启动时强制拉取云端配置
         async function loadAdminConfigFromCloud() {
             if (!_supabase) return;
             try {
-                const { data } = await _supabase.from('admin_config').select('config').eq('id','main').maybeSingle();
-                if (data && data.config) {
-                    localStorage.setItem(ADMIN_KEY, JSON.stringify(data.config));
+                const { data } = await _supabase.from('student_progress').select('units').eq('student_id','admin_system_config').maybeSingle();
+                if (data && data.units && Array.isArray(data.units.unlockedUnits)) {
+                    localStorage.setItem(ADMIN_KEY, JSON.stringify(data.units));
                 }
             } catch (e) { console.error('Load admin config error:', e); }
         }
@@ -575,7 +582,6 @@
             return { name, studentId: id, xp: 15, weekXp: 15, weekStart: getWeekStart(), createdAt: new Date().toISOString(), lastVisit: new Date().toISOString(), units: u, achievements: ['first_login'] };
         }
 
-        // 🌟 核心拦截与清理逻辑：修复新号残留和徽章数不一致问题 🌟
         function sanitizeAchievements(user) {
             const validIds = BADGES.map(b => b.id);
             user.achievements = [...new Set(user.achievements || [])].filter(id => validIds.includes(id));
@@ -607,7 +613,6 @@
                 const uEl=document.getElementById(`unit-${unitId}`), xpEl=document.getElementById(`xp-${unitId}`);
                 if (!stEl) return;
 
-                // ⚡️强力清空残留 DOM 状态（防串号关键）
                 uEl.classList.remove('completed', 'locked');
                 if(starEl) starEl.textContent = '☆☆☆☆☆';
                 if(xpEl) xpEl.textContent = '+50 XP';
@@ -615,7 +620,6 @@
                 const isPub = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
                 const isSeq = idx === 0 || user.units[ALL_UNITS[idx-1]]?.completed;
 
-                // 🚨 修复点：只要管理员没发布，无视一切强制锁死
                 if (!isPub) { 
                     stEl.textContent = '🔒'; stEl.className = 'unit-status-icon locked-icon'; uEl.classList.add('locked');
                 } else if (uData.completed) {
@@ -690,7 +694,6 @@
             document.getElementById('loginOverlay').classList.remove('hidden');
         }
 
-        // 🚨 修复点：强制拦截未发布单元
         function goToUnit(unitId, url) {
             const u = loadUser(), cfg = loadAdminConfig(); if(!u) return;
             const isPub = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
@@ -707,8 +710,12 @@
         function switchTab(t) { lbTab = t; ['xp','units','stars','week'].forEach(x => document.getElementById(`tab-${x}`).classList.toggle('active',x===t)); if(lbData) renderLeaderboard(lbData); }
         async function loadLeaderboard() {
             if(!_supabase) { document.getElementById('supabaseConfigBanner').classList.remove('hidden'); document.getElementById('lbLiveDot').style.display='none'; document.getElementById('lbList').innerHTML='<div class="lb-empty">未连接数据库</div>'; return; }
-            // 🚨 修复点：去除 .limit(40)，加载全班
-            const { data } = await _supabase.from('student_progress').select('student_id, name, xp, completed_units, total_stars, week_xp, week_start').order('xp', {ascending:false});
+            
+            // 💡 排行榜查询：排除代表管理员设置的假学生 "admin_system_config"
+            const { data } = await _supabase.from('student_progress')
+                .select('student_id, name, xp, completed_units, total_stars, week_xp, week_start')
+                .neq('student_id', 'admin_system_config') 
+                .order('xp', {ascending:false});
             if(data) { lbData = data; renderLeaderboard(data); }
         }
         function renderLeaderboard(data) {
@@ -731,7 +738,7 @@
 
         // ================= Init =================
         (async function init() {
-            // 🚨 修复点：启动时强制先拉取管理员配置
+            // 先尝试从云端拉取管理员设定
             await loadAdminConfigFromCloud();
 
             let u = loadUser();
@@ -747,21 +754,25 @@
                 }
             }
             if(_supabase) {
-                // 监听排行榜变动
-                _supabase.channel('lb').on('postgres_changes', {event:'*', schema:'public', table:'student_progress'}, ()=>loadLeaderboard()).subscribe();
-                
-                // 🚨 修复点：监听管理员配置实时变动，全班实时响应
-                _supabase.channel('admin_cfg_sync').on('postgres_changes', {event:'*', schema:'public', table:'admin_config'}, (payload) => {
-                    if (payload.new && payload.new.config) {
-                        localStorage.setItem(ADMIN_KEY, JSON.stringify(payload.new.config));
-                        const currentUser = loadUser();
-                        if (currentUser) renderAll(currentUser); // 实时更新全班地图开关
-                        
-                        // 若面板开着，同步更新老师的面板状态
-                        if (!document.getElementById('adminOverlay').classList.contains('hidden')) {
-                            pending = new Set(payload.new.config.unlockedUnits || []);
-                            renderAdminUnitGrid();
+                // 🚨 综合实时监听器：监听排行榜变化，以及管理员设定的瞬间变动！
+                _supabase.channel('system_sync').on('postgres_changes', {event:'*', schema:'public', table:'student_progress'}, (payload) => {
+                    if (payload.new && payload.new.student_id === 'admin_system_config') {
+                        // 监听到管理员配置更新
+                        const newCfg = payload.new.units;
+                        if (newCfg && newCfg.unlockedUnits) {
+                            localStorage.setItem(ADMIN_KEY, JSON.stringify(newCfg));
+                            const currentUser = loadUser();
+                            if (currentUser) renderAll(currentUser); // 实时更新全班地图的锁！
+                            
+                            // 若老师电脑开着面板，更新面板
+                            if (!document.getElementById('adminOverlay').classList.contains('hidden')) {
+                                pending = new Set(newCfg.unlockedUnits);
+                                renderAdminUnitGrid();
+                            }
                         }
+                    } else {
+                        // 监听到学生数据更新，刷新排行榜
+                        loadLeaderboard();
                     }
                 }).subscribe();
             }
@@ -787,15 +798,16 @@
         
         async function saveAdminUnits() { 
             saveAdminConfig({unlockedUnits: [...pending]}); 
-            document.getElementById('adminSaveHint').textContent='✅ 已生效并同步全班'; 
-            setTimeout(()=>document.getElementById('adminSaveHint').textContent='',3000); 
+            document.getElementById('adminSaveHint').textContent='✅ 已保存，全班屏幕实时同步中'; 
+            setTimeout(()=>document.getElementById('adminSaveHint').textContent='',4000); 
             const u=loadUser(); if(u) renderAll(u); 
         }
 
         let cachedRows = null;
         async function fetchAll() {
             if(!_supabase) { const u=loadUser(); return u?[{student_id:u.studentId, name:u.name, xp:u.xp, completed_units:ALL_UNITS.filter(i=>u.units[i]?.completed).length, total_stars:ALL_UNITS.reduce((s,i)=>s+(u.units[i]?.stars||0),0), units:u.units, achievements:u.achievements}]:[]; }
-            const {data} = await _supabase.from('student_progress').select('*').order('xp',{ascending:false});
+            // 💡 排除 admin 账号
+            const {data} = await _supabase.from('student_progress').select('*').neq('student_id', 'admin_system_config').order('xp',{ascending:false});
             cachedRows = data||[]; return cachedRows;
         }
         async function previewStudentData() {
