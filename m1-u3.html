@@ -1267,22 +1267,35 @@ function resetGame(){
 async function completeUnit(){
   const user=loadUser();
   if(!user){window.location.href='index.html';return}
-  const stars=gameStars||1;
+  const score=gameScore>=40?100:gameScore>=30?88:gameScore>=20?72:gameScore>=10?58:45;
+  // 5星体系：更宽松的阈值
+  const stars=gameStars>=3?5:gameStars>=2?4:gameStars>=1?3:
+              (score>=88?4:score>=72?3:score>=58?2:1);
   const totalXP=earnedXP+20;
-  const score=gameScore>=35?100:gameScore>=22?75:50;
-  user.units['m1u3']={completed:true,stars,score,xpEarned:totalXP};
-  user.xp+=totalXP;
-  user.weekXp=(user.weekXp||0)+totalXP;
+  // ── 防刷机制：alreadyDone 需在修改 units 前读取 ──
+  const alreadyDone = user.units['m1u3']?.completed && user.units['m1u3']?.xpEarned > 0;
+  const actualXP    = alreadyDone ? 0 : totalXP;
+  // 保留最高星星/分数，XP 仅首次记录
+  const prevXPEarned = user.units['m1u3']?.xpEarned || 0;
+  const prevStars    = user.units['m1u3']?.stars    || 0;
+  const prevScore    = user.units['m1u3']?.score    || 0;
+  user.units['m1u3']={
+    completed: true,
+    stars:     Math.max(prevStars, stars),
+    score:     Math.max(prevScore, score),
+    xpEarned:  alreadyDone ? prevXPEarned : totalXP
+  };
+  user.xp += actualXP;
+  user.weekXp=(user.weekXp||0)+actualXP;
   if(!user.achievements.includes('first_unit'))user.achievements.push('first_unit');
-  if(stars===3&&!user.achievements.includes('first_star3'))user.achievements.push('first_star3');
+  if(stars>=3&&!user.achievements.includes('first_star3'))user.achievements.push('first_star3');
   // 模块一全部完成？
   if(['m1u1','m1u2','m1u3'].every(id=>user.units[id]?.completed)){
     if(!user.achievements.includes('module1_complete'))user.achievements.push('module1_complete');
   }
-  showToast(`☁️ 正在保存进度…`);
-  // await 确保 Supabase 上传完成后再跳转，防止页面关闭导致数据丢失
+  showToast(alreadyDone ? '🔄 已重新提交，XP不重复计入' : '☁️ 正在保存进度…');
   await saveUser(user);
-  showToast(`🎉 单元三完成！获得 +${totalXP} XP`);
+  showToast(alreadyDone ? `🌟 星星已更新，XP不重复计入` : `🎉 单元三完成！获得 +${actualXP} XP`);
   setTimeout(()=>window.location.href='index.html',1000);
 }
 
