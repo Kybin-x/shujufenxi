@@ -7,7 +7,6 @@
     <title>电子商务数据分析基础 · 学习地图</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
         rel="stylesheet">
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* =============================================
@@ -55,1524 +54,240 @@
             --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
         }
 
-        /* =============================================
-           基础重置
-           ============================================= */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: var(--bg-main);
-            color: var(--text-dark);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        /* =============================================
-           🔐 登录弹窗遮罩
-           ============================================= */
-        .login-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(28, 25, 23, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .login-overlay.hidden {
-            display: none;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        .login-card {
-            background: var(--bg-card);
-            border-radius: var(--r-lg);
-            padding: 48px 52px;
-            width: 460px;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-light));
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-logo {
-            font-size: 42px;
-            text-align: center;
-            margin-bottom: 8px;
-            animation: bounce 2s ease infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-6px);
-            }
-        }
-
-        .login-title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .login-subtitle {
-            text-align: center;
-            font-size: 14px;
-            color: var(--text-light);
-            margin-bottom: 36px;
-        }
-
-        .login-field {
-            margin-bottom: 20px;
-        }
-
-        .login-field label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-mid);
-            margin-bottom: 8px;
-        }
-
-        .login-field input {
-            width: 100%;
-            padding: 13px 16px;
-            border: 2px solid #E7E5E4;
-            border-radius: var(--r-sm);
-            font-size: 15px;
-            font-family: inherit;
-            color: var(--text-dark);
-            background: var(--bg-main);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            outline: none;
-        }
-
-        .login-field input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
-        }
-
-        .login-field input::placeholder {
-            color: var(--text-light);
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: var(--text-white);
-            border: none;
-            border-radius: var(--r-sm);
-            font-size: 16px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 8px;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
-        }
-
-        .login-tip {
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 16px;
-        }
-
-        /* =============================================
-           📌 顶部导航栏
-           ============================================= */
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 251, 245, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(249, 115, 22, 0.12);
-            height: 60px;
-            display: flex;
-            align-items: center;
-            padding: 0 32px;
-        }
-
-        .navbar-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .navbar-logo-icon {
-            width: 34px;
-            height: 34px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
-        }
-
-        .navbar-logo-text {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .navbar-logo-text span {
-            color: var(--primary);
-        }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .navbar-avatar {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary-lighter), var(--primary));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-white);
-        }
-
-        .navbar-user-info {
-            line-height: 1.2;
-        }
-
-        .navbar-user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .navbar-level-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            padding: 2px 8px;
-            background: var(--primary-lightest);
-            border: 1px solid var(--primary-lighter);
-            border-radius: var(--r-full);
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--primary-dark);
-        }
-
-        .btn-logout {
-            padding: 6px 14px;
-            background: transparent;
-            border: 1.5px solid #E7E5E4;
-            border-radius: var(--r-full);
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-light);
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s ease;
-        }
-
-        .btn-logout:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        /* =============================================
-           页面主内容容器
-           ============================================= */
-        .page-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 32px 60px;
-        }
-
-        /* =============================================
-           🎯 英雄区
-           ============================================= */
-        .hero {
-            padding: 44px 0 36px;
-            position: relative;
-        }
-
-        .hero-deco {
-            position: absolute;
-            right: -20px;
-            top: 20px;
-            font-size: 100px;
-            opacity: 0.06;
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .hero-greeting {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease 0.1s forwards;
-        }
-
-        .hero-title {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--text-dark);
-            line-height: 1.25;
-            margin-bottom: 12px;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease 0.2s forwards;
-        }
-
-        .hero-title .highlight {
-            color: var(--primary);
-            position: relative;
-        }
-
-        .hero-title .highlight::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: 2px;
-        }
-
-        .hero-subtitle {
-            font-size: 15px;
-            color: var(--text-mid);
-            margin-bottom: 32px;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease 0.3s forwards;
-        }
-
-        /* 统计卡片组 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            padding: 20px 22px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease forwards;
-            cursor: default;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-card:nth-child(1) {
-            animation-delay: 0.35s;
-        }
-
-        .stat-card:nth-child(2) {
-            animation-delay: 0.45s;
-        }
-
-        .stat-card:nth-child(3) {
-            animation-delay: 0.55s;
-        }
-
-        .stat-card:nth-child(4) {
-            animation-delay: 0.65s;
-        }
-
-        .stat-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-dark);
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        /* 总进度条 */
-        .overall-progress {
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            padding: 22px 28px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            opacity: 0;
-            animation: fadeInUp 0.6s ease 0.75s forwards;
-        }
-
-        .progress-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-        }
-
-        .progress-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .progress-pct {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .progress-track {
-            height: 10px;
-            background: var(--primary-lightest);
-            border-radius: var(--r-full);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: var(--r-full);
-            transition: width 1s ease;
-            width: 0;
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translate(50%, -50%);
-            width: 14px;
-            height: 14px;
-            background: white;
-            border: 3px solid var(--primary);
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
-        }
-
-        .progress-hint {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 10px;
-        }
-
-        /* =============================================
-           🗺️ 学习地图
-           ============================================= */
-        .section-title {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-title .section-badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 10px;
-            background: var(--primary-lightest);
-            color: var(--primary);
-            border-radius: var(--r-full);
-            letter-spacing: 0.03em;
-        }
-
-        .learning-map {
-            margin-bottom: 48px;
-        }
-
-        .module-card {
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            margin-bottom: 12px;
-            overflow: hidden;
-            transition: box-shadow 0.2s ease;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .module-card:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .module-card:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .module-card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .module-card:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        .module-card:nth-child(4) {
-            animation-delay: 0.4s;
-        }
-
-        .module-card:nth-child(5) {
-            animation-delay: 0.5s;
-        }
-
-        .module-header {
-            display: flex;
-            align-items: center;
-            padding: 20px 24px;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-
-        .module-color-bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .module-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--r-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-right: 16px;
-            flex-shrink: 0;
-        }
-
-        .module-info {
-            flex: 1;
-        }
-
-        .module-num {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .module-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 4px;
-        }
-
-        .module-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 12px;
-            color: var(--text-light);
-        }
-
-        .module-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .module-progress-mini {
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-right: 12px;
-        }
-
-        .mini-track {
-            width: 80px;
-            height: 6px;
-            background: #F5F5F4;
-            border-radius: var(--r-full);
-            overflow: hidden;
-        }
-
-        .mini-fill {
-            height: 100%;
-            border-radius: var(--r-full);
-            transition: width 0.8s ease;
-        }
-
-        .mini-pct {
-            font-size: 12px;
-            font-weight: 700;
-            min-width: 28px;
-            text-align: right;
-        }
-
-        .module-toggle {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #F5F5F4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            transition: transform 0.3s ease, background 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .module-card.expanded .module-toggle {
-            transform: rotate(180deg);
-            background: var(--primary-lightest);
-        }
-
-        /* 单元列表 */
-        .unit-list {
-            display: none;
-            padding: 0 24px 20px;
-            border-top: 1px solid #F5F5F4;
-        }
-
-        .module-card.expanded .unit-list {
-            display: block;
-        }
-
-        .unit-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 10px;
-            padding-top: 16px;
-        }
-
-        .unit-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            border-radius: var(--r-sm);
-            border: 1.5px solid #F5F5F4;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .unit-item::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: currentColor;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .unit-item:hover {
-            border-color: currentColor;
-            transform: translateX(4px);
-        }
-
-        .unit-item.completed {
-            background: rgba(34, 197, 94, 0.04);
-            border-color: rgba(34, 197, 94, 0.2);
-        }
-
-        .unit-item.locked {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-
-        .unit-status-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .unit-status-icon.done {
-            background: rgba(34, 197, 94, 0.12);
-        }
-
-        .unit-status-icon.active {
-            background: rgba(249, 115, 22, 0.12);
-            animation: pulse-ring 2s ease infinite;
-        }
-
-        .unit-status-icon.locked-icon {
-            background: #F5F5F4;
-        }
-
-        @keyframes pulse-ring {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.2);
-            }
-
-            50% {
-                box-shadow: 0 0 0 6px rgba(249, 115, 22, 0);
-            }
-        }
-
-        .unit-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .unit-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .unit-stars {
-            font-size: 11px;
-            letter-spacing: 1px;
-        }
-
-        .unit-xp {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-light);
-            flex-shrink: 0;
-        }
-
-        /* =============================================
-           🏆 成就徽章墙
-           ============================================= */
-        .achievements {
-            margin-bottom: 48px;
-        }
-
-        .badge-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-        }
-
-        .badge-item {
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            padding: 18px 12px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            text-align: center;
-            cursor: default;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .badge-item:nth-child(1) {
-            animation-delay: 0.05s;
-        }
-
-        .badge-item:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-
-        .badge-item:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-
-        .badge-item:nth-child(4) {
-            animation-delay: 0.2s;
-        }
-
-        .badge-item:nth-child(5) {
-            animation-delay: 0.25s;
-        }
-
-        .badge-item:nth-child(6) {
-            animation-delay: 0.3s;
-        }
-
-        .badge-item:nth-child(7) {
-            animation-delay: 0.35s;
-        }
-
-        .badge-item:nth-child(8) {
-            animation-delay: 0.4s;
-        }
-
-        .badge-item:nth-child(9) {
-            animation-delay: 0.45s;
-        }
-
-        .badge-item:nth-child(10) {
-            animation-delay: 0.5s;
-        }
-
-        .badge-item:nth-child(11) {
-            animation-delay: 0.55s;
-        }
-
-        .badge-item:nth-child(12) {
-            animation-delay: 0.6s;
-        }
-
-        .badge-item.unlocked:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .badge-item.locked {
-            filter: grayscale(1);
-            opacity: 0.45;
-        }
-
-        .badge-item.locked.in-anim {
-            opacity: 0;
-        }
-
-        .badge-emoji {
-            font-size: 28px;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .badge-name {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 3px;
-        }
-
-        .badge-desc {
-            font-size: 10px;
-            color: var(--text-light);
-            line-height: 1.4;
-        }
-
-        .badge-unlocked-tag {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 16px;
-            height: 16px;
-            background: var(--success);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            color: white;
-        }
-
-        /* =============================================
-           🦶 页脚
-           ============================================= */
-        .footer {
-            background: var(--bg-card);
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
-            padding: 24px 32px;
-            text-align: center;
-        }
-
-        .footer-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .footer-text {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-
-        .footer-version {
-            font-size: 11px;
-            color: var(--text-light);
-            background: #F5F5F4;
-            padding: 3px 10px;
-            border-radius: var(--r-full);
-        }
-
-        /* =============================================
-           🔄 登录加载状态
-           ============================================= */
-        .btn-login.loading {
-            opacity: 0.7;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-        .btn-login.loading::after {
-            content: '';
-            display: inline-block;
-            width: 14px; height: 14px;
-            border: 2px solid rgba(255,255,255,0.35);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: btn-spin 0.7s linear infinite;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
+        /* 基础样式及公共部分省略过多的更改，保持原版设计 */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg-main); color: var(--text-dark); line-height: 1.6; min-height: 100vh; }
+        
+        /* ... 此处保留原代码的UI样式，为避免超长截断做折叠简写 ... */
+        .login-overlay { position: fixed; inset: 0; background: rgba(28, 25, 23, 0.6); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+        .login-overlay.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .login-card { background: var(--bg-card); border-radius: var(--r-lg); padding: 48px 52px; width: 460px; box-shadow: var(--shadow-lg); animation: slideUp 0.4s ease; position: relative; overflow: hidden; }
+        .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-light)); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .login-logo { font-size: 42px; text-align: center; margin-bottom: 8px; animation: bounce 2s ease infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .login-title { text-align: center; font-size: 22px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+        .login-subtitle { text-align: center; font-size: 14px; color: var(--text-light); margin-bottom: 36px; }
+        .login-field { margin-bottom: 20px; }
+        .login-field label { display: block; font-size: 14px; font-weight: 600; color: var(--text-mid); margin-bottom: 8px; }
+        .login-field input { width: 100%; padding: 13px 16px; border: 2px solid #E7E5E4; border-radius: var(--r-sm); font-size: 15px; font-family: inherit; color: var(--text-dark); background: var(--bg-main); transition: border-color 0.2s ease, box-shadow 0.2s ease; outline: none; }
+        .login-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12); }
+        .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--text-white); border: none; border-radius: var(--r-sm); font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; margin-top: 8px; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+        .login-tip { text-align: center; font-size: 12px; color: var(--text-light); margin-top: 16px; }
+        
+        .navbar { position: sticky; top: 0; z-index: 100; background: rgba(255, 251, 245, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(249, 115, 22, 0.12); height: 60px; display: flex; align-items: center; padding: 0 32px; }
+        .navbar-inner { max-width: 1000px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .navbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .navbar-logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3); }
+        .navbar-logo-text { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+        .navbar-logo-text span { color: var(--primary); }
+        .navbar-right { display: flex; align-items: center; gap: 12px; }
+        .navbar-user { display: flex; align-items: center; gap: 8px; }
+        .navbar-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-lighter), var(--primary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-white); }
+        .navbar-user-info { line-height: 1.2; }
+        .navbar-user-name { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+        .navbar-level-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: var(--primary-lightest); border: 1px solid var(--primary-lighter); border-radius: var(--r-full); font-size: 11px; font-weight: 600; color: var(--primary-dark); }
+        .btn-logout { padding: 6px 14px; background: transparent; border: 1.5px solid #E7E5E4; border-radius: var(--r-full); font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; font-family: inherit; transition: all 0.2s ease; }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+        
+        .page-container { max-width: 1000px; margin: 0 auto; padding: 0 32px 60px; }
+        
+        .hero { padding: 44px 0 36px; position: relative; }
+        .hero-deco { position: absolute; right: -20px; top: 20px; font-size: 100px; opacity: 0.06; pointer-events: none; user-select: none; }
+        .hero-greeting { font-size: 13px; font-weight: 600; color: var(--primary); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; opacity: 0; animation: fadeInUp 0.6s ease 0.1s forwards; }
+        .hero-title { font-size: 32px; font-weight: 900; color: var(--text-dark); line-height: 1.25; margin-bottom: 12px; opacity: 0; animation: fadeInUp 0.6s ease 0.2s forwards; }
+        .hero-title .highlight { color: var(--primary); position: relative; }
+        .hero-title .highlight::after { content: ''; position: absolute; bottom: 2px; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 2px; }
+        .hero-subtitle { font-size: 15px; color: var(--text-mid); margin-bottom: 32px; opacity: 0; animation: fadeInUp 0.6s ease 0.3s forwards; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-card); border-radius: var(--r-md); padding: 20px 22px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; opacity: 0; animation: fadeInUp 0.6s ease forwards; cursor: default; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .stat-card:nth-child(1) { animation-delay: 0.35s; } .stat-card:nth-child(2) { animation-delay: 0.45s; } .stat-card:nth-child(3) { animation-delay: 0.55s; } .stat-card:nth-child(4) { animation-delay: 0.65s; }
+        .stat-icon { font-size: 24px; margin-bottom: 10px; }
+        .stat-value { font-size: 28px; font-weight: 800; color: var(--text-dark); line-height: 1; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: var(--text-light); font-weight: 500; }
+        
+        .overall-progress { background: var(--bg-card); border-radius: var(--r-md); padding: 22px 28px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); opacity: 0; animation: fadeInUp 0.6s ease 0.75s forwards; }
+        .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .progress-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+        .progress-pct { font-size: 14px; font-weight: 700; color: var(--primary); }
+        .progress-track { height: 10px; background: var(--primary-lightest); border-radius: var(--r-full); overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: var(--r-full); transition: width 1s ease; width: 0; position: relative; }
+        .progress-fill::after { content: ''; position: absolute; right: 0; top: 50%; transform: translate(50%, -50%); width: 14px; height: 14px; background: white; border: 3px solid var(--primary); border-radius: 50%; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); }
+        .progress-hint { font-size: 12px; color: var(--text-light); margin-top: 10px; }
+        
+        .section-title { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .section-title .section-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; background: var(--primary-lightest); color: var(--primary); border-radius: var(--r-full); letter-spacing: 0.03em; }
+        
+        .learning-map { margin-bottom: 48px; }
+        .module-card { background: var(--bg-card); border-radius: var(--r-md); box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); margin-bottom: 12px; overflow: hidden; transition: box-shadow 0.2s ease; opacity: 0; animation: fadeInUp 0.6s ease forwards; }
+        .module-card:hover { box-shadow: var(--shadow-md); }
+        .module-header { display: flex; align-items: center; padding: 20px 24px; cursor: pointer; user-select: none; position: relative; }
+        .module-color-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+        .module-icon { width: 44px; height: 44px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 16px; flex-shrink: 0; }
+        .module-info { flex: 1; }
+        .module-num { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+        .module-name { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+        .module-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-light); }
+        .module-meta-item { display: flex; align-items: center; gap: 4px; }
+        .module-progress-mini { flex-shrink: 0; display: flex; align-items: center; gap: 10px; margin-right: 12px; }
+        .mini-track { width: 80px; height: 6px; background: #F5F5F4; border-radius: var(--r-full); overflow: hidden; }
+        .mini-fill { height: 100%; border-radius: var(--r-full); transition: width 0.8s ease; }
+        .mini-pct { font-size: 12px; font-weight: 700; min-width: 28px; text-align: right; }
+        .module-toggle { width: 28px; height: 28px; border-radius: 50%; background: #F5F5F4; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: transform 0.3s ease, background 0.2s ease; flex-shrink: 0; }
+        .module-card.expanded .module-toggle { transform: rotate(180deg); background: var(--primary-lightest); }
+        .unit-list { display: none; padding: 0 24px 20px; border-top: 1px solid #F5F5F4; }
+        .module-card.expanded .unit-list { display: block; }
+        .unit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; padding-top: 16px; }
+        .unit-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--r-sm); border: 1.5px solid #F5F5F4; cursor: pointer; transition: all 0.2s ease; text-decoration: none; position: relative; overflow: hidden; }
+        .unit-item:hover { border-color: currentColor; transform: translateX(4px); }
+        .unit-item.completed { background: rgba(34, 197, 94, 0.04); border-color: rgba(34, 197, 94, 0.2); }
+        .unit-item.locked { opacity: 0.55; cursor: not-allowed; }
+        .unit-status-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .unit-status-icon.done { background: rgba(34, 197, 94, 0.12); }
+        .unit-status-icon.active { background: rgba(249, 115, 22, 0.12); animation: pulse-ring 2s ease infinite; }
+        .unit-status-icon.locked-icon { background: #F5F5F4; }
+        @keyframes pulse-ring { 0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.2); } 50% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); } }
+        .unit-info { flex: 1; min-width: 0; }
+        .unit-name { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .unit-stars { font-size: 11px; letter-spacing: 1px; }
+        .unit-xp { font-size: 11px; font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+        
+        .achievements { margin-bottom: 48px; }
+        .badge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .badge-item { background: var(--bg-card); border-radius: var(--r-md); padding: 18px 12px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); text-align: center; cursor: default; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; opacity: 0; animation: fadeInUp 0.6s ease forwards; }
+        .badge-item.unlocked:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .badge-item.locked { filter: grayscale(1); opacity: 0.45; }
+        .badge-item.locked.in-anim { opacity: 0; }
+        .badge-emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+        .badge-name { font-size: 11px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; }
+        .badge-desc { font-size: 10px; color: var(--text-light); line-height: 1.4; }
+        .badge-unlocked-tag { position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; }
+        
+        .footer { background: var(--bg-card); border-top: 1px solid rgba(0, 0, 0, 0.04); padding: 24px 32px; text-align: center; }
+        .footer-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .footer-text { font-size: 12px; color: var(--text-light); }
+        .footer-version { font-size: 11px; color: var(--text-light); background: #F5F5F4; padding: 3px 10px; border-radius: var(--r-full); }
+        
+        .btn-login.loading { opacity: 0.7; cursor: not-allowed; pointer-events: none; }
+        .btn-login.loading::after { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: btn-spin 0.7s linear infinite; margin-left: 8px; vertical-align: middle; }
         @keyframes btn-spin { to { transform: rotate(360deg); } }
-        .login-sync-status {
-            align-items: center;
-            gap: 7px;
-            padding: 9px 14px;
-            border-radius: var(--r-sm);
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 14px;
-            display: none;
-        }
+        .login-sync-status { align-items: center; gap: 7px; padding: 9px 14px; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; margin-bottom: 14px; display: none; }
         .login-sync-status.show     { display: flex; }
         .login-sync-status.syncing  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
         .login-sync-status.found    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
         .login-sync-status.new-user { background: var(--primary-lightest); color: var(--primary-dark); border: 1px solid var(--primary-lighter); }
         .login-sync-status.error    { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-        .sync-spinner {
-            width: 12px; height: 12px;
-            border: 2px solid rgba(29,78,216,0.25);
-            border-top-color: #1d4ed8;
-            border-radius: 50%;
-            animation: btn-spin 0.7s linear infinite;
-            flex-shrink: 0;
-        }
-
-        /* =============================================
-           🎊 撒花特效
-           ============================================= */
-        .confetti-container {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        .confetti-piece {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 2px;
-            top: -10px;
-            animation: confetti-fall linear forwards;
-        }
-
-        @keyframes confetti-fall {
-            to {
-                transform: translateY(110vh) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
-        /* =============================================
-           🔔 Toast 提示条
-           ============================================= */
-        .toast {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--text-dark);
-            color: var(--text-white);
-            padding: 12px 24px;
-            border-radius: var(--r-full);
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: var(--shadow-lg);
-            z-index: 500;
-            transition: transform 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* =============================================
-           入场动画关键帧
-           ============================================= */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* =============================================
-           响应式适配
-           ============================================= */
+        .sync-spinner { width: 12px; height: 12px; border: 2px solid rgba(29,78,216,0.25); border-top-color: #1d4ed8; border-radius: 50%; animation: btn-spin 0.7s linear infinite; flex-shrink: 0; }
+        
+        .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+        .confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 2px; top: -10px; animation: confetti-fall linear forwards; }
+        @keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+        
+        .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text-dark); color: var(--text-white); padding: 12px 24px; border-radius: var(--r-full); font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 500; transition: transform 0.3s ease; white-space: nowrap; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
         @media (max-width: 768px) {
-            .page-container {
-                padding: 0 16px 48px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .badge-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .hero-title {
-                font-size: 24px;
-            }
-
-            .navbar {
-                padding: 0 16px;
-            }
+            .page-container { padding: 0 16px 48px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .badge-grid { grid-template-columns: repeat(4, 1fr); }
+            .hero-title { font-size: 24px; }
+            .navbar { padding: 0 16px; }
+            .lb-stats { gap: 6px; }
+            .lb-week-bar-wrap { display: none; }
+            .lb-tabs { flex-wrap: wrap; }
         }
-
         @media (max-width: 480px) {
-            .badge-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .unit-grid {
-                grid-template-columns: 1fr;
-            }
+            .badge-grid { grid-template-columns: repeat(3, 1fr); }
+            .unit-grid { grid-template-columns: 1fr; }
         }
+        
+        .leaderboard { margin-bottom: 48px; }
+        .lb-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+        .lb-live-dot { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--r-full); font-size: 11px; font-weight: 700; color: #15803d; }
+        .lb-live-dot::before { content: ''; width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: live-blink 1.5s ease infinite; }
+        @keyframes live-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .lb-tabs { display: flex; gap: 6px; }
+        .lb-tab { padding: 5px 14px; border-radius: var(--r-full); font-size: 12px; font-weight: 700; cursor: pointer; border: 1.5px solid #E7E5E4; color: var(--text-light); background: transparent; transition: all 0.2s; font-family: inherit; }
+        .lb-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25); }
+        .lb-list { display: flex; flex-direction: column; gap: 8px; }
+        .lb-row { display: flex; align-items: center; gap: 14px; background: var(--bg-card); border-radius: var(--r-md); padding: 14px 20px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); transition: transform 0.2s, box-shadow 0.2s; animation: fadeInUp 0.4s ease forwards; opacity: 0; }
+        .lb-row:hover { transform: translateX(4px); box-shadow: var(--shadow-md); }
+        .lb-row.rank-1 { border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(90deg, rgba(255, 251, 235, 0.8), #fff); }
+        .lb-row.rank-2 { border-color: rgba(148, 163, 184, 0.3); background: linear-gradient(90deg, rgba(248, 250, 252, 0.8), #fff); }
+        .lb-row.rank-3 { border-color: rgba(205, 119, 47, 0.3); background: linear-gradient(90deg, rgba(255, 247, 237, 0.8), #fff); }
+        .lb-row.is-me { border-color: var(--primary-lighter); background: linear-gradient(90deg, var(--primary-lightest), #fff); }
+        .lb-rank { min-width: 36px; text-align: center; font-size: 15px; font-weight: 900; flex-shrink: 0; }
+        .lb-rank.medal { font-size: 22px; }
+        .lb-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-lighter), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; flex-shrink: 0; }
+        .lb-info { flex: 1; min-width: 0; }
+        .lb-name { font-size: 14px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+        .lb-me-tag { padding: 1px 7px; background: var(--primary); color: #fff; border-radius: var(--r-full); font-size: 10px; font-weight: 700; }
+        .lb-stats { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .lb-stat-item { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-light); font-weight: 500; }
+        .lb-xp { font-size: 18px; font-weight: 900; color: var(--primary); flex-shrink: 0; }
+        .lb-xp-unit { font-size: 11px; font-weight: 600; color: var(--text-light); }
+        .lb-week-bar-wrap { width: 60px; height: 4px; background: #F5F5F4; border-radius: var(--r-full); overflow: hidden; flex-shrink: 0; }
+        .lb-week-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: var(--r-full); transition: width 0.8s ease; }
+        
+        .lb-empty { text-align: center; padding: 48px 20px; background: var(--bg-card); border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
+        .lb-empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .lb-empty-title { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+        .lb-empty-desc { font-size: 13px; color: var(--text-light); }
+        
+        .lb-skeleton { background: var(--bg-card); border-radius: var(--r-md); padding: 14px 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 14px; }
+        .skeleton-block { background: linear-gradient(90deg, #f5f5f4 25%, #ebebeb 50%, #f5f5f4 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 6px; }
+        @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        .supabase-config-banner { background: linear-gradient(135deg, #1e1b4b, #312e81); border-radius: var(--r-md); padding: 20px 24px; margin-bottom: 16px; color: #fff; display: flex; align-items: flex-start; gap: 14px; }
+        .supabase-config-banner.hidden { display: none; }
+        .scb-icon { font-size: 28px; flex-shrink: 0; }
+        .scb-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .scb-body { font-size: 12px; color: rgba(255, 255, 255, 0.75); line-height: 1.7; }
+        .scb-code { display: inline-block; background: rgba(255, 255, 255, 0.15); padding: 1px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; }
 
         /* =============================================
-           🏅 班级排行榜
-           ============================================= */
-        .leaderboard {
-            margin-bottom: 48px;
-        }
-
-        .lb-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .lb-live-dot {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            border-radius: var(--r-full);
-            font-size: 11px;
-            font-weight: 700;
-            color: #15803d;
-        }
-
-        .lb-live-dot::before {
-            content: '';
-            width: 7px;
-            height: 7px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: live-blink 1.5s ease infinite;
-        }
-
-        @keyframes live-blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
-        }
-
-        .lb-tabs {
-            display: flex;
-            gap: 6px;
-        }
-
-        .lb-tab {
-            padding: 5px 14px;
-            border-radius: var(--r-full);
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            border: 1.5px solid #E7E5E4;
-            color: var(--text-light);
-            background: transparent;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .lb-tab.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
-        }
-
-        /* 排行榜列表 */
-        .lb-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .lb-row {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            padding: 14px 20px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            transition: transform 0.2s, box-shadow 0.2s;
-            animation: fadeInUp 0.4s ease forwards;
-            opacity: 0;
-        }
-
-        .lb-row:hover {
-            transform: translateX(4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* 前三名特殊样式 */
-        .lb-row.rank-1 {
-            border-color: rgba(245, 158, 11, 0.3);
-            background: linear-gradient(90deg, rgba(255, 251, 235, 0.8), #fff);
-        }
-
-        .lb-row.rank-2 {
-            border-color: rgba(148, 163, 184, 0.3);
-            background: linear-gradient(90deg, rgba(248, 250, 252, 0.8), #fff);
-        }
-
-        .lb-row.rank-3 {
-            border-color: rgba(205, 119, 47, 0.3);
-            background: linear-gradient(90deg, rgba(255, 247, 237, 0.8), #fff);
-        }
-
-        /* 自己的行高亮 */
-        .lb-row.is-me {
-            border-color: var(--primary-lighter);
-            background: linear-gradient(90deg, var(--primary-lightest), #fff);
-        }
-
-        .lb-rank {
-            min-width: 36px;
-            text-align: center;
-            font-size: 15px;
-            font-weight: 900;
-            flex-shrink: 0;
-        }
-
-        .lb-rank.medal {
-            font-size: 22px;
-        }
-
-        .lb-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-lighter), var(--primary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            font-weight: 800;
-            color: #fff;
-            flex-shrink: 0;
-        }
-
-        .lb-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .lb-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 3px;
-        }
-
-        .lb-me-tag {
-            padding: 1px 7px;
-            background: var(--primary);
-            color: #fff;
-            border-radius: var(--r-full);
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .lb-stats {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .lb-stat-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 11px;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .lb-xp {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-
-        .lb-xp-unit {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-light);
-        }
-
-        .lb-week-bar-wrap {
-            width: 60px;
-            height: 4px;
-            background: #F5F5F4;
-            border-radius: var(--r-full);
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .lb-week-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: var(--r-full);
-            transition: width 0.8s ease;
-        }
-
-        /* 空状态 */
-        .lb-empty {
-            text-align: center;
-            padding: 48px 20px;
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .lb-empty-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .lb-empty-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .lb-empty-desc {
-            font-size: 13px;
-            color: var(--text-light);
-        }
-
-        /* 加载骨架屏 */
-        .lb-skeleton {
-            background: var(--bg-card);
-            border-radius: var(--r-md);
-            padding: 14px 20px;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .skeleton-block {
-            background: linear-gradient(90deg, #f5f5f4 25%, #ebebeb 50%, #f5f5f4 75%);
-            background-size: 200% 100%;
-            animation: skeleton-shimmer 1.5s infinite;
-            border-radius: 6px;
-        }
-
-        @keyframes skeleton-shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* Supabase 配置提示横幅 */
-        .supabase-config-banner {
-            background: linear-gradient(135deg, #1e1b4b, #312e81);
-            border-radius: var(--r-md);
-            padding: 20px 24px;
-            margin-bottom: 16px;
-            color: #fff;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-        }
-
-        .supabase-config-banner.hidden {
-            display: none;
-        }
-
-        .scb-icon {
-            font-size: 28px;
-            flex-shrink: 0;
-        }
-
-        .scb-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .scb-body {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.75);
-            line-height: 1.7;
-        }
-
-        .scb-code {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 1px 7px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        @media (max-width: 768px) {
-            .lb-stats {
-                gap: 6px;
-            }
-
-            .lb-week-bar-wrap {
-                display: none;
-            }
-
-            .lb-tabs {
-                flex-wrap: wrap;
-            }
-        }
-    
-        /* ══════════════════════════════════════════
            🔐 管理员面板样式
-        ══════════════════════════════════════════ */
-        .btn-admin-entry {
-            padding: 6px 14px;
-            background: linear-gradient(135deg, #1e3a5f, #2a5fa0);
-            color: #fff;
-            border: none;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all .2s;
-            font-family: inherit;
-            letter-spacing: .03em;
-        }
+           ============================================= */
+        .btn-admin-entry { padding: 6px 14px; background: linear-gradient(135deg, #1e3a5f, #2a5fa0); color: #fff; border: none; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; letter-spacing: .03em; }
         .btn-admin-entry:hover { opacity: .85; transform: translateY(-1px); }
 
-        .admin-overlay {
-            position: fixed; inset: 0; z-index: 1500;
-            background: rgba(0,0,0,.55);
-            backdrop-filter: blur(4px);
-            display: flex; align-items: flex-start; justify-content: center;
-            padding: 40px 16px 16px;
-            overflow-y: auto;
-        }
+        .admin-overlay { position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px 16px; overflow-y: auto; }
         .admin-overlay.hidden { display: none; }
 
-        .admin-panel {
-            background: #fff;
-            border-radius: 16px;
-            width: 100%; max-width: 860px;
-            box-shadow: 0 20px 60px rgba(0,0,0,.3);
-            overflow: hidden;
-            animation: apSlide .3s ease;
-        }
+        .admin-panel { background: #fff; border-radius: 16px; width: 100%; max-width: 860px; box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden; animation: apSlide .3s ease; }
         @keyframes apSlide { from{opacity:0;transform:translateY(-24px)} to{opacity:1;transform:translateY(0)} }
 
-        .ap-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 18px 24px;
-            background: linear-gradient(135deg, #1e3a5f, #2a5fa0);
-            color: #fff;
-        }
+        .ap-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: linear-gradient(135deg, #1e3a5f, #2a5fa0); color: #fff; }
         .ap-title { font-size: 16px; font-weight: 800; letter-spacing: .04em; }
-        .ap-close {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: rgba(255,255,255,.15); border: none;
-            color: #fff; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background .2s;
-        }
+        .ap-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.15); border: none; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
         .ap-close:hover { background: rgba(255,255,255,.3); }
 
         #adminLoginArea, #adminMainArea { padding: 24px; }
-
-        .ap-section-title {
-            font-size: 14px; font-weight: 800; color: #1e3a5f;
-            margin-bottom: 14px;
-        }
+        .ap-section-title { font-size: 14px; font-weight: 800; color: #1e3a5f; margin-bottom: 14px; }
         .ap-subtitle { font-size: 11px; font-weight: 400; color: #888; margin-left: 8px; }
 
         .ap-login-row { display: flex; gap: 10px; margin-bottom: 8px; }
-        .ap-input {
-            flex: 1; padding: 9px 14px;
-            border: 1.5px solid #e0e0e0; border-radius: 8px;
-            font-size: 13px; font-family: inherit;
-            outline: none; transition: border-color .2s;
-        }
+        .ap-input { flex: 1; padding: 9px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: border-color .2s; }
         .ap-input:focus { border-color: #2a5fa0; }
         .ap-hint { font-size: 11px; color: #999; }
         .ap-err { font-size: 12px; color: #c0392b; margin-top: 6px; font-weight: 600; }
         .ap-err.hidden { display: none; }
 
-        .ap-tabs {
-            display: flex; gap: 2px;
-            padding: 0 24px;
-            border-bottom: 2px solid #eee;
-            background: #f8f9fa;
-        }
-        .ap-tab {
-            padding: 10px 16px;
-            background: transparent; border: none;
-            font-size: 12px; font-weight: 700; color: #888;
-            cursor: pointer; transition: all .2s;
-            border-bottom: 2px solid transparent; margin-bottom: -2px;
-            font-family: inherit;
-        }
+        .ap-tabs { display: flex; gap: 2px; padding: 0 24px; border-bottom: 2px solid #eee; background: #f8f9fa; }
+        .ap-tab { padding: 10px 16px; background: transparent; border: none; font-size: 12px; font-weight: 700; color: #888; cursor: pointer; transition: all .2s; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; }
         .ap-tab.active { color: #2a5fa0; border-bottom-color: #2a5fa0; }
         .ap-tab:hover:not(.active) { color: #555; }
-
         .ap-tab-content { display: none; padding: 20px 24px 24px; }
         .ap-tab-content.active { display: block; }
 
         /* 按钮 */
-        .ap-btn {
-            padding: 8px 16px; border-radius: 8px;
-            font-size: 12px; font-weight: 700;
-            border: 1.5px solid #ddd; background: #fff;
-            color: #555; cursor: pointer; font-family: inherit;
-            transition: all .2s;
-        }
+        .ap-btn { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1.5px solid #ddd; background: #fff; color: #555; cursor: pointer; font-family: inherit; transition: all .2s; }
         .ap-btn:hover { border-color: #aaa; color: #333; }
         .ap-btn-primary { background: #2a5fa0; color: #fff; border-color: #2a5fa0; }
         .ap-btn-primary:hover { background: #1e3a5f; border-color: #1e3a5f; }
@@ -1583,65 +298,30 @@
 
         /* 单元开放管理 */
         .ap-unit-actions { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-        .ap-unit-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 8px; max-height: 360px; overflow-y: auto;
-            padding: 2px; margin-bottom: 14px;
-        }
+        .ap-unit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 360px; overflow-y: auto; padding: 2px; margin-bottom: 14px; }
         @media(max-width:600px){ .ap-unit-grid{ grid-template-columns: repeat(2,1fr); } }
-        .ap-unit-toggle {
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 12px;
-            border: 1.5px solid #e0e0e0; border-radius: 8px;
-            background: #fff; cursor: pointer; transition: all .2s;
-            user-select: none;
-        }
+        .ap-unit-toggle { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; background: #fff; cursor: pointer; transition: all .2s; user-select: none; }
         .ap-unit-toggle.open { border-color: #27ae60; background: #f0faf4; }
         .ap-unit-toggle.closed { border-color: #e0e0e0; background: #f9f9f9; }
         .ap-unit-icon { font-size: 14px; }
         .ap-unit-label { font-size: 11px; font-weight: 700; color: #333; flex: 1; line-height: 1.4; }
-        .ap-unit-switch {
-            width: 34px; height: 18px; border-radius: 9px;
-            background: #ccc; position: relative; flex-shrink: 0;
-            transition: background .2s;
-        }
+        .ap-unit-switch { width: 34px; height: 18px; border-radius: 9px; background: #ccc; position: relative; flex-shrink: 0; transition: background .2s; }
         .ap-unit-toggle.open .ap-unit-switch { background: #27ae60; }
-        .ap-unit-switch::after {
-            content: ''; position: absolute;
-            width: 14px; height: 14px; border-radius: 50%;
-            background: #fff; top: 2px; left: 2px;
-            transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
-        }
+        .ap-unit-switch::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
         .ap-unit-toggle.open .ap-unit-switch::after { left: 18px; }
         .ap-save-row { display: flex; align-items: center; gap: 12px; }
         .ap-save-hint { font-size: 11px; color: #27ae60; font-weight: 600; }
 
         /* 导出 */
-        .ap-export-opts {
-            display: flex; flex-wrap: wrap; gap: 12px;
-            margin-bottom: 14px; padding: 14px;
-            background: #f8f9fa; border-radius: 8px;
-        }
-        .ap-check-label {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 12px; font-weight: 600; color: #555; cursor: pointer;
-        }
+        .ap-export-opts { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; padding: 14px; background: #f8f9fa; border-radius: 8px; }
+        .ap-check-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #555; cursor: pointer; }
         .ap-check-label input { cursor: pointer; }
         .ap-export-actions { display: flex; gap: 8px; margin-bottom: 14px; }
         .ap-export-preview { border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
-        .ap-preview-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 14px; background: #f0f4f8;
-            font-size: 12px; font-weight: 700; color: #555;
-        }
+        .ap-preview-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: #f0f4f8; font-size: 12px; font-weight: 700; color: #555; }
         .ap-table-wrap { overflow-x: auto; max-height: 340px; overflow-y: auto; }
         .ap-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .ap-table th {
-            background: #1e3a5f; color: #fff;
-            padding: 7px 10px; text-align: left;
-            font-weight: 700; white-space: nowrap;
-            position: sticky; top: 0; z-index: 1;
-        }
+        .ap-table th { background: #1e3a5f; color: #fff; padding: 7px 10px; text-align: left; font-weight: 700; white-space: nowrap; position: sticky; top: 0; z-index: 1; }
         .ap-table td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; color: #333; white-space: nowrap; }
         .ap-table tr:nth-child(even) td { background: #f8f9fa; }
         .ap-table tr:hover td { background: #e8f0fe; }
@@ -1649,11 +329,7 @@
         /* 积分榜 */
         .ap-score-actions { display: flex; gap: 8px; margin-bottom: 14px; }
         .ap-score-list { max-height: 400px; overflow-y: auto; }
-        .ap-score-row {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 14px; border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-        }
+        .ap-score-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
         .ap-score-rank { width: 28px; text-align: center; font-weight: 800; color: #888; font-size: 11px; }
         .ap-score-name { flex: 1; font-weight: 700; }
         .ap-score-id { font-size: 11px; color: #999; }
@@ -1664,12 +340,10 @@
         .ap-score-flag.clean { background: #d5f5e3; color: #1e8449; }
         .ap-empty { text-align: center; color: #aaa; padding: 40px; font-size: 13px; }
 
-        </style>
+    </style>
 </head>
 
 <body>
-
-    <!-- ===== 🔐 登录弹窗 ===== -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-card">
             <div class="login-logo">📊</div>
@@ -1680,13 +354,11 @@
                 <label for="inputName">👤 你的姓名</label>
                 <input type="text" id="inputName" placeholder="请输入你的真实姓名" maxlength="20" autocomplete="off" />
             </div>
-
             <div class="login-field">
                 <label for="inputId">🎓 学号</label>
                 <input type="text" id="inputId" placeholder="请输入你的学号" maxlength="20" autocomplete="off" />
             </div>
 
-            <!-- 同步状态提示（登录时动态显示） -->
             <div class="login-sync-status" id="loginSyncStatus">
                 <div class="sync-spinner" id="syncSpinner"></div>
                 <span id="syncMsg">正在同步云端进度…</span>
@@ -1697,7 +369,6 @@
         </div>
     </div>
 
-    <!-- ===== 📌 顶部导航栏 ===== -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a class="navbar-logo" href="#">
@@ -1718,10 +389,8 @@
         </div>
     </nav>
 
-    <!-- ===== 页面主体 ===== -->
     <main class="page-container">
 
-        <!-- ===== 🎯 英雄区 ===== -->
         <section class="hero">
             <div class="hero-deco">📊</div>
             <p class="hero-greeting" id="heroGreeting">早上好 👋</p>
@@ -1731,7 +400,6 @@
             </h1>
             <p class="hero-subtitle" id="heroSubtitle">高等教育出版社《电子商务数据分析基础》· 全课程 21 个单元 · 共 72 课时</p>
 
-            <!-- 统计卡片组 -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">📚</div>
@@ -1755,7 +423,6 @@
                 </div>
             </div>
 
-            <!-- 总进度条 -->
             <div class="overall-progress">
                 <div class="progress-header">
                     <span class="progress-title">📈 总体学习进度</span>
@@ -1768,14 +435,12 @@
             </div>
         </section>
 
-        <!-- ===== 🗺️ 学习地图 ===== -->
         <section class="learning-map">
             <h2 class="section-title">
                 🗺️ 学习地图
                 <span class="section-badge">5 个模块 · 21 个单元</span>
             </h2>
 
-            <!-- 模块一 -->
             <div class="module-card" id="m1-card">
                 <div class="module-header" onclick="toggleModule('m1')">
                     <div class="module-color-bar" style="background:var(--m1-color)"></div>
@@ -1830,7 +495,6 @@
                 </div>
             </div>
 
-            <!-- 模块二 -->
             <div class="module-card" id="m2-card">
                 <div class="module-header" onclick="toggleModule('m2')">
                     <div class="module-color-bar" style="background:var(--m2-color)"></div>
@@ -1903,7 +567,6 @@
                 </div>
             </div>
 
-            <!-- 模块三 -->
             <div class="module-card" id="m3-card">
                 <div class="module-header" onclick="toggleModule('m3')">
                     <div class="module-color-bar" style="background:var(--m3-color)"></div>
@@ -1967,7 +630,6 @@
                 </div>
             </div>
 
-            <!-- 模块四 -->
             <div class="module-card" id="m4-card">
                 <div class="module-header" onclick="toggleModule('m4')">
                     <div class="module-color-bar" style="background:var(--m4-color)"></div>
@@ -2031,7 +693,6 @@
                 </div>
             </div>
 
-            <!-- 模块五 -->
             <div class="module-card" id="m5-card">
                 <div class="module-header" onclick="toggleModule('m5')">
                     <div class="module-color-bar" style="background:var(--m5-color)"></div>
@@ -2087,21 +748,15 @@
             </div>
         </section>
 
-        <!-- ===== 🏆 成就徽章墙 ===== -->
         <section class="achievements">
             <h2 class="section-title">
                 🏆 成就徽章墙
                 <span class="section-badge" id="badgeCountLabel">0 / 12 已解锁</span>
             </h2>
-            <div class="badge-grid" id="badgeGrid">
-                <!-- 徽章由JS动态渲染 -->
-            </div>
+            <div class="badge-grid" id="badgeGrid"></div>
         </section>
 
-        <!-- ===== 🏅 班级排行榜 ===== -->
         <section class="leaderboard">
-
-            <!-- Supabase 未配置时显示的提示 -->
             <div class="supabase-config-banner" id="supabaseConfigBanner">
                 <div class="scb-icon">⚙️</div>
                 <div>
@@ -2129,36 +784,9 @@
             </div>
 
             <div class="lb-list" id="lbList">
-                <!-- 骨架屏占位 -->
-                <div class="lb-skeleton">
-                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
-                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
-                    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-                        <div class="skeleton-block" style="width:120px;height:14px"></div>
-                        <div class="skeleton-block" style="width:200px;height:10px"></div>
-                    </div>
-                    <div class="skeleton-block" style="width:50px;height:22px"></div>
-                </div>
-                <div class="lb-skeleton">
-                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
-                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
-                    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-                        <div class="skeleton-block" style="width:100px;height:14px"></div>
-                        <div class="skeleton-block" style="width:160px;height:10px"></div>
-                    </div>
-                    <div class="skeleton-block" style="width:50px;height:22px"></div>
-                </div>
-                <div class="lb-skeleton">
-                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
-                    <div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div>
-                    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-                        <div class="skeleton-block" style="width:140px;height:14px"></div>
-                        <div class="skeleton-block" style="width:180px;height:10px"></div>
-                    </div>
-                    <div class="skeleton-block" style="width:50px;height:22px"></div>
-                </div>
+                <div class="lb-skeleton"><div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div><div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="skeleton-block" style="width:120px;height:14px"></div><div class="skeleton-block" style="width:200px;height:10px"></div></div><div class="skeleton-block" style="width:50px;height:22px"></div></div>
+                <div class="lb-skeleton"><div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div><div class="skeleton-block" style="width:36px;height:36px;border-radius:50%"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="skeleton-block" style="width:100px;height:14px"></div><div class="skeleton-block" style="width:160px;height:10px"></div></div><div class="skeleton-block" style="width:50px;height:22px"></div></div>
             </div>
-
             <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:12px" id="lbUpdateTime">
                 — 排行榜数据来自全班同学的学习进度 —
             </p>
@@ -2166,7 +794,6 @@
 
     </main>
 
-    <!-- ===== 🦶 页脚 ===== -->
     <footer class="footer">
         <div class="footer-inner">
             <p class="footer-text">© 2025 电子商务数据分析基础 · 高等教育出版社 · 课程互动教学平台</p>
@@ -2174,76 +801,33 @@
         </div>
     </footer>
 
-    <!-- ===== 🔔 Toast 提示 ===== -->
     <div class="toast" id="toast"></div>
-
-    <!-- ===== 🎊 撒花容器 ===== -->
     <div class="confetti-container" id="confettiContainer"></div>
 
     <script>
-        /* =============================================
-           ⚙️ Supabase 配置
-           【如何配置】
-           1. 去 https://supabase.com 注册并创建免费项目
-           2. 进入项目 → Project Settings → API
-           3. 复制 Project URL 和 anon/public key 填到下方
-           4. 在 SQL Editor 里执行以下建表语句：
-        
-           create table student_progress (
-             id uuid default gen_random_uuid() primary key,
-             student_id text not null unique,
-             name text not null,
-             xp integer default 0,
-             completed_units integer default 0,
-             total_stars integer default 0,
-             week_xp integer default 0,
-             week_start text default '',
-             achievements text[] default '{}',
-             units jsonb default '{}',
-             updated_at timestamptz default now()
-           );
-           alter table student_progress enable row level security;
-           create policy "allow all" on student_progress for all using (true);
-           alter publication supabase_realtime add table student_progress;
-           ============================================= */
-        const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';   // 形如 https://xxxx.supabase.co
-        const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';  // 形如 eyJh...
+        const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
 
-        // 初始化 Supabase 客户端（如果已配置）
         let _supabase = null;
-        const SUPABASE_CONFIGURED = (
-            SUPABASE_URL.startsWith('https://') &&
-            SUPABASE_ANON_KEY.length > 20  // 兼容 eyJ... 和 sb_publishable_... 两种格式
-        );
+        const SUPABASE_CONFIGURED = (SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 20);
         if (SUPABASE_CONFIGURED && window.supabase) {
             _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
-        /* =============================================
-           📦 常量与数据定义
-           ============================================= */
         const STORAGE_KEY = 'ecommerce_data_analysis_user';
         const ADMIN_KEY   = 'ecommerce_admin_config';
-
-        /** 管理员密码（明文，教学场景足够；生产请换哈希） */
         const ADMIN_PASSWORD = 'teacher2025';
 
-        /**
-         * 读取管理员配置（单元开放状态 + 启用的功能）
-         * @returns {{unlockedUnits: string[], adminMode: boolean}}
-         */
         function loadAdminConfig() {
             try {
                 const raw = localStorage.getItem(ADMIN_KEY);
                 if (raw) return JSON.parse(raw);
             } catch {}
-            // 默认：只开放第1个单元
             return { unlockedUnits: ['m1u1'], adminMode: false };
         }
 
         function saveAdminConfig(cfg) {
             localStorage.setItem(ADMIN_KEY, JSON.stringify(cfg));
-            // 同步到 Supabase admin_config 表（如果存在）
             if (_supabase) {
                 _supabase.from('admin_config').upsert(
                     { id: 'main', config: cfg, updated_at: new Date().toISOString() },
@@ -2252,7 +836,6 @@
             }
         }
 
-        /** 从 Supabase 拉取管理员配置（页面加载时调用一次） */
         async function loadAdminConfigFromCloud() {
             if (!_supabase) return;
             try {
@@ -2263,18 +846,13 @@
             } catch {}
         }
 
-        /** 等级系统 */
         const LEVELS = [
-            { min: 0, name: '数据小白', icon: '🌱' },
-            { min: 100, name: '数据新手', icon: '🌿' },
-            { min: 300, name: '数据学徒', icon: '🌳' },
-            { min: 600, name: '数据能手', icon: '⭐' },
-            { min: 1000, name: '数据达人', icon: '🌟' },
-            { min: 1500, name: '数据专家', icon: '💫' },
+            { min: 0, name: '数据小白', icon: '🌱' }, { min: 100, name: '数据新手', icon: '🌿' },
+            { min: 300, name: '数据学徒', icon: '🌳' }, { min: 600, name: '数据能手', icon: '⭐' },
+            { min: 1000, name: '数据达人', icon: '🌟' }, { min: 1500, name: '数据专家', icon: '💫' },
             { min: 2000, name: '数据大师', icon: '👑' },
         ];
 
-        /** 成就徽章列表 */
         const BADGES = [
             { id: 'first_login', icon: '🌱', name: '初来乍到', desc: '完成注册登录' },
             { id: 'first_unit', icon: '📖', name: '第一课', desc: '完成第1个单元' },
@@ -2290,7 +868,6 @@
             { id: 'xp500', icon: '⚡', name: '能量满满', desc: '累计500 XP' },
         ];
 
-        /** 所有单元ID，用于计算进度 */
         const ALL_UNITS = [
             'm1u1', 'm1u2', 'm1u3',
             'm2u1', 'm2u2', 'm2u3', 'm2u4', 'm2u5',
@@ -2299,187 +876,54 @@
             'm5u1', 'm5u2', 'm5u3'
         ];
 
-        /** 各模块包含的单元 */
         const MODULE_UNITS = {
-            m1: ['m1u1', 'm1u2', 'm1u3'],
-            m2: ['m2u1', 'm2u2', 'm2u3', 'm2u4', 'm2u5'],
-            m3: ['m3u1', 'm3u2', 'm3u3', 'm3u4'],
-            m4: ['m4u1', 'm4u2', 'm4u3', 'm4u4'],
+            m1: ['m1u1', 'm1u2', 'm1u3'], m2: ['m2u1', 'm2u2', 'm2u3', 'm2u4', 'm2u5'],
+            m3: ['m3u1', 'm3u2', 'm3u3', 'm3u4'], m4: ['m4u1', 'm4u2', 'm4u3', 'm4u4'],
             m5: ['m5u1', 'm5u2', 'm5u3'],
         };
 
-        /* =============================================
-           🛠️ 工具函数
-           ============================================= */
-
-        /**
-         * 获取当前时间段问候语
-         * @returns {string} 问候语文本
-         */
         function getGreeting() {
             const h = new Date().getHours();
-            if (h < 6) return '深夜了 🌙';
-            if (h < 9) return '早上好 🌅';
-            if (h < 12) return '上午好 ☀️';
-            if (h < 14) return '中午好 🌞';
-            if (h < 18) return '下午好 🌤️';
-            if (h < 22) return '晚上好 🌆';
-            return '夜深了 🌙';
+            if (h < 6) return '深夜了 🌙'; if (h < 9) return '早上好 🌅';
+            if (h < 12) return '上午好 ☀️'; if (h < 14) return '中午好 🌞';
+            if (h < 18) return '下午好 🌤️'; if (h < 22) return '晚上好 🌆'; return '夜深了 🌙';
         }
 
-        /**
-         * 根据XP获取等级信息
-         * @param {number} xp - 当前经验值
-         * @returns {{name:string, icon:string}} 等级信息
-         */
-        function getLevel(xp) {
-            let level = LEVELS[0];
-            for (const l of LEVELS) {
-                if (xp >= l.min) level = l;
-            }
-            return level;
-        }
-
-        /**
-         * 将星数转换为星星字符
-         * @param {number} stars - 星数 0~3
-         * @returns {string} 星星字符串
-         */
-        function starsToStr(stars) {
-            const s = Math.min(5, Math.max(0, stars || 0));
-            return '⭐'.repeat(s) + '☆'.repeat(5 - s);
-        }
-
-        /**
-         * 显示 Toast 提示
-         * @param {string} msg - 提示内容
-         * @param {number} duration - 显示时长（毫秒）
-         */
-        function showToast(msg, duration = 2500) {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), duration);
-        }
-
-        /**
-         * 触发撒花特效
-         */
+        function getLevel(xp) { let level = LEVELS[0]; for (const l of LEVELS) { if (xp >= l.min) level = l; } return level; }
+        function starsToStr(stars) { const s = Math.min(5, Math.max(0, stars || 0)); return '⭐'.repeat(s) + '☆'.repeat(5 - s); }
+        function showToast(msg, duration = 2500) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), duration); }
         function launchConfetti() {
-            const container = document.getElementById('confettiContainer');
-            const colors = ['#F97316', '#3B82F6', '#8B5CF6', '#10B981', '#EC4899', '#FBBF24'];
-            container.innerHTML = '';
+            const container = document.getElementById('confettiContainer'); const colors = ['#F97316', '#3B82F6', '#8B5CF6', '#10B981', '#EC4899', '#FBBF24']; container.innerHTML = '';
             for (let i = 0; i < 60; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'confetti-piece';
-                piece.style.cssText = `
-            left: ${Math.random() * 100}%;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
-            width: ${6 + Math.random() * 6}px;
-            height: ${6 + Math.random() * 6}px;
-            animation-duration: ${2 + Math.random() * 2}s;
-            animation-delay: ${Math.random() * 0.5}s;
-            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-        `;
+                const piece = document.createElement('div'); piece.className = 'confetti-piece';
+                piece.style.cssText = `left: ${Math.random() * 100}%; background: ${colors[Math.floor(Math.random() * colors.length)]}; width: ${6 + Math.random() * 6}px; height: ${6 + Math.random() * 6}px; animation-duration: ${2 + Math.random() * 2}s; animation-delay: ${Math.random() * 0.5}s; border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};`;
                 container.appendChild(piece);
             }
             setTimeout(() => container.innerHTML = '', 4000);
         }
 
-        /* =============================================
-           💾 存储管理函数
-           ============================================= */
-
-        /**
-         * 读取用户数据
-         * @returns {object|null} 用户数据对象，未登录则返回null
-         */
-        function loadUser() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return null;
-            try { return JSON.parse(raw); } catch { return null; }
-        }
-
-        /**
-         * 保存用户数据（本地 + 同步到 Supabase）
-         * @param {object} data - 用户数据对象
-         */
+        function loadUser() { const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return null; try { return JSON.parse(raw); } catch { return null; } }
         function saveUser(data) {
-            data.lastVisit = new Date().toISOString();
-            data.updatedAt = new Date().toISOString(); // 本地版本时间戳（用于云端冲突检测）
-
-            // 本周 XP 追踪：每周一重置
+            data.lastVisit = new Date().toISOString(); data.updatedAt = new Date().toISOString();
             const todayWeekStart = getWeekStart();
-            if (data.weekStart !== todayWeekStart) {
-                data.weekXp = 0;
-                data.weekStart = todayWeekStart;
-            }
-
+            if (data.weekStart !== todayWeekStart) { data.weekXp = 0; data.weekStart = todayWeekStart; }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-            // 同步到 Supabase（只上传，不下载；冲突由登录时的云端优先逻辑处理）
             if (_supabase) {
                 const completedUnits = ALL_UNITS.filter(id => data.units[id]?.completed).length;
                 const totalStars = ALL_UNITS.reduce((sum, id) => sum + (data.units[id]?.stars || 0), 0);
                 _supabase.from('student_progress').upsert({
-                    student_id:      data.studentId,
-                    name:            data.name,
-                    xp:              data.xp,
-                    completed_units: completedUnits,
-                    total_stars:     totalStars,
-                    week_xp:         data.weekXp  || 0,
-                    week_start:      data.weekStart || todayWeekStart,
-                    achievements:    data.achievements,
-                    units:           data.units,
-                    updated_at:      data.updatedAt
-                }, { onConflict: 'student_id' })
-                    .then(({ error }) => { if (error) console.warn('Supabase sync:', error.message); });
+                    student_id: data.studentId, name: data.name, xp: data.xp, completed_units: completedUnits, total_stars: totalStars,
+                    week_xp: data.weekXp || 0, week_start: data.weekStart || todayWeekStart, achievements: data.achievements, units: data.units, updated_at: data.updatedAt
+                }, { onConflict: 'student_id' }).then(({ error }) => { if (error) console.warn('Supabase sync:', error.message); });
             }
         }
 
-        /**
-         * 获取本周一的日期字符串（用于周XP重置基准）
-         * @returns {string} 格式 YYYY-MM-DD
-         */
-        function getWeekStart() {
-            const d = new Date();
-            const day = d.getDay() || 7;          // 把周日的0改成7
-            d.setDate(d.getDate() - day + 1);     // 退回到周一
-            return d.toISOString().slice(0, 10);
-        }
-
-        /**
-         * 创建新用户数据结构
-         * @param {string} name - 姓名
-         * @param {string} studentId - 学号
-         * @returns {object} 初始化的用户数据
-         */
+        function getWeekStart() { const d = new Date(); const day = d.getDay() || 7; d.setDate(d.getDate() - day + 1); return d.toISOString().slice(0, 10); }
         function createUser(name, studentId) {
-            const units = {};
-            ALL_UNITS.forEach(id => {
-                units[id] = { completed: false, stars: 0, score: 0, xpEarned: 0 };
-            });
-            return {
-                name,
-                studentId,
-                xp: 15,  // 登录奖励
-                weekXp: 15,
-                weekStart: getWeekStart(),
-                createdAt: new Date().toISOString(),
-                lastVisit: new Date().toISOString(),
-                units,
-                achievements: ['first_login']  // 首次登录自动获得
-            };
+            const units = {}; ALL_UNITS.forEach(id => { units[id] = { completed: false, stars: 0, score: 0, xpEarned: 0 }; });
+            return { name, studentId, xp: 15, weekXp: 15, weekStart: getWeekStart(), createdAt: new Date().toISOString(), lastVisit: new Date().toISOString(), units, achievements: ['first_login'] };
         }
 
-        /* =============================================
-           🖼️ 渲染函数
-           ============================================= */
-
-        /**
-         * 渲染导航栏用户信息
-         * @param {object} user - 用户数据
-         */
         function renderNavbar(user) {
             const level = getLevel(user.xp);
             document.getElementById('navbarAvatar').textContent = user.name.charAt(0);
@@ -2487,59 +931,27 @@
             document.getElementById('navbarLevel').textContent = `${level.icon} ${level.name}`;
         }
 
-        /**
-         * 渲染英雄区
-         * @param {object} user - 用户数据
-         */
         function renderHero(user) {
             const completedUnits = ALL_UNITS.filter(id => user.units[id]?.completed).length;
             const totalStars = ALL_UNITS.reduce((sum, id) => sum + (user.units[id]?.stars || 0), 0);
             const totalBadges = user.achievements.length;
             const pct = Math.round(completedUnits / ALL_UNITS.length * 100);
 
-            // 问候语
             document.getElementById('heroGreeting').textContent = getGreeting();
             document.getElementById('heroName').textContent = user.name;
-
-            // 动态激励语
-            const motivations = [
-                '今天也要认真学习哦～',
-                '数据分析高手，就是你！',
-                '每一步都算数，加油吧！',
-                `已完成 ${completedUnits} 个单元，继续冲！`,
-                '抖音背后的数据，等你来分析！'
-            ];
-            document.getElementById('heroMotivation').textContent =
-                motivations[Math.floor(Math.random() * motivations.length)];
-
-            // 统计数字
+            const motivations = ['今天也要认真学习哦～', '数据分析高手，就是你！', '每一步都算数，加油吧！', `已完成 ${completedUnits} 个单元，继续冲！`, '抖音背后的数据，等你来分析！'];
+            document.getElementById('heroMotivation').textContent = motivations[Math.floor(Math.random() * motivations.length)];
             document.getElementById('statUnits').textContent = completedUnits;
             document.getElementById('statStars').textContent = totalStars;
             document.getElementById('statXP').textContent = user.xp;
             document.getElementById('statBadges').textContent = totalBadges;
-
-            // 进度条
             document.getElementById('progressPct').textContent = pct + '%';
-            const hints = [
-                '加油！完成第一个单元，开启你的数据分析学习之旅 🚀',
-                '继续学习，你正在成为数据高手的路上！💪',
-                '已完成一半！坚持就是胜利 🌟',
-                '快完成了！终点就在眼前 🏁',
-                '全部完成！你是真正的数据大师 👑',
-            ];
+            const hints = ['加油！完成第一个单元，开启你的数据分析学习之旅 🚀', '继续学习，你正在成为数据高手的路上！💪', '已完成一半！坚持就是胜利 🌟', '快完成了！终点就在眼前 🏁', '全部完成！你是真正的数据大师 👑'];
             const hintIdx = pct === 0 ? 0 : pct < 30 ? 1 : pct < 60 ? 2 : pct < 100 ? 3 : 4;
             document.getElementById('progressHint').textContent = hints[hintIdx];
-
-            // 延迟触发进度条动画
-            setTimeout(() => {
-                document.getElementById('progressFill').style.width = pct + '%';
-            }, 800);
+            setTimeout(() => { document.getElementById('progressFill').style.width = pct + '%'; }, 800);
         }
 
-        /**
-         * 渲染学习地图（单元状态）
-         * @param {object} user - 用户数据
-         */
         function renderLearningMap(user) {
             const cfg = loadAdminConfig();
             ALL_UNITS.forEach((unitId, idx) => {
@@ -2553,565 +965,217 @@
                 const seqUnlocked   = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
 
                 if (unitData.completed) {
-                    statusEl.textContent = '✅';
-                    statusEl.className = 'unit-status-icon done';
+                    statusEl.textContent = '✅'; statusEl.className = 'unit-status-icon done';
                     starsEl.textContent = starsToStr(unitData.stars);
-                    unitEl.classList.remove('locked');
-                    unitEl.classList.add('completed');
-                    // 显示已获得的真实XP（防刷后仅首次计入）
+                    unitEl.classList.remove('locked'); unitEl.classList.add('completed');
                     const xpEl = document.getElementById(`xp-${unitId}`);
                     if (xpEl) xpEl.textContent = `+${unitData.xpEarned || 0} XP ✓`;
                 } else if (adminUnlocked || seqUnlocked) {
-                    // 管理员开放 or 顺序解锁
                     statusEl.textContent = adminUnlocked && !seqUnlocked ? '🔓' : '▶️';
-                    statusEl.className = 'unit-status-icon active';
-                    unitEl.classList.remove('locked');
+                    statusEl.className = 'unit-status-icon active'; unitEl.classList.remove('locked');
                 } else {
-                    statusEl.textContent = '🔒';
-                    statusEl.className = 'unit-status-icon locked-icon';
-                    unitEl.classList.add('locked');
+                    statusEl.textContent = '🔒'; statusEl.className = 'unit-status-icon locked-icon'; unitEl.classList.add('locked');
                 }
             });
 
-            // 渲染模块小进度条
             ['m1', 'm2', 'm3', 'm4', 'm5'].forEach(mid => {
-                const units = MODULE_UNITS[mid];
-                const done = units.filter(id => user.units[id]?.completed).length;
+                const units = MODULE_UNITS[mid]; const done = units.filter(id => user.units[id]?.completed).length;
                 const pct = Math.round(done / units.length * 100);
-                const fillEl = document.getElementById(`${mid}-mini-fill`);
-                const pctEl = document.getElementById(`${mid}-mini-pct`);
-                if (fillEl) {
-                    setTimeout(() => { fillEl.style.width = pct + '%'; }, 600);
-                }
+                const fillEl = document.getElementById(`${mid}-mini-fill`); const pctEl = document.getElementById(`${mid}-mini-pct`);
+                if (fillEl) { setTimeout(() => { fillEl.style.width = pct + '%'; }, 600); }
                 if (pctEl) pctEl.textContent = pct + '%';
             });
         }
 
-        /**
-         * 渲染成就徽章墙
-         * @param {object} user - 用户数据
-         */
         function renderBadges(user) {
-            const grid = document.getElementById('badgeGrid');
-            const unlocked = user.achievements || [];
-            grid.innerHTML = '';
-
+            const grid = document.getElementById('badgeGrid'); const unlocked = user.achievements || []; grid.innerHTML = '';
             BADGES.forEach((badge, i) => {
                 const isUnlocked = unlocked.includes(badge.id);
                 const el = document.createElement('div');
                 el.className = `badge-item ${isUnlocked ? 'unlocked' : 'locked in-anim'}`;
                 el.style.animationDelay = `${i * 0.05}s`;
-                el.innerHTML = `
-            ${isUnlocked ? '<div class="badge-unlocked-tag">✓</div>' : ''}
-            <span class="badge-emoji">${badge.icon}</span>
-            <div class="badge-name">${badge.name}</div>
-            <div class="badge-desc">${badge.desc}</div>
-        `;
-                if (isUnlocked) {
-                    el.title = `🎉 已解锁：${badge.name}`;
-                } else {
-                    el.title = `🔒 解锁条件：${badge.desc}`;
-                }
+                el.innerHTML = `${isUnlocked ? '<div class="badge-unlocked-tag">✓</div>' : ''} <span class="badge-emoji">${badge.icon}</span> <div class="badge-name">${badge.name}</div> <div class="badge-desc">${badge.desc}</div>`;
+                if (isUnlocked) { el.title = `🎉 已解锁：${badge.name}`; } else { el.title = `🔒 解锁条件：${badge.desc}`; }
                 grid.appendChild(el);
             });
-
             document.getElementById('badgeCountLabel').textContent = `${unlocked.length} / 12 已解锁`;
         }
 
-        /**
-         * 整体渲染所有区块
-         * @param {object} user - 用户数据
-         */
-        function renderAll(user) {
-            renderNavbar(user);
-            renderHero(user);
-            renderLearningMap(user);
-            renderBadges(user);
-        }
+        function renderAll(user) { renderNavbar(user); renderHero(user); renderLearningMap(user); renderBadges(user); }
 
-        /* =============================================
-           🎮 交互逻辑
-           ============================================= */
-
-        /**
-         * 处理登录逻辑（云端优先）
-         *
-         * 流程：
-         *  1. 验证表单
-         *  2. 若已配置 Supabase → 查询云端
-         *     a. 云端有数据 → 与本地比较 updated_at，取较新的写入本地并渲染
-         *     b. 云端无数据 → 检查本地，本地有则上传并渲染；本地也没有则创建新用户
-         *  3. 未配置 Supabase → 纯本地逻辑（降级兼容）
-         */
         async function handleLogin() {
             const name      = document.getElementById('inputName').value.trim();
             const studentId = document.getElementById('inputId').value.trim();
+            if (!name) { showToast('⚠️ 请输入你的姓名'); document.getElementById('inputName').focus(); return; }
+            if (!studentId) { showToast('⚠️ 请输入你的学号'); document.getElementById('inputId').focus(); return; }
+            if (name.length < 2) { showToast('⚠️ 姓名至少需要2个字'); return; }
 
-            // ── 表单验证 ──
-            if (!name) {
-                showToast('⚠️ 请输入你的姓名');
-                document.getElementById('inputName').focus();
-                return;
-            }
-            if (!studentId) {
-                showToast('⚠️ 请输入你的学号');
-                document.getElementById('inputId').focus();
-                return;
-            }
-            if (name.length < 2) {
-                showToast('⚠️ 姓名至少需要2个字');
-                return;
-            }
-
-            // ── 进入加载状态 ──
-            const btnEl    = document.getElementById('btnLogin');
-            const statusEl = document.getElementById('loginSyncStatus');
-            const msgEl    = document.getElementById('syncMsg');
-            const spinEl   = document.getElementById('syncSpinner');
-
-            function setStatus(type, msg) {
-                statusEl.className = 'login-sync-status show ' + type;
-                spinEl.style.display = type === 'syncing' ? 'block' : 'none';
-                msgEl.textContent = msg;
-            }
-
+            const btnEl = document.getElementById('btnLogin'); const statusEl = document.getElementById('loginSyncStatus');
+            const msgEl = document.getElementById('syncMsg'); const spinEl = document.getElementById('syncSpinner');
+            function setStatus(type, msg) { statusEl.className = 'login-sync-status show ' + type; spinEl.style.display = type === 'syncing' ? 'block' : 'none'; msgEl.textContent = msg; }
             btnEl.classList.add('loading');
 
-            // ── Supabase 未配置 → 纯本地降级 ──
             if (!_supabase) {
                 btnEl.classList.remove('loading');
                 let user = loadUser();
                 if (!user) {
-                    user = createUser(name, studentId);
-                    saveUser(user);
-                    setTimeout(() => launchConfetti(), 500);
-                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
-                } else {
-                    user.name = name; user.studentId = studentId;
-                    saveUser(user);
-                    showToast(`👋 欢迎回来，${name}！继续加油`);
-                }
-                document.getElementById('loginOverlay').classList.add('hidden');
-                renderAll(user);
-                return;
+                    user = createUser(name, studentId); saveUser(user);
+                    setTimeout(() => launchConfetti(), 500); setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 600);
+                } else { user.name = name; user.studentId = studentId; saveUser(user); showToast(`👋 欢迎回来，${name}！继续加油`); }
+                document.getElementById('loginOverlay').classList.add('hidden'); renderAll(user); return;
             }
 
-            // ── Supabase 已配置 → 云端优先同步 ──
             try {
                 setStatus('syncing', '正在连接云端，查询你的学习进度…');
-
-                const { data: rows, error } = await _supabase
-                    .from('student_progress')
-                    .select('*')
-                    .eq('student_id', studentId)
-                    .maybeSingle();
-
+                const { data: rows, error } = await _supabase.from('student_progress').select('*').eq('student_id', studentId).maybeSingle();
                 if (error) throw error;
-
-                const localUser  = loadUser();
-                let   finalUser  = null;
-                let   isNewUser  = false;
+                const localUser = loadUser(); let finalUser = null; let isNewUser = false;
 
                 if (rows) {
-                    // ── 云端有数据 ──
                     const cloudUpdated = new Date(rows.updated_at || 0).getTime();
-                    const localUpdated = localUser
-                        ? new Date(localUser.updatedAt || localUser.lastVisit || 0).getTime()
-                        : 0;
-
+                    const localUpdated = localUser ? new Date(localUser.updatedAt || localUser.lastVisit || 0).getTime() : 0;
                     if (localUser && localUpdated > cloudUpdated) {
-                        // 本地更新，以本地为准（例如刚在这台电脑做完单元还没同步成功）
                         setStatus('found', `📱 发现本地进度更新，以本地数据为准（${localUser.xp} XP）`);
-                        finalUser = localUser;
-                        finalUser.name = name;
+                        finalUser = localUser; finalUser.name = name;
                     } else {
-                        // 云端更新，以云端为准 ✅ 核心场景：换电脑登录
                         setStatus('found', `☁️ 已找到云端进度！${rows.name} · ${rows.xp} XP · ${rows.completed_units} 单元`);
-
-                        // 将云端数据重建为本地 user 结构
-                        finalUser = {
-                            name:        name,             // 以本次输入的姓名为准
-                            studentId:   studentId,
-                            xp:          rows.xp          || 0,
-                            weekXp:      rows.week_xp     || 0,
-                            weekStart:   rows.week_start  || getWeekStart(),
-                            createdAt:   localUser?.createdAt || new Date().toISOString(),
-                            updatedAt:   rows.updated_at,
-                            units:       rows.units       || buildEmptyUnits(),
-                            achievements: rows.achievements || ['first_login'],
-                        };
+                        finalUser = { name: name, studentId: studentId, xp: rows.xp || 0, weekXp: rows.week_xp || 0, weekStart: rows.week_start || getWeekStart(), createdAt: localUser?.createdAt || new Date().toISOString(), updatedAt: rows.updated_at, units: rows.units || buildEmptyUnits(), achievements: rows.achievements || ['first_login'] };
                     }
-                    await new Promise(r => setTimeout(r, 800)); // 短暂展示同步状态
+                    await new Promise(r => setTimeout(r, 800));
                 } else {
-                    // ── 云端无数据 ──
                     if (localUser) {
-                        // 本地有历史进度（可能这台机器登录过但未同步到云端）
-                        setStatus('found', `📂 发现本地进度（${localUser.xp} XP），正在上传到云端…`);
-                        finalUser = localUser;
-                        finalUser.name = name;
-                        await new Promise(r => setTimeout(r, 600));
+                        setStatus('found', `📂 发现本地进度（${localUser.xp} XP），正在上传到云端…`); finalUser = localUser; finalUser.name = name; await new Promise(r => setTimeout(r, 600));
                     } else {
-                        // 全新用户
-                        isNewUser = true;
-                        setStatus('new-user', '✨ 新同学！正在创建你的学习档案…');
-                        finalUser = createUser(name, studentId);
-                        await new Promise(r => setTimeout(r, 500));
+                        isNewUser = true; setStatus('new-user', '✨ 新同学！正在创建你的学习档案…'); finalUser = createUser(name, studentId); await new Promise(r => setTimeout(r, 500));
                     }
                 }
 
-                // ── 写入本地并同步到云端 ──
                 saveUser(finalUser);
+                btnEl.classList.remove('loading'); statusEl.classList.remove('show'); document.getElementById('loginOverlay').classList.add('hidden'); renderAll(finalUser);
 
-                // ── 隐藏弹窗，渲染页面 ──
-                btnEl.classList.remove('loading');
-                statusEl.classList.remove('show');
-                document.getElementById('loginOverlay').classList.add('hidden');
-                renderAll(finalUser);
-
-                // ── 成功提示 ──
-                if (isNewUser) {
-                    setTimeout(() => launchConfetti(), 400);
-                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500);
-                } else if (rows && new Date(rows.updated_at || 0) >= new Date(localUser?.updatedAt || 0)) {
-                    showToast(`☁️ 云端进度已恢复！欢迎回来，${finalUser.name}！`);
-                } else {
-                    showToast(`👋 欢迎回来，${finalUser.name}！继续加油`);
-                }
-
+                if (isNewUser) { setTimeout(() => launchConfetti(), 400); setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500); }
+                else if (rows && new Date(rows.updated_at || 0) >= new Date(localUser?.updatedAt || 0)) { showToast(`☁️ 云端进度已恢复！欢迎回来，${finalUser.name}！`); }
+                else { showToast(`👋 欢迎回来，${finalUser.name}！继续加油`); }
             } catch (err) {
                 console.error('Login sync error:', err);
-                // ── 网络故障降级：优先用本地，没有则创建 ──
-                setStatus('error', '⚠️ 云端连接失败，使用本地数据登录');
-                await new Promise(r => setTimeout(r, 1200));
-
+                setStatus('error', '⚠️ 云端连接失败，使用本地数据登录'); await new Promise(r => setTimeout(r, 1200));
                 let user = loadUser();
-                if (!user) {
-                    user = createUser(name, studentId);
-                    saveUser(user);
-                    setTimeout(() => launchConfetti(), 400);
-                    setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500);
-                } else {
-                    user.name = name; user.studentId = studentId;
-                    saveUser(user);
-                    showToast(`👋 欢迎回来（离线模式），${name}！`);
-                }
-                btnEl.classList.remove('loading');
-                statusEl.classList.remove('show');
-                document.getElementById('loginOverlay').classList.add('hidden');
-                renderAll(user);
+                if (!user) { user = createUser(name, studentId); saveUser(user); setTimeout(() => launchConfetti(), 400); setTimeout(() => showToast('🎉 欢迎来到数据课堂！已获得 +15 XP'), 500); }
+                else { user.name = name; user.studentId = studentId; saveUser(user); showToast(`👋 欢迎回来（离线模式），${name}！`); }
+                btnEl.classList.remove('loading'); statusEl.classList.remove('show'); document.getElementById('loginOverlay').classList.add('hidden'); renderAll(user);
             }
         }
 
-        /**
-         * 构建空的单元进度结构（云端数据重建时使用）
-         */
         function buildEmptyUnits() {
-            const units = {};
-            ALL_UNITS.forEach(id => {
-                units[id] = { completed: false, stars: 0, score: 0, xpEarned: 0 };
-            });
-            return units;
+            const units = {}; ALL_UNITS.forEach(id => { units[id] = { completed: false, stars: 0, score: 0, xpEarned: 0 }; }); return units;
         }
 
-        /**
-         * 处理退出登录
-         */
         function handleLogout() {
-            const msg = _supabase
-                ? '确定要退出登录吗？\n\n你的进度已同步到云端，下次在任意电脑登录都可以继续学习。'
-                : '确定要退出登录吗？你的进度会保留在这台电脑上。';
-            if (!confirm(msg)) return;
-            document.getElementById('loginOverlay').classList.remove('hidden');
+            const msg = _supabase ? '确定要退出登录吗？\n\n你的进度已同步到云端，下次在任意电脑登录都可以继续学习。' : '确定要退出登录吗？你的进度会保留在这台电脑上。';
+            if (!confirm(msg)) return; document.getElementById('loginOverlay').classList.remove('hidden');
         }
 
-        /**
-         * 展开/折叠模块
-         * @param {string} moduleId - 模块ID（如 'm1'）
-         */
-        function toggleModule(moduleId) {
-            const card = document.getElementById(`${moduleId}-card`);
-            card.classList.toggle('expanded');
-        }
+        function toggleModule(moduleId) { document.getElementById(`${moduleId}-card`).classList.toggle('expanded'); }
 
-        /**
-         * 跳转到单元页面
-         * @param {string} unitId - 单元ID（如 'm1u1'）
-         * @param {string} url - 单元页面URL
-         */
         function goToUnit(unitId, url) {
-            const user = loadUser();
-            if (!user) return;
-
-            const cfg = loadAdminConfig();
-            const idx = ALL_UNITS.indexOf(unitId);
-
-            // ── 开放状态检查 ──
-            // 如果管理员显式开放了该单元 → 直接进入（不管前置是否完成）
+            const user = loadUser(); if (!user) return;
+            const cfg = loadAdminConfig(); const idx = ALL_UNITS.indexOf(unitId);
             const adminUnlocked = cfg.unlockedUnits && cfg.unlockedUnits.includes(unitId);
-            // 原来的顺序解锁逻辑
             const seqUnlocked = idx === 0 || user.units[ALL_UNITS[idx - 1]]?.completed;
-            // 已完成的单元永远可重进
             const completed = user.units[unitId]?.completed;
 
-            if (!adminUnlocked && !seqUnlocked && !completed) {
-                showToast('🔒 该单元暂未开放，请等待老师解锁！');
-                return;
-            }
-
-            sessionStorage.setItem('currentUnit', unitId);
-            window.location.href = url;
+            if (!adminUnlocked && !seqUnlocked && !completed) { showToast('🔒 该单元暂未开放，请等待老师解锁！'); return; }
+            sessionStorage.setItem('currentUnit', unitId); window.location.href = url;
         }
 
-        /**
-         * 登录框支持 Enter 键提交
-         */
         function setupLoginKeyboard() {
-            ['inputName', 'inputId'].forEach(id => {
-                document.getElementById(id).addEventListener('keydown', e => {
-                    if (e.key === 'Enter') handleLogin();
-                });
-            });
+            ['inputName', 'inputId'].forEach(id => { document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); }); });
         }
 
-        /* =============================================
-           🏅 排行榜逻辑
-           ============================================= */
-
-        /** 当前排行榜排序维度 */
-        let lbCurrentTab = 'xp';
-
-        /** 缓存的排行榜数据（避免切换Tab重复请求） */
-        let lbCachedData = null;
-
-        /**
-         * 切换排行榜Tab
-         * @param {string} tab - 'xp' | 'units' | 'stars' | 'week'
-         */
+        let lbCurrentTab = 'xp'; let lbCachedData = null;
         function switchTab(tab) {
-            lbCurrentTab = tab;
-            // 更新Tab样式
-            ['xp', 'units', 'stars', 'week'].forEach(t => {
-                document.getElementById(`tab-${t}`)
-                    .classList.toggle('active', t === tab);
-            });
-            // 用缓存数据重新渲染
+            lbCurrentTab = tab; ['xp', 'units', 'stars', 'week'].forEach(t => { document.getElementById(`tab-${t}`).classList.toggle('active', t === tab); });
             if (lbCachedData) renderLeaderboard(lbCachedData);
         }
 
-        /**
-         * 加载排行榜数据（首次）
-         */
         async function loadLeaderboard() {
             if (!_supabase) {
-                // 未配置Supabase：显示配置提示，隐藏加载骨架
                 document.getElementById('supabaseConfigBanner').classList.remove('hidden');
-                document.getElementById('lbList').innerHTML = `
-            <div class="lb-empty">
-                <div class="lb-empty-icon">🔧</div>
-                <div class="lb-empty-title">排行榜待激活</div>
-                <div class="lb-empty-desc">配置 Supabase 后，全班排行榜将实时显示在这里</div>
-            </div>`;
-                document.getElementById('lbLiveDot').style.display = 'none';
-                return;
+                document.getElementById('lbList').innerHTML = `<div class="lb-empty"><div class="lb-empty-icon">🔧</div><div class="lb-empty-title">排行榜待激活</div><div class="lb-empty-desc">配置 Supabase 后，全班排行榜将实时显示在这里</div></div>`;
+                document.getElementById('lbLiveDot').style.display = 'none'; return;
             }
-
-            // 已配置：隐藏配置提示
             document.getElementById('supabaseConfigBanner').classList.add('hidden');
-
-            const { data, error } = await _supabase
-                .from('student_progress')
-                .select('student_id, name, xp, completed_units, total_stars, week_xp, week_start, updated_at')
-                .order('xp', { ascending: false })
-                .limit(40);
-
-            if (error) {
-                document.getElementById('lbList').innerHTML = `
-            <div class="lb-empty">
-                <div class="lb-empty-icon">⚠️</div>
-                <div class="lb-empty-title">加载失败</div>
-                <div class="lb-empty-desc">${error.message}</div>
-            </div>`;
-                return;
-            }
-
-            lbCachedData = data;
-            renderLeaderboard(data);
+            const { data, error } = await _supabase.from('student_progress').select('student_id, name, xp, completed_units, total_stars, week_xp, week_start, updated_at').order('xp', { ascending: false }).limit(40);
+            if (error) { document.getElementById('lbList').innerHTML = `<div class="lb-empty"><div class="lb-empty-icon">⚠️</div><div class="lb-empty-title">加载失败</div><div class="lb-empty-desc">${error.message}</div></div>`; return; }
+            lbCachedData = data; renderLeaderboard(data);
         }
 
-        /**
-         * 实时订阅排行榜变化
-         */
         function subscribeLeaderboard() {
             if (!_supabase) return;
-            _supabase.channel('lb-realtime')
-                .on('postgres_changes',
-                    { event: '*', schema: 'public', table: 'student_progress' },
-                    payload => {
-                        // 收到变更时重新拉取最新数据
-                        loadLeaderboard();
-                        // 闪一下"更新中"提示
-                        const dot = document.getElementById('lbLiveDot');
-                        dot.style.background = 'rgba(249,115,22,0.15)';
-                        setTimeout(() => dot.style.background = '', 800);
-                    }
-                )
-                .subscribe();
+            _supabase.channel('lb-realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'student_progress' }, payload => {
+                loadLeaderboard(); const dot = document.getElementById('lbLiveDot'); dot.style.background = 'rgba(249,115,22,0.15)'; setTimeout(() => dot.style.background = '', 800);
+            }).subscribe();
         }
 
-        /**
-         * 渲染排行榜列表
-         * @param {Array} data - 学生数据数组
-         */
         function renderLeaderboard(data) {
-            const myStudentId = loadUser()?.studentId;
-            const medals = ['🥇', '🥈', '🥉'];
-            const todayWeekStart = getWeekStart();
-
-            // 根据当前Tab排序
+            const myStudentId = loadUser()?.studentId; const medals = ['🥇', '🥈', '🥉']; const todayWeekStart = getWeekStart();
             const sorted = [...data].sort((a, b) => {
-                if (lbCurrentTab === 'xp') return b.xp - a.xp;
-                if (lbCurrentTab === 'units') return b.completed_units - a.completed_units;
+                if (lbCurrentTab === 'xp') return b.xp - a.xp; if (lbCurrentTab === 'units') return b.completed_units - a.completed_units;
                 if (lbCurrentTab === 'stars') return b.total_stars - a.total_stars;
-                if (lbCurrentTab === 'week') {
-                    // 本周XP：只算本周，过期的归零
-                    const aW = a.week_start === todayWeekStart ? (a.week_xp || 0) : 0;
-                    const bW = b.week_start === todayWeekStart ? (b.week_xp || 0) : 0;
-                    return bW - aW;
-                }
+                if (lbCurrentTab === 'week') { const aW = a.week_start === todayWeekStart ? (a.week_xp || 0) : 0; const bW = b.week_start === todayWeekStart ? (b.week_xp || 0) : 0; return bW - aW; }
                 return 0;
             });
+            const maxWeekXp = Math.max(1, ...sorted.map(r => r.week_start === todayWeekStart ? (r.week_xp || 0) : 0));
 
-            // 最大值（用于进度条比例）
-            const maxWeekXp = Math.max(1, ...sorted.map(r =>
-                r.week_start === todayWeekStart ? (r.week_xp || 0) : 0
-            ));
-
-            if (!sorted.length) {
-                document.getElementById('lbList').innerHTML = `
-            <div class="lb-empty">
-                <div class="lb-empty-icon">🎯</div>
-                <div class="lb-empty-title">还没有同学上榜</div>
-                <div class="lb-empty-desc">完成第一个单元，成为班级第一名！</div>
-            </div>`;
-                return;
-            }
+            if (!sorted.length) { document.getElementById('lbList').innerHTML = `<div class="lb-empty"><div class="lb-empty-icon">🎯</div><div class="lb-empty-title">还没有同学上榜</div><div class="lb-empty-desc">完成第一个单元，成为班级第一名！</div></div>`; return; }
 
             const container = document.getElementById('lbList');
             container.innerHTML = sorted.map((row, i) => {
-                const isMe = row.student_id === myStudentId;
-                const rankNum = i + 1;
-                const rankDisplay = rankNum <= 3
-                    ? `<span class="lb-rank medal">${medals[rankNum - 1]}</span>`
-                    : `<span class="lb-rank" style="color:var(--text-light)">${rankNum}</span>`;
-
-                // 本周XP（过期则显示0）
-                const weekXp = row.week_start === todayWeekStart ? (row.week_xp || 0) : 0;
-                const weekPct = Math.round(weekXp / maxWeekXp * 100);
-
-                // 高亮主指标
+                const isMe = row.student_id === myStudentId; const rankNum = i + 1;
+                const rankDisplay = rankNum <= 3 ? `<span class="lb-rank medal">${medals[rankNum - 1]}</span>` : `<span class="lb-rank" style="color:var(--text-light)">${rankNum}</span>`;
+                const weekXp = row.week_start === todayWeekStart ? (row.week_xp || 0) : 0; const weekPct = Math.round(weekXp / maxWeekXp * 100);
                 let primaryVal = '', primaryLabel = '';
-                if (lbCurrentTab === 'xp') { primaryVal = row.xp; primaryLabel = 'XP'; }
-                if (lbCurrentTab === 'units') { primaryVal = row.completed_units; primaryLabel = '单元'; }
-                if (lbCurrentTab === 'stars') { primaryVal = row.total_stars; primaryLabel = '⭐'; }
-                if (lbCurrentTab === 'week') { primaryVal = weekXp; primaryLabel = 'XP'; }
-
+                if (lbCurrentTab === 'xp') { primaryVal = row.xp; primaryLabel = 'XP'; } if (lbCurrentTab === 'units') { primaryVal = row.completed_units; primaryLabel = '单元'; }
+                if (lbCurrentTab === 'stars') { primaryVal = row.total_stars; primaryLabel = '⭐'; } if (lbCurrentTab === 'week') { primaryVal = weekXp; primaryLabel = 'XP'; }
                 return `
-        <div class="lb-row rank-${rankNum <= 3 ? rankNum : 'other'} ${isMe ? 'is-me' : ''}"
-             style="animation-delay:${i * 0.04}s">
-            ${rankDisplay}
-            <div class="lb-avatar">${row.name.charAt(0)}</div>
+        <div class="lb-row rank-${rankNum <= 3 ? rankNum : 'other'} ${isMe ? 'is-me' : ''}" style="animation-delay:${i * 0.04}s">
+            ${rankDisplay} <div class="lb-avatar">${row.name.charAt(0)}</div>
             <div class="lb-info">
-                <div class="lb-name">
-                    ${row.name}
-                    ${isMe ? '<span class="lb-me-tag">我</span>' : ''}
-                </div>
+                <div class="lb-name">${row.name} ${isMe ? '<span class="lb-me-tag">我</span>' : ''}</div>
                 <div class="lb-stats">
-                    <span class="lb-stat-item">⚡ ${row.xp} XP</span>
-                    <span class="lb-stat-item">📚 ${row.completed_units} 单元</span>
-                    <span class="lb-stat-item">⭐ ${row.total_stars} 星</span>
-                    ${lbCurrentTab === 'week' ? `
-                    <div class="lb-week-bar-wrap" title="本周 ${weekXp} XP">
-                        <div class="lb-week-bar" style="width:${weekPct}%"></div>
-                    </div>
-                    <span class="lb-stat-item">🔥 本周 ${weekXp} XP</span>
-                    ` : ''}
+                    <span class="lb-stat-item">⚡ ${row.xp} XP</span> <span class="lb-stat-item">📚 ${row.completed_units} 单元</span> <span class="lb-stat-item">⭐ ${row.total_stars} 星</span>
+                    ${lbCurrentTab === 'week' ? `<div class="lb-week-bar-wrap" title="本周 ${weekXp} XP"><div class="lb-week-bar" style="width:${weekPct}%"></div></div><span class="lb-stat-item">🔥 本周 ${weekXp} XP</span>` : ''}
                 </div>
             </div>
-            <div>
-                <div class="lb-xp">${primaryVal}</div>
-                <div class="lb-xp-unit">${primaryLabel}</div>
-            </div>
+            <div><div class="lb-xp">${primaryVal}</div><div class="lb-xp-unit">${primaryLabel}</div></div>
         </div>`;
             }).join('');
-
-            // 更新时间戳
-            const now = new Date();
-            document.getElementById('lbUpdateTime').textContent =
-                `最后更新：${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            const now = new Date(); document.getElementById('lbUpdateTime').textContent = `最后更新：${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
         }
 
-        /* =============================================
-           🚀 初始化代码（IIFE）
-           ============================================= */
         (async function init() {
-            setupLoginKeyboard();
-
-            // ── 检查本地是否已登录 ──
-            let user = loadUser();
-
+            setupLoginKeyboard(); let user = loadUser();
             if (user) {
-                // 本地已有用户数据 → 先用本地快速渲染，再后台静默对比云端
-                document.getElementById('loginOverlay').classList.add('hidden');
-                renderAll(user);
-
-                // 后台静默同步：若云端版本更新则悄悄更新本地并重新渲染
+                document.getElementById('loginOverlay').classList.add('hidden'); renderAll(user);
                 if (_supabase) {
-                    _supabase.from('student_progress')
-                        .select('xp, completed_units, units, achievements, week_xp, week_start, updated_at')
-                        .eq('student_id', user.studentId)
-                        .maybeSingle()
-                        .then(({ data: row }) => {
-                            if (!row) return;
-                            const cloudTs = new Date(row.updated_at || 0).getTime();
-                            const localTs = new Date(user.updatedAt || user.lastVisit || 0).getTime();
-                            if (cloudTs > localTs) {
-                                // 云端更新，静默合并
-                                user.xp           = row.xp          || user.xp;
-                                user.weekXp       = row.week_xp     || user.weekXp;
-                                user.weekStart    = row.week_start  || user.weekStart;
-                                user.units        = row.units       || user.units;
-                                user.achievements = row.achievements || user.achievements;
-                                user.updatedAt    = row.updated_at;
-                                localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-                                renderAll(user); // 静默刷新
-                                showToast('☁️ 云端进度已同步');
-                            }
-                        });
+                    _supabase.from('student_progress').select('xp, completed_units, units, achievements, week_xp, week_start, updated_at').eq('student_id', user.studentId).maybeSingle().then(({ data: row }) => {
+                        if (!row) return; const cloudTs = new Date(row.updated_at || 0).getTime(); const localTs = new Date(user.updatedAt || user.lastVisit || 0).getTime();
+                        if (cloudTs > localTs) {
+                            user.xp = row.xp || user.xp; user.weekXp = row.week_xp || user.weekXp; user.weekStart = row.week_start || user.weekStart;
+                            user.units = row.units || user.units; user.achievements = row.achievements || user.achievements; user.updatedAt = row.updated_at;
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(user)); renderAll(user); showToast('☁️ 云端进度已同步');
+                        }
+                    });
                 }
-            } else {
-                // 未登录，显示登录弹窗，自动聚焦姓名输入框
-                setTimeout(() => document.getElementById('inputName').focus(), 300);
-            }
-
-            // 第一个模块默认展开
-            setTimeout(() => {
-                if (loadUser()) {
-                    document.getElementById('m1-card').classList.add('expanded');
-                }
-            }, 400);
-
-            // 排行榜：加载 + 实时订阅
-            loadLeaderboard();
-            subscribeLeaderboard();
+            } else { setTimeout(() => document.getElementById('inputName').focus(), 300); }
+            setTimeout(() => { if (loadUser()) { document.getElementById('m1-card').classList.add('expanded'); } }, 400);
+            loadLeaderboard(); subscribeLeaderboard();
         })();
-    
+
         /* ══════════════════════════════════════════════════
            🔐 管理员面板逻辑
         ══════════════════════════════════════════════════ */
-
         const ADMIN_VERIFIED_KEY = 'ecommerce_admin_verified';
-
-        /** 单元名称映射 */
         const UNIT_NAMES = {
             m1u1:'M1-U1 认识电商数据分析', m1u2:'M1-U2 数据分析指标', m1u3:'M1-U3 分析基本流程',
             m2u1:'M2-U1 认识数据采集',    m2u2:'M2-U2 采集渠道与工具', m2u3:'M2-U3 市场数据采集',
@@ -3123,68 +1187,38 @@
             m5u1:'M5-U1 可视化基础',      m5u2:'M5-U2 图表设计',       m5u3:'M5-U3 报告撰写',
         };
 
-        /* ─── 面板开关 ─── */
         function openAdminPanel() {
             document.getElementById('adminOverlay').classList.remove('hidden');
-            // 如果上次已验证，直接显示功能区
             if (sessionStorage.getItem(ADMIN_VERIFIED_KEY) === '1') {
                 document.getElementById('adminLoginArea').style.display = 'none';
                 document.getElementById('adminMainArea').classList.remove('hidden');
                 renderAdminUnitGrid();
             }
         }
-        function closeAdminPanel() {
-            document.getElementById('adminOverlay').classList.add('hidden');
-        }
-        // 点击遮罩关闭
-        document.getElementById('adminOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeAdminPanel();
-        });
+        function closeAdminPanel() { document.getElementById('adminOverlay').classList.add('hidden'); }
+        document.getElementById('adminOverlay').addEventListener('click', function(e) { if (e.target === this) closeAdminPanel(); });
 
-        /* ─── 密码验证 ─── */
         function verifyAdmin() {
-            const pwd = document.getElementById('adminPwdInput').value;
-            const errEl = document.getElementById('adminPwdErr');
+            const pwd = document.getElementById('adminPwdInput').value; const errEl = document.getElementById('adminPwdErr');
             if (pwd === ADMIN_PASSWORD) {
-                sessionStorage.setItem(ADMIN_VERIFIED_KEY, '1');
-                document.getElementById('adminLoginArea').style.display = 'none';
-                document.getElementById('adminMainArea').classList.remove('hidden');
-                errEl.classList.add('hidden');
-                renderAdminUnitGrid();
-            } else {
-                errEl.classList.remove('hidden');
-                document.getElementById('adminPwdInput').value = '';
-                document.getElementById('adminPwdInput').focus();
-            }
+                sessionStorage.setItem(ADMIN_VERIFIED_KEY, '1'); document.getElementById('adminLoginArea').style.display = 'none';
+                document.getElementById('adminMainArea').classList.remove('hidden'); errEl.classList.add('hidden'); renderAdminUnitGrid();
+            } else { errEl.classList.remove('hidden'); document.getElementById('adminPwdInput').value = ''; document.getElementById('adminPwdInput').focus(); }
         }
 
-        /* ─── Tab 切换 ─── */
         function switchAdminTab(tab) {
-            ['units','export','scores'].forEach(t => {
-                document.getElementById(`atab-${t}`).classList.toggle('active', t === tab);
-                document.getElementById(`acontent-${t}`).classList.toggle('active', t === tab);
-            });
+            ['units','export','scores'].forEach(t => { document.getElementById(`atab-${t}`).classList.toggle('active', t === tab); document.getElementById(`acontent-${t}`).classList.toggle('active', t === tab); });
         }
 
-        /* ══════════════════════════════════════════════════
-           📚 Tab1: 单元开放管理
-        ══════════════════════════════════════════════════ */
-
-        // 临时状态（保存前不生效）
+        /* ─── 单元开放管理 ─── */
         let pendingUnlocked = null;
-
         function renderAdminUnitGrid() {
             const cfg = loadAdminConfig();
-            // 初始化 pendingUnlocked
-            if (!pendingUnlocked) {
-                pendingUnlocked = new Set(cfg.unlockedUnits || []);
-            }
+            if (!pendingUnlocked) pendingUnlocked = new Set(cfg.unlockedUnits || []);
             const grid = document.getElementById('adminUnitGrid');
             grid.innerHTML = ALL_UNITS.map(uid => {
                 const isOpen = pendingUnlocked.has(uid);
-                return `
-                <div class="ap-unit-toggle ${isOpen ? 'open' : 'closed'}"
-                     id="autog-${uid}" onclick="toggleAdminUnit('${uid}')">
+                return `<div class="ap-unit-toggle ${isOpen ? 'open' : 'closed'}" id="autog-${uid}" onclick="toggleAdminUnit('${uid}')">
                     <span class="ap-unit-icon">${isOpen ? '🔓' : '🔒'}</span>
                     <span class="ap-unit-label">${UNIT_NAMES[uid] || uid}</span>
                     <div class="ap-unit-switch"></div>
@@ -3194,298 +1228,218 @@
 
         function toggleAdminUnit(uid) {
             if (!pendingUnlocked) pendingUnlocked = new Set();
-            if (pendingUnlocked.has(uid)) {
-                pendingUnlocked.delete(uid);
-            } else {
-                pendingUnlocked.add(uid);
-            }
+            if (pendingUnlocked.has(uid)) pendingUnlocked.delete(uid); else pendingUnlocked.add(uid);
             renderAdminUnitGrid();
         }
 
-        function adminOpenAll() {
-            pendingUnlocked = new Set(ALL_UNITS);
+        // 按模块批量切换
+        function toggleModuleAdmin(moduleId) {
+            if (!pendingUnlocked) pendingUnlocked = new Set();
+            const units = MODULE_UNITS[moduleId];
+            const allOpen = units.every(uid => pendingUnlocked.has(uid));
+            units.forEach(uid => { if (allOpen) { pendingUnlocked.delete(uid); } else { pendingUnlocked.add(uid); } });
             renderAdminUnitGrid();
         }
-        function adminCloseAll() {
-            pendingUnlocked = new Set(['m1u1']); // 至少保留第1个
-            renderAdminUnitGrid();
-        }
-        function adminResetSequential() {
-            // 只开放第1个单元（其余靠顺序完成解锁）
-            pendingUnlocked = new Set(['m1u1']);
-            renderAdminUnitGrid();
-        }
+
+        function adminOpenAll() { pendingUnlocked = new Set(ALL_UNITS); renderAdminUnitGrid(); }
+        function adminCloseAll() { pendingUnlocked = new Set(); renderAdminUnitGrid(); } // 允许全关，依靠顺序解锁
+        function adminResetSequential() { pendingUnlocked = new Set(); renderAdminUnitGrid(); } // 清空手动解锁，仅靠做完前置解锁
 
         async function saveAdminUnits() {
-            const cfg = loadAdminConfig();
-            cfg.unlockedUnits = [...pendingUnlocked];
-            cfg.updatedAt = new Date().toISOString();
-            saveAdminConfig(cfg);
-
-            const hint = document.getElementById('adminSaveHint');
-            hint.textContent = '⏳ 正在同步到云端…';
-
-            // saveAdminConfig 已经调用了 Supabase upsert，等待 1.5s 确认
-            await new Promise(r => setTimeout(r, 1500));
-            hint.textContent = '✅ 已保存并同步到全班！';
-            setTimeout(() => { hint.textContent = ''; }, 4000);
-
-            // 刷新首页单元状态
-            const user = loadUser();
-            if (user) renderLearningMap(user);
+            const cfg = loadAdminConfig(); cfg.unlockedUnits = [...pendingUnlocked]; cfg.updatedAt = new Date().toISOString(); saveAdminConfig(cfg);
+            const hint = document.getElementById('adminSaveHint'); hint.textContent = '⏳ 正在同步到云端…';
+            await new Promise(r => setTimeout(r, 1500)); hint.textContent = '✅ 已保存并同步到全班！'; setTimeout(() => { hint.textContent = ''; }, 4000);
+            const user = loadUser(); if (user) renderLearningMap(user);
         }
 
-        /* ══════════════════════════════════════════════════
-           📊 Tab2: 学生数据导出
-        ══════════════════════════════════════════════════ */
-
+        /* ─── 数据导出 ─── */
         let cachedStudentRows = null;
-
         async function fetchAllStudents() {
             if (!_supabase) {
-                alert('⚠️ 未连接 Supabase，无法获取全班数据。请先配置 Supabase。');
+                const localUser = loadUser();
+                if (localUser) {
+                    const pseudoRow = {
+                        student_id: localUser.studentId, name: localUser.name, xp: localUser.xp,
+                        completed_units: ALL_UNITS.filter(id => localUser.units[id]?.completed).length,
+                        total_stars: ALL_UNITS.reduce((sum, id) => sum + (localUser.units[id]?.stars || 0), 0),
+                        week_xp: localUser.weekXp, week_start: localUser.weekStart, updated_at: localUser.updatedAt,
+                        units: localUser.units, achievements: localUser.achievements
+                    };
+                    cachedStudentRows = [pseudoRow];
+                    return cachedStudentRows;
+                }
+                alert('⚠️ 未连接 Supabase，且本地暂无数据。');
                 return null;
             }
-            const { data, error } = await _supabase
-                .from('student_progress')
-                .select('*')
-                .order('xp', { ascending: false });
+            const { data, error } = await _supabase.from('student_progress').select('*').order('xp', { ascending: false });
             if (error) { alert('拉取数据失败：' + error.message); return null; }
-            cachedStudentRows = data;
-            return data;
+            cachedStudentRows = data; return data;
         }
 
         function buildCSVRow(row, opts) {
-            const units = row.units || {};
-            const cells = [
-                `"${(row.name || '').replace(/"/g, '""')}"`,
-                `"${row.student_id}"`,
-            ];
-            if (opts.xp)     cells.push(row.xp || 0);
-            if (opts.units)  cells.push(row.completed_units || 0);
-            if (opts.stars)  cells.push(row.total_stars || 0);
-            if (opts.detail) {
-                ALL_UNITS.forEach(uid => {
-                    const u = units[uid] || {};
-                    cells.push(u.completed ? (u.stars || 0) : '');
-                    cells.push(u.completed ? (u.score  || 0) : '');
-                });
-            }
+            const units = row.units || {}; const cells = [`"${(row.name || '').replace(/"/g, '""')}"`, `"${row.student_id}"`];
+            if (opts.xp) cells.push(row.xp || 0); if (opts.units) cells.push(row.completed_units || 0); if (opts.stars) cells.push(row.total_stars || 0);
+            if (opts.detail) { ALL_UNITS.forEach(uid => { const u = units[uid] || {}; cells.push(u.completed ? (u.stars || 0) : ''); cells.push(u.completed ? (u.score || 0) : ''); }); }
             if (opts.achieve) cells.push(`"${(row.achievements || []).join('|')}"`);
             return cells.join(',');
         }
 
         function buildCSVHeader(opts) {
             const h = ['姓名','学号'];
-            if (opts.xp)     h.push('经验值XP');
-            if (opts.units)  h.push('完成单元数');
-            if (opts.stars)  h.push('总星星数');
-            if (opts.detail) {
-                ALL_UNITS.forEach(uid => {
-                    const n = (UNIT_NAMES[uid]||uid).replace(/,/g,'');
-                    h.push(`${n}_星`, `${n}_分`);
-                });
-            }
-            if (opts.achieve) h.push('成就徽章');
-            return h.join(',');
+            if (opts.xp) h.push('经验值XP'); if (opts.units) h.push('完成单元数'); if (opts.stars) h.push('总星星数');
+            if (opts.detail) { ALL_UNITS.forEach(uid => { const n = (UNIT_NAMES[uid]||uid).replace(/,/g,''); h.push(`${n}_星`, `${n}_分`); }); }
+            if (opts.achieve) h.push('成就徽章'); return h.join(',');
         }
 
         async function exportStudentData() {
-            const rows = await fetchAllStudents();
-            if (!rows || rows.length === 0) { alert('暂无学生数据'); return; }
-            const opts = getExportOpts();
-            const lines = ['﻿' + buildCSVHeader(opts)]; // BOM for Excel
+            const rows = await fetchAllStudents(); if (!rows || rows.length === 0) { alert('暂无学生数据'); return; }
+            if (!_supabase) { alert('⚠️ 未连接 Supabase，仅导出当前本地单机数据。'); }
+            const opts = getExportOpts(); const lines = ['\uFEFF' + buildCSVHeader(opts)]; // 添加BOM解决乱码
             rows.forEach(r => lines.push(buildCSVRow(r, opts)));
             const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const url = URL.createObjectURL(blob); const a = document.createElement('a');
             const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
-            a.href = url; a.download = `学生成绩_${ts}.csv`;
-            a.click(); URL.revokeObjectURL(url);
+            a.href = url; a.download = `学生成绩_${ts}.csv`; a.click(); URL.revokeObjectURL(url);
         }
 
         function getExportOpts() {
-            return {
-                xp:      document.getElementById('expXP').checked,
-                units:   document.getElementById('expUnits').checked,
-                stars:   document.getElementById('expStars').checked,
-                detail:  document.getElementById('expDetail').checked,
-                achieve: document.getElementById('expAchieve').checked,
-            };
+            return { xp: document.getElementById('expXP').checked, units: document.getElementById('expUnits').checked, stars: document.getElementById('expStars').checked, detail: document.getElementById('expDetail').checked, achieve: document.getElementById('expAchieve').checked };
         }
 
         async function previewStudentData() {
-            const rows = await fetchAllStudents();
-            if (!rows || rows.length === 0) { alert('暂无学生数据'); return; }
-            const opts = getExportOpts();
-            const preview = document.getElementById('exportPreview');
-            const table = document.getElementById('previewTable');
+            const rows = await fetchAllStudents(); if (!rows || rows.length === 0) { alert('暂无学生数据'); return; }
+            if (!_supabase) { alert('⚠️ 未连接 Supabase，仅展示当前本地单机数据。'); }
+            const opts = getExportOpts(); const preview = document.getElementById('exportPreview'); const table = document.getElementById('previewTable');
             document.getElementById('previewCount').textContent = `共 ${rows.length} 名学生`;
-
-            // 构建表头（只显示前20列避免撑破预览）
-            const headerCells = ['姓名','学号'];
-            if (opts.xp)    headerCells.push('XP');
-            if (opts.units) headerCells.push('单元');
-            if (opts.stars) headerCells.push('星星');
-            // 详情列太多，预览只显示摘要
+            const headerCells = ['姓名','学号']; if (opts.xp) headerCells.push('XP'); if (opts.units) headerCells.push('单元'); if (opts.stars) headerCells.push('星星');
             const showDetail = opts.detail;
-
             let html = '<thead><tr>' + headerCells.map(h => `<th>${h}</th>`).join('');
-            if (showDetail) {
-                ALL_UNITS.forEach(uid => {
-                    const n = (UNIT_NAMES[uid]||uid).split(' ')[0];
-                    html += `<th>${n}⭐</th><th>${n}分</th>`;
-                });
-            }
+            if (showDetail) { ALL_UNITS.forEach(uid => { const n = (UNIT_NAMES[uid]||uid).split(' ')[0]; html += `<th>${n}⭐</th><th>${n}分</th>`; }); }
             html += '</tr></thead><tbody>';
-
             rows.slice(0, 50).forEach(row => {
-                const units = row.units || {};
-                html += '<tr>';
-                html += `<td><b>${row.name || '-'}</b></td><td>${row.student_id}</td>`;
-                if (opts.xp)    html += `<td>${row.xp || 0}</td>`;
-                if (opts.units) html += `<td>${row.completed_units || 0}</td>`;
-                if (opts.stars) html += `<td>${row.total_stars || 0}</td>`;
-                if (showDetail) {
-                    ALL_UNITS.forEach(uid => {
-                        const u = units[uid] || {};
-                        html += `<td>${u.completed ? (u.stars||0) : '-'}</td>`;
-                        html += `<td>${u.completed ? (u.score||0) : '-'}</td>`;
-                    });
-                }
+                const units = row.units || {}; html += '<tr>'; html += `<td><b>${row.name || '-'}</b></td><td>${row.student_id}</td>`;
+                if (opts.xp) html += `<td>${row.xp || 0}</td>`; if (opts.units) html += `<td>${row.completed_units || 0}</td>`; if (opts.stars) html += `<td>${row.total_stars || 0}</td>`;
+                if (showDetail) { ALL_UNITS.forEach(uid => { const u = units[uid] || {}; html += `<td>${u.completed ? (u.stars||0) : '-'}</td>`; html += `<td>${u.completed ? (u.score||0) : '-'}</td>`; }); }
                 html += '</tr>';
             });
-            html += '</tbody>';
-            table.innerHTML = html;
-            preview.style.display = 'block';
+            html += '</tbody>'; table.innerHTML = html; preview.style.display = 'block';
         }
 
-        /* ══════════════════════════════════════════════════
-           🏆 Tab3: 实时积分榜 + 异常检测
-        ══════════════════════════════════════════════════ */
+        /* ─── 异常分数检测与重置 ─── */
+        const MAX_XP_PER_UNIT = 80;
+        const MAX_TOTAL_XP = 15 + ALL_UNITS.length * MAX_XP_PER_UNIT;
 
-        // 每个单元最高可获得 XP 上限（首次完成满星）
-        // 首次登录15 + 每单元最高约75XP，19单元 = 理论上限约 1440 XP
-        const MAX_XP_PER_UNIT = 80;  // 单个单元最高XP（含各奖励）
-        const MAX_TOTAL_XP = 15 + ALL_UNITS.length * MAX_XP_PER_UNIT; // ~1535
+        function isStudentAbnormal(row) {
+            if ((row.xp || 0) > MAX_TOTAL_XP) return true;
+            const units = row.units || {};
+            for (let i = 0; i < ALL_UNITS.length; i++) {
+                const uid = ALL_UNITS[i];
+                if (units[uid] && (units[uid].xpEarned > MAX_XP_PER_UNIT)) return true;
+            }
+            return false;
+        }
 
         async function loadAdminScores() {
-            const rows = await fetchAllStudents();
-            if (!rows) return;
+            const rows = await fetchAllStudents(); if (!rows) return;
             const list = document.getElementById('adminScoreList');
             if (!rows.length) { list.innerHTML = '<div class="ap-empty">暂无学生数据</div>'; return; }
-
             list.innerHTML = rows.map((row, i) => {
-                const isAnomaly = (row.xp || 0) > MAX_TOTAL_XP;
-                const flag = isAnomaly
-                    ? `<span class="ap-score-flag">⚠️ 异常</span>`
-                    : `<span class="ap-score-flag clean">✅ 正常</span>`;
-                return `
-                <div class="ap-score-row">
+                const isAnomaly = isStudentAbnormal(row);
+                const flag = isAnomaly ? `<span class="ap-score-flag">⚠️ 异常</span>` : `<span class="ap-score-flag clean">✅ 正常</span>`;
+                return `<div class="ap-score-row">
                     <div class="ap-score-rank">${i+1}</div>
-                    <div>
-                        <div class="ap-score-name">${row.name || '-'}</div>
-                        <div class="ap-score-id">${row.student_id}</div>
-                    </div>
-                    <div class="ap-score-units">📚 ${row.completed_units||0}单元</div>
-                    <div class="ap-score-stars">⭐ ${row.total_stars||0}星</div>
-                    <div class="ap-score-xp">⚡ ${row.xp||0} XP</div>
+                    <div><div class="ap-score-name">${row.name || '-'}</div><div class="ap-score-id">${row.student_id}</div></div>
+                    <div class="ap-score-units">📚 ${row.completed_units||0}单元</div><div class="ap-score-stars">⭐ ${row.total_stars||0}星</div><div class="ap-score-xp">⚡ ${row.xp||0} XP</div>
                     ${flag}
-                    ${isAnomaly ? `<button class="ap-btn" style="padding:4px 8px;font-size:10px;color:#c0392b;border-color:#c0392b"
-                        onclick="resetOneStudent('${row.student_id}','${row.name}')">重置</button>` : ''}
+                    ${isAnomaly ? `<button class="ap-btn" style="padding:4px 8px;font-size:10px;color:#c0392b;border-color:#c0392b" onclick="resetOneStudentBtn('${row.student_id}','${row.name}')">重置</button>` : ''}
                 </div>`;
             }).join('');
         }
 
-        // 重置单个学生的XP为合理上限（保留完成状态和星星）
-        async function resetOneStudent(sid, name) {
-            if (!confirm(`⚠️ 确定要重置 ${name} 的经验值吗？\n\n将根据其完成单元数重新计算真实XP，不可恢复。`)) return;
-            const { data: row } = await _supabase
-                .from('student_progress').select('*').eq('student_id', sid).maybeSingle();
-            if (!row) { alert('未找到该学生数据'); return; }
-
-            // 根据各单元实际 xpEarned 字段重新累加（仅取记录的首次XP）
-            const units = row.units || {};
-            let realXP = 15; // 登录奖励
-            ALL_UNITS.forEach(uid => {
-                const u = units[uid] || {};
-                if (u.completed && u.xpEarned) {
-                    // xpEarned 只取合理范围内的值
-                    realXP += Math.min(MAX_XP_PER_UNIT, u.xpEarned || 0);
-                }
-            });
-
-            const { error } = await _supabase.from('student_progress').update({
-                xp: realXP,
-                week_xp: Math.min(row.week_xp || 0, realXP),
-                updated_at: new Date().toISOString()
-            }).eq('student_id', sid);
-
-            if (error) { alert('重置失败：' + error.message); return; }
-            alert(`✅ 已将 ${name} 的XP重置为 ${realXP}（基于实际完成记录计算）`);
-            loadAdminScores(); // 刷新列表
+        async function resetOneStudentBtn(sid, name) {
+            if (!confirm(`⚠️ 确定要重置 ${name} 的经验值吗？\n\n将修复超限的单元分数并重新计算总分。`)) return;
+            await resetOneStudentInternal(sid, name, null); alert(`✅ 重置完成！`); loadAdminScores();
         }
 
-        // 批量重置所有异常学生
-        async function resetStudentXP() {
-            if (!cachedStudentRows) {
-                alert('请先点击"刷新数据"加载学生列表');
+        async function resetOneStudentInternal(sid, name, rowObj) {
+            let row = rowObj;
+            if (!row && _supabase) { const { data } = await _supabase.from('student_progress').select('*').eq('student_id', sid).maybeSingle(); row = data; }
+            if (!row) {
+                row = loadUser(); if(!row || row.studentId !== sid) return;
+                row.student_id = row.studentId;
+            }
+
+            const units = row.units || {}; let realXP = 15;
+            ALL_UNITS.forEach(uid => {
+                const u = units[uid] || {};
+                if (u.completed) {
+                    let earn = u.xpEarned || 0;
+                    if (earn > MAX_XP_PER_UNIT) earn = MAX_XP_PER_UNIT;
+                    u.xpEarned = earn; realXP += earn;
+                } else { u.xpEarned = 0; }
+                units[uid] = u;
+            });
+
+            if (!_supabase) {
+                const localUser = loadUser();
+                if (localUser && localUser.studentId === sid) {
+                    localUser.xp = realXP; localUser.units = units; localUser.weekXp = Math.min(localUser.weekXp || 0, realXP); saveUser(localUser);
+                }
                 return;
             }
-            const anomalies = cachedStudentRows.filter(r => (r.xp||0) > MAX_TOTAL_XP);
-            if (anomalies.length === 0) { alert('✅ 暂无异常积分学生'); return; }
-            if (!confirm(`发现 ${anomalies.length} 名学生积分异常（超过理论上限${MAX_TOTAL_XP} XP）。\n\n确定批量重置？`)) return;
+            const { error } = await _supabase.from('student_progress').update({ xp: realXP, week_xp: Math.min(row.week_xp || 0, realXP), units: units, updated_at: new Date().toISOString() }).eq('student_id', sid);
+            if (error) { console.error('重置失败：' + error.message); }
+        }
 
-            for (const row of anomalies) {
-                await resetOneStudent(row.student_id, row.name);
-            }
+        async function resetStudentXP() {
+            if (!cachedStudentRows) { alert('请先点击"刷新数据"加载学生列表'); return; }
+            const anomalies = cachedStudentRows.filter(r => isStudentAbnormal(r));
+            if (anomalies.length === 0) { alert('✅ 暂无异常积分学生'); return; }
+            if (!confirm(`发现 ${anomalies.length} 名学生积分异常（总分超限或单单元超限）。\n\n确定批量重置？`)) return;
+            for (const row of anomalies) { await resetOneStudentInternal(row.student_id, row.name, row); }
+            alert(`✅ 批量重置完成！共修复了 ${anomalies.length} 名异常数据。`); loadAdminScores();
         }
 
     </script>
 
-
-    <!-- ══════════════════════════════════════════
-         🔐 管理员面板（overlay）
-    ═══════════════════════════════════════════ -->
     <div class="admin-overlay hidden" id="adminOverlay">
       <div class="admin-panel">
-        <!-- 标题栏 -->
         <div class="ap-header">
           <div class="ap-title">⚙️ 教师管理后台</div>
           <button class="ap-close" onclick="closeAdminPanel()">✕</button>
         </div>
 
-        <!-- 密码登录区（未验证时显示） -->
         <div id="adminLoginArea">
           <div class="ap-section-title">🔑 管理员登录</div>
           <div class="ap-login-row">
-            <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30"
-              onkeydown="if(event.key==='Enter')verifyAdmin()" />
+            <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30" onkeydown="if(event.key==='Enter')verifyAdmin()" />
             <button class="ap-btn ap-btn-primary" onclick="verifyAdmin()">登录</button>
           </div>
           <div class="ap-hint">默认密码：teacher2025</div>
           <div class="ap-err hidden" id="adminPwdErr">❌ 密码错误，请重试</div>
         </div>
 
-        <!-- 管理功能区（验证后显示） -->
         <div id="adminMainArea" class="hidden">
-
-          <!-- Tab导航 -->
           <div class="ap-tabs">
             <button class="ap-tab active" onclick="switchAdminTab('units')" id="atab-units">📚 单元开放管理</button>
             <button class="ap-tab" onclick="switchAdminTab('export')" id="atab-export">📊 学生数据导出</button>
             <button class="ap-tab" onclick="switchAdminTab('scores')" id="atab-scores">🏆 实时排名</button>
           </div>
 
-          <!-- ── Tab 1: 单元开放管理 ── -->
           <div class="ap-tab-content active" id="acontent-units">
-            <div class="ap-section-title">📚 单元开放状态管理
-              <span class="ap-subtitle">（改变后全班实时生效，无需刷新）</span>
-            </div>
-            <div class="ap-unit-actions">
+            <div class="ap-section-title">📚 单元开放状态管理 <span class="ap-subtitle">（改变后全班实时生效，未解锁依然支持依顺序解锁）</span></div>
+            <div class="ap-unit-actions" style="margin-bottom: 8px;">
               <button class="ap-btn ap-btn-success" onclick="adminOpenAll()">✅ 全部开放</button>
               <button class="ap-btn ap-btn-warn" onclick="adminCloseAll()">🔒 全部关闭</button>
-              <button class="ap-btn" onclick="adminResetSequential()">🔁 恢复顺序解锁</button>
+              <button class="ap-btn" onclick="adminResetSequential()">🔁 仅保留顺序解锁</button>
+            </div>
+            <div class="ap-unit-actions" style="margin-bottom: 14px; background: #f0f4f8; padding: 10px; border-radius: 8px; align-items: center;">
+              <span style="font-size: 12px; font-weight: bold; color: #1e3a5f; margin-right: 8px;">按模块批量切换：</span>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m1')">模块一</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m2')">模块二</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m3')">模块三</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m4')">模块四</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m5')">模块五</button>
             </div>
             <div class="ap-unit-grid" id="adminUnitGrid"></div>
             <div class="ap-save-row">
@@ -3494,51 +1448,30 @@
             </div>
           </div>
 
-          <!-- ── Tab 2: 数据导出 ── -->
           <div class="ap-tab-content" id="acontent-export">
-            <div class="ap-section-title">📊 学生数据导出
-              <span class="ap-subtitle">（从 Supabase 拉取全班最新数据）</span>
-            </div>
+            <div class="ap-section-title">📊 学生数据导出 <span class="ap-subtitle">（从 Supabase 拉取全班最新数据）</span></div>
             <div class="ap-export-opts">
-              <label class="ap-check-label">
-                <input type="checkbox" id="expXP" checked> 经验值(XP)
-              </label>
-              <label class="ap-check-label">
-                <input type="checkbox" id="expUnits" checked> 完成单元数
-              </label>
-              <label class="ap-check-label">
-                <input type="checkbox" id="expStars" checked> 总星星数
-              </label>
-              <label class="ap-check-label">
-                <input type="checkbox" id="expDetail" checked> 各单元详情(星/分)
-              </label>
-              <label class="ap-check-label">
-                <input type="checkbox" id="expAchieve"> 成就徽章
-              </label>
+              <label class="ap-check-label"><input type="checkbox" id="expXP" checked> 经验值(XP)</label>
+              <label class="ap-check-label"><input type="checkbox" id="expUnits" checked> 完成单元数</label>
+              <label class="ap-check-label"><input type="checkbox" id="expStars" checked> 总星星数</label>
+              <label class="ap-check-label"><input type="checkbox" id="expDetail" checked> 各单元详情</label>
+              <label class="ap-check-label"><input type="checkbox" id="expAchieve"> 成就徽章</label>
             </div>
             <div class="ap-export-actions">
               <button class="ap-btn ap-btn-primary" onclick="exportStudentData()">⬇️ 导出 CSV</button>
               <button class="ap-btn" onclick="previewStudentData()">👁️ 预览数据</button>
             </div>
             <div class="ap-export-preview" id="exportPreview" style="display:none">
-              <div class="ap-preview-header">
-                <span id="previewCount">-</span>
-                <button class="ap-btn" style="padding:4px 10px;font-size:11px" onclick="document.getElementById('exportPreview').style.display='none'">关闭</button>
-              </div>
-              <div class="ap-table-wrap">
-                <table class="ap-table" id="previewTable"></table>
-              </div>
+              <div class="ap-preview-header"><span id="previewCount">-</span><button class="ap-btn" style="padding:4px 10px;font-size:11px" onclick="document.getElementById('exportPreview').style.display='none'">关闭</button></div>
+              <div class="ap-table-wrap"><table class="ap-table" id="previewTable"></table></div>
             </div>
           </div>
 
-          <!-- ── Tab 3: 实时排名 ── -->
           <div class="ap-tab-content" id="acontent-scores">
-            <div class="ap-section-title">🏆 全班实时积分榜
-              <span class="ap-subtitle">（含防刷后真实得分）</span>
-            </div>
+            <div class="ap-section-title">🏆 全班实时积分榜 <span class="ap-subtitle">（含防刷后单单元异常修复）</span></div>
             <div class="ap-score-actions">
               <button class="ap-btn ap-btn-primary" onclick="loadAdminScores()">🔄 刷新数据</button>
-              <button class="ap-btn ap-btn-warn" onclick="resetStudentXP()" id="btnResetXP">⚠️ 重置异常分数</button>
+              <button class="ap-btn ap-btn-warn" onclick="resetStudentXP()" id="btnResetXP">⚠️ 批量修复异常分数</button>
             </div>
             <div class="ap-score-list" id="adminScoreList">
               <div class="ap-empty">点击"刷新数据"加载全班成绩</div>
@@ -3548,7 +1481,5 @@
         </div>
       </div>
     </div>
-
 </body>
-
 </html>
