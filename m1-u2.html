@@ -1117,7 +1117,7 @@ function endGame(){
   document.getElementById('grXP').textContent=`🎉 +${xp} XP`;
   document.getElementById('grRight').textContent=gameRight;
   document.getElementById('grAcc').textContent=acc+'%';
-  if(gameStars===3)setTimeout(()=>confetti(),300);
+  if(gameStars>=4)setTimeout(()=>confetti(),300);
   showToast(`🎮 游戏结束！获得 +${xp} XP`);
   // 更新小结页
   document.getElementById('finalStars').textContent=stars;
@@ -1129,15 +1129,31 @@ function endGame(){
 async function completeUnit(){
   const user=loadUser();
   if(!user){window.location.href='index.html';return}
-  const stars=gameStars||1;
+  const rawScore=Math.round((gameRight||0)/Math.max(1,QUESTIONS.length)*100)||60;
+  const score=Math.max(rawScore,60);
+  // 5星体系：更宽松的阈值
+  const stars=gameStars>=4?5:gameStars>=3?4:gameStars>=2?3:gameStars>=1?2:
+              (score>=90?4:score>=70?3:score>=50?2:1);
   const totalXP=earnedXP+20; // 完成奖励20
-  const score=Math.round(gameRight/QUESTIONS.length*100)||60;
-  user.units['m1u2']={completed:true,stars,score,xpEarned:totalXP};
-  user.xp+=totalXP;
-  user.weekXp=(user.weekXp||0)+totalXP;
+  // 保留最高星星和分数，XP只在首次记录
+  // ── 防刷机制：已完成单元不重复加 XP ──
+  const alreadyDone = user.units['m1u2']?.completed && user.units['m1u2']?.xpEarned > 0;
+  const actualXP    = alreadyDone ? 0 : totalXP;
+  // 保留最高星星/分数，XP 仅首次记录
+  const prevXPEarned = user.units['m1u2']?.xpEarned || 0;
+  const prevStars    = user.units['m1u2']?.stars    || 0;
+  const prevScore    = user.units['m1u2']?.score    || 0;
+  user.units['m1u2']={
+    completed: true,
+    stars:     Math.max(prevStars, stars),
+    score:     Math.max(prevScore, score),
+    xpEarned:  alreadyDone ? prevXPEarned : totalXP
+  };
+  user.xp += actualXP;
+  user.weekXp=(user.weekXp||0)+actualXP;
   if(!user.achievements.includes('first_unit'))user.achievements.push('first_unit');
-  if(stars===3 && !user.achievements.includes('first_star3'))user.achievements.push('first_star3');
-  showToast(`☁️ 正在保存进度…`);
+  if(stars>=3 && !user.achievements.includes('first_star3'))user.achievements.push('first_star3');
+  showToast(alreadyDone ? '🔄 已重新提交，XP不重复计入' : '☁️ 正在保存进度…');
   // await 确保 Supabase 上传完成后再跳转，防止页面关闭导致数据丢失
   await saveUser(user);
   showToast(`🎉 单元二完成！获得 +${totalXP} XP`);
