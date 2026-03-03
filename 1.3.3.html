@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>1.3 电子商务数据分析流程 · 闯关挑战</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --main-bg: #f9f9f9;
+    --primary-color: #0078d7;
+    --gold: #FFD700;
+    --red: #e74c3c;
+    --green: #27ae60;
+    --gray-dark: #333;
+    --gray-light: #ccc;
+    --font-family: 'Noto Sans SC', sans-serif;
+  }
+  * {
+    margin:0; padding:0; box-sizing:border-box;
+  }
+  body {
+    background: var(--main-bg);
+    font-family: var(--font-family);
+    color: var(--gray-dark);
+    user-select:none;
+  }
+  button {
+    background: var(--primary-color);
+    border:none;
+    color:#fff;
+    padding:10px 18px;
+    font-weight:700;
+    font-size:16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    user-select:none;
+  }
+  button:disabled {
+    background: var(--gray-light);
+    cursor: not-allowed;
+  }
+  button:hover:not(:disabled) {
+    background: #005a9e;
+  }
+  .screen {
+    display:none;
+    min-height: 100vh;
+    padding: 50px 20px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .screen.active {
+    display:flex;
+  }
+  /* 登录页样式 */
+  #sLogin .login-box {
+    background: white;
+    max-width: 380px;
+    width: 100%;
+    padding: 40px 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 15px rgb(0 0 0 / 0.1);
+    text-align: center;
+  }
+  #sLogin .ltitle {
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    font-family: 'ZCOOL KuaiLe', cursive;
+    color: var(--primary-color);
+  }
+  #sLogin .lsub {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: var(--gray-dark);
+  }
+  .badge-row {
+    margin-bottom: 20px;
+  }
+  .badge-row .bdg {
+    display: inline-block;
+    border-radius: 30px;
+    padding: 6px 14px;
+    margin: 0 6px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .badge-row .bdg.s { background: #3498db; }
+  .badge-row .bdg.m { background: #2ecc71; }
+  .badge-row .bdg.j { background: #e67e22; }
+  .inp-g {
+    margin-bottom: 22px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 14px;
+    color: #555;
+  }
+  .inp-g input {
+    width: 100%;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--gray-light);
+    outline:none;
+    padding: 10px 12px;
+    margin-top: 6px;
+    box-sizing: border-box;
+  }
+  /* 游戏主界面 */
+  #sGame {
+    max-width: 680px;
+    width: 100%;
+  }
+  .game-wrap {
+    background: white;
+    padding: 30px 30px 50px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  .g-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .pinfo {
+    display: flex;
+    align-items: center;
+  }
+  .pavt {
+    background: var(--primary-color);
+    color: #fff;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 48px;
+    text-align: center;
+    margin-right: 14px;
+    user-select:none;
+  }
+  .pname {
+    font-weight: 700;
+    font-size: 18px;
+    user-select:none;
+  }
+  .pid {
+    font-size: 14px;
+    color: #777;
+  }
+  .sc-disp {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    user-select:none;
+  }
+  .sc-disp span {
+    margin-right: 6px;
+  }
+  .sc-val {
+    min-width: 28px;
+    background: var(--gold);
+    font-weight: 700;
+    color: #555;
+    padding: 2px 7px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  .sc-tot {
+    font-weight: 600;
+    margin-left: 6px;
+    font-size: 14px;
+    color: #999;
+  }
+  .pg-wrap {
+    margin-bottom: 10px;
+  }
+  .pg-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 6px;
+    user-select:none;
+  }
+  .pg-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    background: #ddd;
+  }
+  .pg-fill {
+    height: 6px;
+    border-radius: 4px;
+    background: var(--primary-color);
+    width: 0%;
+  }
+  .sdots {
+    margin: 14px 0 16px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .sdot {
+    width: 26px;
+    height: 26px;
+    margin: 0 6px 12px;
+    border-radius: 50%;
+    background: #ccc;
+    line-height: 26px;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    cursor: default;
+    user-select:none;
+  }
+  .sdot.cur {
+    background: var(--primary-color);
+  }
+  .sdot.done {
+    background: var(--green);
+  }
+  .sdot.wdot {
+    background: var(--red);
+  }
+  .qcard {
+    background: #fefefe;
+    border-radius: 10px;
+    padding: 22px 26px 30px;
+    box-shadow: 0 5px 18px #dcdcdc;
+    min-height: 280px;
+    user-select:none;
+  }
+  .qtype-badge {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .qtxt {
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+  .opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .opt {
+    background: #eaeaea;
+    border-radius: 8px;
+    flex: 1 1 calc(50% - 14px);
+    cursor: pointer;
+    display:flex;
+    align-items: center;
+    transition: background 0.3s ease;
+  }
+  .opt .okey {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    line-height: 30px;
+    text-align: center;
+    margin-left: 14px;
+    user-select:none;
+  }
+  .opt .otxt {
+    padding-left: 14px;
+    font-size: 16px;
+    user-select:none;
+  }
+  .opt.selected {
+    background: var(--primary-color);
+    color: white;
+  }
+  .opt.selected .okey {
+    background: var(--gold);
+    color: #333;
+  }
+  .qhint {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--red);
+    user-select:none;
+  }
+  .sub-btn, .next-btn {
+    margin-top: 26px;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .next-btn {
+    display: none;
+    background: var(--green);
+  }
+  .next-btn.show {
+    display: block;
+  }
+  .fb {
+    margin-top: 30px;
+    font-size: 16px;
+    color: var(--gray-dark);
+    user-select:none;
+  }
+  .fb.show {
+    display: block;
+  }
+  .fb-hd.ok {
+    color: var(--green);
+    font-weight: 700;
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .fb-hd.no {
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .fb-ans {
+    margin-top: 12px;
+    font-weight: 700;
+  }
+  .ak {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--gold);
+    margin: 0 6px 4px 0;
+    border-radius: 4px;
+    color:#333;
+  }
+  /* 结果页 */
+  #sResult {
+    max-width: 480px;
+    width: 100%;
+  }
+  .res-wrap {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgb(0 0 0 / 0.15);
+    padding: 40px 30px 38px;
+    text-align: center;
+  }
+  .res-icon {
+    width: 98px;
+    height: 98px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#4caf50,#388e3c);
+  }
+  .res-grade {
+    font-weight: 900;
+    font-size: 24px;
+    margin-bottom: 14px;
+    color: var(--primary-color);
+  }
+  .big-sc {
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    color: var(--gold);
+    user-select:none;
+  }
+  .sc-lbl {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+    user-select:none;
+  }
+  .sb-grid {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+  }
+  .sb-item {
+    text-align: center;
+  }
+  .sb-type {
+    font-size: 14px;
+    color: #666;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .sb-n, .sb-t {
+    font-weight: 900;
+    font-size: 22px;
+    user-select:none;
+  }
+  .retry-btn {
+    font-size: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background 0.3s ease;
+  }
+  .retry-btn:hover {
+    background: #005a9e;
+  }
+  /* 小屏适配 */
+  @media (max-width: 480px) {
+    .opt {
+      flex: 1 1 100%;
+    }
+    .g-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .pinfo {
+      gap: 10px;
+    }
+    .sdots {
+      justify-content: flex-start;
+      overflow-x: auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- 登录页 -->
+<div class="screen active" id="sLogin">
+  <div class="login-box">
+    <div class="game-logo"></div>
+    <div class="ltitle">流程闯关 · 挑战赛</div>
+    <div class="lsub">1.3 电子商务数据分析流程</div>
+    <div class="badge-row">
+      <span class="bdg s">单选 ×10</span>
+      <span class="bdg m">多选 ×5</span>
+      <span class="bdg j">判断 ×5</span>
+    </div>
+    <div class="inp-g"><label for="iId">学号</label><input type="text" id="iId" maxlength="20" placeholder="请输入学号"></div>
+    <div class="inp-g"><label for="iName">姓名</label><input type="text" id="iName" maxlength="12" placeholder="请输入姓名"></div>
+    <button class="start-btn" id="startBtn" onclick="startGame()">开始闯关</button>
+  </div>
+</div>
+
+<!-- 游戏主界面 -->
+<div class="screen" id="sGame">
+  <div class="game-wrap">
+    <div class="g-header">
+      <div class="pinfo">
+        <div class="pavt" id="avt">A</div>
+        <div>
+          <div class="pname" id="hName">-</div>
+          <div class="pid" id="hId">-</div>
+        </div>
+      </div>
+      <div class="sc-disp">
+        <span>⭐</span>
+        <div class="sc-val" id="scV">0</div>
+        <div class="sc-tot">/20题</div>
+      </div>
+    </div>
+
+    <div class="pg-wrap">
+      <div class="pg-meta"><span id="pgTxt">第1题/共20题</span><span id="pgPct">0%</span></div>
+      <div class="pg-track"><div class="pg-fill" id="pgFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="sdots" id="sdots"></div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+</div>
+
+<!-- 结果页 -->
+<div class="screen" id="sResult">
+  <div class="res-wrap">
+    <div class="res-icon" id="rIcon" style="background:linear-gradient(135deg,#FFD700,#FFA500)"></div>
+    <div class="res-grade" id="rGrade">恭喜完成！</div>
+    <div class="res-nm" id="rNm"></div>
+    <div class="big-sc" id="bigSc">0</div>
+    <div class="sc-lbl">综合得分（满分 20 分）</div>
+    <div class="sb-grid">
+      <div class="sb-item">
+        <div class="sb-type">单选题</div>
+        <div class="sb-n" id="sb1">0</div>
+        <div class="sb-t">/10</div>
+      </div>
+      <div class="sb-item">
+        <div class="sb-type">多选题</div>
+        <div class="sb-n" id="sb2">0</div>
+        <div class="sb-t">/5</div>
+      </div>
+      <div class="sb-item">
+        <div class="sb-type">判断题</div>
+        <div class="sb-n" id="sb3">0</div>
+        <div class="sb-t">/5</div>
+      </div>
+    </div>
+    <button class="retry-btn" onclick="restartGame()">再战一次</button>
+  </div>
+</div>
+
+<script>
+// 题库Q，基于PDF内容整理
+const Q = [
+  // 单选题（10题）
+  {
+    q: "电子商务数据分析流程中，数据处理的主要目的是？",
+    type: "single",
+    opts: [
+      "清洗和转换数据，保障数据质量",
+      "展示数据趋势和结论",
+      "收集原始数据",
+      "制定业务策略"
+    ],
+    ans: [0],
+    exp: "数据处理阶段主要进行数据清洗、转换和加工作业，确保后续分析数据准确有效。"
+  },
+  {
+    q: "以下哪项不是数据分析报告的标题页应包含的内容？",
+    type: "single",
+    opts: [
+      "报告名称",
+      "数据来源",
+      "详细分析数据表格",
+      "报告生成日期"
+    ],
+    ans: [2],
+    exp: "标题页不会具体包含详尽的数据表，应突出报告信息主体。"
+  },
+  {
+    q: "数据分析中的‘数据展现’主要是什么？",
+    type: "single",
+    opts: [
+      "通过图表和文字展示数据分析结果",
+      "采集原始数据",
+      "清洗错误数据",
+      "制定分析目标"
+    ],
+    ans: [0],
+    exp: "数据展现指用图表、文字直观表现数据及分析结果，便于读者理解。"
+  },
+  {
+    q: "数据采集最主要的渠道是？",
+    type: "single",
+    opts: [
+      "企业内部统计数据",
+      "外部随机调查",
+      "人工估计",
+      "虚拟模拟"
+    ],
+    ans: [0],
+    exp: "企业内部统计和科学实验数据是数据采集的主要来源。"
+  },
+  {
+    q: "数据分析报告中，目录页的作用是？",
+    type: "single",
+    opts: [
+      "详细展示分析数据",
+      "列出现有图表",
+      "体现报告结构便于阅读",
+      "列出参考文献"
+    ],
+    ans: [2],
+    exp: "目录页清晰列出章节和内容，方便读者快速定位。"
+  },
+  {
+    q: "数据分析的第一步是？",
+    type: "single",
+    opts: [
+      "采集数据",
+      "清洗数据",
+      "设定分析目标",
+      "展现数据结果"
+    ],
+    ans: [2],
+    exp: "开展分析前，需明确分析目标，否则后续工作方向不明确。"
+  },
+  {
+    q: "数据清洗主要解决什么问题？",
+    type: "single",
+    opts: [
+      "缺失值和重复数据",
+      "设计图表样式",
+      "采集新数据",
+      "确定分析目标"
+    ],
+    ans: [0],
+    exp: "清洗数据是去除错误、无用、重复等无效数据，确保数据有效。"
+  },
+  {
+    q: "电子商务数据分析中，科学性和严谨性最体现在？",
+    type: "single",
+    opts: [
+      "分析过程和报告内容",
+      "数据采集速度",
+      "报告美观",
+      "业务决策速度"
+    ],
+    ans: [0],
+    exp: "科学严谨体现在分析流程和结果描述的准确合理。"
+  },
+  {
+    q: "Excel等工具在电子商务数据分析中最主要用于？",
+    type: "single",
+    opts: [
+      "数据整理、计算和简单图表制作",
+      "深入机器学习分析",
+      "大数据存储",
+      "文本编辑"
+    ],
+    ans: [0],
+    exp: "Excel能高效处理数据统计和基础分析，是常用工具。"
+  },
+  {
+    q: "数据分析过程结束后，输出成果是？",
+    type: "single",
+    opts: [
+      "分析报告",
+      "数据采集计划",
+      "数据清洗流程",
+      "产品设计说明"
+    ],
+    ans: [0],
+    exp: "最终通过数据分析报告总结发现、判断和建议。"
+  },
+
+  // 多选题（5题）
+  {
+    q: "报告正文部分应包括哪些内容？",
+    type: "multi",
+    opts: [
+      "分析方法描述",
+      "数据结果和图表",
+      "市场推广计划",
+      "结论与建议"
+    ],
+    ans: [0,1,3],
+    exp: "报告正文应详细描述分析方法、展示数据和图表，并总结结论与建议。"
+  },
+  {
+    q: "以下哪些属于数据分析流程的阶段？",
+    type: "multi",
+    opts: [
+      "数据采集",
+      "数据清洗",
+      "编写程序代码",
+      "结果展现"
+    ],
+    ans: [0,1,3],
+    exp: "数据采集、清洗到结果展现是基本流程，程序代码写作不属于专门步骤。"
+  },
+  {
+    q: "报告附录通常包括哪些？",
+    type: "multi",
+    opts: [
+      "详细数据表",
+      "专业术语解释",
+      "数据采集代码",
+      "图片和说明"
+    ],
+    ans: [0,1,3],
+    exp: "附录多为补充材料，包括数据明细、术语解释和图片等。"
+  },
+  {
+    q: "下面哪些工具常用于电子商务数据分析？",
+    type: "multi",
+    opts: [
+      "Excel",
+      "SPSS",
+      "Photoshop",
+      "Python"
+    ],
+    ans: [0,1,3],
+    exp: "Excel、SPSS和Python是常见数据分析工具，Photoshop主要是图像编辑。"
+  },
+  {
+    q: "数据展现常用的图表类型包括？",
+    type: "multi",
+    opts: [
+      "饼图",
+      "折线图",
+      "流程图",
+      "气泡图"
+    ],
+    ans: [0,1,3],
+    exp: "饼图、折线图和气泡图常用来展示数据，流程图用于过程说明，不属于数据图表。"
+  },
+
+  // 判断题（5题）
+  {
+    q: "数据分析报告的目录页中应包含详细分析表格。", 
+    type: "judgment",
+    opts: [
+      "正确",
+      "错误"
+    ],
+    ans: [1], 
+    exp: "目录页主要列出章节和标题，不包含详细数据。"
+  },
+  {
+    q: "数据清洗能提高数据的有效性和一致性。", 
+    type: "judgment",
+    opts: [
+      "正确",
+      "错误"
+    ],
+    ans: [0], 
+    exp: "数据清洗去除错误数据，提高整体有效性和一致性。"
+  },
+  {
+    q: "数据分析报告只需文字内容，不需要图表辅助说明。", 
+    type: "judgment",
+    opts: [
+      "正确",
+      "错误"
+    ],
+    ans: [1], 
+    exp: "图文并茂更利于直观展示和理解分析结果。"
+  },
+  {
+    q: "数据展现环节是将数据分析结果用可视化手段表现出来。", 
+    type: "judgment",
+    opts: [
+      "正确",
+      "错误"
+    ],
+    ans: [0], 
+    exp: "数据展现通常使用图表直观表达分析成果。"
+  },
+  {
+    q: "分析目标的明确是数据分析流程的首要步骤。", 
+    type: "judgment",
+    opts: [
+      "正确",
+      "错误"
+    ],
+    ans: [0], 
+    exp: "明确分析目标指导整个分析方向和步骤。"
+  }
+];
+
+let cur = 0, score = 0;
+let sC = 0, mC = 0, jC = 0; // 各类型得分统计
+let pName = '', pId = '';
+let userSelection = [];
+
+function startGame() {
+  pId = document.getElementById('iId').value.trim() || '0000';
+  pName = document.getElementById('iName').value.trim() || '游客';
+
+  cur = 0;
+  score = 0;
+  sC = 0; mC = 0; jC = 0;
+  userSelection = [];
+
+  document.getElementById('hName').textContent = pName;
+  document.getElementById('hId').textContent = `学号：${pId}`;
+  document.getElementById('avt').textContent = pName[0] || 'A';
+  document.getElementById('scV').textContent = 0;
+
+  buildDots();
+  renderQ();
+  updateProgress();
+  showScreen('sGame');
+}
+
+function buildDots() {
+  const row = document.getElementById('sdots');
+  row.innerHTML = '';
+  Q.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'sdot' + (i === 0 ? ' cur' : '');
+    d.id = 'd' + i;
+    d.textContent = i + 1;
+    row.appendChild(d);
+  });
+}
+
+function renderQ() {
+  updateProgress();
+  clearSelection();
+  const q = Q[cur];
+  const card = document.getElementById('qcard');
+  let tLabel = q.type === 'single' ? '单选题' : q.type === 'multi' ? '多选题' : '判断题';
+  
+  const optsHtml = q.opts.map((opt, i) => `
+    <div class="opt" id="o${i}" onclick="selectOption(${i})">
+      <div class="okey">${String.fromCharCode(65 + i)}</div>
+      <div class="otxt">${opt}</div>
+    </div>`).join('');
+
+  card.innerHTML = `
+    <div class="qtype-badge">${tLabel} · 第 ${cur + 1} 题</div>
+    <div class="qtxt">${q.q}</div>
+    ${q.type === 'multi' ? '<div class="qhint">多选题，请选择所有正确答案后再提交</div>' : ''}
+    <div class="opts">${optsHtml}</div>
+    <button class="sub-btn" id="sbtn" onclick="submitAnswer()" disabled>确认提交</button>
+    <button class="next-btn" id="nbtn" onclick="nextQ()">下一题</button>
+    <div class="fb" id="fbBox"></div>
+  `;
+
+  document.getElementById('nbtn').style.display = 'none';
+}
+
+function selectOption(index) {
+  const q = Q[cur];
+  if (q.type === 'single' || q.type === 'judgment') {
+    userSelection = [index];
+  } else if (q.type === 'multi') {
+    if (userSelection.includes(index)) {
+      userSelection = userSelection.filter(i => i !== index);
+    } else {
+      userSelection.push(index);
+    }
+  }
+  updateOptionsUI();
+  document.getElementById('sbtn').disabled = userSelection.length === 0;
+}
+
+function updateOptionsUI() {
+  const q = Q[cur];
+  q.opts.forEach((_, i) => {
+    const el = document.getElementById('o' + i);
+    if (!el) return;
+    el.classList.toggle('selected', userSelection.includes(i));
+  });
+}
+
+function submitAnswer() {
+  const q = Q[cur];
+
+  userSelection.sort();
+  let correct = arraysEqual(userSelection, q.ans);
+  
+  if (correct) {
+    score++;
+    if (q.type === 'single') sC++;
+    else if (q.type === 'multi') mC++;
+    else if (q.type === 'judgment') jC++;
+    document.getElementById('scV').textContent = score;
+  }
+  
+  showFeedback(correct, q.exp, q.ans);
+}
+
+function showFeedback(ok, explanation, ansArr) {
+  const fb = document.getElementById('fbBox');
+  fb.innerHTML = `
+    <div class="fb-hd ${ok ? 'ok' : 'no'}">${ok ? '回答正确！+1分' : '回答错误'}</div>
+    <div>${explanation}</div>
+    <div class="fb-ans">
+      <span style="color:var(--gold);font-weight:700;">正确答案：</span>
+      ${ansArr.map(i => `<span class="ak">${String.fromCharCode(65 + i)}</span>`).join(' ')}
+    </div>
+  `;
+  fb.classList.add('show');
+  document.getElementById('sbtn').style.display = 'none';
+  document.getElementById('nbtn').style.display = 'block';
+}
+
+function nextQ() {
+  cur++;
+  if (cur >= Q.length) {
+    showResult();
+  } else {
+    renderQ();
+    clearFeedback();
+    updateProgress();
+  }
+}
+
+function clearFeedback() {
+  const fb = document.getElementById('fbBox');
+  fb.innerHTML = '';
+  fb.classList.remove('show');
+  document.getElementById('sbtn').style.display = 'inline-block';
+  document.getElementById('nbtn').style.display = 'none';
+}
+
+function clearSelection() {
+  userSelection = [];
+  document.getElementById('sbtn').disabled = true;
+}
+
+function updateProgress() {
+  const p = Math.round(((cur) / Q.length) * 100);
+  document.getElementById('pgFill').style.width = p + '%';
+  document.getElementById('pgTxt').textContent = `第${cur + 1}题 / 共${Q.length}题`;
+  document.getElementById('pgPct').textContent = p + '%';
+
+  // 更新进度圆点
+  for (let i = 0; i < Q.length; i++) {
+    const d = document.getElementById('d' + i);
+    if (!d) continue;
+    d.classList.remove('cur');
+    if (i === cur) d.classList.add('cur');
+  }
+}
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+function restartGame() {
+  showScreen('sLogin');
+  score = 0;
+  sC = 0; mC = 0; jC = 0;
+  userSelection = [];
+  document.getElementById('scV').textContent = 0;
+  document.getElementById('iId').value = '';
+  document.getElementById('iName').value = '';
+}
+
+// 初始化页面
+showScreen('sLogin');
+</script>
+
+</body>
+</html>
