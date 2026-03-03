@@ -54,11 +54,10 @@
             --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
         }
 
-        /* 基础样式及公共部分省略过多的更改，保持原版设计 */
+        /* 基础样式及公共部分 */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg-main); color: var(--text-dark); line-height: 1.6; min-height: 100vh; }
         
-        /* ... 此处保留原代码的UI样式，为避免超长截断做折叠简写 ... */
         .login-overlay { position: fixed; inset: 0; background: rgba(28, 25, 23, 0.6); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
         .login-overlay.hidden { display: none; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -339,7 +338,6 @@
         .ap-score-flag { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: #ffeaa7; color: #d35400; font-weight: 700; }
         .ap-score-flag.clean { background: #d5f5e3; color: #1e8449; }
         .ap-empty { text-align: center; color: #aaa; padding: 40px; font-size: 13px; }
-
     </style>
 </head>
 
@@ -710,7 +708,7 @@
                         <div class="mini-track">
                             <div class="mini-fill" id="m5-mini-fill" style="background:var(--m5-color);width:0%"></div>
                         </div>
-                        <span class="mini-pct" id="m5-mini-pct" style="color:var(--m5-color)">0%</span>
+                        <span class="minipct" id="m5-mini-pct" style="color:var(--m5-color)">0%</span>
                     </div>
                     <div class="module-toggle" id="m5-toggle">▼</div>
                 </div>
@@ -803,6 +801,87 @@
 
     <div class="toast" id="toast"></div>
     <div class="confetti-container" id="confettiContainer"></div>
+
+    <div class="admin-overlay hidden" id="adminOverlay">
+      <div class="admin-panel">
+        <div class="ap-header">
+          <div class="ap-title">⚙️ 教师管理后台</div>
+          <button class="ap-close" onclick="closeAdminPanel()">✕</button>
+        </div>
+
+        <div id="adminLoginArea">
+          <div class="ap-section-title">🔑 管理员登录</div>
+          <div class="ap-login-row">
+            <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30" onkeydown="if(event.key==='Enter')verifyAdmin()" />
+            <button class="ap-btn ap-btn-primary" onclick="verifyAdmin()">登录</button>
+          </div>
+          <div class="ap-hint">默认密码：teacher2025</div>
+          <div class="ap-err hidden" id="adminPwdErr">❌ 密码错误，请重试</div>
+        </div>
+
+        <div id="adminMainArea" class="hidden">
+          <div class="ap-tabs">
+            <button class="ap-tab active" onclick="switchAdminTab('units')" id="atab-units">📚 单元开放管理</button>
+            <button class="ap-tab" onclick="switchAdminTab('export')" id="atab-export">📊 学生数据导出</button>
+            <button class="ap-tab" onclick="switchAdminTab('scores')" id="atab-scores">🏆 实时排名</button>
+          </div>
+
+          <div class="ap-tab-content active" id="acontent-units">
+            <div class="ap-section-title">📚 单元开放状态管理 <span class="ap-subtitle">（改变后全班实时生效，未解锁依然支持依顺序解锁）</span></div>
+            <div class="ap-unit-actions" style="margin-bottom: 8px;">
+              <button class="ap-btn ap-btn-success" onclick="adminOpenAll()">✅ 全部开放</button>
+              <button class="ap-btn ap-btn-warn" onclick="adminCloseAll()">🔒 全部关闭</button>
+              <button class="ap-btn" onclick="adminResetSequential()">🔁 仅保留顺序解锁</button>
+            </div>
+            <div class="ap-unit-actions" style="margin-bottom: 14px; background: #f0f4f8; padding: 10px; border-radius: 8px; align-items: center;">
+              <span style="font-size: 12px; font-weight: bold; color: #1e3a5f; margin-right: 8px;">按模块批量切换：</span>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m1')">模块一</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m2')">模块二</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m3')">模块三</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m4')">模块四</button>
+              <button class="ap-btn" onclick="toggleModuleAdmin('m5')">模块五</button>
+            </div>
+            <div class="ap-unit-grid" id="adminUnitGrid"></div>
+            <div class="ap-save-row">
+              <button class="ap-btn ap-btn-primary" onclick="saveAdminUnits()">💾 保存并同步到全班</button>
+              <span class="ap-save-hint" id="adminSaveHint"></span>
+            </div>
+          </div>
+
+          <div class="ap-tab-content" id="acontent-export">
+            <div class="ap-section-title">📊 学生数据导出 <span class="ap-subtitle">（从 Supabase 拉取全班最新数据）</span></div>
+            <div class="ap-export-opts">
+              <label class="ap-check-label"><input type="checkbox" id="expXP" checked> 经验值(XP)</label>
+              <label class="ap-check-label"><input type="checkbox" id="expUnits" checked> 完成单元数</label>
+              <label class="ap-check-label"><input type="checkbox" id="expStars" checked> 总星星数</label>
+              <label class="ap-check-label"><input type="checkbox" id="expDetail" checked> 各单元详情</label>
+              <label class="ap-check-label"><input type="checkbox" id="expAchieve"> 成就徽章</label>
+            </div>
+            <div class="ap-export-actions">
+              <button class="ap-btn ap-btn-primary" onclick="exportStudentData()">⬇️ 导出 CSV</button>
+              <button class="ap-btn" onclick="previewStudentData()">👁️ 预览数据</button>
+            </div>
+            <div class="ap-export-preview" id="exportPreview" style="display:none">
+              <div class="ap-preview-header"><span id="previewCount">-</span><button class="ap-btn" style="padding:4px 10px;font-size:11px" onclick="document.getElementById('exportPreview').style.display='none'">关闭</button></div>
+              <div class="ap-table-wrap"><table class="ap-table" id="previewTable"></table></div>
+            </div>
+          </div>
+
+          <div class="ap-tab-content" id="acontent-scores">
+            <div class="ap-section-title">🏆 全班实时积分榜 <span class="ap-subtitle">（含防刷后单单元异常修复）</span></div>
+            <div class="ap-score-actions">
+              <button class="ap-btn ap-btn-primary" onclick="loadAdminScores()">🔄 刷新数据</button>
+              <button class="ap-btn ap-btn-warn" onclick="resetStudentXP()" id="btnResetXP">⚠️ 批量修复异常分数</button>
+            </div>
+            <div class="ap-score-list" id="adminScoreList">
+              <div class="ap-empty">点击"刷新数据"加载全班成绩</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
 
     <script>
         const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';
@@ -1401,85 +1480,5 @@
         }
 
     </script>
-
-    <div class="admin-overlay hidden" id="adminOverlay">
-      <div class="admin-panel">
-        <div class="ap-header">
-          <div class="ap-title">⚙️ 教师管理后台</div>
-          <button class="ap-close" onclick="closeAdminPanel()">✕</button>
-        </div>
-
-        <div id="adminLoginArea">
-          <div class="ap-section-title">🔑 管理员登录</div>
-          <div class="ap-login-row">
-            <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30" onkeydown="if(event.key==='Enter')verifyAdmin()" />
-            <button class="ap-btn ap-btn-primary" onclick="verifyAdmin()">登录</button>
-          </div>
-          <div class="ap-hint">请输入密码</div>
-          <div class="ap-err hidden" id="adminPwdErr">❌ 密码错误，请重试</div>
-        </div>
-
-        <div id="adminMainArea" class="hidden">
-          <div class="ap-tabs">
-            <button class="ap-tab active" onclick="switchAdminTab('units')" id="atab-units">📚 单元开放管理</button>
-            <button class="ap-tab" onclick="switchAdminTab('export')" id="atab-export">📊 学生数据导出</button>
-            <button class="ap-tab" onclick="switchAdminTab('scores')" id="atab-scores">🏆 实时排名</button>
-          </div>
-
-          <div class="ap-tab-content active" id="acontent-units">
-            <div class="ap-section-title">📚 单元开放状态管理 <span class="ap-subtitle">（改变后全班实时生效，未解锁依然支持依顺序解锁）</span></div>
-            <div class="ap-unit-actions" style="margin-bottom: 8px;">
-              <button class="ap-btn ap-btn-success" onclick="adminOpenAll()">✅ 全部开放</button>
-              <button class="ap-btn ap-btn-warn" onclick="adminCloseAll()">🔒 全部关闭</button>
-              <button class="ap-btn" onclick="adminResetSequential()">🔁 仅保留顺序解锁</button>
-            </div>
-            <div class="ap-unit-actions" style="margin-bottom: 14px; background: #f0f4f8; padding: 10px; border-radius: 8px; align-items: center;">
-              <span style="font-size: 12px; font-weight: bold; color: #1e3a5f; margin-right: 8px;">按模块批量切换：</span>
-              <button class="ap-btn" onclick="toggleModuleAdmin('m1')">模块一</button>
-              <button class="ap-btn" onclick="toggleModuleAdmin('m2')">模块二</button>
-              <button class="ap-btn" onclick="toggleModuleAdmin('m3')">模块三</button>
-              <button class="ap-btn" onclick="toggleModuleAdmin('m4')">模块四</button>
-              <button class="ap-btn" onclick="toggleModuleAdmin('m5')">模块五</button>
-            </div>
-            <div class="ap-unit-grid" id="adminUnitGrid"></div>
-            <div class="ap-save-row">
-              <button class="ap-btn ap-btn-primary" onclick="saveAdminUnits()">💾 保存并同步到全班</button>
-              <span class="ap-save-hint" id="adminSaveHint"></span>
-            </div>
-          </div>
-
-          <div class="ap-tab-content" id="acontent-export">
-            <div class="ap-section-title">📊 学生数据导出 <span class="ap-subtitle">（从 Supabase 拉取全班最新数据）</span></div>
-            <div class="ap-export-opts">
-              <label class="ap-check-label"><input type="checkbox" id="expXP" checked> 经验值(XP)</label>
-              <label class="ap-check-label"><input type="checkbox" id="expUnits" checked> 完成单元数</label>
-              <label class="ap-check-label"><input type="checkbox" id="expStars" checked> 总星星数</label>
-              <label class="ap-check-label"><input type="checkbox" id="expDetail" checked> 各单元详情</label>
-              <label class="ap-check-label"><input type="checkbox" id="expAchieve"> 成就徽章</label>
-            </div>
-            <div class="ap-export-actions">
-              <button class="ap-btn ap-btn-primary" onclick="exportStudentData()">⬇️ 导出 CSV</button>
-              <button class="ap-btn" onclick="previewStudentData()">👁️ 预览数据</button>
-            </div>
-            <div class="ap-export-preview" id="exportPreview" style="display:none">
-              <div class="ap-preview-header"><span id="previewCount">-</span><button class="ap-btn" style="padding:4px 10px;font-size:11px" onclick="document.getElementById('exportPreview').style.display='none'">关闭</button></div>
-              <div class="ap-table-wrap"><table class="ap-table" id="previewTable"></table></div>
-            </div>
-          </div>
-
-          <div class="ap-tab-content" id="acontent-scores">
-            <div class="ap-section-title">🏆 全班实时积分榜 <span class="ap-subtitle">（含防刷后单单元异常修复）</span></div>
-            <div class="ap-score-actions">
-              <button class="ap-btn ap-btn-primary" onclick="loadAdminScores()">🔄 刷新数据</button>
-              <button class="ap-btn ap-btn-warn" onclick="resetStudentXP()" id="btnResetXP">⚠️ 批量修复异常分数</button>
-            </div>
-            <div class="ap-score-list" id="adminScoreList">
-              <div class="ap-empty">点击"刷新数据"加载全班成绩</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
 </body>
 </html>
