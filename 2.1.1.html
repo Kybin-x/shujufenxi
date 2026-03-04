@@ -2,559 +2,497 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>模块二·单元一 数据采集认知 · 闯关挑战</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>2.1 数据采集认知 · 闯关挑战</title>
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#080B1A;--bg2:#0D1130;
-  --surface:rgba(255,255,255,.055);--border:rgba(255,255,255,.11);
-  --gold:#FFD700;--gold2:#FFA500;
-  --teal:#00E5CC;--pink:#FF6B9D;--purple:#C77DFF;
-  --blue:#74B9FF;--green:#00E676;--red:#FF5252;
-  --cyan:#00D4FF;--orange:#FF9500;
-  --text:#F0F0FF;--muted:rgba(240,240,255,.52);
-  --r:20px;
+--bg:#080B1A;--bg2:#0D1130;
+--surface:rgba(255,255,255,.055);--border:rgba(255,255,255,.11);
+--gold:#FFD700;--gold2:#FFA500;
+--teal:#00E5CC;--pink:#FF6B9D;--purple:#C77DFF;
+--blue:#74B9FF;--green:#00E676;--red:#FF5252;
+--cyan:#00D4FF;--orange:#FF9500;
+--text:#F0F0FF;--muted:rgba(240,240,255,.52);--r:20px;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-canvas.stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+canvas#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 
-.screen{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;}
-.screen.active{display:flex;}
+/* ====== 三屏 ====== */
+.screen{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px}
+.screen.active{display:flex}
 
-/* LOGIN */
-.login-box{background:linear-gradient(135deg,rgba(13,17,48,.97),rgba(8,11,26,.98));border:1.5px solid var(--border);border-radius:28px;padding:48px 40px;max-width:480px;width:100%;box-shadow:0 0 80px rgba(0,229,204,.1),0 30px 60px rgba(0,0,0,.55);text-align:center;animation:up .8s ease both;}
-@keyframes up{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
-.game-logo{width:88px;height:88px;margin:0 auto 18px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0D9488);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 0 36px rgba(0,229,204,.4);animation:glow 3s ease-in-out infinite alternate;}
-@keyframes glow{from{box-shadow:0 0 20px rgba(0,229,204,.25);}to{box-shadow:0 0 55px rgba(0,229,204,.65);}}
-.ltitle{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(20px,4vw,28px);background:linear-gradient(90deg,var(--teal),var(--blue),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
-.lsub{color:var(--muted);font-size:13px;margin-bottom:6px;}
-.lmod{color:var(--teal);font-size:12px;margin-bottom:22px;opacity:.8;}
-.badge-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
-.bdg{padding:5px 13px;border-radius:18px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;}
-.bdg.s{background:rgba(116,185,255,.14);color:var(--blue);border:1px solid rgba(116,185,255,.28);}
-.bdg.m{background:rgba(0,229,204,.14);color:var(--teal);border:1px solid rgba(0,229,204,.28);}
-.bdg.j{background:rgba(255,107,157,.14);color:var(--pink);border:1px solid rgba(255,107,157,.28);}
-.inp-g{margin-bottom:15px;text-align:left;}
-.inp-g label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:700;}
-.inp-g input{width:100%;padding:13px 17px;background:rgba(255,255,255,.07);border:1.5px solid var(--border);border-radius:13px;color:var(--text);font-size:15px;font-family:'Noto Sans SC',sans-serif;outline:none;transition:border-color .3s,box-shadow .3s;}
-.inp-g input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,229,204,.13);}
-.inp-g input::placeholder{color:rgba(240,240,255,.2);}
-.start-btn{width:100%;padding:15px;margin-top:6px;background:linear-gradient(135deg,var(--teal),#0D9488);color:#001A14;font-weight:900;font-size:17px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:15px;cursor:pointer;letter-spacing:2px;box-shadow:0 8px 28px rgba(0,229,204,.3);transition:all .3s;position:relative;overflow:hidden;}
-.start-btn::after{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:rgba(255,255,255,.28);transform:skewX(-20deg);transition:left .5s;}
-.start-btn:hover::after{left:120%;}
-.start-btn:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(0,229,204,.42);}
+/* ====== 登录屏 ====== */
+.login-box{background:linear-gradient(135deg,rgba(13,17,48,.92),rgba(8,11,26,.96));border:1px solid var(--border);border-radius:var(--r);padding:44px 36px;max-width:440px;width:100%;text-align:center;backdrop-filter:blur(20px)}
+.game-logo{width:94px;height:94px;margin:0 auto 18px;border-radius:50%;background:linear-gradient(135deg,#0891B2,#00E5CC);display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:0 0 36px rgba(0,229,204,.25)}
+.ltitle{font-family:'ZCOOL KuaiLe',cursive;font-size:28px;background:linear-gradient(90deg,var(--teal),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.lsub{color:var(--muted);font-size:15px;margin-bottom:8px}
+.lmod{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.lmod .kw{font-size:12px;padding:4px 14px;border-radius:30px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);color:var(--teal)}
+.badge-row{display:flex;justify-content:center;gap:10px;margin-bottom:26px;flex-wrap:wrap}
+.bdg{font-size:12px;padding:5px 14px;border-radius:30px;font-weight:700}
+.bdg.s{background:rgba(116,185,255,.13);color:var(--blue);border:1px solid rgba(116,185,255,.25)}
+.bdg.m{background:rgba(199,125,255,.13);color:var(--purple);border:1px solid rgba(199,125,255,.25)}
+.bdg.j{background:rgba(255,107,157,.13);color:var(--pink);border:1px solid rgba(255,107,157,.25)}
+.inp-g{text-align:left;margin-bottom:16px}
+.inp-g label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.inp-g input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;outline:none;transition:border .3s}
+.inp-g input:focus{border-color:var(--teal)}
+.start-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--teal),#009688);color:#fff;font-size:17px;font-family:'ZCOOL KuaiLe',cursive;cursor:pointer;margin-top:6px;transition:transform .2s,box-shadow .2s;letter-spacing:2px}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,229,204,.35)}
+.rule-box{margin-top:18px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px}
+.rule-box h4{font-family:'ZCOOL KuaiLe',cursive;font-size:14px;color:var(--teal);margin-bottom:6px}
+.rule-box p{font-size:12px;color:var(--muted);line-height:1.7}
 
-/* GAME */
-.game-wrap{width:100%;max-width:760px;animation:up .5s ease both;}
-.g-header{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:17px;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;backdrop-filter:blur(10px);flex-wrap:wrap;gap:10px;}
-.pinfo{display:flex;align-items:center;gap:10px;}
-.pavt{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0D9488);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;flex-shrink:0;}
-.pname{font-weight:700;font-size:14px;}
-.pid{font-size:12px;color:var(--muted);}
-.sc-disp{display:flex;align-items:center;gap:6px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);border-radius:11px;padding:7px 14px;}
-.sc-val{font-family:'ZCOOL KuaiLe',cursive;font-size:20px;color:var(--gold);}
-.sc-tot{font-size:12px;color:var(--muted);}
+/* ====== 游戏屏 ====== */
+.game-top{width:100%;max-width:700px;margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:10px}
+.info-row .uname{color:var(--teal);font-size:13px}
+.timer{font-family:'ZCOOL KuaiLe',cursive;font-size:16px;color:var(--cyan);display:flex;align-items:center;gap:5px}
+.score-show{font-family:'ZCOOL KuaiLe',cursive;font-size:20px;color:var(--gold)}
+.pg-bar{width:100%;height:8px;background:var(--surface);border-radius:10px;overflow:hidden}
+.pg-fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--cyan));border-radius:10px;transition:width .5s}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0 10px}
+.dot{width:18px;height:18px;border-radius:50%;background:var(--surface);border:2px solid var(--border);font-size:8px;display:flex;align-items:center;justify-content:center;transition:all .35s;color:var(--muted)}
+.dot.cur{border-color:var(--teal);box-shadow:0 0 8px rgba(0,229,204,.4);background:rgba(0,229,204,.15);color:var(--teal)}
+.dot.ok{background:var(--green);border-color:var(--green);color:#fff}
+.dot.no{background:var(--red);border-color:var(--red);color:#fff}
+.dot.skip{background:rgba(255,149,0,.35);border-color:var(--orange);color:#fff}
 
-/* progress */
-.pg-wrap{margin-bottom:16px;}
-.pg-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:7px;}
-.pg-track{background:rgba(255,255,255,.08);border-radius:9px;height:9px;overflow:hidden;}
-.pg-fill{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--teal),var(--blue),var(--gold));transition:width .6s cubic-bezier(.4,0,.2,1);}
+.q-card{background:linear-gradient(135deg,rgba(13,17,48,.85),rgba(8,11,26,.92));border:1px solid var(--border);border-radius:var(--r);padding:34px 30px;max-width:700px;width:100%;backdrop-filter:blur(12px)}
+.q-type{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:14px}
+.q-type.s{background:rgba(116,185,255,.13);color:var(--blue)}
+.q-type.m{background:rgba(199,125,255,.13);color:var(--purple)}
+.q-type.j{background:rgba(255,107,157,.13);color:var(--pink)}
+.q-num{color:var(--muted);font-size:13px;margin-bottom:6px}
+.q-text{font-size:17px;font-weight:700;line-height:1.7;margin-bottom:22px}
+.q-note{font-size:13px;color:var(--orange);background:rgba(255,149,0,.08);border:1px dashed rgba(255,149,0,.25);border-radius:10px;padding:8px 14px;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.opts{display:flex;flex-direction:column;gap:11px}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;transition:all .3s;user-select:none}
+.opt:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.08)}
+.opt.sel{border-color:var(--purple);background:rgba(199,125,255,.1)}
+.opt.ok{border-color:var(--green);background:rgba(0,230,118,.1)}
+.opt.no{border-color:var(--red);background:rgba(255,82,82,.1);opacity:.7}
+.opt.hi{border-color:var(--green);background:rgba(0,230,118,.08);border-style:dashed}
+.opt .olet{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;transition:all .3s}
+.opt.sel .olet{background:var(--purple);color:#fff}
+.opt.ok .olet{background:var(--green);color:#fff}
+.opt.no .olet{background:var(--red);color:#fff}
+.opt.hi .olet{background:rgba(0,230,118,.3);color:var(--green)}
+.opt .otxt{font-size:15px;line-height:1.5}
+.opt.disabled{pointer-events:none}
+.exp-box{margin-top:18px;padding:16px 20px;border-radius:14px;font-size:14px;line-height:1.7;display:none}
+.exp-box.show{display:block;animation:fadeUp .4s ease}
+.exp-box.ok{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:#b9f6ca}
+.exp-box.no{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.2);color:#ffcdd2}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
-/* stage dots */
-.sdots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;}
-.sdot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid rgba(255,255,255,.18);color:var(--muted);transition:all .4s;}
-.sdot.done{background:var(--green);border-color:var(--green);color:#003;}
-.sdot.wdot{background:var(--red);border-color:var(--red);color:#fff;}
-.sdot.cur{border-color:var(--gold);color:var(--gold);animation:pc 1s ease-in-out infinite alternate;}
-@keyframes pc{from{box-shadow:0 0 7px rgba(255,215,0,.25);}to{box-shadow:0 0 20px rgba(255,215,0,.65);}}
+/* ====== 按钮区 ====== */
+.btn-row{display:flex;justify-content:center;gap:14px;margin-top:20px;max-width:700px;width:100%;flex-wrap:wrap}
+.g-btn{padding:13px 36px;border:none;border-radius:14px;font-size:15px;font-family:'ZCOOL KuaiLe',cursive;cursor:pointer;transition:all .25s;letter-spacing:1px;display:inline-flex;align-items:center;gap:8px}
+.g-btn.submit{background:linear-gradient(135deg,var(--teal),#009688);color:#fff}
+.g-btn.submit:hover{box-shadow:0 4px 18px rgba(0,229,204,.3);transform:translateY(-2px)}
+.g-btn.submit:disabled{opacity:.35;pointer-events:none;transform:none;box-shadow:none}
+.g-btn.next{background:linear-gradient(135deg,var(--blue),#5b8def);color:#fff}
+.g-btn.next:hover{box-shadow:0 4px 18px rgba(116,185,255,.3);transform:translateY(-2px)}
+.g-btn.skip{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.g-btn.skip:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,149,0,.06)}
+.g-btn.finish{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;font-weight:700}
+.g-btn.finish:hover{box-shadow:0 4px 18px rgba(255,215,0,.35);transform:translateY(-2px)}
+.g-btn.hide{display:none!important}
 
-/* question card */
-.qcard{background:linear-gradient(135deg,rgba(13,17,48,.92),rgba(8,11,26,.96));border:1.5px solid var(--border);border-radius:22px;padding:28px;box-shadow:0 20px 56px rgba(0,0,0,.42);animation:sc .4s cubic-bezier(.4,0,.2,1) both;position:relative;overflow:hidden;}
-.qcard::before{content:'';position:absolute;top:0;right:0;width:200px;height:200px;background:radial-gradient(circle,rgba(0,229,204,.06) 0%,transparent 70%);pointer-events:none;}
-@keyframes sc{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
-.qtype-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:18px;font-size:12px;font-weight:700;margin-bottom:14px;}
-.qtype-badge.s{background:rgba(116,185,255,.14);color:var(--blue);border:1px solid rgba(116,185,255,.27);}
-.qtype-badge.m{background:rgba(0,229,204,.14);color:var(--teal);border:1px solid rgba(0,229,204,.27);}
-.qtype-badge.j{background:rgba(255,107,157,.14);color:var(--pink);border:1px solid rgba(255,107,157,.27);}
-.qtxt{font-size:clamp(14px,2.4vw,17px);line-height:1.8;font-weight:700;margin-bottom:18px;}
-.qhint{font-size:12px;color:var(--teal);margin-bottom:13px;display:flex;align-items:center;gap:5px;}
-.qnote{background:rgba(255,255,255,.05);border-left:3px solid var(--teal);border-radius:9px;padding:9px 13px;font-size:12px;color:#A5F3FC;margin-bottom:14px;line-height:1.75;}
+/* ====== 结果屏 ====== */
+.result-box{background:linear-gradient(135deg,rgba(13,17,48,.92),rgba(8,11,26,.96));border:1px solid var(--border);border-radius:var(--r);padding:44px 36px;max-width:540px;width:100%;text-align:center;backdrop-filter:blur(20px)}
+.r-emoji{font-size:64px;margin-bottom:10px;animation:bounce 1s ease infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.r-title{font-family:'ZCOOL KuaiLe',cursive;font-size:28px;margin-bottom:6px}
+.r-sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.r-score{font-family:'ZCOOL KuaiLe',cursive;font-size:56px;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,.35)}
+.r-total{color:var(--muted);font-size:14px;margin-bottom:20px}
+.r-stars{margin-bottom:18px;font-size:32px;letter-spacing:6px}
+.r-stats{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.r-stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;min-width:90px;text-align:center}
+.r-stat .v{font-family:'ZCOOL KuaiLe',cursive;font-size:22px;margin-bottom:2px}
+.r-stat .l{font-size:12px;color:var(--muted)}
+.r-detail{text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:22px;max-height:260px;overflow-y:auto}
+.r-detail::-webkit-scrollbar{width:5px}
+.r-detail::-webkit-scrollbar-thumb{background:rgba(255,255,255,.13);border-radius:9px}
+.r-d-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.6}
+.r-d-item:last-child{border-bottom:none}
+.r-d-item .ico{flex-shrink:0;margin-top:2px;font-size:15px}
+.r-d-item .dtxt{flex:1}
+.r-d-item .dtxt b{color:var(--text)}
+.r-d-item .dtxt .dexp{color:var(--muted);font-size:12px;margin-top:2px}
+.r-btn-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.retry-btn{padding:14px 40px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--teal),#009688);color:#fff;font-size:17px;font-family:'ZCOOL KuaiLe',cursive;cursor:pointer;transition:all .25s;letter-spacing:2px;display:inline-flex;align-items:center;gap:8px}
+.retry-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,229,204,.35)}
+.home-btn{padding:14px 30px;border:1.5px solid var(--border);border-radius:14px;background:transparent;color:var(--muted);font-size:15px;font-family:'ZCOOL KuaiLe',cursive;cursor:pointer;transition:all .25s}
+.home-btn:hover{border-color:var(--text);color:var(--text)}
 
-/* options */
-.opts{display:flex;flex-direction:column;gap:10px;}
-.opt{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:14px;cursor:pointer;transition:all .25s;user-select:none;position:relative;overflow:hidden;}
-.opt:hover:not(.locked){border-color:rgba(255,255,255,.27);background:rgba(255,255,255,.07);transform:translateX(4px);}
-.opt.sel:not(.locked){border-color:var(--purple);background:rgba(199,125,255,.11);}
-.opt.correct{border-color:var(--green)!important;background:rgba(0,230,118,.09)!important;animation:cflash .5s;}
-@keyframes cflash{0%,100%{background:rgba(0,230,118,.09);}50%{background:rgba(0,230,118,.22);}}
-.opt.wrong{border-color:var(--red)!important;background:rgba(255,82,82,.09)!important;animation:wshake .4s;}
-@keyframes wshake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
-.opt.locked{cursor:not-allowed;}
-.opt.show-c{border-color:var(--green)!important;background:rgba(0,230,118,.05)!important;}
-.okey{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;flex-shrink:0;transition:all .25s;}
-.opt.sel:not(.locked) .okey{background:var(--purple);color:#fff;}
-.opt.correct .okey{background:var(--green);color:#003;}
-.opt.wrong .okey{background:var(--red);color:#fff;}
-.opt.show-c .okey{background:var(--green);color:#003;}
-.otxt{font-size:13px;line-height:1.6;padding-top:4px;}
+/* ====== 动画 ====== */
+.combo-t{position:fixed;top:18%;left:50%;transform:translateX(-50%);font-family:'ZCOOL KuaiLe',cursive;font-size:28px;color:var(--gold);text-shadow:0 0 18px rgba(255,215,0,.5);z-index:999;display:none;pointer-events:none}
+@keyframes cIn{0%{opacity:0;transform:translateX(-50%) scale(.5) translateY(20px)}15%{opacity:1;transform:translateX(-50%) scale(1.15) translateY(0)}30%{transform:translateX(-50%) scale(1) translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-40px)}}
+.score-fly{position:fixed;pointer-events:none;z-index:999;font-family:'ZCOOL KuaiLe',cursive;font-size:24px;color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,.4);animation:sfly 1.2s ease-out forwards}
+@keyframes sfly{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.3)}}
+.ptc{position:fixed;pointer-events:none;z-index:999;font-size:22px;animation:ptcfly 2s ease-out forwards}
+@keyframes ptcfly{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-200px) scale(0);opacity:0}}
 
-/* buttons */
-.sub-btn{width:100%;margin-top:18px;padding:13px;background:linear-gradient(135deg,var(--teal),#0D9488);color:#003;font-weight:900;font-size:15px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:14px;cursor:pointer;letter-spacing:1px;box-shadow:0 5px 22px rgba(0,229,204,.28);transition:all .3s;position:relative;overflow:hidden;}
-.sub-btn::after{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:rgba(255,255,255,.28);transform:skewX(-20deg);transition:left .5s;}
-.sub-btn:hover:not(:disabled)::after{left:120%;}
-.sub-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 9px 30px rgba(0,229,204,.38);}
-.sub-btn:disabled{opacity:.35;cursor:not-allowed;background:rgba(255,255,255,.09);color:var(--muted);box-shadow:none;transform:none;}
-.next-btn{width:100%;margin-top:11px;padding:13px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-weight:900;font-size:15px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:14px;cursor:pointer;letter-spacing:1px;box-shadow:0 5px 22px rgba(199,125,255,.3);transition:all .3s;display:none;}
-.next-btn.show{display:block;animation:up .3s ease;}
-.next-btn:hover{transform:translateY(-2px);box-shadow:0 9px 30px rgba(199,125,255,.42);}
-
-/* feedback */
-.fb{display:none;margin-top:15px;padding:15px 17px;border-radius:13px;font-size:13px;line-height:1.75;}
-.fb.show{display:block;animation:up .4s;}
-.fb.cfb{background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.28);}
-.fb.wfb{background:rgba(255,82,82,.07);border:1px solid rgba(255,82,82,.28);}
-.fb-hd{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;margin-bottom:7px;}
-.fb-hd.ok{color:var(--green);}
-.fb-hd.no{color:var(--red);}
-.fb-ans{font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
-.ak{padding:2px 10px;border-radius:7px;background:rgba(255,215,0,.14);color:var(--gold);font-size:11px;font-weight:700;border:1px solid rgba(255,215,0,.28);}
-
-/* RESULT */
-.res-wrap{max-width:620px;width:100%;text-align:center;animation:up .7s ease both;}
-.res-fw{font-size:46px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:20px;animation:bounce .8s ease;}
-@keyframes bounce{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
-.res-card{background:linear-gradient(135deg,rgba(13,17,48,.98),rgba(8,11,26,.99));border:1.5px solid var(--border);border-radius:26px;padding:40px 36px;box-shadow:0 0 80px rgba(0,229,204,.07),0 40px 80px rgba(0,0,0,.55);position:relative;overflow:hidden;}
-.res-card::before{content:'';position:absolute;top:-70px;right:-70px;width:240px;height:240px;background:radial-gradient(circle,rgba(0,229,204,.05) 0%,transparent 70%);pointer-events:none;}
-.res-icon{width:94px;height:94px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:44px;}
-.res-grade{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(20px,4vw,27px);color:var(--gold);margin-bottom:6px;}
-.res-nm{font-size:16px;margin-bottom:5px;}
-.res-ach{font-size:clamp(12px,2vw,14px);color:var(--muted);line-height:1.75;margin:13px 0 20px;padding:13px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid var(--border);}
-.sb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 24px;}
-.sb-item{background:rgba(255,255,255,.05);border-radius:12px;padding:13px 8px;border:1px solid var(--border);}
-.sb-icon{font-size:19px;margin-bottom:5px;}
-.sb-type{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.sb-n{font-family:'ZCOOL KuaiLe',cursive;font-size:19px;color:var(--teal);}
-.sb-t{font-size:10px;color:var(--muted);}
-.big-sc{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(46px,8vw,68px);background:linear-gradient(90deg,var(--gold),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:4px;}
-.sc-lbl{font-size:13px;color:var(--muted);margin-bottom:24px;}
-.retry-btn{display:inline-flex;align-items:center;gap:9px;padding:14px 36px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1A1200;font-weight:900;font-size:16px;font-family:'ZCOOL KuaiLe',cursive;border:none;border-radius:18px;cursor:pointer;letter-spacing:2px;box-shadow:0 8px 28px rgba(255,215,0,.32);transition:all .3s;}
-.retry-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 38px rgba(255,215,0,.46);}
-
-/* particles & combo */
-.ptc{position:fixed;pointer-events:none;z-index:999;font-size:22px;animation:ptcfly 2s ease-out forwards;}
-@keyframes ptcfly{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-200px) scale(0);opacity:0;}}
-.combo-t{position:fixed;top:18px;right:18px;z-index:999;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1A1200;font-weight:900;font-size:14px;font-family:'ZCOOL KuaiLe',cursive;padding:10px 18px;border-radius:12px;box-shadow:0 8px 28px rgba(255,215,0,.45);animation:cIn 2.2s ease forwards;display:none;}
-@keyframes cIn{0%{opacity:0;transform:translateX(50px);}15%,75%{opacity:1;transform:translateX(0);}100%{opacity:0;transform:translateX(50px);}}
-
-@media(max-width:500px){.login-box{padding:30px 18px;}.qcard{padding:18px 14px;}.res-card{padding:28px 18px;}.g-header{padding:10px 13px;}}
+/* ====== 响应式 ====== */
+@media(max-width:600px){
+.login-box,.q-card,.result-box{padding:28px 18px}
+.ltitle{font-size:22px}
+.q-text{font-size:15px}
+.r-score{font-size:44px}
+.dots{gap:4px}.dot{width:15px;height:15px;font-size:7px}
+.r-stats{gap:8px}.r-stat{min-width:70px;padding:10px 12px}
+.btn-row{gap:10px}.g-btn{padding:12px 22px;font-size:13px}
+.opt{padding:12px 14px;gap:10px}
+}
 </style>
 </head>
 <body>
-<canvas class="stars" id="stars"></canvas>
+
+<canvas id="stars"></canvas>
 <div class="combo-t" id="comboT"></div>
 
-<!-- LOGIN -->
+<!-- ==================== 登录屏 ==================== -->
 <div class="screen active" id="sLogin">
-  <div class="login-box">
-    <div class="game-logo">📥</div>
-    <div class="ltitle">数据采集认知 · 闯关</div>
-    <div class="lsub">模块二 · 单元一</div>
-    <div class="lmod">概念 · 原则 · 方法 · 步骤</div>
-    <div class="badge-row">
-      <span class="bdg s">🔵 单选 ×10</span>
-      <span class="bdg m">🟢 多选 ×5</span>
-      <span class="bdg j">🩷 判断 ×5</span>
-    </div>
-    <div class="inp-g"><label>📋 学号</label><input type="text" id="iId" placeholder="请输入学号" maxlength="20"></div>
-    <div class="inp-g"><label>✏️ 姓名</label><input type="text" id="iName" placeholder="请输入姓名" maxlength="12"></div>
-    <button class="start-btn" onclick="startGame()">⚡ 开始闯关</button>
+<div class="login-box">
+  <div class="game-logo">🗂️</div>
+  <div class="ltitle">基础数据采集 · 闯关</div>
+  <div class="lsub">单元一 · 数据采集认知</div>
+  <div class="lmod">
+    <span class="kw">📌 概念</span>
+    <span class="kw">📏 原则</span>
+    <span class="kw">🔧 方法</span>
+    <span class="kw">👣 步骤</span>
+  </div>
+  <div class="badge-row">
+    <span class="bdg s">📘 单选 ×10</span>
+    <span class="bdg m">📗 多选 ×5</span>
+    <span class="bdg j">📙 判断 ×5</span>
+  </div>
+  <div class="inp-g"><label>🎓 学号</label><input id="iId" placeholder="请输入学号" maxlength="20"></div>
+  <div class="inp-g"><label>✏️ 姓名</label><input id="iName" placeholder="请输入姓名" maxlength="12"></div>
+  <button class="start-btn" onclick="startGame()">⚡ 开始闯关</button>
+  <div class="rule-box">
+    <h4>📋 闯关规则</h4>
+    <p>共 20 题：单选（5分/题）、多选（10分/题）、判断（5分/题），满分 100 分。<br>连续答对 3 题及以上触发 🔥 连击特效！可跳过不确定的题目。</p>
   </div>
 </div>
+</div>
 
-<!-- GAME -->
+<!-- ==================== 游戏屏 ==================== -->
 <div class="screen" id="sGame">
-  <div class="game-wrap">
-    <div class="g-header">
-      <div class="pinfo">
-        <div class="pavt" id="avt">A</div>
-        <div><div class="pname" id="hName">-</div><div class="pid" id="hId">-</div></div>
-      </div>
-      <div class="sc-disp">
-        <span style="font-size:18px;">⭐</span>
-        <div class="sc-val" id="scV">0</div>
-        <div class="sc-tot">/20题</div>
-      </div>
-    </div>
-    <div class="pg-wrap">
-      <div class="pg-meta"><span id="pgTxt">第1题/共20题</span><span id="pgPct">0%</span></div>
-      <div class="pg-track"><div class="pg-fill" id="pgFill" style="width:0%"></div></div>
-    </div>
-    <div class="sdots" id="sdots"></div>
-    <div class="qcard" id="qcard"></div>
+<div class="game-top">
+  <div class="info-row">
+    <span id="gInfo">第 1/20 题</span>
+    <div class="timer"><span>⏱️</span><span id="timerVal">00:00</span></div>
+    <span class="score-show">🏆 <span id="gScore">0</span> 分</span>
   </div>
+  <div class="pg-bar"><div class="pg-fill" id="pgFill"></div></div>
+  <div class="dots" id="dots"></div>
+</div>
+<div class="q-card" id="qCard"></div>
+<div class="btn-row" id="btnRow">
+  <button class="g-btn skip" id="btnSkip" onclick="skipQ()">⏭️ 跳过</button>
+  <button class="g-btn submit" id="btnSub" onclick="submitA()" disabled>✅ 提交答案</button>
+  <button class="g-btn next hide" id="btnNext" onclick="nextQ()">👉 下一题</button>
+  <button class="g-btn finish hide" id="btnFinish" onclick="showResult()">🏁 查看成绩</button>
+</div>
 </div>
 
-<!-- RESULT -->
+<!-- ==================== 结果屏 ==================== -->
 <div class="screen" id="sResult">
-  <div class="res-wrap">
-    <div class="res-fw" id="rFw">🎉🏆🎊</div>
-    <div class="res-card">
-      <div class="res-icon" id="rIcon" style="background:linear-gradient(135deg,#FFD700,#FFA500)">🏆</div>
-      <div class="res-grade" id="rGrade">闯关完成！</div>
-      <div class="res-nm" id="rNm"></div>
-      <div class="res-ach" id="rAch"></div>
-      <div class="big-sc" id="bigSc">0</div>
-      <div class="sc-lbl">综合得分（满分 20 分）</div>
-      <div class="sb-grid">
-        <div class="sb-item"><div class="sb-icon">🔵</div><div class="sb-type">单选题</div><div class="sb-n" id="sb1">0</div><div class="sb-t">/10</div></div>
-        <div class="sb-item"><div class="sb-icon">🟢</div><div class="sb-type">多选题</div><div class="sb-n" id="sb2">0</div><div class="sb-t">/5</div></div>
-        <div class="sb-item"><div class="sb-icon">🩷</div><div class="sb-type">判断题</div><div class="sb-n" id="sb3">0</div><div class="sb-t">/5</div></div>
-      </div>
-      <button class="retry-btn" onclick="retry()">🔄 再战一次</button>
-    </div>
-  </div>
+<div class="result-box" id="resBox"></div>
 </div>
 
 <script>
-/* ── STARS ── */
-(()=>{
-  const c=document.getElementById('stars'),x=c.getContext('2d');let s=[];
-  const r=()=>{c.width=innerWidth;c.height=innerHeight;s=[];for(let i=0;i<160;i++)s.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.3,a:Math.random(),sp:Math.random()*.35+.1});};
-  const d=()=>{x.clearRect(0,0,c.width,c.height);s.forEach(p=>{x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fillStyle=`rgba(255,255,255,${p.a})`;x.fill();p.a+=p.sp*.01;if(p.a>1)p.sp=-Math.abs(p.sp);if(p.a<.1)p.sp=Math.abs(p.sp);});requestAnimationFrame(d);};
-  window.addEventListener('resize',r);r();d();
-})();
+/* ====== 星空 ====== */
+!function(){const c=document.getElementById('stars'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=innerWidth;h=c.height=innerHeight;p=[];for(let i=0;i<160;i++)p.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.3,s:Math.random()*.4+.1,a:Math.random()})}r();addEventListener('resize',r);!function d(){x.clearRect(0,0,w,h);p.forEach(o=>{o.a+=o.s*.012;x.beginPath();x.arc(o.x,o.y,o.r,0,Math.PI*2);x.fillStyle=`rgba(200,220,255,${.3+Math.sin(o.a)*.3})`;x.fill();o.y-=o.s*.15;if(o.y<-5){o.y=h+5;o.x=Math.random()*w}});requestAnimationFrame(d)}()}();
 
-/* ── QUESTION BANK ── */
+/* ====== 题库（严格来自 2.1 文档内容） ====== */
 const Q=[
-/* ======== 单选 10 ======== */
-{type:'single',
- text:'数据采集的另一个名称是什么？',
- opts:['A. 数据处理','B. 数据获取','C. 数据分析','D. 数据存储'],
- ans:[1],
- exp:'数据采集也称为「数据获取」，是指通过在平台源程序中预设工具或程序代码，采集商品状态、资金状态、流量状态及用户行为等数据的过程。'
-},
-{type:'single',
- text:'数据采集的根本目的是什么？',
- opts:['A. 提高销售额','B. 为后续进行数据分析提供数据准备','C. 监控员工工作状态','D. 生成财务报表'],
- ans:[1],
- exp:'数据采集的目的是为后续进行数据分析提供数据准备。没有充分的数据采集，后续的分析、展现和报告都将无从谈起。'
-},
-{type:'single',
- text:'「及时性」原则的核心要求是？',
- opts:['A. 只采集付费数据，确保准确','B. 尽可能获取平台最新数据，与往期数据比对，发现问题并预测变化趋势','C. 确保数据在有效范围内，排除过期数据','D. 确保采集数据时不违反任何法律法规'],
- ans:[1],
- exp:'及时性原则要求尽可能获取平台最新数据，与往期数据比对，从而发现问题并预测变化趋势。过时的数据不能反映当前情况，失去分析价值。'
-},
-{type:'single',
- text:'以下哪种行为违反了数据采集的「合法性」原则？',
- opts:['A. 通过问卷调查收集用户反馈','B. 使用生意参谋查看行业销售趋势','C. 雇佣人员非法入侵竞争对手数据库窃取数据','D. 从公开渠道下载政府统计报告'],
- ans:[2],
- exp:'合法性原则规定只能采集公开数据或经对方同意的数据，禁止商业间谍、非法窃取等手段。非法入侵他人数据库属于违法行为，将承担法律责任。'
-},
-{type:'single',
- text:'「火车采集器」「八爪鱼采集器」属于哪种数据采集方法？',
- opts:['A. 系统日志数据采集','B. 数据库采集','C. 网页数据采集','D. 报表采集'],
- ans:[2],
- exp:'火车采集器、八爪鱼采集器是网页数据采集中常用的爬虫工具，用于采集行业及竞争对手数据，如商品标题、品牌、价格、销量、评价等属性数据。'
-},
-{type:'single',
- text:'从网站日志中获取「访客IP、访问时间、停留时间、访客来源」等数据，属于哪种采集方法？',
- opts:['A. 调查问卷采集','B. 报表采集','C. 网页数据采集','D. 系统日志数据采集'],
- ans:[3],
- exp:'系统日志数据采集是从网站日志中获取数据的方法，可采集访客IP、访问时间、访问次数、停留时间、访客来源等，用于挖掘业务平台日志的潜在价值。'
-},
-{type:'single',
- text:'「报表采集」最适合应用于以下哪种场景？',
- opts:['A. 大型电商平台，自带完善统计功能','B. 无统计功能的独立站点，需要通过每日/每周工作报表进行数据采集','C. 需要大规模爬取竞品价格数据','D. 需要获取用户心理偏好和使用习惯'],
- ans:[1],
- exp:'报表采集适用于无统计功能的独立站点，例如没有每日咨询量、订单数等统计功能的网站，通过人工填写每日/每周工作报表来实现数据采集。'
-},
-{type:'single',
- text:'数据采集步骤的第二步是？',
- opts:['A. 确定采集范围及人员分工','B. 数据检查','C. 建立必要的数据指标规范','D. 数据分析'],
- ans:[2],
- exp:'数据采集的三个步骤依次为：①确定采集范围及人员分工→②建立必要的数据指标规范→③数据检查。第二步是建立数据指标规范，为整个分析工作提供统一标准。'
-},
-{type:'single',
- text:'「准确性检查」主要通过什么方式发现录入错误？',
- opts:['A. 对照历史数据检查缺失项','B. 通过平均、求和等操作与原始数据比对，找出录入错误数据','C. 检查是否存在重复的商品标识编码','D. 与竞争对手数据进行横向比较'],
- ans:[1],
- exp:'准确性检查通过平均、求和等操作与原始数据比对，找出录入错误的数据。这种方法能有效发现数字录入误差、单位换算错误等问题。'
-},
-{type:'single',
- text:'「规范性检查」主要针对什么问题？',
- opts:['A. 数据是否过期','B. 数据是否存在缺失','C. 是否存在多个商品标识编码相同，或同一数据出现多个数据指标等问题','D. 数据来源是否合法'],
- ans:[2],
- exp:'规范性检查主要检查数据的规范化程度，包括：是否存在多个商品标识编码相同（数据唯一性问题），或同一数据出现多个数据指标等数据标准化问题。'
-},
+/* ===== 单选 ×10 ===== */
+{type:'s',
+ text:'数据采集（数据获取）的核心目的是什么？',
+ opts:['直接进行数据可视化','为后续数据分析提供数据准备','替代人工决策','清洗和转化数据'],
+ ans:1,
+ exp:'数据采集是指通过预设工具或程序代码，获取商品状态变化、资金状态变化、流量状态变化、用户行为和信息等数据内容的过程，为后续数据分析提供数据准备。'},
 
-/* ======== 多选 5 ======== */
-{type:'multi',
- text:'数据采集的内容包括哪些？（多选）',
- opts:['A. 商品状态变化','B. 资金状态变化','C. 流量状态变化','D. 用户行为和信息','E. 企业战略规划'],
- ans:[0,1,2,3],
- exp:'数据采集的四类内容为：商品状态变化（A）、资金状态变化（B）、流量状态变化（C）、用户行为和信息（D）。企业战略规划（E）属于决策层级内容，不是数据采集的直接对象。'
-},
-{type:'multi',
- text:'数据采集的四大原则是？（多选）',
- opts:['A. 及时性','B. 有效性','C. 准确性','D. 合法性','E. 经济性'],
- ans:[0,1,2,3],
- exp:'数据采集的四大原则是：及时性（A）、有效性（B）、准确性（C）、合法性（D）。经济性（E）不是课程规定的原则。这四大原则保证了数据采集的质量和合规性。'
-},
-{type:'multi',
- text:'网页数据采集可采集的商品属性数据包括？（多选）',
- opts:['A. 标题','B. 品牌','C. 价格','D. 销量','E. 评价'],
- ans:[0,1,2,3,4],
- exp:'网页数据采集可采集的商品属性数据包括：标题（A）、品牌（B）、价格（C）、销量（D）、评价（E），这五类都是商品属性数据的重要组成部分，全部正确！'
-},
-{type:'multi',
- text:'「调查问卷采集」的具体实施方式包括哪些？（多选）',
- opts:['A. 实际走访（面对面调查）','B. 电话沟通','C. 网络填表','D. 入侵竞争对手后台系统','E. 购买客户数据库'],
- ans:[0,1,2],
- exp:'调查问卷采集的方式包括：实际走访（A）、电话沟通（B）、网络填表（C），均为合法的主动调研方式。入侵系统（D）和购买客户数据库（E）违反合法性原则，不属于调查问卷采集方式。'
-},
-{type:'multi',
- text:'「数据检查」步骤包含哪三种检查类型？（多选）',
- opts:['A. 完整性检查','B. 准确性检查','C. 规范性检查','D. 安全性检查','E. 时效性检查'],
- ans:[0,1,2],
- exp:'数据检查包含三种类型：完整性检查（A）——确保核心指标数据完整；准确性检查（B）——找出录入错误数据；规范性检查（C）——检查数据标准化问题。安全性和时效性检查不在本节课范围内。'
-},
+{type:'s',
+ text:'以下哪项属于数据采集"四大原则"之一？',
+ opts:['经济性','及时性','简便性','灵活性'],
+ ans:1,
+ exp:'数据采集的四大原则是：及时性、有效性、准确性、合法性。'},
 
-/* ======== 判断 5 ======== */
-{type:'judge',
- text:'数据采集的步骤共有三步：①确定采集范围及人员分工→②建立数据指标规范→③数据检查。',
- opts:['A. ✅ 正确','B. ❌ 错误'],
- ans:[0],
- exp:'正确！数据采集的三个步骤依次为：步骤一「确定采集范围及人员分工」、步骤二「建立必要的数据指标规范」、步骤三「数据检查」，三步环环相扣。'
-},
-{type:'judge',
- text:'报表采集适用于拥有完善统计功能的大型电商平台，帮助其自动汇总数据。',
- opts:['A. ✅ 正确','B. ❌ 错误'],
- ans:[1],
- exp:'错误！报表采集恰恰适用于「无统计功能的独立站点」，例如没有每日咨询量、订单数等自动统计功能的网站，需通过人工填写工作报表来采集数据，不是大型平台的专属方法。'
-},
-{type:'judge',
- text:'某电商企业通过购买客户资料获取联系信息，并用短信进行营销，这种数据采集方式违反合法性原则，不受法律保护。',
- opts:['A. ✅ 正确','B. ❌ 错误'],
- ans:[0],
- exp:'正确！购买客户资料属于未经当事人同意获取个人信息，违反了数据采集的「合法性原则」和《个人信息保护法》等相关法规，不受法律保护，且企业可能面临法律责任。'
-},
-{type:'judge',
- text:'建立数据指标规范只是数据采集阶段的工作，一旦数据采集完成即可废弃，无需在后续工作中继续遵循。',
- opts:['A. ✅ 正确','B. ❌ 错误'],
- ans:[1],
- exp:'错误！建立数据指标规范的作用是「贯穿后续数据查询、分析和应用的全流程」，为庞杂的数据分析工作提供可遵循的统一原则，是长期有效的规范标准，不能在采集后废弃。'
-},
-{type:'judge',
- text:'系统日志数据采集能够获取访客的IP地址、访问时间、访问次数和停留时间等信息。',
- opts:['A. ✅ 正确','B. ❌ 错误'],
- ans:[0],
- exp:'正确！系统日志数据采集是从网站日志中获取数据，可采集：访客IP、访问时间、访问次数、停留时间、访客来源等信息，用于挖掘业务平台日志的潜在商业价值。'
-}
+{type:'s',
+ text:'数据采集原则中"合法性"要求的是？',
+ opts:['数据必须是最新的','数据必须完全免费','只能采集公开数据或经对方同意获取的数据','数据必须由第三方提供'],
+ ans:2,
+ exp:'合法性原则要求只能采集公开数据或经对方同意获取的数据，不能采用商业间谍、非法窃取等手段。'},
+
+{type:'s',
+ text:'使用火车采集器、八爪鱼采集器等爬虫工具采集数据属于哪种采集方法？',
+ opts:['系统日志数据采集','数据库采集','网页数据采集','调查问卷采集'],
+ ans:2,
+ exp:'网页数据采集包括在电商平台上直接摘录数据，或使用火车采集器、八爪鱼采集器等爬虫工具采集。'},
+
+{type:'s',
+ text:'从网站日志中采集访客IP地址、访问时间、停留时间等数据属于哪种方法？',
+ opts:['网页数据采集','系统日志数据采集','报表采集','调查问卷采集'],
+ ans:1,
+ exp:'系统日志数据采集是从网站日志中采集访客IP地址、访问时间、访问次数、停留时间、访客来源等数据。'},
+
+{type:'s',
+ text:'对于缺少数据指标统计功能的独立站点，最适合使用哪种采集方法？',
+ opts:['数据库采集','网页数据采集','报表采集','系统日志数据采集'],
+ ans:2,
+ exp:'报表采集适用于缺少数据指标统计功能的独立站点，通过每日/每周工作报表（如咨询人数、接待人数、销售额等）进行数据采集。'},
+
+{type:'s',
+ text:'数据采集三个步骤中，第一步是什么？',
+ opts:['建立必要的数据指标规范','数据检查','确定采集范围及人员分工','数据清洗'],
+ ans:2,
+ exp:'数据采集的三个步骤依次为：①确定采集范围及人员分工 → ②建立必要的数据指标规范 → ③数据检查。'},
+
+{type:'s',
+ text:'"建立必要的数据指标规范"这一步骤的核心任务是？',
+ opts:['确定参与部门和人员','对数据进行唯一性标识','检查数据的完整性','确定数据来源途径'],
+ ans:1,
+ exp:'建立数据指标规范的核心是对数据进行唯一性标识，贯穿后续的数据查询、分析和应用。'},
+
+{type:'s',
+ text:'数据检查中"准确性检查"的主要方式是？',
+ opts:['检查字段的完整性','与历史数据比较','通过平均、求和等操作与原始数据比对','保证核心指标数据完整'],
+ ans:2,
+ exp:'准确性检查是通过平均、求和等操作与原始数据比对，发现不匹配则检查出错误数据。'},
+
+{type:'s',
+ text:'数据采集原则中"有效性"强调的是什么？',
+ opts:['数据必须准确无误','数据要在有效时间范围内','数据必须合法获取','数据要尽可能最新'],
+ ans:1,
+ exp:'有效性原则要求注意数值期限的有效性，确保数据在有效时间范围内。'},
+
+/* ===== 多选 ×5 ===== */
+{type:'m',
+ text:'数据采集的四大原则包括哪些？（多选）',
+ opts:['及时性','有效性','经济性','准确性','合法性'],
+ ans:[0,1,3,4],
+ exp:'数据采集的四大原则是：及时性、有效性、准确性、合法性。"经济性"不属于四大原则。'},
+
+{type:'m',
+ text:'以下哪些属于数据采集的五种方法？（多选）',
+ opts:['网页数据采集','系统日志数据采集','人工智能采集','报表采集','调查问卷采集'],
+ ans:[0,1,3,4],
+ exp:'五种采集方法为：网页数据采集、系统日志数据采集、数据库采集、报表采集、调查问卷采集。"人工智能采集"不属于。'},
+
+{type:'m',
+ text:'数据采集第一步"确定采集范围及人员分工"需要明确哪些内容？（多选）',
+ opts:['数据采集的指标范围和时间范围','数据来源途径及部门','数据的可视化方式','参与部门和人员配备','数据采集目标'],
+ ans:[0,1,3,4],
+ exp:'第一步需要：根据目标分析、明确指标和时间范围、确定来源途径及部门、确定参与部门和人员。"可视化方式"属于数据展现阶段。'},
+
+{type:'m',
+ text:'数据检查包含哪些检查类型？（多选）',
+ opts:['完整性检查','准确性检查','美观性检查','及时性检查','合规性检查'],
+ ans:[0,1],
+ exp:'数据检查包括两种类型：完整性检查（检查字段完整性，保证核心指标数据完整）和准确性检查（通过平均、求和等操作与原始数据比对）。'},
+
+{type:'m',
+ text:'网页数据采集可以采集到哪些类型的数据？（多选）',
+ opts:['商品标题','商品价格','访客IP地址','销量','评价'],
+ ans:[0,1,3,4],
+ exp:'网页数据采集可在电商平台上直接摘录商品属性数据，包括标题、品牌、价格、销量、评价等。"访客IP地址"属于系统日志数据采集。'},
+
+/* ===== 判断 ×5 ===== */
+{type:'j',
+ text:'数据采集就是简单地从网站上复制粘贴数据。',
+ opts:['✅ 正确','❌ 错误'],
+ ans:1,
+ exp:'数据采集是通过预设工具或程序代码获取各类数据的过程，包括网页采集、日志采集、数据库采集、报表采集、问卷采集等多种方法，远不止复制粘贴。'},
+
+{type:'j',
+ text:'数据采集的"及时性"原则要求尽可能获取平台最新数据，以便与往期数据比对发现问题。',
+ opts:['✅ 正确','❌ 错误'],
+ ans:0,
+ exp:'及时性原则确实要求尽可能获取平台最新数据，与往期数据比对才能发现当前问题和预测变化趋势。'},
+
+{type:'j',
+ text:'数据库采集系统直接与企业业务后台服务器结合，将业务记录写入数据库。',
+ opts:['✅ 正确','❌ 错误'],
+ ans:0,
+ exp:'数据库采集系统确实直接与企业业务后台服务器结合，将业务记录写入数据库，由特定处理系统进行分析。'},
+
+{type:'j',
+ text:'调查问卷只能通过网络填表的方式进行，不能采用实地走访。',
+ opts:['✅ 正确','❌ 错误'],
+ ans:1,
+ exp:'调查问卷采集可以采用多种方式，包括实际走访、电话沟通、网络填表等，并非只能通过网络填表。'},
+
+{type:'j',
+ text:'数据采集的三个步骤中，"数据检查"是最后一步，用于确保数据的完整性和准确性。',
+ opts:['✅ 正确','❌ 错误'],
+ ans:0,
+ exp:'数据采集三步依次为：确定采集范围及人员分工→建立数据指标规范→数据检查。数据检查确实是最后一步，检查内容包括完整性检查和准确性检查。'}
 ];
 
-/* ── STATE ── */
-let pName='',pId='',cur=0,score=0,sC=0,mC=0,jC=0,combo=0;
-const sel=new Set();
+/* 关键题目提示 */
+const hints={
+  0:'💡 回忆数据采集的定义，关注它最终要服务于什么？',
+  6:'💡 数据采集一共有三个步骤，顺序很关键！',
+  10:'⚠️ 从本题开始是多选题，请选出所有正确选项！',
+  15:'⚠️ 从本题开始是判断题，注意绝对化表述！'
+};
 
+/* ====== 状态 ====== */
+let pName='',pId='',cur=0,score=0,sC=0,mC=0,jC=0,combo=0,maxCombo=0,sel=[],answered=false,results=[];
+let timerSec=0,timerInt=null;
+
+/* ====== 工具函数 ====== */
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startTimer(){timerSec=0;clearInterval(timerInt);timerInt=setInterval(()=>{timerSec++;const m=String(Math.floor(timerSec/60)).padStart(2,'0'),s=String(timerSec%60).padStart(2,'0');document.getElementById('timerVal').textContent=m+':'+s},1000)}
+function stopTimer(){clearInterval(timerInt)}
+function fmtTime(s){const m=Math.floor(s/60);return m>0?m+'分'+(s%60)+'秒':(s%60)+'秒'}
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');scrollTo(0,0)}
+
+/* ====== 开始 ====== */
 function startGame(){
   pId=document.getElementById('iId').value.trim();
   pName=document.getElementById('iName').value.trim();
-  if(!pId){alert('请输入学号！');return;}
-  if(!pName){alert('请输入姓名！');return;}
-  cur=0;score=0;sC=0;mC=0;jC=0;combo=0;
-  document.getElementById('hName').textContent=pName;
-  document.getElementById('hId').textContent='学号: '+pId;
-  document.getElementById('avt').textContent=pName[0];
-  document.getElementById('scV').textContent='0';
-  buildDots();showScr('sGame');renderQ();
+  if(!pId||!pName){alert('请输入学号和姓名！');return}
+  cur=0;score=0;sC=0;mC=0;jC=0;combo=0;maxCombo=0;sel=[];answered=false;results=[];
+  const sQ=shuffle(Q.filter(q=>q.type==='s'));
+  const mQ=shuffle(Q.filter(q=>q.type==='m'));
+  const jQ=shuffle(Q.filter(q=>q.type==='j'));
+  Q.length=0;Q.push(...sQ,...mQ,...jQ);
+  buildDots();renderQ();startTimer();showScr('sGame');
 }
 
-function buildDots(){
-  const row=document.getElementById('sdots');row.innerHTML='';
-  Q.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='sdot'+(i===0?' cur':'');
-    d.id='d'+i;d.textContent=i+1;
-    row.appendChild(d);
-  });
+/* ====== 圆点 ====== */
+function buildDots(){const d=document.getElementById('dots');d.innerHTML='';for(let i=0;i<Q.length;i++){const s=document.createElement('span');s.className='dot';s.id='dot'+i;s.textContent=i+1;d.appendChild(s)}updDot()}
+function updDot(){Q.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.classList.remove('cur');if(i===cur)d.classList.add('cur')})}
+function updPg(){document.getElementById('pgFill').style.width=((cur+1)/Q.length*100)+'%';document.getElementById('gInfo').textContent=`第 ${cur+1}/${Q.length} 题`;document.getElementById('gScore').textContent=score}
+
+/* ====== 按钮状态 ====== */
+function updateBtns(state){
+  const sub=document.getElementById('btnSub'),nxt=document.getElementById('btnNext'),skp=document.getElementById('btnSkip'),fin=document.getElementById('btnFinish');
+  sub.classList.add('hide');nxt.classList.add('hide');skp.classList.add('hide');fin.classList.add('hide');
+  if(state==='answering'){sub.classList.remove('hide');sub.disabled=sel.length===0;skp.classList.remove('hide')}
+  else if(state==='answered'){nxt.classList.remove('hide')}
+  else if(state==='last_answered'){fin.classList.remove('hide')}
 }
 
-function updDot(i,res){
-  const d=document.getElementById('d'+i);if(!d)return;
-  d.classList.remove('cur');
-  d.classList.add(res==='ok'?'done':'wdot');
-  d.textContent=res==='ok'?'✓':'✗';
-  const n=document.getElementById('d'+(i+1));
-  if(n)n.classList.add('cur');
-}
-
-function updPg(){
-  const p=Math.round((cur/Q.length)*100);
-  document.getElementById('pgFill').style.width=p+'%';
-  document.getElementById('pgTxt').textContent=`第 ${cur+1} 题 / 共 ${Q.length} 题`;
-  document.getElementById('pgPct').textContent=p+'%';
-}
-
+/* ====== 渲染题目 ====== */
 function renderQ(){
-  updPg();sel.clear();
-  const q=Q[cur],card=document.getElementById('qcard');
-  const tc=q.type,isM=tc==='multi';
-  const tLabel=tc==='single'?'🔵 单选题':tc==='multi'?'🟢 多选题':'🩷 判断题';
-  const tCls=tc==='single'?'s':tc==='multi'?'m':'j';
-
-  // topic hint for key questions
-  const hints={
-    0:'<div class="qnote">📌 本题考查：数据采集的基本概念</div>',
-    2:'<div class="qnote">📌 四大原则：及时性 · 有效性 · 准确性 · 合法性</div>',
-    4:'<div class="qnote">📌 网页采集工具：火车采集器、八爪鱼采集器；平台工具：生意参谋、京东商智</div>',
-    7:'<div class="qnote">📌 三步流程：①确定范围 → ②建立规范 → ③数据检查</div>',
-    10:'<div class="qnote">📌 四类采集内容：商品状态 / 资金状态 / 流量状态 / 用户行为和信息</div>',
-    14:'<div class="qnote">📌 三种检查：完整性检查 / 准确性检查 / 规范性检查</div>',
-  };
-  const hint=hints[cur]||'';
-
-  const optsHtml=q.opts.map((o,i)=>`
-    <div class="opt" id="o${i}" onclick="selOpt(${i})">
-      <div class="okey">${['A','B','C','D','E'][i]}</div>
-      <div class="otxt">${o.replace(/^[A-E]\.\s*/,'')}</div>
-    </div>`).join('');
-
-  card.innerHTML=`
-    <div class="qtype-badge ${tCls}">${tLabel} · 第 ${cur+1} 题</div>
-    <div class="qtxt">${q.text}</div>
-    ${hint}
-    ${isM?'<div class="qhint">💡 多选题——请选出所有正确答案后再提交</div>':''}
-    <div class="opts" id="owrap">${optsHtml}</div>
-    <button class="sub-btn" id="sbtn" onclick="submitA()" disabled>确认提交</button>
-    <div class="fb" id="fbBox"></div>
-    <button class="next-btn" id="nbtn" onclick="nextQ()">
-      ${cur+1<Q.length?'继续下一题 →':'查看最终成绩 🏆'}
-    </button>`;
-  card.style.animation='none';
-  requestAnimationFrame(()=>{card.style.animation='sc .4s cubic-bezier(.4,0,.2,1) both';});
-}
-
-function selOpt(i){
+  answered=false;sel=[];
   const q=Q[cur];
-  if(document.getElementById('o'+i).classList.contains('locked'))return;
-  if(q.type==='single'||q.type==='judge'){
-    sel.clear();
-    q.opts.forEach((_,j)=>document.getElementById('o'+j).classList.remove('sel'));
-    sel.add(i);document.getElementById('o'+i).classList.add('sel');
-  } else {
-    const el=document.getElementById('o'+i);
-    if(sel.has(i)){sel.delete(i);el.classList.remove('sel');}
-    else{sel.add(i);el.classList.add('sel');}
-  }
-  document.getElementById('sbtn').disabled=(sel.size===0);
+  const tm={s:['📘 单选题','s'],m:['📗 多选题（可多选）','m'],j:['📙 判断题','j']};
+  const [tL,tC]=tm[q.type];
+  const pts=q.type==='m'?10:5;
+  const letters='ABCDEFGH';
+  let h=`<span class="q-type ${tC}">${tL}</span>`;
+  h+=`<div class="q-num">第 ${cur+1} / ${Q.length} 题 · ${pts}分</div>`;
+  h+=`<div class="q-text">${q.text}</div>`;
+  if(hints[cur])h+=`<div class="q-note">${hints[cur]}</div>`;
+  if(q.type==='m')h+=`<div class="q-note">💡 本题为多选题，请选择所有正确选项后提交</div>`;
+  h+=`<div class="opts" id="optsBox">`;
+  q.opts.forEach((o,i)=>{h+=`<div class="opt" data-i="${i}" onclick="selOpt(this,${i})"><span class="olet">${q.type==='j'?['⭕','❌'][i]:letters[i]}</span><span class="otxt">${o}</span></div>`});
+  h+=`</div><div class="exp-box" id="expBox"></div>`;
+  document.getElementById('qCard').innerHTML=h;
+  updateBtns('answering');updDot();updPg();
 }
 
+/* ====== 选择 ====== */
+function selOpt(el,i){
+  if(answered)return;
+  const q=Q[cur];
+  if(q.type==='m'){if(sel.includes(i)){sel=sel.filter(x=>x!==i);el.classList.remove('sel')}else{sel.push(i);el.classList.add('sel')}}
+  else{document.querySelectorAll('#optsBox .opt').forEach(o=>o.classList.remove('sel'));sel=[i];el.classList.add('sel')}
+  document.getElementById('btnSub').disabled=sel.length===0;
+}
+
+/* ====== 跳过 ====== */
+function skipQ(){
+  if(answered)return;answered=true;combo=0;
+  const q=Q[cur];results.push({q:q.text,type:q.type,ok:false,skipped:true,exp:q.exp});
+  const opts=document.querySelectorAll('#optsBox .opt');
+  opts.forEach(o=>{o.classList.add('disabled');const idx=+o.dataset.i;if(q.type==='m'){if(q.ans.includes(idx))o.classList.add('hi')}else{if(idx===q.ans)o.classList.add('hi')}});
+  const eb=document.getElementById('expBox');eb.className='exp-box show no';eb.innerHTML='⏭️ 已跳过本题<br>'+q.exp;
+  const dot=document.getElementById('dot'+cur);dot.classList.remove('cur');dot.classList.add('skip');
+  updateBtns(cur>=Q.length-1?'last_answered':'answered');
+}
+
+/* ====== 提交 ====== */
 function submitA(){
-  const q=Q[cur];
-  const chosen=[...sel].sort(),correct=[...q.ans].sort();
-  const ok=JSON.stringify(chosen)===JSON.stringify(correct);
-
-  q.opts.forEach((_,i)=>{
-    const el=document.getElementById('o'+i);
-    el.classList.add('locked');el.onclick=null;
-  });
-  q.ans.forEach(i=>document.getElementById('o'+i).classList.add('show-c'));
-  chosen.forEach(i=>{
-    const el=document.getElementById('o'+i);
-    if(q.ans.includes(i)){el.classList.add('correct');el.classList.remove('show-c');}
-    else el.classList.add('wrong');
-  });
-
-  if(ok){
-    score++;combo++;
-    if(q.type==='single')sC++;else if(q.type==='multi')mC++;else jC++;
-    document.getElementById('scV').textContent=score;
-    updDot(cur,'ok');
-    spawnP(['⭐','✨','🎉','💫']);
-    if(combo>=3)showCombo(combo);
-  } else {combo=0;updDot(cur,'no');}
-
-  const fb=document.getElementById('fbBox');
-  fb.innerHTML=`<div class="fb-hd ${ok?'ok':'no'}">${ok?'🎯 回答正确！+1分':'💔 回答错误'}</div>${q.exp}<div class="fb-ans"><span style="color:var(--gold);font-weight:700;">正确答案：</span>${q.ans.map(i=>`<span class="ak">${['A','B','C','D','E'][i]}</span>`).join(' ')}</div>`;
-  fb.className='fb show '+(ok?'cfb':'wfb');
-  document.getElementById('sbtn').style.display='none';
-  document.getElementById('nbtn').classList.add('show');
-  sel.clear();
+  if(answered||sel.length===0)return;answered=true;
+  const q=Q[cur];let ok=false;
+  if(q.type==='m'){const s=[...sel].sort(),a=[...q.ans].sort();ok=s.length===a.length&&s.every((v,i)=>v===a[i])}else{ok=sel[0]===q.ans}
+  let pts=0;
+  if(ok){pts=q.type==='m'?10:5;score+=pts;combo++;if(combo>maxCombo)maxCombo=combo;if(combo>=3)showCombo(combo);if(q.type==='s')sC++;else if(q.type==='m')mC++;else jC++;spawnP(['⭐','✨','🎉','🌟']);showScoreFly('+'+pts)}else{combo=0}
+  results.push({q:q.text,type:q.type,ok,skipped:false,exp:q.exp});
+  const opts=document.querySelectorAll('#optsBox .opt');
+  opts.forEach(o=>{o.classList.add('disabled');const idx=+o.dataset.i;if(q.type==='m'){if(q.ans.includes(idx))o.classList.add(sel.includes(idx)?'ok':'hi');else if(sel.includes(idx))o.classList.add('no')}else{if(idx===q.ans)o.classList.add('ok');else if(sel.includes(idx))o.classList.add('no')}});
+  const eb=document.getElementById('expBox');eb.className='exp-box show '+(ok?'ok':'no');eb.innerHTML=(ok?'✅ 回答正确！ +'+pts+'分':'❌ 回答错误！')+'<br>'+q.exp;
+  const dot=document.getElementById('dot'+cur);dot.classList.remove('cur');dot.classList.add(ok?'ok':'no');
+  document.getElementById('gScore').textContent=score;
+  updateBtns(cur>=Q.length-1?'last_answered':'answered');
 }
 
-function nextQ(){
-  cur++;
-  if(cur>=Q.length)showResult();
-  else{renderQ();updPg();}
-}
+/* ====== 下一题 ====== */
+function nextQ(){cur++;if(cur>=Q.length){showResult();return}renderQ()}
 
+/* ====== 结果 ====== */
 function showResult(){
+  stopTimer();
+  const total=Q.length,correct=results.filter(r=>r.ok).length,skipped=results.filter(r=>r.skipped).length,wrong=total-correct-skipped;
+  const pct=Math.round(correct/total*100);
+  const starCnt=pct>=90?5:pct>=75?4:pct>=60?3:pct>=40?2:1;
+  const starStr='⭐'.repeat(starCnt)+'☆'.repeat(5-starCnt);
+  let emoji,title,sub;
+  if(pct>=90){emoji='🏆';title='数据采集大师！';sub='你对数据采集认知掌握得非常扎实！'}
+  else if(pct>=70){emoji='🌟';title='表现不错！继续加油！';sub='大部分知识点已掌握，再巩固一下薄弱环节！'}
+  else if(pct>=50){emoji='💪';title='还需努力！别灰心！';sub='建议重点复习四大原则和五种方法！'}
+  else{emoji='📖';title='要加油了！回去复习一下吧！';sub='建议重新学习本单元内容，掌握基础后再来挑战！'}
+  let h=`<div class="r-emoji">${emoji}</div>`;
+  h+=`<div class="r-title">${title}</div>`;
+  h+=`<div class="r-sub">${pName}同学，${sub}</div>`;
+  h+=`<div class="r-score">${score}</div>`;
+  h+=`<div class="r-stars">${starStr}</div>`;
+  h+=`<div class="r-total">满分 100 分 · 正确率 ${pct}% · 用时 ${fmtTime(timerSec)}</div>`;
+  h+=`<div class="r-stats">
+    <div class="r-stat"><div class="v" style="color:var(--green)">${correct}</div><div class="l">答对</div></div>
+    <div class="r-stat"><div class="v" style="color:var(--red)">${wrong}</div><div class="l">答错</div></div>
+    <div class="r-stat"><div class="v" style="color:var(--orange)">${skipped}</div><div class="l">跳过</div></div>
+    <div class="r-stat"><div class="v" style="color:var(--gold)">${maxCombo}</div><div class="l">最长连击</div></div>
+  </div>`;
+  h+=`<div class="r-stats" style="margin-bottom:20px">
+    <div class="r-stat"><div class="v" style="color:var(--blue)">${sC}/10</div><div class="l">单选题</div></div>
+    <div class="r-stat"><div class="v" style="color:var(--purple)">${mC}/5</div><div class="l">多选题</div></div>
+    <div class="r-stat"><div class="v" style="color:var(--pink)">${jC}/5</div><div class="l">判断题</div></div>
+  </div>`;
+  h+=`<div class="r-detail">`;
+  results.forEach((r,i)=>{const ico=r.skipped?'⏭️':r.ok?'✅':'❌';h+=`<div class="r-d-item"><span class="ico">${ico}</span><div class="dtxt"><b>第${i+1}题：</b>${r.q}<div class="dexp">${r.exp}</div></div></div>`});
+  h+=`</div>`;
+  h+=`<div class="r-btn-row"><button class="home-btn" onclick="showScr('sLogin')">🏠 返回首页</button><button class="retry-btn" onclick="showScr('sLogin')">🔄 再来一次</button></div>`;
+  document.getElementById('resBox').innerHTML=h;
   showScr('sResult');
-  const pct=Math.round((score/Q.length)*100);
-  document.getElementById('bigSc').textContent=score;
-  document.getElementById('sb1').textContent=sC;
-  document.getElementById('sb2').textContent=mC;
-  document.getElementById('sb3').textContent=jC;
-  document.getElementById('rNm').textContent=`同学：${pName}（学号：${pId}）`;
-
-  let em,grade,ach,bg;
-  if(pct>=95){
-    em='🏆🌟🥇';grade='采集王者';
-    ach=`太厉害了！${pName}同学，以近满分的成绩征服了「数据采集认知」全部内容！无论是概念、四大原则、五种采集方法还是三步流程，你已全面掌握。专业数据分析师的路已经铺好了！🎊`;
-    bg='linear-gradient(135deg,#FFD700,#FFA500)';
-  } else if(pct>=80){
-    em='🥈⭐✨';grade='数据精英';
-    ach=`很棒！${pName}同学，得分${score}/20，对数据采集的概念、原则、方法掌握得相当扎实。把错题再复习一遍，满分就在眼前！`;
-    bg='linear-gradient(135deg,#00D4FF,#7C3AED)';
-  } else if(pct>=60){
-    ach=`加油，${pName}同学！得分${score}/20，基础知识已掌握。建议重点复习：四大采集原则（尤其合法性）、五种采集方法的适用场景、三步流程的顺序，再来挑战一次！`;
-    em='🥉📚💡';grade='进步之星';
-    bg='linear-gradient(135deg,#00E5CC,#0D9488)';
-  } else {
-    ach=`勇气可嘉，${pName}同学！得分${score}/20，本节内容还需要加强。重点回顾：数据采集的概念和四大原则、各种采集方法的区别与适用场景、三步数据检查的内容，相信你下次一定大有进步！`;
-    em='📖🔁💪';grade='勇于挑战者';
-    bg='linear-gradient(135deg,#FF6B9D,#C026D3)';
-  }
-
-  document.getElementById('rIcon').style.background=bg;
-  document.getElementById('rIcon').textContent=em.split('')[0];
-  document.getElementById('rGrade').textContent=grade+' · 闯关完成！';
-  document.getElementById('rAch').textContent=ach;
-  document.getElementById('rFw').textContent=em;
-  setTimeout(()=>spawnP(['🎉','⭐','🏆','✨','🎊','💫','🌟'],28),300);
+  spawnP(['🎊','⭐','🏆','✨','🎉','💫','🌟'],28);
 }
 
-function showScr(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function retry(){showScr('sLogin');document.getElementById('iName').value='';document.getElementById('iId').value='';}
+/* ====== 特效 ====== */
+function showCombo(n){const t=document.getElementById('comboT');const m={3:'🔥 三连正确！',4:'🔥 四连！超厉害！',5:'🔥 五连！无敌！'};t.textContent=n<=5?(m[n]||`🔥×${n} 连续正确！`):`🔥×${n} 连续正确！传奇！`;t.style.display='block';t.style.animation='none';requestAnimationFrame(()=>{t.style.animation='cIn 2.2s ease forwards'});setTimeout(()=>t.style.display='none',2300)}
+function showScoreFly(txt){const el=document.createElement('div');el.className='score-fly';el.textContent=txt;el.style.left=Math.random()*30+35+'%';el.style.top='40%';document.body.appendChild(el);setTimeout(()=>el.remove(),1300)}
+function spawnP(e,n=12){for(let i=0;i<n;i++)setTimeout(()=>{const p=document.createElement('div');p.className='ptc';p.textContent=e[Math.floor(Math.random()*e.length)];p.style.left=Math.random()*100+'vw';p.style.top=Math.random()*60+20+'vh';p.style.animationDuration=(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2500)},i*80)}
 
-function spawnP(emojis,n=12){
-  for(let i=0;i<n;i++)setTimeout(()=>{
-    const p=document.createElement('div');p.className='ptc';
-    p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-    p.style.left=Math.random()*100+'vw';p.style.top=Math.random()*60+20+'vh';
-    p.style.animationDuration=(1.5+Math.random())+'s';
-    document.body.appendChild(p);setTimeout(()=>p.remove(),2500);
-  },i*80);
-}
-
-function showCombo(n){
-  const t=document.getElementById('comboT');
-  const msgs={3:'🔥 三连正确！',4:'🔥🔥 四连！超厉害！',5:'🔥🔥🔥 五连！无敌！'};
-  t.textContent=n<=5?(msgs[n]||`🔥×${n} 连续正确！`):`🔥×${n} 连续正确！传奇！`;
-  t.style.display='block';t.style.animation='none';
-  requestAnimationFrame(()=>{t.style.animation='cIn 2.2s ease forwards';});
-  setTimeout(()=>t.style.display='none',2300);
-}
-
+/* ====== 键盘 ====== */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&document.getElementById('sLogin').classList.contains('active'))startGame();
+  if(e.key==='Enter'){
+    if(document.getElementById('sLogin').classList.contains('active'))startGame();
+    else if(document.getElementById('sGame').classList.contains('active')){if(!answered&&sel.length>0)submitA();else if(answered){if(cur>=Q.length-1)showResult();else nextQ()}}
+  }
+  if(document.getElementById('sGame').classList.contains('active')&&!answered){const n=parseInt(e.key);if(n>=1&&n<=Q[cur].opts.length){const o=document.querySelectorAll('#optsBox .opt');if(o[n-1])selOpt(o[n-1],n-1)}}
 });
 </script>
 </body>
