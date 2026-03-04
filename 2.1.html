@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模块二·单元一 数据采集认知</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/learning.css">
+  <style>
+    :root {
+      --c1: #0891B2;
+      --c1l: #F0F9FF;
+      --c1d: #0E7490;
+      --c2: #06B6D4;
+      --c3: #A5F3FC;
+      /* 旧变量名映射 */
+      --primary: #0891B2;
+      --secondary: #06B6D4;
+      --accent: #A5F3FC;
+      --bg: #FFF9F0;
+      --text: #2c3e50;
+      --muted: #7f8c9a;
+      --card: #FFFFFF;
+      --r: 16px;
+    }
+
+    /* ── 本页专属：quiz section 旧类名 ── */
+    .quiz-section,
+    #quiz {
+      background: linear-gradient(135deg, #f8f9ff, #fff);
+      border-radius: 20px;
+      padding: 32px;
+      border: 2px solid var(--c1);
+      margin-top: 40px;
+    }
+
+    .quiz-header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .quiz-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--c1);
+      margin: 0;
+    }
+
+    .quiz-body {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .quiz-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      border: 1px solid #e8e8e8;
+    }
+
+    .quiz-q {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .quiz-num {
+      background: var(--c1);
+      color: #fff;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-opt {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 2px solid #eee;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+    }
+
+    .quiz-opt:hover {
+      border-color: var(--c1);
+      background: var(--c1l);
+    }
+
+    .quiz-opt.selected {
+      border-color: var(--c1);
+      background: var(--c1l);
+    }
+
+    .quiz-opt.correct {
+      background: #d1fae5;
+      border-color: #059669;
+    }
+
+    .quiz-opt.wrong {
+      background: #fee2e2;
+      border-color: #dc2626;
+    }
+
+    .opt-label {
+      background: var(--c1);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .quiz-submit {
+      background: var(--c1);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+
+    .quiz-submit:hover {
+      opacity: .85;
+      transform: translateY(-1px);
+    }
+
+    .quiz-submit:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .quiz-feedback {
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.correct-fb {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .quiz-feedback.wrong-fb {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .score-display {
+      text-align: center;
+      padding: 32px;
+      background: linear-gradient(135deg, var(--c1), var(--c1d));
+      color: #fff;
+      border-radius: 20px;
+      margin-top: 24px;
+    }
+
+    .score-emoji {
+      font-size: 64px;
+    }
+
+    .score-number {
+      font-size: 48px;
+      font-weight: 900;
+    }
+
+    .score-message {
+      font-size: 18px;
+      margin-top: 8px;
+    }
+
+    .score-retry {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, .25);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, .6);
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-badge">📚 模块二 · 单元一</div>
+    <h1>数据采集认知</h1>
+    <h2>概念 · 原则 · 方法 · 步骤 — 数据从哪来？怎么采？</h2>
+    <div class="hero-tags">
+      <span class="hero-tag">⏱ 预计50分钟</span>
+      <span class="hero-tag">📋 4大核心模块</span>
+      <span class="hero-tag">⚖️ 4大采集原则</span>
+      <span class="hero-tag">🛠️ 5种采集方法</span>
+      <span class="hero-tag">✅ 5道测试题</span>
+    </div>
+    <div class="hero-nodes">
+      <div class="hn">📌 概念</div>
+      <div class="hn-arr">→</div>
+      <div class="hn">⚖️ 原则</div>
+      <div class="hn-arr">→</div>
+      <div class="hn">🛠️ 方法</div>
+      <div class="hn-arr">→</div>
+      <div class="hn">🔢 步骤</div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="sticky-nav">
+    <a class="nav-item active" href="#sec-concept">📌 概念</a>
+    <a class="nav-item" href="#sec-principle">⚖️ 四大原则</a>
+    <a class="nav-item" href="#sec-method">🛠️ 采集方法</a>
+    <a class="nav-item" href="#sec-steps">🔢 采集步骤</a>
+    <a class="nav-item" href="#sec-case">⚖️ 案例思考</a>
+    <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+    <a class="nav-item" href="#sec-quiz">✅ 测试题</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- ══════════════════════
+     一、数据采集的概念
+══════════════════════ -->
+    <section id="sec-concept" class="sec-block reveal">
+      <div class="sec-hd bc1">
+        <div class="sec-icon bg-c1" style="color:#fff;">📌</div>
+        <div>
+          <div class="sec-title txt-c1">一、数据采集的概念</div>
+          <div class="sec-sub">什么是数据采集？采集什么数据？</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#0891B2,#0D9488);">
+        <div class="lc-tag">🛒 情景引入</div>
+        <h4>老板说"我们店最近流量下滑，赶紧分析一下！"——你从哪里找数据？</h4>
+        <p>数据分析的前提是要有数据！而获取数据的过程，就叫做<strong>数据采集</strong>。没有采集，一切分析都是无源之水。本单元就是要搞清楚：数据从哪来？采什么？怎么采？按什么步骤采？</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c1" style="margin-bottom:18px;">📖 数据采集的定义</h3>
+        <div
+          style="background:linear-gradient(135deg,#CFFAFE,#EFF9FF);border-radius:16px;padding:22px 24px;border:2px solid var(--c1);margin-bottom:18px;">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">核心定义</div>
+          <div style="font-size:16px;line-height:1.85;color:var(--text);">
+            数据采集（也称<strong style="color:var(--c1);">数据获取</strong>）是指通过在平台源程序中<strong>预设工具或程序代码</strong>，获取特定数据内容的过程。
+          </div>
+        </div>
+
+        <h4 class="txt-c1" style="margin-bottom:14px;">📥 采集的四类数据内容</h4>
+        <div class="g4">
+          <div style="background:#CFFAFE;border-radius:14px;padding:18px;border:2px solid var(--c1);text-align:center;">
+            <div style="font-size:30px;margin-bottom:8px;">🛍️</div>
+            <div style="font-weight:700;color:var(--c1d);margin-bottom:5px;">商品状态变化</div>
+            <div style="font-size:12px;color:#555;line-height:1.6;">商品上下架、价格变动、库存变化、销量变动等</div>
+          </div>
+          <div style="background:#FEF3C7;border-radius:14px;padding:18px;border:2px solid var(--c2);text-align:center;">
+            <div style="font-size:30px;margin-bottom:8px;">💰</div>
+            <div style="font-weight:700;color:var(--c2d);margin-bottom:5px;">资金状态变化</div>
+            <div style="font-size:12px;color:#555;line-height:1.6;">收款、退款、广告费用、店铺利润等资金流动数据</div>
+          </div>
+          <div style="background:#EEF2FF;border-radius:14px;padding:18px;border:2px solid var(--c3);text-align:center;">
+            <div style="font-size:30px;margin-bottom:8px;">📊</div>
+            <div style="font-weight:700;color:var(--c3);margin-bottom:5px;">流量状态变化</div>
+            <div style="font-size:12px;color:#555;line-height:1.6;">UV/PV、来源渠道、跳出率、停留时间等访客数据</div>
+          </div>
+          <div style="background:#FCE7F3;border-radius:14px;padding:18px;border:2px solid var(--c4);text-align:center;">
+            <div style="font-size:30px;margin-bottom:8px;">👤</div>
+            <div style="font-weight:700;color:var(--c4);margin-bottom:5px;">用户行为和信息</div>
+            <div style="font-size:12px;color:#555;line-height:1.6;">用户画像、浏览路径、购买习惯、评价反馈等</div>
+          </div>
+        </div>
+
+        <div class="hl amber" style="margin-top:16px;">
+          <div class="hi">🎯</div>
+          <div class="hb">
+            <strong>数据采集的根本目的</strong>
+            <p>为后续进行<strong>数据分析提供数据准备</strong>。数据采集是整个数据分析流程的"原材料供应环节"——没有充分的数据采集，后续的分析、展现和报告都无从谈起。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：数据采集的另一个名称是什么？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq0','数据处理是数据分析流程的第三步，不是数据采集的别名。')">数据处理</button>
+          <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！数据采集也称为「数据获取」，是通过预设工具或代码采集数据的过程。')">数据获取</button>
+          <button class="mo" onclick="mq(this,false,'mq0','数据分析是对处理后的数据进行分析，不是采集的别名。')">数据分析</button>
+        </div>
+        <div id="mq0" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════
+     二、数据采集的原则
+══════════════════════ -->
+    <section id="sec-principle" class="sec-block reveal">
+      <div class="sec-hd bc2">
+        <div class="sec-icon bg-c2" style="color:#fff;">⚖️</div>
+        <div>
+          <div class="sec-title txt-c2">二、数据采集的四大原则</div>
+          <div class="sec-sub">及时性 · 有效性 · 准确性 · 合法性</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#D97706,#F59E0B);">
+        <div class="lc-tag">⚖️ 生活引入</div>
+        <h4>采集数据不是"越多越好"，也不是"怎么方便怎么来"！</h4>
+        <p>数据采集有四大原则，这四个原则就像"采集护栏"——保证数据<strong>有用（及时+有效）、可信（准确）、合规（合法）</strong>。违反任何一条，采来的数据要么没价值，要么还会惹上法律麻烦！</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c2" style="margin-bottom:20px;">📋 四大原则详解</h3>
+        <div class="g2">
+          <div class="pr-card" style="background:#CFFAFE;border-color:var(--c1);">
+            <div class="pr-icon">⚡</div>
+            <div class="pr-name" style="color:var(--c1d);">及时性</div>
+            <div class="pr-desc">尽可能获取平台<strong>最新数据</strong>，与往期数据比对，<strong>发现问题并预测变化趋势</strong>。</div>
+            <div
+              style="margin-top:12px;background:rgba(8,145,178,.08);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--c1d);">
+              🌰 今天的UV数据要尽快采集，昨天的数据拖到下周再看就没意义了。
+            </div>
+          </div>
+          <div class="pr-card" style="background:#FEF3C7;border-color:var(--c2);">
+            <div class="pr-icon">🔋</div>
+            <div class="pr-name" style="color:var(--c2d);">有效性</div>
+            <div class="pr-desc">注意<strong>数值期限的有效性</strong>，确保数据在<strong>有效范围内</strong>。</div>
+            <div
+              style="margin-top:12px;background:rgba(245,158,11,.08);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--c2d);">
+              🌰 用3年前的行业数据分析当前竞争格局，数据已过期失效，分析结论不可信。
+            </div>
+          </div>
+          <div class="pr-card" style="background:#D1FAE5;border-color:var(--c5);">
+            <div class="pr-icon">🎯</div>
+            <div class="pr-name" style="color:#065F46;">准确性</div>
+            <div class="pr-desc">数据参与计算时可能产生偏差，需<strong>确保摘录数据准确无误</strong>。</div>
+            <div
+              style="margin-top:12px;background:rgba(16,185,129,.08);border-radius:8px;padding:8px 12px;font-size:12px;color:#065F46;">
+              🌰 手动录入销售额时把"12,345"录成"1,2345"，一个数字之差导致计算全部出错。
+            </div>
+          </div>
+          <div class="pr-card" style="background:#FEE2E2;border-color:var(--c7);">
+            <div class="pr-icon">⚖️</div>
+            <div class="pr-name" style="color:#991B1B;">合法性</div>
+            <div class="pr-desc">只能采集<strong>公开数据或经对方同意</strong>的数据，<strong>禁止</strong>商业间谍、非法窃取等手段。</div>
+            <div
+              style="margin-top:12px;background:rgba(239,68,68,.08);border-radius:8px;padding:8px 12px;font-size:12px;color:#991B1B;">
+              ⚠️ 非法入侵竞争对手数据库、购买未经同意的客户信息，均属违法行为！
+            </div>
+          </div>
+        </div>
+
+        <!-- 记忆口诀 -->
+        <div class="hl blue" style="margin-top:16px;">
+          <div class="hi">🧠</div>
+          <div class="hb">
+            <strong>记忆口诀：「及时有准法」</strong>
+            <p><strong>及</strong>时更新抓趋势，<strong>有</strong>效期限别过期，<strong>准</strong>确无误才可信，<strong>法</strong>律红线不能碰！</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原则对比表 -->
+      <div class="card reveal">
+        <h3 class="txt-c2" style="margin-bottom:16px;">📊 四大原则对比一览表</h3>
+        <div class="tb-wrap">
+          <table>
+            <tr>
+              <th style="width:100px;">原则</th>
+              <th>核心要求</th>
+              <th>违反后果</th>
+              <th style="width:240px;">典型案例</th>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c1);">⚡ 及时性</strong></td>
+              <td>获取最新数据，与往期比对，预测趋势</td>
+              <td>数据滞后，无法反映当前状况，决策失误</td>
+              <td>双十一结束3天后才采集活动数据，错过调整黄金期</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c2d);">🔋 有效性</strong></td>
+              <td>确保数据在有效范围内，不使用过期数据</td>
+              <td>基于过期数据分析，结论失真，误导决策</td>
+              <td>用2020年行业报告分析2024年市场竞争格局</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#065F46;">🎯 准确性</strong></td>
+              <td>摘录数据准确无误，避免录入偏差</td>
+              <td>数据偏差导致计算结果错误，影响所有后续分析</td>
+              <td>将销量"1,234件"错录为"12,34件"</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#991B1B;">⚖️ 合法性</strong></td>
+              <td>只采集公开数据或经同意的数据</td>
+              <td>违反《个人信息保护法》等，承担法律责任</td>
+              <td>购买客户资料用于短信营销，涉嫌违法</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：「注意数值期限的有效性，确保数据在有效范围内」体现了哪条原则？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq1','及时性强调获取最新数据，注意的是时间新鲜度，不是有效期限。')">及时性</button>
+          <button class="mo"
+            onclick="mq(this,true,'mq1','✅ 正确！有效性原则要求注意数据的有效期限，确保采集的数据在其有效范围内，避免使用过期失效的数据。')">有效性</button>
+          <button class="mo" onclick="mq(this,false,'mq1','准确性强调数据录入无误，不是关于有效期限的问题。')">准确性</button>
+          <button class="mo" onclick="mq(this,false,'mq1','合法性关注采集手段的合规性，不是数据的有效期限。')">合法性</button>
+        </div>
+        <div id="mq1" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════
+     三、数据采集的方法
+══════════════════════ -->
+    <section id="sec-method" class="sec-block reveal">
+      <div class="sec-hd bc3">
+        <div class="sec-icon bg-c3" style="color:#fff;">🛠️</div>
+        <div>
+          <div class="sec-title txt-c3">三、数据采集的方法</div>
+          <div class="sec-sub">5种方法各有适用场景，灵活运用是关键</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#6366F1,#4F46E5);">
+        <div class="lc-tag">🛠️ 生活引入</div>
+        <h4>采集数据就像取水——水在哪、用什么容器取，决定了取水的效率！</h4>
+        <p>不同类型的数据需要不同的采集方法。网页数据、系统日志、数据库、报表、问卷……<strong>5种方法各有专长</strong>，搞清楚它们的适用场景，才能在实际工作中选对工具、高效采集。</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c3" style="margin-bottom:8px;">🗂️ 5种采集方法概览（点击卡片展开详情）</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">每种方法都有其最适合的使用场景，选对方法事半功倍！</p>
+
+        <!-- method cards grid -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:4px;"
+          id="mcGrid">
+          <div class="mc" style="background:#CFFAFE;border-color:var(--c1);" onclick="showMethod('m1')">
+            <div class="mc-num" style="background:var(--c1);">1</div>
+            <div class="mc-title" style="color:var(--c1d);">🌐 网页数据采集</div>
+            <div class="mc-desc">采集行业及竞争对手的商品属性数据</div>
+          </div>
+          <div class="mc" style="background:#EEF2FF;border-color:var(--c3);" onclick="showMethod('m2')">
+            <div class="mc-num" style="background:var(--c3);">2</div>
+            <div class="mc-title" style="color:#4338CA;">📋 系统日志采集</div>
+            <div class="mc-desc">从网站日志获取访客行为数据</div>
+          </div>
+          <div class="mc" style="background:#D1FAE5;border-color:var(--c5);" onclick="showMethod('m3')">
+            <div class="mc-num" style="background:var(--c5);">3</div>
+            <div class="mc-title" style="color:#065F46;">🗄️ 数据库采集</div>
+            <div class="mc-desc">与企业业务后台直连，实时写入记录</div>
+          </div>
+          <div class="mc" style="background:#FEF3C7;border-color:var(--c2);" onclick="showMethod('m4')">
+            <div class="mc-num" style="background:var(--c2);">4</div>
+            <div class="mc-title" style="color:var(--c2d);">📝 报表采集</div>
+            <div class="mc-desc">适用于无统计功能的独立站点</div>
+          </div>
+          <div class="mc" style="background:#FCE7F3;border-color:var(--c4);" onclick="showMethod('m5')">
+            <div class="mc-num" style="background:var(--c4);">5</div>
+            <div class="mc-title" style="color:#9D174D;">📋 调查问卷采集</div>
+            <div class="mc-desc">收集用户需求、习惯、反馈等主观数据</div>
+          </div>
+        </div>
+
+        <!-- method detail panels -->
+        <div id="m1" class="md-panel" style="border-color:var(--c1);background:#CFFAFE;">
+          <div class="md-hd">
+            <div class="md-icon">🌐</div>
+            <div>
+              <div class="md-name" style="color:var(--c1d);">网页数据采集</div>
+              <div style="font-size:12px;color:var(--muted);">竞品数据 · 行业数据</div>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.8;margin-bottom:14px;">
+            采集行业及竞争对手数据，主要包括<strong>商品属性数据</strong>：标题、品牌、价格、销量、评价等。</div>
+          <div class="g2">
+            <div style="background:#fff;border-radius:12px;padding:14px;">
+              <div style="font-weight:700;color:var(--c1d);margin-bottom:8px;">🔧 采集方式</div>
+              <div style="font-size:13px;line-height:1.7;color:#555;">
+                ① <strong>直接摘录</strong>：手动从网页复制整理数据<br>
+                ② <strong>爬虫工具</strong>：<span
+                  style="background:#CFFAFE;color:var(--c1d);padding:1px 6px;border-radius:4px;font-size:12px;">火车采集器</span>
+                <span
+                  style="background:#CFFAFE;color:var(--c1d);padding:1px 6px;border-radius:4px;font-size:12px;">八爪鱼采集器</span>
+              </div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:14px;">
+              <div style="font-weight:700;color:var(--c1d);margin-bottom:8px;">🏪 平台工具</div>
+              <div style="font-size:13px;line-height:1.7;color:#555;">
+                <span
+                  style="background:#CFFAFE;color:var(--c1d);padding:1px 6px;border-radius:4px;font-size:12px;">生意参谋</span>（淘宝）<br>
+                <span
+                  style="background:#CFFAFE;color:var(--c1d);padding:1px 6px;border-radius:4px;font-size:12px;">京东商智</span>（京东）
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="m2" class="md-panel" style="border-color:var(--c3);background:#EEF2FF;">
+          <div class="md-hd">
+            <div class="md-icon">📋</div>
+            <div>
+              <div class="md-name" style="color:#4338CA;">系统日志数据采集</div>
+              <div style="font-size:12px;color:var(--muted);">访客行为 · 流量分析</div>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.8;margin-bottom:14px;">
+            从<strong>网站日志</strong>中获取数据，用于挖掘业务平台日志的<strong>潜在价值</strong>。</div>
+          <div style="background:#fff;border-radius:12px;padding:14px;display:flex;flex-wrap:wrap;gap:10px;">
+            <div style="text-align:center;padding:10px 16px;background:#EEF2FF;border-radius:10px;">
+              <div style="font-size:20px;">🌐</div>
+              <div style="font-size:12px;color:#4338CA;font-weight:700;">访客IP</div>
+            </div>
+            <div style="text-align:center;padding:10px 16px;background:#EEF2FF;border-radius:10px;">
+              <div style="font-size:20px;">⏰</div>
+              <div style="font-size:12px;color:#4338CA;font-weight:700;">访问时间</div>
+            </div>
+            <div style="text-align:center;padding:10px 16px;background:#EEF2FF;border-radius:10px;">
+              <div style="font-size:20px;">🔢</div>
+              <div style="font-size:12px;color:#4338CA;font-weight:700;">访问次数</div>
+            </div>
+            <div style="text-align:center;padding:10px 16px;background:#EEF2FF;border-radius:10px;">
+              <div style="font-size:20px;">⌛</div>
+              <div style="font-size:12px;color:#4338CA;font-weight:700;">停留时间</div>
+            </div>
+            <div style="text-align:center;padding:10px 16px;background:#EEF2FF;border-radius:10px;">
+              <div style="font-size:20px;">🔗</div>
+              <div style="font-size:12px;color:#4338CA;font-weight:700;">访客来源</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="m3" class="md-panel" style="border-color:var(--c5);background:#D1FAE5;">
+          <div class="md-hd">
+            <div class="md-icon">🗄️</div>
+            <div>
+              <div class="md-name" style="color:#065F46;">数据库采集</div>
+              <div style="font-size:12px;color:var(--muted);">实时采集 · 业务系统直连</div>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.8;margin-bottom:14px;">
+            系统直接与<strong>企业业务后台服务器结合</strong>，将业务后台实时产生的大量业务记录<strong>写入数据库</strong>，再由特定处理系统进行分析。</div>
+          <div style="background:#fff;border-radius:12px;padding:14px;">
+            <div style="font-size:13px;line-height:1.8;color:#555;">
+              📌 <strong>特点：</strong>自动化程度高，实时性强，适合大规模企业的订单、用户、库存等核心业务数据采集。<br>
+              📌 <strong>流程：</strong>业务后台产生记录 → 实时写入数据库 → 处理系统提取分析
+            </div>
+          </div>
+        </div>
+
+        <div id="m4" class="md-panel" style="border-color:var(--c2);background:#FEF3C7;">
+          <div class="md-hd">
+            <div class="md-icon">📝</div>
+            <div>
+              <div class="md-name" style="color:var(--c2d);">报表采集</div>
+              <div style="font-size:12px;color:var(--muted);">独立站点 · 人工整理</div>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.8;margin-bottom:12px;">
+            适用于<strong>无统计功能的独立站点</strong>（如没有每日咨询量、订单数等统计），通过<strong>每日/每周工作报表</strong>进行数据采集。</div>
+          <div class="hl amber">
+            <div class="hi">⚠️</div>
+            <div class="hb"><strong>注意区分！</strong>
+              <p>报表采集不是大平台的采集方式！它专门针对缺少自动统计功能的小型独立网站或内部系统，通过人工填报的方式收集数据。</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="m5" class="md-panel" style="border-color:var(--c4);background:#FCE7F3;">
+          <div class="md-hd">
+            <div class="md-icon">📋</div>
+            <div>
+              <div class="md-name" style="color:#9D174D;">调查问卷采集</div>
+              <div style="font-size:12px;color:var(--muted);">主观数据 · 用户需求</div>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.8;margin-bottom:12px;">适用于采集<strong>用户需求、习惯、喜好、产品使用反馈</strong>等主观性数据。
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div style="background:#fff;border-radius:10px;padding:10px 14px;text-align:center;flex:1;min-width:100px;">
+              <div style="font-size:22px;margin-bottom:5px;">🚶</div>
+              <div style="font-weight:700;color:#9D174D;font-size:13px;">实际走访</div>
+              <div style="font-size:11px;color:#555;margin-top:3px;">面对面深度访谈</div>
+            </div>
+            <div style="background:#fff;border-radius:10px;padding:10px 14px;text-align:center;flex:1;min-width:100px;">
+              <div style="font-size:22px;margin-bottom:5px;">📞</div>
+              <div style="font-weight:700;color:#9D174D;font-size:13px;">电话沟通</div>
+              <div style="font-size:11px;color:#555;margin-top:3px;">电话访谈问卷</div>
+            </div>
+            <div style="background:#fff;border-radius:10px;padding:10px 14px;text-align:center;flex:1;min-width:100px;">
+              <div style="font-size:22px;margin-bottom:5px;">💻</div>
+              <div style="font-weight:700;color:#9D174D;font-size:13px;">网络填表</div>
+              <div style="font-size:11px;color:#555;margin-top:3px;">问卷星等在线工具</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 方法对比表 -->
+      <div class="card reveal">
+        <h3 class="txt-c3" style="margin-bottom:16px;">📊 五种采集方法对比总览</h3>
+        <div class="tb-wrap">
+          <table>
+            <tr>
+              <th>方法名称</th>
+              <th>主要数据来源</th>
+              <th>代表工具/方式</th>
+              <th>最适用场景</th>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c1);">🌐 网页数据采集</strong></td>
+              <td>行业网站、竞品页面</td>
+              <td>火车采集器、八爪鱼、生意参谋</td>
+              <td>竞品调研、行业分析</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c3);">📋 系统日志采集</strong></td>
+              <td>网站服务器日志</td>
+              <td>日志分析工具</td>
+              <td>流量分析、用户行为挖掘</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c5);">🗄️ 数据库采集</strong></td>
+              <td>企业业务后台</td>
+              <td>数据库直连、ETL工具</td>
+              <td>订单、库存等核心业务数据</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c2d);">📝 报表采集</strong></td>
+              <td>员工手工填报</td>
+              <td>Excel报表、工作日报</td>
+              <td>无统计功能的独立站点</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--c4);">📋 调查问卷采集</strong></td>
+              <td>用户/客户反馈</td>
+              <td>问卷星、实地访谈</td>
+              <td>用户需求、产品反馈</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：「火车采集器」属于哪种数据采集方法？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq2','系统日志采集是从网站服务器日志文件中获取数据，不使用爬虫工具。')">系统日志数据采集</button>
+          <button class="mo"
+            onclick="mq(this,true,'mq2','✅ 正确！火车采集器和八爪鱼采集器都是网页数据采集中常用的爬虫工具，用于批量抓取商品标题、价格、销量等属性数据。')">网页数据采集</button>
+          <button class="mo" onclick="mq(this,false,'mq2','数据库采集是系统直接与企业后台服务器连接，不是网页爬虫工具。')">数据库采集</button>
+          <button class="mo" onclick="mq(this,false,'mq2','报表采集是人工填写工作报表，与爬虫工具无关。')">报表采集</button>
+        </div>
+        <div id="mq2" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════
+     四、数据采集的步骤
+══════════════════════ -->
+    <section id="sec-steps" class="sec-block reveal">
+      <div class="sec-hd bc6">
+        <div class="sec-icon bg-c6" style="color:#fff;">🔢</div>
+        <div>
+          <div class="sec-title txt-c6">四、数据采集的步骤</div>
+          <div class="sec-sub">确定范围 → 建立规范 → 数据检查</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);">
+        <div class="lc-tag">🔢 生活引入</div>
+        <h4>数据采集不是"随手抓"——要按步骤来，才能采得准、用得好！</h4>
+        <p>
+          数据采集有三个规范步骤，环环相扣：先想清楚<strong>采什么、谁来采</strong>，再建立<strong>统一标准</strong>，最后对采集结果进行<strong>质量检查</strong>。少了哪一步，都可能让后续分析"翻车"。
+        </p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c6" style="margin-bottom:20px;">🔄 三步采集流程</h3>
+        <div class="step-flow">
+          <!-- Step 1 -->
+          <div class="sf-item">
+            <div class="sf-num" style="background:linear-gradient(135deg,#0891B2,#0D9488);">①</div>
+            <div class="sf-body">
+              <div class="sf-title"><span class="txt-c1">确定采集范围及人员分工</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <span
+                    style="background:var(--c1l);color:var(--c1d);padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;">指标范围</span>
+                  <span
+                    style="font-size:13px;color:#555;line-height:1.65;">根据采集目标，<strong>明确指标范围和时间范围</strong>，确定要采集哪些具体数据字段。</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <span
+                    style="background:var(--c1l);color:var(--c1d);padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;">数据来源</span>
+                  <span
+                    style="font-size:13px;color:#555;line-height:1.65;">明确<strong>数据来源途径及部门</strong>，确定从哪些系统、平台获取所需数据。</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <span
+                    style="background:var(--c1l);color:var(--c1d);padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;">人员配备</span>
+                  <span
+                    style="font-size:13px;color:#555;line-height:1.65;"><strong>确定参与部门和人员配备</strong>，明确责任到人，避免采集工作出现遗漏。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="sf-item">
+            <div class="sf-num" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);">②</div>
+            <div class="sf-body">
+              <div class="sf-title"><span class="txt-c6">建立必要的数据指标规范</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <span
+                    style="background:var(--c6l);color:#6D28D9;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;">唯一标识</span>
+                  <span
+                    style="font-size:13px;color:#555;line-height:1.65;">对数据进行<strong>唯一性标识</strong>，确保每条数据有唯一的识别编码，避免混淆。</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <span
+                    style="background:var(--c6l);color:#6D28D9;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;">贯穿全流程</span>
+                  <span
+                    style="font-size:13px;color:#555;line-height:1.65;">规范<strong>贯穿后续数据查询、分析和应用全流程</strong>，一次建立，持续有效。</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <span
+                    style="background:var(--c6l);color:#6D28D9;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0;">统一原则</span>
+                  <span
+                    style="font-size:13px;color:#555;line-height:1.65;">为庞杂的数据分析工作提供<strong>可遵循的统一原则</strong>，让多人协作有章可循。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="sf-item">
+            <div class="sf-num" style="background:linear-gradient(135deg,#EC4899,#BE185D);">③</div>
+            <div class="sf-body">
+              <div class="sf-title"><span class="txt-c4">数据检查</span></div>
+              <div style="margin-top:10px;">
+                <div class="tb-wrap">
+                  <table class="ct">
+                    <tr>
+                      <th>检查类型</th>
+                      <th>检查内容</th>
+                      <th>典型问题举例</th>
+                    </tr>
+                    <tr>
+                      <td><strong style="color:#6D28D9;">✅ 完整性检查</strong></td>
+                      <td>对数据进行复查或计算合计，与历史数据比较；<strong>确保核心指标数据完整</strong></td>
+                      <td>发现某天的UV数据缺失，及时补录</td>
+                    </tr>
+                    <tr>
+                      <td><strong style="color:#6D28D9;">🎯 准确性检查</strong></td>
+                      <td>通过<strong>平均、求和等操作</strong>与原始数据比对，找出录入错误数据</td>
+                      <td>汇总销量发现合计不对，追溯找出录入错误的那条数据</td>
+                    </tr>
+                    <tr>
+                      <td><strong style="color:#6D28D9;">📐 规范性检查</strong></td>
+                      <td>检查是否存在<strong>多个商品标识编码相同</strong>，或同一数据出现<strong>多个数据指标</strong>等问题</td>
+                      <td>两个SKU编码重复，导致数据混乱无法区分</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hl purple" style="margin-top:8px;">
+          <div class="hi">💡</div>
+          <div class="hb">
+            <strong>重要提醒：步骤二的规范不是"用完即弃"！</strong>
+            <p>建立数据指标规范的目的是<strong>贯穿后续数据查询、分析和应用的全流程</strong>，不是只在采集阶段使用。它是整个数据分析体系的"基础设施"，应该长期维护和遵循。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：通过「平均、求和」等操作与原始数据比对，找出录入错误，属于哪种数据检查？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq3','完整性检查是确保数据没有缺失，不是用计算来比对找错误。')">完整性检查</button>
+          <button class="mo"
+            onclick="mq(this,true,'mq3','✅ 正确！准确性检查通过求和、平均等计算操作，将结果与原始数据比对，从而找出录入错误的数据。')">准确性检查</button>
+          <button class="mo" onclick="mq(this,false,'mq3','规范性检查是检查编码重复、多个指标等规范化问题，不是通过计算找错误。')">规范性检查</button>
+        </div>
+        <div id="mq3" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════
+     思考题/案例
+══════════════════════ -->
+    <section id="sec-case" class="sec-block reveal">
+      <div class="sec-hd" style="border-color:#EF4444;">
+        <div class="sec-icon" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;">⚖️</div>
+        <div>
+          <div class="sec-title" style="color:#EF4444;">典型案例分析</div>
+          <div class="sec-sub">合法性原则 · 真实情境应用</div>
+        </div>
+      </div>
+
+      <div class="case-box" style="background:linear-gradient(135deg,#FEF2F2,#FFF0F6);border:2px solid #FECACA;">
+        <div class="case-label" style="background:#FEE2E2;color:#991B1B;">⚠️ 案例思考题</div>
+        <div class="case-q">
+          某电商企业通过<strong style="color:#DC2626;">购买客户资料</strong>获取联系信息，并用短信、邮件进行营销，<br>这种数据采集方式是否受法律保护？
+        </div>
+        <div class="acc-wrap" id="acc-case" onclick="toggleAcc('acc-case')">
+          <div class="acc-head" style="background:#FEE2E2;">
+            <div class="acc-htitle" style="color:#991B1B;"><span>💡</span> 点击查看参考分析</div>
+            <div class="acc-arrow" style="color:#991B1B;">▼</div>
+          </div>
+          <div class="acc-body" id="acc-case-body">
+            <div class="hl red" style="margin-top:4px;">
+              <div class="hi">❌</div>
+              <div class="hb">
+                <strong>结论：违法，不受法律保护！</strong>
+                <p><strong>违反原则：</strong>数据采集的「合法性原则」——只能采集公开数据或经对方同意的数据。</p>
+                <p style="margin-top:6px;">
+                  <strong>法律依据：</strong>购买客户资料属于<strong>未经当事人同意获取个人信息</strong>，违反《个人信息保护法》《网络安全法》等相关法规，不受法律保护，且企业及相关责任人可能面临行政处罚乃至刑事责任。
+                </p>
+                <p style="margin-top:6px;"><strong>正确做法：</strong>通过<strong>用户自愿填写问卷、在注册协议中明确告知并获得同意</strong>等合法方式收集用户信息。
+                </p>
+              </div>
+            </div>
+            <div class="hl amber" style="margin-top:8px;">
+              <div class="hi">💡</div>
+              <div class="hb">
+                <strong>延伸思考</strong>
+                <p>同样违法的行为还包括：雇人非法入侵竞争对手数据库、使用恶意代码截获用户数据、在未告知用户的情况下采集其敏感个人信息等。在数字经济时代，<strong>数据合规是企业运营的基本底线</strong>！
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════
+     知识导图
+══════════════════════ -->
+    <section id="sec-map" class="sec-block reveal">
+      <div class="sec-hd" style="border-color:#6B7280;">
+        <div class="sec-icon" style="background:linear-gradient(135deg,#374151,#6B7280);color:#fff;">🗺️</div>
+        <div>
+          <div class="sec-title">本单元知识导图</div>
+          <div class="sec-sub">模块二 · 单元一 数据采集认知全景回顾</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="mm-wrap">
+          <svg viewBox="0 0 1020 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:760px;">
+            <defs>
+              <filter id="sh">
+                <feDropShadow dx="2" dy="2" stdDeviation="2.5" flood-opacity=".11" />
+              </filter>
+              <linearGradient id="gc1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#0891B2" />
+                <stop offset="100%" style="stop-color:#0D9488" />
+              </linearGradient>
+              <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6" fill="none" stroke="#9CA3AF" stroke-width="1.5" />
+              </marker>
+            </defs>
+
+            <!-- CENTER -->
+            <rect x="380" y="160" width="180" height="70" rx="14" fill="url(#gc1)" filter="url(#sh)" />
+            <text x="470" y="190" text-anchor="middle" fill="white" font-size="15" font-weight="bold"
+              font-family="Noto Sans SC,sans-serif">📥 数据采集认知</text>
+            <text x="470" y="210" text-anchor="middle" fill="rgba(255,255,255,.85)" font-size="11"
+              font-family="Noto Sans SC,sans-serif">模块二 · 单元一</text>
+            <text x="470" y="225" text-anchor="middle" fill="rgba(255,255,255,.75)" font-size="10"
+              font-family="Noto Sans SC,sans-serif">也称"数据获取"</text>
+
+            <!-- 概念 TOP-LEFT -->
+            <rect x="30" y="20" width="160" height="90" rx="12" fill="#CFFAFE" stroke="#0891B2" stroke-width="2"
+              filter="url(#sh)" />
+            <text x="110" y="46" text-anchor="middle" fill="#0E7490" font-size="12" font-weight="bold"
+              font-family="Noto Sans SC,sans-serif">📌 概念</text>
+            <text x="110" y="63" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">预设工具/代码采集</text>
+            <text x="110" y="77" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">商品·资金·流量</text>
+            <text x="110" y="91" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">用户行为和信息</text>
+            <text x="110" y="104" text-anchor="middle" fill="#0891B2" font-size="10"
+              font-family="Noto Sans SC,sans-serif">→ 为数据分析做准备</text>
+            <line x1="190" y1="65" x2="378" y2="180" stroke="#9CA3AF" stroke-width="1.5" marker-end="url(#arr)" />
+
+            <!-- 原则 TOP-RIGHT -->
+            <rect x="640" y="20" width="185" height="120" rx="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"
+              filter="url(#sh)" />
+            <text x="732" y="46" text-anchor="middle" fill="#92400E" font-size="12" font-weight="bold"
+              font-family="Noto Sans SC,sans-serif">⚖️ 四大原则</text>
+            <text x="732" y="63" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">⚡
+              及时性：获取最新数据</text>
+            <text x="732" y="77" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">🔋 有效性：注意有效期限</text>
+            <text x="732" y="91" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">🎯 准确性：确保录入无误</text>
+            <text x="732" y="105" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">⚖️ 合法性：不得非法窃取</text>
+            <text x="732" y="130" text-anchor="middle" fill="#D97706" font-size="10"
+              font-family="Noto Sans SC,sans-serif">口诀：及时有准法 ★</text>
+            <line x1="640" y1="75" x2="561" y2="180" stroke="#9CA3AF" stroke-width="1.5" marker-end="url(#arr)" />
+
+            <!-- 方法 BOTTOM-LEFT -->
+            <rect x="10" y="270" width="290" height="130" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"
+              filter="url(#sh)" />
+            <text x="155" y="296" text-anchor="middle" fill="#4338CA" font-size="12" font-weight="bold"
+              font-family="Noto Sans SC,sans-serif">🛠️ 五种采集方法</text>
+            <text x="155" y="313" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">① 网页数据采集（爬虫/直摘/生意参谋）</text>
+            <text x="155" y="327" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">② 系统日志采集（IP/时间/停留/来源）</text>
+            <text x="155" y="341" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">③ 数据库采集（业务后台实时写入）</text>
+            <text x="155" y="355" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">④ 报表采集（无统计功能的独立站点）</text>
+            <text x="155" y="369" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">⑤ 调查问卷（走访/电话/网络填表）</text>
+            <text x="155" y="391" text-anchor="middle" fill="#6366F1" font-size="10"
+              font-family="Noto Sans SC,sans-serif">→ 不同场景选不同方法</text>
+            <line x1="300" y1="320" x2="378" y2="230" stroke="#9CA3AF" stroke-width="1.5" marker-end="url(#arr)" />
+
+            <!-- 步骤 BOTTOM-RIGHT -->
+            <rect x="580" y="270" width="265" height="130" rx="12" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2"
+              filter="url(#sh)" />
+            <text x="713" y="296" text-anchor="middle" fill="#5B21B6" font-size="12" font-weight="bold"
+              font-family="Noto Sans SC,sans-serif">🔢 三大采集步骤</text>
+            <text x="713" y="313" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">① 确定采集范围及人员分工</text>
+            <text x="713" y="327" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">
+              指标范围·数据来源·人员配备</text>
+            <text x="713" y="343" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">② 建立必要的数据指标规范</text>
+            <text x="713" y="357" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">
+              唯一标识·贯穿全流程·统一原则</text>
+            <text x="713" y="373" text-anchor="middle" fill="#555" font-size="10"
+              font-family="Noto Sans SC,sans-serif">③ 数据检查</text>
+            <text x="713" y="387" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">
+              完整性·准确性·规范性</text>
+            <line x1="580" y1="310" x2="561" y2="230" stroke="#9CA3AF" stroke-width="1.5" marker-end="url(#arr)" />
+
+            <text x="510" y="412" text-anchor="middle" fill="#9CA3AF" font-size="11"
+              font-family="Noto Sans SC,sans-serif">🗺️ 模块二 · 单元一 数据采集认知 · 知识导图</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════
+     综合测试
+══════════════════════ -->
+    <section id="sec-quiz" class="sec-block reveal">
+      <div class="quiz-hd">
+        <span style="font-size:34px;">✅</span>
+        <div>
+          <h2 style="font-size:20px;">综合知识测试</h2>
+          <p style="font-size:13px;opacity:.85;margin-top:2px;">共5道题，检验本单元掌握情况</p>
+        </div>
+      </div>
+      <div class="quiz-body">
+
+        <div class="qz-item" id="qz1">
+          <div class="qz-q"><span class="qz-num">1</span>以下对数据采集概念的描述，最准确的是？</div>
+          <div class="qz-opts">
+            <div class="qz-opt" onclick="sel(this,'qz1',false)">
+              <div class="ok2">A</div>
+              <div>数据采集是对数据进行清洗和整理的过程</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz1',true)">
+              <div class="ok2">B</div>
+              <div>数据采集（也称数据获取）是通过预设工具或代码，获取商品状态、资金状态、流量状态、用户行为等数据，为后续数据分析提供准备的过程</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz1',false)">
+              <div class="ok2">C</div>
+              <div>数据采集就是制作数据分析报告</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz1',false)">
+              <div class="ok2">D</div>
+              <div>数据采集只适用于电商平台，其他行业不需要</div>
+            </div>
+          </div>
+          <button class="qz-sub" onclick="sub('qz1')" disabled>提交答案</button>
+          <div id="qz1-fb" class="qz-fb"></div>
+        </div>
+
+        <div class="qz-item" id="qz2">
+          <div class="qz-q"><span class="qz-num">2</span>某店铺运营用2019年的竞争对手销量数据分析2024年的市场，这违反了哪条数据采集原则？</div>
+          <div class="qz-opts">
+            <div class="qz-opt" onclick="sel(this,'qz2',false)">
+              <div class="ok2">A</div>
+              <div>准确性原则</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz2',false)">
+              <div class="ok2">B</div>
+              <div>合法性原则</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz2',true)">
+              <div class="ok2">C</div>
+              <div>有效性原则——数据已超出有效期限，不能用于反映当前市场状况</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz2',false)">
+              <div class="ok2">D</div>
+              <div>及时性原则</div>
+            </div>
+          </div>
+          <button class="qz-sub" onclick="sub('qz2')" disabled>提交答案</button>
+          <div id="qz2-fb" class="qz-fb"></div>
+        </div>
+
+        <div class="qz-item" id="qz3">
+          <div class="qz-q"><span class="qz-num">3</span>某独立外贸网站没有自动统计每日询盘量的功能，应采用哪种采集方法？</div>
+          <div class="qz-opts">
+            <div class="qz-opt" onclick="sel(this,'qz3',false)">
+              <div class="ok2">A</div>
+              <div>系统日志数据采集</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz3',false)">
+              <div class="ok2">B</div>
+              <div>网页数据采集（爬虫）</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz3',false)">
+              <div class="ok2">C</div>
+              <div>调查问卷采集</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz3',true)">
+              <div class="ok2">D</div>
+              <div>报表采集——适用于无统计功能的独立站点，通过每日/每周工作报表手动采集数据</div>
+            </div>
+          </div>
+          <button class="qz-sub" onclick="sub('qz3')" disabled>提交答案</button>
+          <div id="qz3-fb" class="qz-fb"></div>
+        </div>
+
+        <div class="qz-item" id="qz4">
+          <div class="qz-q"><span class="qz-num">4</span>数据检查中，发现两个SKU商品存在相同的编码标识，属于哪种检查发现的问题？</div>
+          <div class="qz-opts">
+            <div class="qz-opt" onclick="sel(this,'qz4',false)">
+              <div class="ok2">A</div>
+              <div>完整性检查——数据存在缺失</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz4',false)">
+              <div class="ok2">B</div>
+              <div>准确性检查——数据录入有误</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz4',true)">
+              <div class="ok2">C</div>
+              <div>规范性检查——多个商品标识编码相同，违反唯一性规范</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz4',false)">
+              <div class="ok2">D</div>
+              <div>合法性检查——数据采集违规</div>
+            </div>
+          </div>
+          <button class="qz-sub" onclick="sub('qz4')" disabled>提交答案</button>
+          <div id="qz4-fb" class="qz-fb"></div>
+        </div>
+
+        <div class="qz-item" id="qz5">
+          <div class="qz-q"><span class="qz-num">5</span>关于「建立数据指标规范」，以下描述正确的是？</div>
+          <div class="qz-opts">
+            <div class="qz-opt" onclick="sel(this,'qz5',false)">
+              <div class="ok2">A</div>
+              <div>指标规范只在数据采集阶段使用，采集完成后可以废弃</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz5',false)">
+              <div class="ok2">B</div>
+              <div>指标规范只需要记录数据的来源地址，不需要标识编码</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz5',true)">
+              <div class="ok2">C</div>
+              <div>指标规范需对数据进行唯一性标识，贯穿后续数据查询、分析和应用的全流程，为庞杂的分析工作提供统一原则</div>
+            </div>
+            <div class="qz-opt" onclick="sel(this,'qz5',false)">
+              <div class="ok2">D</div>
+              <div>指标规范由个人随意制定，不需要统一标准</div>
+            </div>
+          </div>
+          <button class="qz-sub" onclick="sub('qz5')" disabled>提交答案</button>
+          <div id="qz5-fb" class="qz-fb"></div>
+        </div>
+
+        <div id="qz-score" class="score-box">
+          <div class="sc-emoji" id="sc-emoji">🎉</div>
+          <div class="sc-num" id="sc-num">0/5</div>
+          <div class="sc-msg" id="sc-msg"></div>
+          <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /container -->
+
+  <footer
+    style="background:#0C4A6E;color:rgba(255,255,255,.55);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+    <p>📚 <span style="color:#67E8F9;">商务数据分析</span> · 模块二 · 单元一 数据采集认知</p>
+    <p style="margin-top:6px;">中职电子商务专业 · 数据从这里开始，分析从这里出发 🚀</p>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/learning.js"></script>
+  <script>/* 模块二·单元一 综合测试数据 */
+    window.QUIZ_DATA = {};</script>
+</body>
+
+</html>

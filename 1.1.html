@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模块一·单元一 电子商务数据分析概述</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/learning.css">
+  <style>
+    :root {
+      --c1: #FF6B6B;
+      --c1l: #FFF0F0;
+      --c1d: #E53E3E;
+      --c2: #4ECDC4;
+      --c3: #A29BFE;
+      /* 旧变量名映射 */
+      --primary: #FF6B6B;
+      --secondary: #4ECDC4;
+      --accent: #A29BFE;
+      --bg: #FFF9F0;
+      --text: #2c3e50;
+      --muted: #7f8c9a;
+      --card: #FFFFFF;
+      --r: 16px;
+    }
+
+    /* ── 本页专属：quiz section 旧类名 ── */
+    .quiz-section,
+    #quiz {
+      background: linear-gradient(135deg, #f8f9ff, #fff);
+      border-radius: 20px;
+      padding: 32px;
+      border: 2px solid var(--c1);
+      margin-top: 40px;
+    }
+
+    .quiz-header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .quiz-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--c1);
+      margin: 0;
+    }
+
+    .quiz-body {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .quiz-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      border: 1px solid #e8e8e8;
+    }
+
+    .quiz-q {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .quiz-num {
+      background: var(--c1);
+      color: #fff;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-opt {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 2px solid #eee;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+    }
+
+    .quiz-opt:hover {
+      border-color: var(--c1);
+      background: var(--c1l);
+    }
+
+    .quiz-opt.selected {
+      border-color: var(--c1);
+      background: var(--c1l);
+    }
+
+    .quiz-opt.correct {
+      background: #d1fae5;
+      border-color: #059669;
+    }
+
+    .quiz-opt.wrong {
+      background: #fee2e2;
+      border-color: #dc2626;
+    }
+
+    .opt-label {
+      background: var(--c1);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .quiz-submit {
+      background: var(--c1);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+
+    .quiz-submit:hover {
+      opacity: .85;
+      transform: translateY(-1px);
+    }
+
+    .quiz-submit:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .quiz-feedback {
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.correct-fb {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .quiz-feedback.wrong-fb {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .score-display {
+      text-align: center;
+      padding: 32px;
+      background: linear-gradient(135deg, var(--c1), var(--c1d));
+      color: #fff;
+      border-radius: 20px;
+      margin-top: 24px;
+    }
+
+    .score-emoji {
+      font-size: 64px;
+    }
+
+    .score-number {
+      font-size: 48px;
+      font-weight: 900;
+    }
+
+    .score-message {
+      font-size: 18px;
+      margin-top: 8px;
+    }
+
+    .score-retry {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, .25);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, .6);
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-deco">📊</div>
+    <div class="hero-deco">📈</div>
+    <div class="hero-deco">🛒</div>
+    <div class="hero-deco">💡</div>
+    <div class="hero-badge">📚 中职电子商务专业 · 商务数据分析</div>
+    <h1>模块一 · 电子商务数据分析概述</h1>
+    <h2>认识数据 · 读懂数据 · 用好数据</h2>
+    <div class="hero-meta">
+      <span class="hero-tag">⏱ 预计学习 45 分钟</span>
+      <span class="hero-tag">📝 含 5 道测试题</span>
+      <span class="hero-tag">🎯 3 个学习目标</span>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="sticky-nav">
+    <a class="nav-item active" href="#unit1">🏠 认识数据</a>
+    <a class="nav-item" href="#unit1-2">📂 数据分类</a>
+    <a class="nav-item" href="#unit1-3">⚡ 数据作用</a>
+    <a class="nav-item" href="#unit1-4">🔍 数据应用</a>
+    <a class="nav-item" href="#mindmap">🗺️ 知识导图</a>
+    <a class="nav-item" href="#quiz">✅ 测试题</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- ===== 学习目标 ===== -->
+    <div class="objectives reveal">
+      <h3>🎯 本节学习目标</h3>
+      <div class="obj-grid">
+        <div class="obj-item">
+          <div class="obj-num">知</div>
+          <div>了解电子商务数据的含义与分类，掌握电子商务数据分析的基本概念</div>
+        </div>
+        <div class="obj-item">
+          <div class="obj-num">能</div>
+          <div>能够区分行为数据与商务数据，识别流量、客户、产品、市场四大分析应用</div>
+        </div>
+        <div class="obj-item">
+          <div class="obj-num">情</div>
+          <div>理解数据分析在电商经营中的重要性，培养数据思维与数据驱动意识</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== UNIT 1: 认识电子商务数据及数据分析 ===== -->
+    <section id="unit1" class="section-block reveal">
+      <div class="section-header">
+        <div class="section-icon" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: white;">📊</div>
+        <div>
+          <div class="section-title">单元一 · 认识电子商务数据及数据分析</div>
+          <div class="section-subtitle">一、电子商务数据的含义</div>
+        </div>
+      </div>
+
+      <!-- 生活案例引入 -->
+      <div class="life-case reveal">
+        <div class="case-tag">🌟 生活场景引入</div>
+        <h4>你在淘宝/抖音购物时，有没有想过……</h4>
+        <p>每次你点击一件商品、加入购物车、下单付款、给差评——这些操作都会产生<strong>「数据」</strong>！平台和商家通过分析这些数据，就知道你喜欢什么、买什么、在哪个时间段最爱剁手
+          🛒。这就是电子商务数据分析的力量！</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="info-box primary">
+          <div class="info-icon">📌</div>
+          <div class="info-content">
+            <strong>什么是「数据」？</strong>
+            <p>数据是科学实验、检验、统计等所获得的，用于科学研究、技术设计、查证、决策等的<strong>数值</strong>。它的表现形式多种多样：</p>
+          </div>
+        </div>
+
+        <div class="role-strip" style="margin: 16px 0;">
+          <span class="role-tag" style="background: #FF6B6B;">🔢 数字</span>
+          <span class="role-tag" style="background: #4ECDC4;">🔤 文字符号</span>
+          <span class="role-tag" style="background: #A29BFE;">🎵 语音</span>
+          <span class="role-tag" style="background: #FD79A8;">🖼️ 图像</span>
+          <span class="role-tag" style="background: #FDCB6E; color: #333;">🎬 视频</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+          <div class="info-box tip">
+            <div class="info-icon">🚶</div>
+            <div class="info-content">
+              <strong>行为数据</strong>
+              <p>反映客户行为的数据<br>例：访问量、浏览量、收藏次数、搜索关键词……</p>
+            </div>
+          </div>
+          <div class="info-box success">
+            <div class="info-icon">💼</div>
+            <div class="info-content">
+              <strong>商务数据</strong>
+              <p>反映企业运营状况的数据<br>例：商品交易量、投资回报率、销售额……</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 翻转卡：数据 vs 数据分析 -->
+      <h3 style="margin: 24px 0 16px; color: var(--primary);">🔄 点击翻牌——搞清楚这两个概念！</h3>
+      <div class="flip-grid reveal">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-front" style="background: #FFF3E0; border-color: #FF9800;">
+              <div class="flip-icon">📦</div>
+              <div class="flip-title">数据分析</div>
+              <div class="flip-hint">👆 点击查看定义</div>
+            </div>
+            <div class="flip-back">
+              <p>通过建立分析模型对数据进行核对、检查、复算、判断等操作，将<strong>现实状态</strong>与<strong>理想状态</strong>比较，从而发现规律，得到分析结果的过程。</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-front" style="background: #E3F2FD; border-color: #2196F3;">
+              <div class="flip-icon">🛒</div>
+              <div class="flip-title">电商数据分析</div>
+              <div class="flip-hint">👆 点击查看定义</div>
+            </div>
+            <div class="flip-back">
+              <p>运用<strong>有效的方法和工具</strong>收集、处理数据并获取信息的过程。目的是帮助企业做出更科学的运营决策。</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-front" style="background: #F3E5F5; border-color: #9C27B0;">
+              <div class="flip-icon">🔑</div>
+              <div class="flip-title">两者的关系</div>
+              <div class="flip-hint">👆 点击查看</div>
+            </div>
+            <div class="flip-back">
+              <p>电商数据分析是数据分析在电商领域的<strong>具体应用</strong>。数据是原材料，分析是加工过程，得到的信息是最终产品！</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 小测验 1 -->
+      <div class="mini-quiz reveal">
+        <h5>⚡ 即时小测验：下面哪项不是数据的表现形式？</h5>
+        <div class="mini-opts">
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini1', '数字是数据最常见的形式哦！')">A. 数字</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini1', '图像也是数据的表现形式，比如商品图片点击热图！')">B. 图像</button>
+          <button class="mini-opt" onclick="miniCheck(this, true, 'mini1', '✅ 正确！「思想」无法被直接记录和传输，不属于数据的表现形式。')">C.
+            思想</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini1', '视频也是数据，比如直播间的观看数据！')">D. 视频</button>
+        </div>
+        <div id="mini1" class="mini-fb"></div>
+      </div>
+    </section>
+
+    <!-- ===== UNIT 1-2: 数据分类 ===== -->
+    <section id="unit1-2" class="section-block reveal">
+      <div class="section-header">
+        <div class="section-icon" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); color: white;">📂</div>
+        <div>
+          <div class="section-title">单元一 · 数据分类</div>
+          <div class="section-subtitle">二、电子商务数据的分类</div>
+        </div>
+      </div>
+
+      <div class="life-case" style="background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+        <div class="case-tag">🛍️ 场景思考</div>
+        <h4>假设你开了一家淘宝店卖手机壳……</h4>
+        <p>
+          你需要知道：<strong>整个行业</strong>手机壳多少人在买（市场数据）、<strong>你的店铺</strong>今天多少人浏览（运营数据）、<strong>每款手机壳</strong>哪款最受欢迎（产品数据）——
+          这三类数据缺一不可！</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-container card reveal">
+        <h3 style="margin-bottom: 18px;">📊 电子商务数据三大分类</h3>
+        <div class="tab-btns">
+          <button class="tab-btn active" style="color: #E53935; border-color: #E53935;"
+            onclick="switchTab('market', this)">🏪 市场数据</button>
+          <button class="tab-btn" style="color: #1976D2; border-color: #1976D2;" onclick="switchTab('ops', this)">⚙️
+            运营数据</button>
+          <button class="tab-btn" style="color: #388E3C; border-color: #388E3C;" onclick="switchTab('product', this)">📦
+            产品数据</button>
+        </div>
+
+        <div id="tab-market" class="tab-panel active" style="border-color: #E53935;">
+          <p style="margin-bottom: 16px;">市场数据是企业在整个市场环境中收集的外部数据，包括两大部分：</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="background: #FFEBEE; border-radius: 14px; padding: 18px;">
+              <div style="font-size: 20px; margin-bottom: 8px;">📈 行业数据</div>
+              <p style="font-size: 13px; color: #555; line-height: 1.7;">企业在整个市场发展的相关数据，包括：<br>• 行业总销售额、增长率<br>•
+                需求量变化、品牌偏好<br>• 地域分布、职业等客户数据</p>
+            </div>
+            <div style="background: #FFF3E0; border-radius: 14px; padding: 18px;">
+              <div style="font-size: 20px; margin-bottom: 8px;">⚔️ 竞争数据</div>
+              <p style="font-size: 13px; color: #555; line-height: 1.7;">揭示企业竞争力情况的数据：<br>• 竞争对手的销售额、客单价<br>•
+                活动形式、活动周期<br>• 畅销商品、商品评价</p>
+            </div>
+          </div>
+          <div class="life-case" style="background: linear-gradient(135deg, #E53935, #C62828); margin-top: 16px;">
+            <div class="case-tag">💡 举例</div>
+            <h4>查看生意参谋的行业大盘</h4>
+            <p>通过淘宝「生意参谋」查看手机壳行业近7天搜索热词变化，发现「防摔手机壳」搜索量增加30%——这就是行业数据的应用！</p>
+          </div>
+        </div>
+
+        <div id="tab-ops" class="tab-panel" style="border-color: #1976D2;">
+          <p style="margin-bottom: 16px;">运营数据是企业在经营过程中产生的内部数据，分为四类：</p>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num" style="background: linear-gradient(135deg, #4fc3f7, #0288d1);">👤</div>
+              <div class="step-content">
+                <strong>客户数据</strong>
+                <p>浏览量、收藏量、客户画像（性别/年龄）等客户行为数据</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background: linear-gradient(135deg, #81c784, #388e3c);">📣</div>
+              <div class="step-content">
+                <strong>推广数据</strong>
+                <p>各渠道广告的展现量、点击率、转化率等数据</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background: linear-gradient(135deg, #ffb74d, #f57c00);">💰</div>
+              <div class="step-content">
+                <strong>销售数据</strong>
+                <p>销售额、订单量、响应时长、询单转化率等</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background: linear-gradient(135deg, #f48fb1, #c2185b);">🚚</div>
+              <div class="step-content">
+                <strong>供应数据</strong>
+                <p>采购数量、采购单价、物流时效、库存周转率等</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-product" class="tab-panel" style="border-color: #388E3C;">
+          <p style="margin-bottom: 16px;">产品数据是围绕企业产品产生的相关数据：</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="background: #E8F5E9; border-radius: 14px; padding: 18px;">
+              <div style="font-size: 20px; margin-bottom: 8px;">🌐 行业产品数据</div>
+              <p style="font-size: 13px; color: #555; line-height: 1.7;">产品在整个市场的数据：<br>• 行业产品搜索指数<br>• 行业产品交易指数</p>
+            </div>
+            <div style="background: #F1F8E9; border-radius: 14px; padding: 18px;">
+              <div style="font-size: 20px; margin-bottom: 8px;">🏬 企业产品数据</div>
+              <p style="font-size: 13px; color: #555; line-height: 1.7;">产品在具体企业的数据：<br>• 新客点击量、重复购买率（获客能力）<br>•
+                客单件、毛利率（盈利能力）</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 小测验 2 -->
+      <div class="mini-quiz reveal">
+        <h5>⚡ 即时小测验：竞争对手的销售额属于哪类数据？</h5>
+        <div class="mini-opts">
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini2', '运营数据是你自己店铺的内部数据哦，比如你的销售额。')">A.
+            运营数据</button>
+          <button class="mini-opt" onclick="miniCheck(this, true, 'mini2', '✅ 正确！竞争对手数据属于市场数据中的「竞争数据」，帮助判断自身竞争力。')">B.
+            市场数据（竞争数据）</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini2', '产品数据是围绕产品本身的数据，如搜索指数、重复购买率。')">C.
+            产品数据</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini2', '推广数据是关于广告投放效果的数据。')">D. 推广数据</button>
+        </div>
+        <div id="mini2" class="mini-fb"></div>
+      </div>
+    </section>
+
+    <!-- ===== UNIT 1-3: 数据分析的作用 ===== -->
+    <section id="unit1-3" class="section-block reveal">
+      <div class="section-header">
+        <div class="section-icon" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: white;">⚡</div>
+        <div>
+          <div class="section-title">单元一 · 数据分析的作用</div>
+          <div class="section-subtitle">三、电子商务数据分析的作用</div>
+        </div>
+      </div>
+
+      <div class="life-case" style="background: linear-gradient(135deg, #f7971e, #ffd200); color: #333;">
+        <div class="case-tag" style="background: rgba(0,0,0,0.15); color: #333;">🕐 历史 vs 现在</div>
+        <h4>传统时代 vs 数字时代的决策方式</h4>
+        <p>
+          <strong>传统企业时期</strong>：老板凭多年经验做决策——"上次搞双十一促销效果不错，今年再搞！"<br><strong>电商时代</strong>：老板看数据做决策——"去年双十一转化率2.3%，今年备货需要多X倍，投放ROI要大于X才值得做……"
+        </p>
+      </div>
+
+      <div class="card reveal">
+        <h3 style="margin-bottom: 20px;">📈 数据分析的三大核心作用</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+          <div
+            style="background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 18px; padding: 24px; color: white; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -10px; bottom: -10px; font-size: 60px; opacity: 0.2;">🧠</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 6px;">1</div>
+            <h4 style="font-size: 16px; margin-bottom: 10px;">辅助企业运营决策</h4>
+            <p style="font-size: 13px; opacity: 0.9; line-height: 1.6;">将经营数据处理成便于观察、分析、推断的形式，为决策提供科学依据，减少「拍脑袋」的风险。</p>
+          </div>
+          <div
+            style="background: linear-gradient(135deg, #11998e, #38ef7d); border-radius: 18px; padding: 24px; color: white; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -10px; bottom: -10px; font-size: 60px; opacity: 0.2;">💰</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 6px;">2</div>
+            <h4 style="font-size: 16px; margin-bottom: 10px;">降低企业运营成本</h4>
+            <p style="font-size: 13px; opacity: 0.9; line-height: 1.6;">优化业务流程，减少不必要的成本投入，对企业资源进行合理配置，「把钱花在刀刃上」。</p>
+          </div>
+          <div
+            style="background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 18px; padding: 24px; color: white; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -10px; bottom: -10px; font-size: 60px; opacity: 0.2;">🚀</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 6px;">3</div>
+            <h4 style="font-size: 16px; margin-bottom: 10px;">优化企业市场竞争力</h4>
+            <p style="font-size: 13px; opacity: 0.9; line-height: 1.6;">帮助发现市场位置、发展趋势，快速对业务和产品做出调整，比竞争对手更快响应市场变化。</p>
+          </div>
+        </div>
+
+        <div class="life-case" style="background: linear-gradient(135deg, #2c3e50, #3498db); margin-top: 20px;">
+          <div class="case-tag">📱 真实案例</div>
+          <h4>某电商店铺如何用数据减少损失</h4>
+          <p>某淘宝女装店铺通过分析库存数据发现，每年11月底「冬款白色打底衫」会产生大量滞销库存，于是提前在11月10日（双十一）加大促销力度清仓——这就是数据分析「降低运营成本」的实际应用！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== UNIT 1-4: 数据分析的应用 ===== -->
+    <section id="unit1-4" class="section-block reveal">
+      <div class="section-header">
+        <div class="section-icon" style="background: linear-gradient(135deg, #A29BFE, #6C5CE7); color: white;">🔍</div>
+        <div>
+          <div class="section-title">单元一 · 数据分析的应用</div>
+          <div class="section-subtitle">四、电子商务数据分析的应用场景</div>
+        </div>
+      </div>
+
+      <p style="margin-bottom: 20px; font-size: 15px; color: #555;">电商数据分析有四大主要应用场景，点击卡片查看详情👇</p>
+
+      <div class="app-grid">
+        <!-- 流量分析 -->
+        <div class="app-card" style="background: linear-gradient(135deg, #FF6B6B, #ee0979);" data-emoji="📊"
+          onclick="toggleApp(this)">
+          <h4>📊 流量分析</h4>
+          <p>分析网站/网店的访客来源与行为，优化广告投放策略</p>
+          <div class="app-detail">
+            <strong>三个维度：</strong><br>
+            🔹 分析站内实时流量：掌握日常运营状况<br>
+            🔹 分析其他流量：明确引流最多的渠道<br>
+            🔹 分析站外营销流量：优化广告投放策略<br><br>
+            <strong>🌟 生活例子：</strong>你发了小红书笔记，然后在淘宝后台查看有多少人从小红书跳转到你的店——这就是流量分析！
+          </div>
+        </div>
+
+        <!-- 客户分析 -->
+        <div class="app-card" style="background: linear-gradient(135deg, #4ECDC4, #007adf);" data-emoji="👥"
+          onclick="toggleApp(this)">
+          <h4>👥 客户分析</h4>
+          <p>分析目标受众、交易客户、潜在客户，实现精准运营</p>
+          <div class="app-detail">
+            <strong>四类客户属性：</strong><br>
+            🔹 客户属性：年龄、性别、职业、地域等<br>
+            🔹 设备属性：手机/PC、横屏/竖屏等<br>
+            🔹 流量属性：来源页面、来源广告等<br>
+            🔹 行为属性：注册、下单、活跃情况等<br><br>
+            <strong>🌟 生活例子：</strong>抖音推荐算法就是通过分析你的「行为属性」来推送你喜欢的视频！
+          </div>
+        </div>
+
+        <!-- 产品分析 -->
+        <div class="app-card" style="background: linear-gradient(135deg, #A29BFE, #6C5CE7);" data-emoji="📦"
+          onclick="toggleApp(this)">
+          <h4>📦 产品分析</h4>
+          <p>分析产品点击量、订单量、成交量、客户反馈，判断产品受欢迎程度</p>
+          <div class="app-detail">
+            <strong>分析内容：</strong><br>
+            🔹 产品点击量（多少人感兴趣）<br>
+            🔹 订单量、成交量（多少人买了）<br>
+            🔹 客户使用反馈（买了之后评价如何）<br>
+            🔹 产品利润情况<br><br>
+            <strong>🌟 生活例子：</strong>网红零食品牌通过分析评论关键词，发现大家最爱「辣度适中」，于是主推中辣系列——爆单！
+          </div>
+        </div>
+
+        <!-- 市场分析 -->
+        <div class="app-card" style="background: linear-gradient(135deg, #FFD700, #f7971e);" data-emoji="🌍"
+          style="color: #333;" onclick="toggleApp(this)">
+          <h4>🌍 市场分析</h4>
+          <p>分析行业发展现状与趋势，帮助确定市场定位与发展目标</p>
+          <div class="app-detail">
+            <strong>分析内容：</strong><br>
+            🔹 行业产品销量趋势<br>
+            🔹 行业竞争格局<br>
+            🔹 市场规模与增长率<br>
+            🔹 帮助确定市场定位、产品定位、发展目标<br><br>
+            <strong>🌟 生活例子：</strong>某同学想创业卖「国潮文具」，先查行业数据发现该类目近两年增长率达40%，坚定了创业方向！
+          </div>
+        </div>
+      </div>
+
+      <!-- 手风琴：客户分析详解 -->
+      <div class="reveal">
+        <div class="accordion" id="acc1" onclick="toggleAcc('acc1')">
+          <div class="acc-header" style="background: linear-gradient(135deg, #4ECDC4, #007adf); color: white;">
+            <div class="acc-title"><span>👥</span> 客户属性详细解析（展开查看）</div>
+            <div class="acc-arrow">▼</div>
+          </div>
+          <div class="acc-body" id="acc1-body">
+            <div class="attr-grid">
+              <div class="attr-card" style="background: #E3F2FD;">
+                <div class="attr-icon">🧑</div>
+                <div>
+                  <div class="attr-title">客户属性</div>
+                  <div class="attr-desc">年龄、性别、职业、爱好、地域、国家等基础人口统计特征</div>
+                </div>
+              </div>
+              <div class="attr-card" style="background: #E8F5E9;">
+                <div class="attr-icon">📱</div>
+                <div>
+                  <div class="attr-title">客户设备属性</div>
+                  <div class="attr-desc">PC/手机、常用平台、常用浏览器、使用习惯（横屏/竖屏）</div>
+                </div>
+              </div>
+              <div class="attr-card" style="background: #FFF3E0;">
+                <div class="attr-icon">🔗</div>
+                <div>
+                  <div class="attr-title">客户流量属性</div>
+                  <div class="attr-desc">来源页面、来源广告、来源营销平台、来源关键词</div>
+                </div>
+              </div>
+              <div class="attr-card" style="background: #F3E5F5;">
+                <div class="attr-icon">🖱️</div>
+                <div>
+                  <div class="attr-title">客户行为属性</div>
+                  <div class="attr-desc">下载/注册/关注、下单、活跃情况等行为轨迹</div>
+                </div>
+              </div>
+            </div>
+            <div class="info-box tip" style="margin-top: 16px;">
+              <div class="info-icon">💡</div>
+              <div class="info-content">
+                <strong>四类属性综合分析 = 客户精准画像</strong>
+                <p>就像侦探破案需要多方线索，分析客户也需要从多个角度综合判断。知道「谁在买、用什么设备买、从哪里来、做了什么」，才能实现精准营销！</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 小测验 3 -->
+      <div class="mini-quiz reveal">
+        <h5>⚡ 即时小测验：「分析广告在各平台的点击率、转化率」属于哪类应用？</h5>
+        <div class="mini-opts">
+          <button class="mini-opt" onclick="miniCheck(this, true, 'mini3', '✅ 正确！广告展现、点击、转化属于推广流量数据，对应「流量分析」应用。')">A.
+            流量分析</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini3', '客户分析关注的是客户的人口属性、行为属性等，不专门分析广告效果。')">B.
+            客户分析</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini3', '产品分析关注的是产品本身的点击量、订单量、评价等。')">C.
+            产品分析</button>
+          <button class="mini-opt" onclick="miniCheck(this, false, 'mini3', '市场分析是对整个行业和市场的宏观分析。')">D. 市场分析</button>
+        </div>
+        <div id="mini3" class="mini-fb"></div>
+      </div>
+    </section>
+
+    <!-- ===== 知识导图 ===== -->
+    <section id="mindmap" class="section-block reveal">
+      <div class="section-header">
+        <div class="section-icon" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white;">🗺️</div>
+        <div>
+          <div class="section-title">本节知识导图</div>
+          <div class="section-subtitle">模块一 · 电子商务数据分析概述 · 全局概览</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 20px;">
+        <div class="mindmap-wrap">
+          <svg class="mindmap" viewBox="0 0 900 540" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%; max-width:900px;">
+            <defs>
+              <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15" />
+              </filter>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#999" />
+              </marker>
+            </defs>
+
+            <!-- Central Node -->
+            <rect x="330" y="230" width="240" height="60" rx="30" fill="url(#grad-center)" filter="url(#shadow)" />
+            <defs>
+              <linearGradient id="grad-center" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#FF6B6B" />
+                <stop offset="100%" style="stop-color:#FF8E53" />
+              </linearGradient>
+            </defs>
+            <text x="450" y="265" text-anchor="middle" fill="white" font-size="15" font-weight="bold"
+              font-family="ZCOOL XiaoWei, sans-serif">电子商务数据分析</text>
+
+            <!-- Branch: 含义 -->
+            <line x1="330" y1="252" x2="180" y2="115" stroke="#FF6B6B" stroke-width="2" stroke-dasharray="5,3" />
+            <rect x="60" y="80" width="160" height="70" rx="14" fill="#FFF3E0" stroke="#FF9800" stroke-width="2"
+              filter="url(#shadow)" />
+            <text x="140" y="108" text-anchor="middle" fill="#E65100" font-size="13" font-weight="bold"
+              font-family="ZCOOL XiaoWei, sans-serif">一、含义</text>
+            <text x="140" y="126" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">数据 · 数据分析</text>
+            <text x="140" y="142" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">电商数据分析</text>
+
+            <!-- Branch: 分类 -->
+            <line x1="340" y1="235" x2="130" y2="280" stroke="#4ECDC4" stroke-width="2" stroke-dasharray="5,3" />
+            <rect x="10" y="245" width="160" height="90" rx="14" fill="#E0F7FA" stroke="#00BCD4" stroke-width="2"
+              filter="url(#shadow)" />
+            <text x="90" y="270" text-anchor="middle" fill="#00838F" font-size="13" font-weight="bold"
+              font-family="ZCOOL XiaoWei, sans-serif">二、数据分类</text>
+            <text x="90" y="290" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">🏪 市场数据</text>
+            <text x="90" y="306" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">⚙️ 运营数据</text>
+            <text x="90" y="322" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">📦 产品数据</text>
+
+            <!-- Branch: 行为数据/商务数据 under 含义 -->
+            <line x1="140" y1="80" x2="90" y2="30" stroke="#FF9800" stroke-width="1.5" stroke-dasharray="3,2" />
+            <rect x="10" y="10" width="160" height="30" rx="8" fill="#FFE0B2" stroke="#FF9800" stroke-width="1.5" />
+            <text x="90" y="30" text-anchor="middle" fill="#E65100" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">行为数据 / 商务数据</text>
+
+            <!-- Branch: 作用 -->
+            <line x1="330" y1="270" x2="130" y2="420" stroke="#FFD700" stroke-width="2" stroke-dasharray="5,3" />
+            <rect x="10" y="388" width="180" height="90" rx="14" fill="#FFFDE7" stroke="#FFC107" stroke-width="2"
+              filter="url(#shadow)" />
+            <text x="100" y="413" text-anchor="middle" fill="#F57F17" font-size="13" font-weight="bold"
+              font-family="ZCOOL XiaoWei, sans-serif">三、数据分析作用</text>
+            <text x="100" y="433" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">辅助运营决策</text>
+            <text x="100" y="449" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">降低运营成本</text>
+            <text x="100" y="465" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">优化市场竞争力</text>
+
+            <!-- Branch: 应用 -->
+            <line x1="570" y1="260" x2="720" y2="260" stroke="#A29BFE" stroke-width="2" stroke-dasharray="5,3" />
+            <rect x="720" y="220" width="165" height="80" rx="14" fill="#F3E5F5" stroke="#9C27B0" stroke-width="2"
+              filter="url(#shadow)" />
+            <text x="803" y="250" text-anchor="middle" fill="#6A1B9A" font-size="13" font-weight="bold"
+              font-family="ZCOOL XiaoWei, sans-serif">四、数据分析应用</text>
+            <text x="803" y="272" text-anchor="middle" fill="#777" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">流量/客户/产品/市场</text>
+
+            <!-- Sub branches for 应用 -->
+            <line x1="803" y1="220" x2="770" y2="130" stroke="#A29BFE" stroke-width="1.5" stroke-dasharray="3,2" />
+            <rect x="670" y="85" width="130" height="56" rx="10" fill="#EDE7F6" stroke="#A29BFE" stroke-width="1.5" />
+            <text x="735" y="110" text-anchor="middle" fill="#4A148C" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">📊 流量分析</text>
+            <text x="735" y="128" text-anchor="middle" fill="#777" font-size="10"
+              font-family="ZCOOL XiaoWei, sans-serif">站内·站外·其他</text>
+
+            <line x1="885" y1="260" x2="860" y2="400" stroke="#A29BFE" stroke-width="1.5" stroke-dasharray="3,2" />
+            <rect x="720" y="388" width="165" height="90" rx="10" fill="#FCE4EC" stroke="#F06292" stroke-width="1.5" />
+            <text x="803" y="413" text-anchor="middle" fill="#880E4F" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">👥 客户分析</text>
+            <text x="803" y="432" text-anchor="middle" fill="#777" font-size="10"
+              font-family="ZCOOL XiaoWei, sans-serif">属性·设备·流量</text>
+            <text x="803" y="450" text-anchor="middle" fill="#777" font-size="10"
+              font-family="ZCOOL XiaoWei, sans-serif">行为四维度</text>
+            <text x="803" y="468" text-anchor="middle" fill="#777" font-size="10"
+              font-family="ZCOOL XiaoWei, sans-serif">📦 产品 / 🌍 市场</text>
+
+            <!-- Market sub-branches -->
+            <line x1="10" y1="280" x2="0" y2="200" stroke="#00BCD4" stroke-width="1.5" stroke-dasharray="3,2" />
+            <rect x="0" y="165" width="130" height="48" rx="8" fill="#B2EBF2" stroke="#00BCD4" stroke-width="1.5" />
+            <text x="65" y="187" text-anchor="middle" fill="#00838F" font-size="11"
+              font-family="ZCOOL XiaoWei, sans-serif">市场数据</text>
+            <text x="65" y="204" text-anchor="middle" fill="#777" font-size="10"
+              font-family="ZCOOL XiaoWei, sans-serif">行业数据 / 竞争数据</text>
+
+            <!-- Center label -->
+            <text x="450" y="495" text-anchor="middle" fill="#999" font-size="12"
+              font-family="ZCOOL XiaoWei, sans-serif">🗺️ 模块一 · 电子商务数据分析基础 · 知识导图</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 综合测试题 ===== -->
+    <section id="quiz" class="quiz-section reveal">
+      <div class="quiz-header">
+        <span style="font-size: 36px;">✅</span>
+        <div>
+          <h2>综合知识测试</h2>
+          <p style="font-size: 14px; opacity: 0.85; margin-top: 4px;">共 5 道题，完成后查看你的掌握程度！</p>
+        </div>
+      </div>
+      <div class="quiz-body">
+
+        <!-- Q1 -->
+        <div class="quiz-item" id="q1">
+          <div class="quiz-q"><span class="quiz-num">1</span>下列选项中，属于「行为数据」的是？</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="selectOpt(this, 'q1', false)">
+              <div class="opt-label">A</div>
+              <div>企业商品的月销售额</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q1', false)">
+              <div class="opt-label">B</div>
+              <div>企业本季度的投资回报率</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q1', true)">
+              <div class="opt-label">C</div>
+              <div>客户对商品页面的浏览量和停留时间</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q1', false)">
+              <div class="opt-label">D</div>
+              <div>企业当月库存周转率</div>
+            </div>
+          </div>
+          <button class="quiz-submit" onclick="submitQ('q1')">提交答案</button>
+          <div id="q1-fb" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-item" id="q2">
+          <div class="quiz-q"><span class="quiz-num">2</span>电子商务运营数据中，「询单转化率」属于哪类数据？</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="selectOpt(this, 'q2', false)">
+              <div class="opt-label">A</div>
+              <div>客户数据</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q2', false)">
+              <div class="opt-label">B</div>
+              <div>推广数据</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q2', true)">
+              <div class="opt-label">C</div>
+              <div>销售数据</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q2', false)">
+              <div class="opt-label">D</div>
+              <div>供应数据</div>
+            </div>
+          </div>
+          <button class="quiz-submit" onclick="submitQ('q2')">提交答案</button>
+          <div id="q2-fb" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-item" id="q3">
+          <div class="quiz-q"><span class="quiz-num">3</span>某商家通过数据发现某款产品毛利率持续下降，决定调整产品定价策略。这体现了数据分析的哪个作用？</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="selectOpt(this, 'q3', false)">
+              <div class="opt-label">A</div>
+              <div>优化企业市场竞争力</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q3', true)">
+              <div class="opt-label">B</div>
+              <div>辅助企业运营决策</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q3', false)">
+              <div class="opt-label">C</div>
+              <div>降低企业运营成本</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q3', false)">
+              <div class="opt-label">D</div>
+              <div>分析行业竞争数据</div>
+            </div>
+          </div>
+          <button class="quiz-submit" onclick="submitQ('q3')">提交答案</button>
+          <div id="q3-fb" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-item" id="q4">
+          <div class="quiz-q"><span class="quiz-num">4</span>一家电商企业想了解「消费者使用哪种设备（手机/PC）访问其平台」，这属于客户分析中的哪种属性？</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="selectOpt(this, 'q4', false)">
+              <div class="opt-label">A</div>
+              <div>客户属性</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q4', true)">
+              <div class="opt-label">B</div>
+              <div>客户设备属性</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q4', false)">
+              <div class="opt-label">C</div>
+              <div>客户流量属性</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q4', false)">
+              <div class="opt-label">D</div>
+              <div>客户行为属性</div>
+            </div>
+          </div>
+          <button class="quiz-submit" onclick="submitQ('q4')">提交答案</button>
+          <div id="q4-fb" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-item" id="q5">
+          <div class="quiz-q"><span class="quiz-num">5</span>下列关于电子商务数据分析的说法，正确的是？</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="selectOpt(this, 'q5', false)">
+              <div class="opt-label">A</div>
+              <div>数据分析只适合大型企业使用，中小电商用处不大</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q5', false)">
+              <div class="opt-label">B</div>
+              <div>市场分析只需要分析自己品牌的销售数据即可</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q5', false)">
+              <div class="opt-label">C</div>
+              <div>数据分析能完全取代企业经营者的直觉和经验</div>
+            </div>
+            <div class="quiz-opt" onclick="selectOpt(this, 'q5', true)">
+              <div class="opt-label">D</div>
+              <div>数据分析能帮助企业发现市场趋势，快速调整业务和产品</div>
+            </div>
+          </div>
+          <button class="quiz-submit" onclick="submitQ('q5')">提交答案</button>
+          <div id="q5-fb" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Score -->
+        <div id="quiz-score" class="quiz-score">
+          <div class="score-emoji" id="score-emoji">🎉</div>
+          <div class="score-num" id="score-num">0 / 5</div>
+          <div class="score-msg" id="score-msg">继续加油！</div>
+          <button class="score-retry" onclick="retryQuiz()">🔄 重新测试</button>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <p>📚 <span>商务数据分析</span> · 模块一 · 电子商务数据分析概述</p>
+    <p style="margin-top: 8px;">中职电子商务专业 · 学以致用，数据赋能 🚀</p>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/learning.js"></script>
+  <script>/* 模块一·单元一 页面专属逻辑 */
+
+    // ===== MINI QUIZ =====
+    function miniCheck(btn, isCorrect, feedbackId, msg) {
+      const container = btn.parentElement;
+      if (container.querySelector('.correct, .wrong')) return;
+      const allBtns = container.querySelectorAll('.mini-opt');
+      allBtns.forEach(b => b.style.pointerEvents = 'none');
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+      const fb = document.getElementById(feedbackId);
+      fb.textContent = msg;
+      fb.className = 'mini-fb show ' + (isCorrect ? 'ok' : 'no');
+    }
+
+    // ===== TABS (1_1 local override: panel id = 'tab-' + id) =====
+    // common.js switchTab 已内置兼容，此处无需再覆盖
+
+    // init first tab style
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstBtn = document.querySelector('.tab-btn.active');
+      if (firstBtn) { firstBtn.style.background = firstBtn.style.color; firstBtn.style.color = 'white'; }
+    });
+
+    // ===== ACCORDION =====
+
+
+    // ===== APP CARDS =====
+    function toggleApp(card) {
+      const wasExpanded = card.classList.contains('expanded');
+      document.querySelectorAll('.app-card.expanded').forEach(c => c.classList.remove('expanded'));
+      if (!wasExpanded) card.classList.add('expanded');
+    }
+
+    // ===== QUIZ =====
+    const quizData = {
+      q1: { answer: true, correct_text: '✅ 答对了！', explanation: '行为数据反映的是客户行为，如浏览量、停留时间等。而销售额、投资回报率、库存周转率属于商务数据。' },
+      q2: { answer: true, correct_text: '✅ 答对了！', explanation: '询单转化率是指咨询客服后最终下单的比例，属于销售服务过程中产生的数据，归类为「销售数据」。' },
+      q3: { answer: true, correct_text: '✅ 答对了！', explanation: '通过数据发现问题并做出定价策略调整，这是利用数据「辅助运营决策」的典型体现。降低成本更多指减少资源浪费。' },
+      q4: { answer: true, correct_text: '✅ 答对了！', explanation: '客户设备属性包括：客户常用设备（PC/手机）、常用平台、浏览器、使用习惯等设备相关信息。' },
+      q5: { answer: true, correct_text: '✅ 答对了！', explanation: '数据分析能帮助各规模企业发现市场趋势，快速调整业务。选项A、B、C均存在错误：A过于绝对；B市场分析需包含竞争对手和行业数据；C数据分析是辅助工具，不能完全取代经营判断。' }
+    };
+
+    const quizState = { q1: null, q2: null, q3: null, q4: null, q5: null };
+    const quizSubmitted = {};
+
+    function selectOpt(el, qId, isCorrect) {
+      if (quizSubmitted[qId]) return;
+      const opts = el.parentElement.querySelectorAll('.quiz-opt');
+      opts.forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      quizState[qId] = isCorrect;
+    }
+
+    function submitQ(qId) {
+      if (quizSubmitted[qId]) return;
+      if (quizState[qId] === null) {
+        alert('请先选择一个答案！');
+        return;
+      }
+      quizSubmitted[qId] = true;
+      const btn = document.querySelector(`#${qId} .quiz-submit`);
+      btn.disabled = true;
+
+      const isCorrect = quizState[qId];
+      const data = quizData[qId];
+
+      // Color options
+      const opts = document.querySelectorAll(`#${qId} .quiz-opt`);
+      opts.forEach(opt => {
+        opt.classList.add('disabled');
+        if (opt.classList.contains('selected')) {
+          opt.classList.add(isCorrect ? 'correct' : 'wrong');
+        }
+      });
+
+      // Show feedback
+      const fb = document.getElementById(qId + '-fb');
+      fb.innerHTML = `<strong>${isCorrect ? data.correct_text : '❌ 答错了，再想想！'}</strong>${data.explanation}`;
+      fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+
+      // Check if all submitted
+      if (Object.keys(quizSubmitted).length === 5) {
+        showScore();
+      }
+    }
+
+    function showScore() {
+      const correct = Object.values(quizState).filter(v => v === true).length;
+      const scoreEl = document.getElementById('quiz-score');
+      const emojiEl = document.getElementById('score-emoji');
+      const numEl = document.getElementById('score-num');
+      const msgEl = document.getElementById('score-msg');
+
+      numEl.textContent = `${correct} / 5`;
+      if (correct === 5) { emojiEl.textContent = '🏆'; msgEl.textContent = '满分！你是数据分析小天才！🎉'; }
+      else if (correct >= 4) { emojiEl.textContent = '🌟'; msgEl.textContent = '优秀！只差一步就满分了！'; }
+      else if (correct >= 3) { emojiEl.textContent = '😊'; msgEl.textContent = '良好！还有进步空间，再复习一下吧！'; }
+      else if (correct >= 2) { emojiEl.textContent = '💪'; msgEl.textContent = '加油！多看几遍知识点，你可以的！'; }
+      else { emojiEl.textContent = '📖'; msgEl.textContent = '需要重点复习，别灰心，再来一次！'; }
+
+      scoreEl.classList.add('show');
+      scoreEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function retryQuiz() {
+      ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(id => {
+        quizState[id] = null;
+        delete quizSubmitted[id];
+        const section = document.getElementById(id);
+        section.querySelectorAll('.quiz-opt').forEach(o => {
+          o.className = 'quiz-opt';
+        });
+        const btn = section.querySelector('.quiz-submit');
+        btn.disabled = false;
+        const fb = document.getElementById(id + '-fb');
+        fb.className = 'quiz-feedback';
+        fb.innerHTML = '';
+      });
+      document.getElementById('quiz-score').classList.remove('show');
+    }
+
+    // ===== NAV ACTIVE =====
+    const sections = document.querySelectorAll('section[id]');
+    const navItems = document.querySelectorAll('.nav-item');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) current = s.id;
+      });
+      navItems.forEach(n => {
+        n.classList.toggle('active', n.getAttribute('href') === '#' + current);
+      });
+    });
+
+    // ===== SCROLL REVEAL =====
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ===== SMOOTH SCROLL =====
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });</script>
+</body>
+
+</html>

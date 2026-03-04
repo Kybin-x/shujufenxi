@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块一·单元二 电商数据分析指标 · 闯关挑战</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/game.css">
+<style>
+  :root {
+    --accent:      #7C3AED;
+    --accent-dark: #5B21B6;
+    --accent-text: #0A0020;
+    --accent-glow: rgba(124,58,237,.4);
+  }
+</style>
+</head>
+<body>
+
+<canvas class="stars" id="stars"></canvas>
+<div class="combo-t" id="comboT"></div>
+
+<div class="screen active" id="sLogin">
+  <div class="login-box">
+    <div class="game-logo">📈</div>
+    <div class="ltitle">电商数据分析指标 · 闯关</div>
+    <div class="lsub">模块一 · 单元二</div>
+    <div class="lmod">销售公式 · 核心指标 · 数据体系</div>
+    <div class="badge-row">
+      <span class="bdg s">🔵 单选 ×10</span>
+      <span class="bdg m">🟢 多选 ×5</span>
+      <span class="bdg j">🩷 判断 ×5</span>
+    </div>
+    <div class="inp-g"><label>📋 学号</label><input type="text" id="iId" placeholder="请输入学号" maxlength="20"></div>
+    <div class="inp-g"><label>✏️ 姓名</label><input type="text" id="iName" placeholder="请输入姓名" maxlength="12"></div>
+    <button class="start-btn" onclick="startGame()">⚡ 开始闯关</button>
+  </div>
+</div>
+
+<div class="screen" id="sGame">
+  <div class="game-wrap">
+    <div class="g-header">
+      <div class="pinfo">
+        <div class="pavt" id="avt">A</div>
+        <div><div class="pname" id="hName">-</div><div class="pid" id="hId">-</div></div>
+      </div>
+      <div class="sc-disp">
+        <span style="font-size:18px;">⭐</span>
+        <div class="sc-val" id="scV">0</div>
+        <div class="sc-tot">/20题</div>
+      </div>
+    </div>
+    <div class="pg-wrap">
+      <div class="pg-meta"><span id="pgTxt">第1题 / 共20题</span><span id="pgPct">0%</span></div>
+      <div class="pg-track"><div class="pg-fill" id="pgFill" style="width:0%"></div></div>
+    </div>
+    <div class="sdots" id="sdots"></div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+</div>
+
+<div class="screen" id="sResult">
+  <div class="res-wrap">
+    <div class="res-fw" id="rFw">🎉🏆🎊</div>
+    <div class="res-card">
+      <div class="res-icon" id="rIcon" style="background:linear-gradient(135deg,#FFD700,#FFA500)">🏆</div>
+      <div class="res-grade" id="rGrade">闯关完成！</div>
+      <div class="res-nm"   id="rNm"></div>
+      <div class="res-ach"  id="rAch"></div>
+      <div class="big-sc"   id="bigSc">0</div>
+      <div class="sc-lbl">综合得分（满分 20 分）</div>
+      <div class="sb-grid">
+        <div class="sb-item"><div class="sb-icon">🔵</div><div class="sb-type">单选题</div><div class="sb-n" id="sb1">0</div><div class="sb-t">/10</div></div>
+        <div class="sb-item"><div class="sb-icon">🟢</div><div class="sb-type">多选题</div><div class="sb-n" id="sb2">0</div><div class="sb-t">/5</div></div>
+        <div class="sb-item"><div class="sb-icon">🩷</div><div class="sb-type">判断题</div><div class="sb-n" id="sb3">0</div><div class="sb-t">/5</div></div>
+      </div>
+      <button class="retry-btn" onclick="retry()">🔄 再战一次</button>
+    </div>
+  </div>
+</div>
+
+<script src="questions/m1_2_questions.js"></script>
+<script src="js/common.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模块一·单元三 数据分析基础方法</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/learning.css">
+  <style>
+    :root {
+      --c1: #0D9488;
+      --c1l: #F0FDFA;
+      --c1d: #0F766E;
+      --c2: #14B8A6;
+      --c3: #99F6E4;
+      /* 旧变量名映射 */
+      --primary: #0D9488;
+      --secondary: #14B8A6;
+      --accent: #99F6E4;
+      --bg: #FFF9F0;
+      --text: #2c3e50;
+      --muted: #7f8c9a;
+      --card: #FFFFFF;
+      --r: 16px;
+    }
+
+    /* ── 本页专属：quiz section 旧类名 ── */
+    .quiz-section,
+    #quiz {
+      background: linear-gradient(135deg, #f8f9ff, #fff);
+      border-radius: 20px;
+      padding: 32px;
+      border: 2px solid var(--c1);
+      margin-top: 40px;
+    }
+
+    .quiz-header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .quiz-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--c1);
+      margin: 0;
+    }
+
+    .quiz-body {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .quiz-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      border: 1px solid #e8e8e8;
+    }
+
+    .quiz-q {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .quiz-num {
+      background: var(--c1);
+      color: #fff;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-opt {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 2px solid #eee;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+    }
+
+    .quiz-opt:hover {
+      border-color: var(--c1);
+      background: var(--c1l);
+    }
+
+    .quiz-opt.selected {
+      border-color: var(--c1);
+      background: var(--c1l);
+    }
+
+    .quiz-opt.correct {
+      background: #d1fae5;
+      border-color: #059669;
+    }
+
+    .quiz-opt.wrong {
+      background: #fee2e2;
+      border-color: #dc2626;
+    }
+
+    .opt-label {
+      background: var(--c1);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .quiz-submit {
+      background: var(--c1);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+
+    .quiz-submit:hover {
+      opacity: .85;
+      transform: translateY(-1px);
+    }
+
+    .quiz-submit:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .quiz-feedback {
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.correct-fb {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .quiz-feedback.wrong-fb {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .score-display {
+      text-align: center;
+      padding: 32px;
+      background: linear-gradient(135deg, var(--c1), var(--c1d));
+      color: #fff;
+      border-radius: 20px;
+      margin-top: 24px;
+    }
+
+    .score-emoji {
+      font-size: 64px;
+    }
+
+    .score-number {
+      font-size: 48px;
+      font-weight: 900;
+    }
+
+    .score-message {
+      font-size: 18px;
+      margin-top: 8px;
+    }
+
+    .score-retry {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, .25);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, .6);
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-badge">📚 模块一 · 单元三</div>
+    <h1>电子商务数据分析的流程</h1>
+    <h2>六步全流程 · 从目标到报告 · 数据驱动决策</h2>
+    <div class="hero-tags">
+      <span class="hero-tag">⏱ 预计45分钟</span>
+      <span class="hero-tag">🔄 6大流程步骤</span>
+      <span class="hero-tag">📊 10种图表类型</span>
+      <span class="hero-tag">✅ 5道综合测试</span>
+    </div>
+    <div class="flow-banner">
+      <div class="fb-step">①明确目标</div>
+      <div class="fb-arr">→</div>
+      <div class="fb-step">②数据采集</div>
+      <div class="fb-arr">→</div>
+      <div class="fb-step">③数据处理</div>
+      <div class="fb-arr">→</div>
+      <div class="fb-step">④数据分析</div>
+      <div class="fb-arr">→</div>
+      <div class="fb-step">⑤数据展现</div>
+      <div class="fb-arr">→</div>
+      <div class="fb-step">⑥撰写报告</div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="sticky-nav">
+    <a class="nav-item active" href="#sec-overview">🔄 总览</a>
+    <a class="nav-item" href="#sec-s1">🎯 明确目标</a>
+    <a class="nav-item" href="#sec-s2">📥 数据采集</a>
+    <a class="nav-item" href="#sec-s3">🔧 数据处理</a>
+    <a class="nav-item" href="#sec-s4">🔬 数据分析</a>
+    <a class="nav-item" href="#sec-s5">📊 数据展现</a>
+    <a class="nav-item" href="#sec-s6">📝 分析报告</a>
+    <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+    <a class="nav-item" href="#sec-quiz">✅ 测试</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- ═══ 总览 ═══ -->
+    <section id="sec-overview" class="sec-block reveal">
+      <div class="sec-hd bc1">
+        <div class="sec-icon bg-c1" style="color:#fff;">🔄</div>
+        <div>
+          <div class="sec-title txt-c1">电子商务数据分析的一般流程</div>
+          <div class="sec-sub">六个环节环环相扣，缺一不可</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#0D9488,#0891B2);">
+        <div class="lc-tag">🛍️ 情景引入</div>
+        <h4>双十一结束，老板问"这次促销效果怎么样？"——你该怎么回答？</h4>
+        <p>靠感觉靠印象都不行！需要一套<strong>科学的数据分析流程</strong>：先搞清楚要分析什么 → 采集数据 → 清洗处理 → 选方法分析 → 用图表展现 → 写报告给老板。这就是本节六大步骤！</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c1" style="margin-bottom:20px;">🗺️ 六步流程全景</h3>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="fs-num" style="background:linear-gradient(135deg,#0D9488,#0F766E);">①</div>
+            <div class="fs-body">
+              <div class="fs-title"><span>🎯</span><span class="txt-c1">明确数据分析目标</span></div>
+              <div class="fs-desc">根据目标选择需分析的数据，明确想达到的效果。带着清晰目的分析才不会偏离方向，是整个流程的<strong>先决条件</strong>，也为后续采集、处理、分析提供清晰指引。
+              </div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num" style="background:linear-gradient(135deg,#F59E0B,#D97706);">②</div>
+            <div class="fs-body">
+              <div class="fs-title"><span>📥</span><span class="txt-c2">数据采集</span></div>
+              <div class="fs-desc">
+                通过<strong>直接获取</strong>（统计调查/科学实验得到的一手数据）或<strong>间接获取</strong>（查阅资料、数据统计工具等）方式收集所需数据。</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num" style="background:linear-gradient(135deg,#6366F1,#4F46E5);">③</div>
+            <div class="fs-body">
+              <div class="fs-title"><span>🔧</span><span class="txt-c3">数据处理</span></div>
+              <div class="fs-desc">对采集到的数据进行加工整理，保证数据的一致性和有效性。包含数据清洗、转化、提取、计算四个步骤，是数据分析前<strong>必不可少的阶段</strong>。</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num" style="background:linear-gradient(135deg,#EC4899,#BE185D);">④</div>
+            <div class="fs-body">
+              <div class="fs-title"><span>🔬</span><span class="txt-c4">数据分析</span></div>
+              <div class="fs-desc">用适当的<strong>分析方法及工具</strong>，对处理过的数据进行分析，提取有价值的信息，形成有效结论的过程。</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num" style="background:linear-gradient(135deg,#10B981,#059669);">⑤</div>
+            <div class="fs-body">
+              <div class="fs-title"><span>📊</span><span class="txt-c5">数据展现</span></div>
+              <div class="fs-desc">数据可视化，把数据分析的观点用图表形式展示出来。具体形式除遵循企业规范外，<strong>还要根据实际需求和场景而定</strong>。</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);">⑥</div>
+            <div class="fs-body">
+              <div class="fs-title"><span>📝</span><span class="txt-c6">撰写数据分析报告</span></div>
+              <div class="fs-desc">对整个分析过程的总结与呈现。通过报告把分析的<strong>思路、过程、结论及建议</strong>完整呈现，供决策者参考。</div>
+            </div>
+          </div>
+        </div>
+        <div class="hl teal">
+          <div class="hi">💡</div>
+          <div class="hb"><strong>记忆口诀</strong>
+            <p>「<strong>目→采→处→析→展→报</strong>」——明确目标打基础，采集处理是准备，分析展现出洞见，报告呈堂献决策！</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：以下哪一步是整个数据分析流程的「先决条件」？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq0','数据采集是第二步，在明确目标之后才能开展。')">数据采集</button>
+          <button class="mo"
+            onclick="mq(this,true,'mq0','✅ 正确！明确目标是先决条件，带着清晰目的才不会偏离方向，并为后续各步骤提供方向指引。')">明确数据分析目标</button>
+          <button class="mo" onclick="mq(this,false,'mq0','数据处理是第三步，在采集之后进行。')">数据处理</button>
+          <button class="mo" onclick="mq(this,false,'mq0','撰写报告是最后一步，是对整个过程的总结。')">撰写数据分析报告</button>
+        </div>
+        <div id="mq0" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 1 ═══ -->
+    <section id="sec-s1" class="sec-block reveal">
+      <div class="sec-hd bc1">
+        <div class="sec-icon bg-c1" style="color:#fff;">🎯</div>
+        <div>
+          <div class="sec-title txt-c1">步骤一：明确数据分析目标</div>
+          <div class="sec-sub">先决条件 · 搭建分析框架</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#0D9488,#0F766E);">
+        <div class="lc-tag">🎯 生活比喻</div>
+        <h4>射箭要先知道靶在哪——没有目标的分析是蒙眼射箭！</h4>
+        <p>明确目标是整个流程的<strong>灯塔</strong>，决定了后续采集什么数据、用什么方法分析、最终回答什么问题，能为企业决策者提供有意义的指导意见。</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c1" style="margin-bottom:18px;">📋 明确目标包含哪些工作？</h3>
+        <div class="g2">
+          <div class="hl teal">
+            <div class="hi">🔍</div>
+            <div class="hb"><strong>选择分析数据</strong>
+              <p>根据分析目标，确定需要分析哪些数据，避免无关数据造成资源浪费。</p>
+            </div>
+          </div>
+          <div class="hl amber">
+            <div class="hi">🏁</div>
+            <div class="hb"><strong>明确预期效果</strong>
+              <p>明确分析想要达到什么样的效果，为决策者提供有意义的指导意见。</p>
+            </div>
+          </div>
+        </div>
+        <div class="acc" id="acc-s1" onclick="toggleAcc('acc-s1')">
+          <div class="acc-h" style="background:#CCFBF1;">
+            <div class="acc-ht" style="color:#0F766E;"><span>🗺️</span>如何具体开展数据分析？（点击展开）</div>
+            <div class="acc-ar" style="color:#0F766E;">▼</div>
+          </div>
+          <div class="acc-b" id="acc-s1-b">
+            <div class="g2" style="margin-top:4px;">
+              <div class="hl indigo">
+                <div class="hi">🧩</div>
+                <div class="hb"><strong>搭建分析框架</strong>
+                  <p>梳理分析思路，把数据分析目标分解成若干个不同的<strong>分析要点</strong>，从多个角度切入。</p>
+                </div>
+              </div>
+              <div class="hl green">
+                <div class="hi">📐</div>
+                <div class="hb"><strong>确定分析指标</strong>
+                  <p>针对每个分析要点，确定<strong>分析方法和具体分析指标</strong>，明确从哪几个角度展开分析。</p>
+                </div>
+              </div>
+            </div>
+            <div class="lc" style="background:linear-gradient(135deg,#F59E0B,#D97706);margin-top:12px;">
+              <div class="lc-tag">🌰 实际案例</div>
+              <h4>双十一促销效果分析</h4>
+              <p><strong>目标：</strong>评估双十一活动整体成效，为下次活动改进提供依据<br>
+                <strong>分析要点：</strong>① 销售额是否达标 ② 引流效果（UV/转化率）③ 客单价变化 ④ 用户留存率<br>
+                <strong>分析指标：</strong>销售额、UV、成交转化率、客单价、重复购买率……
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 2 ═══ -->
+    <section id="sec-s2" class="sec-block reveal">
+      <div class="sec-hd bc2">
+        <div class="sec-icon bg-c2" style="color:#fff;">📥</div>
+        <div>
+          <div class="sec-title txt-c2">步骤二：数据采集</div>
+          <div class="sec-sub">直接获取 vs 间接获取</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#F59E0B,#D97706);">
+        <div class="lc-tag">📦 生活引入</div>
+        <h4>数据是"原材料"——做饭前要先准备好食材！</h4>
+        <p>没有数据就没有分析。数据采集就是根据已明确的目标，把分析所需的"原材料"收集齐全。采集方式不同，数据的来源和质量也不同。</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c2" style="margin-bottom:16px;">📡 两种数据采集方式</h3>
+        <div class="g2">
+          <div style="border-radius:15px;padding:20px;background:var(--c1l);border:2px solid var(--c1);">
+            <div style="font-size:26px;margin-bottom:9px;">🎯</div>
+            <h4 style="color:var(--c1d);margin-bottom:9px;">直接获取（第一手数据）</h4>
+            <p style="font-size:13px;color:#555;line-height:1.7;">通过<strong>统计调查或科学实验</strong>得到的企业内部直接数据。</p>
+            <div style="margin-top:11px;display:flex;flex-direction:column;gap:7px;">
+              <div
+                style="background:#fff;border-radius:9px;padding:8px 11px;font-size:12px;display:flex;gap:7px;align-items:center;">
+                <span>📋</span><span>问卷调查、用户访谈</span></div>
+              <div
+                style="background:#fff;border-radius:9px;padding:8px 11px;font-size:12px;display:flex;gap:7px;align-items:center;">
+                <span>🏪</span><span>店铺后台数据（订单/访客/转化）</span></div>
+              <div
+                style="background:#fff;border-radius:9px;padding:8px 11px;font-size:12px;display:flex;gap:7px;align-items:center;">
+                <span>🧪</span><span>A/B测试实验数据</span></div>
+            </div>
+            <div
+              style="margin-top:10px;padding:7px 10px;background:rgba(13,148,136,.08);border-radius:8px;font-size:12px;color:var(--c1d);">
+              ✅ 数据真实可靠，针对性强</div>
+          </div>
+          <div style="border-radius:15px;padding:20px;background:var(--c2l);border:2px solid var(--c2);">
+            <div style="font-size:26px;margin-bottom:9px;">🌐</div>
+            <h4 style="color:var(--c2d);margin-bottom:9px;">间接获取（二手数据）</h4>
+            <p style="font-size:13px;color:#555;line-height:1.7;">通过<strong>查阅资料、数据统计工具</strong>等方式获取已有数据。</p>
+            <div style="margin-top:11px;display:flex;flex-direction:column;gap:7px;">
+              <div
+                style="background:#fff;border-radius:9px;padding:8px 11px;font-size:12px;display:flex;gap:7px;align-items:center;">
+                <span>📊</span><span>生意参谋、百度指数、艾瑞咨询</span></div>
+              <div
+                style="background:#fff;border-radius:9px;padding:8px 11px;font-size:12px;display:flex;gap:7px;align-items:center;">
+                <span>📰</span><span>行业报告、政府统计数据</span></div>
+              <div
+                style="background:#fff;border-radius:9px;padding:8px 11px;font-size:12px;display:flex;gap:7px;align-items:center;">
+                <span>🔍</span><span>竞品公开数据、电商平台大数据</span></div>
+            </div>
+            <div
+              style="margin-top:10px;padding:7px 10px;background:rgba(245,158,11,.08);border-radius:8px;font-size:12px;color:var(--c2d);">
+              ✅ 效率高，可获取行业宏观数据</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：商家从「生意参谋」下载行业销售趋势报告，属于哪种采集方式？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq1','直接获取是通过统计调查/实验得到的一手数据，生意参谋属于第三方工具。')">直接获取</button>
+          <button class="mo" onclick="mq(this,true,'mq1','✅ 正确！通过查阅资料、数据统计工具获取的是二手数据，属于间接获取。')">间接获取</button>
+        </div>
+        <div id="mq1" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 3 ═══ -->
+    <section id="sec-s3" class="sec-block reveal">
+      <div class="sec-hd bc3">
+        <div class="sec-icon bg-c3" style="color:#fff;">🔧</div>
+        <div>
+          <div class="sec-title txt-c3">步骤三：数据处理</div>
+          <div class="sec-sub">清洗 · 转化 · 提取 · 计算</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#6366F1,#4F46E5);">
+        <div class="lc-tag">🧹 生活引入</div>
+        <h4>洗菜切菜——原材料要处理好才能下锅！</h4>
+        <p>采集来的原始数据往往杂乱无章、难以理解。数据处理就是把"毛坯数据"加工成"精品食材"，<strong>是数据分析前必不可少的阶段</strong>，保证数据的一致性和有效性。</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c3" style="margin-bottom:16px;">🔧 数据处理的四个步骤</h3>
+        <div class="proc-grid">
+          <div class="pc" style="background:#EEF2FF;border-color:#6366F1;">
+            <div class="pc-n" style="background:#6366F1;">1</div>
+            <div class="pc-t txt-c3">🧹 数据清洗</div>
+            <div class="pc-d">对数据进行重新审查和校验，<strong>删除重复信息、纠正存在的错误</strong>，提供数据一致性。</div>
+            <div class="pc-eg" style="color:#6366F1;border-color:#6366F1;">🌰 删除重复订单记录 / 修正明显错误的价格</div>
+          </div>
+          <div class="pc" style="background:#FEF3C7;border-color:#F59E0B;">
+            <div class="pc-n" style="background:#F59E0B;">2</div>
+            <div class="pc-t txt-c2">🔄 数据转化</div>
+            <div class="pc-d">将数据从一种表示形式变为另一种，即将原始数据<strong>转换成适合数据分析的形式</strong>。</div>
+            <div class="pc-eg" style="color:#D97706;border-color:#F59E0B;">🌰 "是/否"→"1/0" / 统一日期格式</div>
+          </div>
+          <div class="pc" style="background:#D1FAE5;border-color:#10B981;">
+            <div class="pc-n" style="background:#10B981;">3</div>
+            <div class="pc-t txt-c5">📤 数据提取</div>
+            <div class="pc-d">从数据源中<strong>抽取特定数据</strong>的过程，只取分析目标所需的字段或记录。</div>
+            <div class="pc-eg" style="color:#059669;border-color:#10B981;">🌰 从10万条订单只提取"华南区"数据</div>
+          </div>
+          <div class="pc" style="background:#EDE9FE;border-color:#8B5CF6;">
+            <div class="pc-n" style="background:#8B5CF6;">4</div>
+            <div class="pc-t txt-c6">🧮 数据计算</div>
+            <div class="pc-d">对数据进行加减乘除等运算，<strong>最大化开发数据价值，提取有用信息</strong>。</div>
+            <div class="pc-eg" style="color:#7C3AED;border-color:#8B5CF6;">🌰 毛利率=(销售额-成本)÷销售额×100%</div>
+          </div>
+        </div>
+
+        <div class="acc" id="acc-s3" onclick="toggleAcc('acc-s3')">
+          <div class="acc-h" style="background:#EEF2FF;">
+            <div class="acc-ht" style="color:#4F46E5;"><span>🎯</span>数据处理的三大目的</div>
+            <div class="acc-ar" style="color:#4F46E5;">▼</div>
+          </div>
+          <div class="acc-b" id="acc-s3-b">
+            <div class="g3" style="margin-top:4px;">
+              <div class="hl indigo">
+                <div class="hi">🔄</div>
+                <div class="hb"><strong>转换形式</strong>
+                  <p>将数据转换成便于观察分析、传送或进一步处理的形式。</p>
+                </div>
+              </div>
+              <div class="hl teal">
+                <div class="hi">💡</div>
+                <div class="hb"><strong>提炼价值</strong>
+                  <p>从大量原始数据中提取、推导出对企业运营有价值的信息。</p>
+                </div>
+              </div>
+              <div class="hl green">
+                <div class="hi">💾</div>
+                <div class="hb"><strong>科学保存</strong>
+                  <p>科学地保存和管理处理过的数据，方便后续充分利用信息资源。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：把"男/女"文字字段改成"1/0"数字格式，属于数据处理的哪个步骤？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq2','数据清洗是删除重复、纠正错误，不是改变数据格式。')">数据清洗</button>
+          <button class="mo" onclick="mq(this,true,'mq2','✅ 正确！将数据从一种形式变为另一种适合分析的形式，正是数据转化！')">数据转化</button>
+          <button class="mo" onclick="mq(this,false,'mq2','数据提取是抽取部分数据，不是格式转换。')">数据提取</button>
+          <button class="mo" onclick="mq(this,false,'mq2','数据计算是进行加减乘除运算，不是格式转换。')">数据计算</button>
+        </div>
+        <div id="mq2" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 4 ═══ -->
+    <section id="sec-s4" class="sec-block reveal">
+      <div class="sec-hd bc4">
+        <div class="sec-icon bg-c4" style="color:#fff;">🔬</div>
+        <div>
+          <div class="sec-title txt-c4">步骤四：数据分析</div>
+          <div class="sec-sub">方法 · 工具 · 形成有效结论</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#EC4899,#BE185D);">
+        <div class="lc-tag">🔬 核心定义</div>
+        <h4>数据分析——用对方法，让数据"开口说话"！</h4>
+        <p>数据分析是用<strong>适当的分析方法及工具</strong>，对处理过的数据进行分析，提取有价值的信息，形成有效结论的过程。通过探索式分析对整个数据集有全面认识，以便选择恰当的分析策略。</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="tab-btns">
+          <button class="tab-btn active" style="color:var(--c4);border-color:var(--c4);"
+            onclick="switchTab('t-tool',this,'var(--c4)')">🛠️ 分析工具</button>
+          <button class="tab-btn" style="color:var(--c3);border-color:var(--c3);"
+            onclick="switchTab('t-method',this,'var(--c3)')">📐 分析方法</button>
+        </div>
+        <div id="t-tool" class="tab-panel active" style="border-color:var(--c4);">
+          <h4 class="txt-c4" style="margin-bottom:14px;">常用数据分析工具</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px;">
+            <div style="background:#FFF0F6;border-radius:13px;padding:15px;text-align:center;border:2px solid #FBBFD0;">
+              <div style="font-size:26px;margin-bottom:6px;">📊</div>
+              <div style="font-weight:700;color:#BE185D;margin-bottom:4px;">Excel</div>
+              <div style="font-size:11px;color:#555;line-height:1.5;">涵盖大部分分析功能<br><strong>中职重点掌握</strong> ⭐⭐⭐⭐⭐</div>
+            </div>
+            <div style="background:#EEF2FF;border-radius:13px;padding:15px;text-align:center;border:2px solid #C7D2FE;">
+              <div style="font-size:26px;margin-bottom:6px;">📈</div>
+              <div style="font-weight:700;color:#4F46E5;margin-bottom:4px;">SPSS</div>
+              <div style="font-size:11px;color:#555;line-height:1.5;">专业统计软件<br>复杂统计分析 ⭐⭐⭐</div>
+            </div>
+            <div style="background:#D1FAE5;border-radius:13px;padding:15px;text-align:center;border:2px solid #6EE7B7;">
+              <div style="font-size:26px;margin-bottom:6px;">🐍</div>
+              <div style="font-weight:700;color:#059669;margin-bottom:4px;">Python</div>
+              <div style="font-size:11px;color:#555;line-height:1.5;">大数据量分析<br>编程语言 ⭐⭐⭐⭐</div>
+            </div>
+            <div style="background:#CCFBF1;border-radius:13px;padding:15px;text-align:center;border:2px solid #5EEAD4;">
+              <div style="font-size:26px;margin-bottom:6px;">📉</div>
+              <div style="font-weight:700;color:#0F766E;margin-bottom:4px;">R语言</div>
+              <div style="font-size:11px;color:#555;line-height:1.5;">统计可视化专用<br>⭐⭐⭐</div>
+            </div>
+            <div style="background:#FEF3C7;border-radius:13px;padding:15px;text-align:center;border:2px solid #FCD34D;">
+              <div style="font-size:26px;margin-bottom:6px;">🔬</div>
+              <div style="font-weight:700;color:#92400E;margin-bottom:4px;">SAS</div>
+              <div style="font-size:11px;color:#555;line-height:1.5;">企业级统计<br>⭐⭐</div>
+            </div>
+          </div>
+          <div class="hl amber" style="margin-top:14px;">
+            <div class="hi">⭐</div>
+            <div class="hb"><strong>Excel 是中职重点！</strong>
+              <p>Excel涵盖了大部分数据分析功能，能有效整理、加工、统计、分析及呈现数据。掌握Excel基础分析功能，就能解决大多数数据分析问题。</p>
+            </div>
+          </div>
+        </div>
+        <div id="t-method" class="tab-panel" style="border-color:var(--c3);">
+          <h4 class="txt-c3" style="margin-bottom:14px;">常用数据分析方法</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px;">
+            <span
+              style="background:var(--c4l);color:var(--c4);padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #F9A8D4;">描述性统计分析</span>
+            <span
+              style="background:var(--c1l);color:var(--c1);padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #5EEAD4;">趋势分析</span>
+            <span
+              style="background:var(--c2l);color:var(--c2d);padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #FCD34D;">对比分析</span>
+            <span
+              style="background:var(--c3l);color:var(--c3);padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #A5B4FC;">频数分析</span>
+            <span
+              style="background:var(--c5l);color:var(--c5);padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #6EE7B7;">分组分析</span>
+            <span
+              style="background:var(--c6l);color:var(--c6);padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #C4B5FD;">平均分析</span>
+            <span
+              style="background:#FFF0F6;color:#BE185D;padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #FBBFD0;">结构分析</span>
+            <span
+              style="background:#F0FDF4;color:#15803D;padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #86EFAC;">交叉分析</span>
+          </div>
+          <div class="hl indigo">
+            <div class="hi">📌</div>
+            <div class="hb"><strong>如何选择分析方法？</strong>
+              <p>了解整体概况→描述性统计；看变化趋势→趋势分析；与历史/竞品对比→对比分析；分析各部分占比→结构分析；找群体之间差异→分组/交叉分析。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 5 ═══ -->
+    <section id="sec-s5" class="sec-block reveal">
+      <div class="sec-hd bc5">
+        <div class="sec-icon bg-c5" style="color:#fff;">📊</div>
+        <div>
+          <div class="sec-title txt-c5">步骤五：数据展现</div>
+          <div class="sec-sub">数据可视化 · 图表选择 · 6步制图法</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#10B981,#059669);">
+        <div class="lc-tag">📊 核心理念</div>
+        <h4>一张好图胜过千言万语——让数据"看得见"！</h4>
+        <p>数据展现是把分析观点转化为可视化图表的过程。图表类型的选择非常关键——选错了图就像用叉子喝汤，信息传达效率极低。</p>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c5" style="margin-bottom:8px;">📈 10种常用图表类型（点击查看适用场景）</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:13px;">根据分析目的选对图表，数据表达事半功倍！</p>
+        <div class="chart-grid">
+          <div class="ch" style="background:#FEF3C7;" onclick="showChart('pie',event)">
+            <div class="ch-i">🥧</div>
+            <div class="ch-n">饼图</div>
+            <div class="ch-u">比例/占比分析</div>
+          </div>
+          <div class="ch" style="background:#DBEAFE;" onclick="showChart('bar',event)">
+            <div class="ch-i">📊</div>
+            <div class="ch-n">柱状图</div>
+            <div class="ch-u">类别对比分析</div>
+          </div>
+          <div class="ch" style="background:#D1FAE5;" onclick="showChart('hbar',event)">
+            <div class="ch-i">📉</div>
+            <div class="ch-n">条形图</div>
+            <div class="ch-u">横向类别对比</div>
+          </div>
+          <div class="ch" style="background:#FCE7F3;" onclick="showChart('line',event)">
+            <div class="ch-i">📈</div>
+            <div class="ch-n">折线图</div>
+            <div class="ch-u">趋势/时间变化</div>
+          </div>
+          <div class="ch" style="background:#EDE9FE;" onclick="showChart('bubble',event)">
+            <div class="ch-i">🫧</div>
+            <div class="ch-n">气泡图</div>
+            <div class="ch-u">三维关系分析</div>
+          </div>
+          <div class="ch" style="background:#CCFBF1;" onclick="showChart('scatter',event)">
+            <div class="ch-i">⭕</div>
+            <div class="ch-n">散点图</div>
+            <div class="ch-u">相关性分析</div>
+          </div>
+          <div class="ch" style="background:#FEE2E2;" onclick="showChart('radar',event)">
+            <div class="ch-i">🕸️</div>
+            <div class="ch-n">雷达图</div>
+            <div class="ch-u">多维综合评估</div>
+          </div>
+          <div class="ch" style="background:#FEF9C3;" onclick="showChart('pyramid',event)">
+            <div class="ch-i">🔺</div>
+            <div class="ch-n">金字塔图</div>
+            <div class="ch-u">层级结构分析</div>
+          </div>
+          <div class="ch" style="background:#E0F2FE;" onclick="showChart('matrix',event)">
+            <div class="ch-i">⊞</div>
+            <div class="ch-n">矩阵图</div>
+            <div class="ch-u">四象限分类</div>
+          </div>
+          <div class="ch" style="background:#F3E8FF;" onclick="showChart('funnel',event)">
+            <div class="ch-i">🔻</div>
+            <div class="ch-n">漏斗图</div>
+            <div class="ch-u">流程转化分析</div>
+          </div>
+        </div>
+        <div id="chartDet" class="chart-detail"></div>
+      </div>
+
+      <div class="card reveal">
+        <h3 class="txt-c5" style="margin-bottom:16px;">📐 图表制作6步法</h3>
+        <div class="tl">
+          <div class="tl-i">
+            <div class="tl-d" style="background:#0D9488;">1</div>
+            <div class="tl-b"><strong>确定图表表达主题</strong>
+              <p>这张图要说明什么？提前想清楚主题，才能选对图表类型。</p>
+            </div>
+          </div>
+          <div class="tl-i">
+            <div class="tl-d" style="background:#F59E0B;">2</div>
+            <div class="tl-b"><strong>选择合适的图表类型</strong>
+              <p>对比→柱状图；趋势→折线图；占比→饼图；转化→漏斗图；综合→雷达图。</p>
+            </div>
+          </div>
+          <div class="tl-i">
+            <div class="tl-d" style="background:#6366F1;">3</div>
+            <div class="tl-b"><strong>选择数据制作图表</strong>
+              <p>筛选与主题直接相关的数据字段，避免塞入过多无关数据让图表混乱。</p>
+            </div>
+          </div>
+          <div class="tl-i">
+            <div class="tl-d" style="background:#EC4899;">4</div>
+            <div class="tl-b"><strong>完成图表的美化</strong>
+              <p>调整颜色、字体、图例、标签，让图表专业美观，提升视觉冲击力。</p>
+            </div>
+          </div>
+          <div class="tl-i">
+            <div class="tl-d" style="background:#10B981;">5</div>
+            <div class="tl-b"><strong>检查是否真实反映数据</strong>
+              <p>核对数据与图表是否一致，避免坐标轴设置不当产生误导性视觉效果。</p>
+            </div>
+          </div>
+          <div class="tl-i">
+            <div class="tl-d" style="background:#8B5CF6;">6</div>
+            <div class="tl-b"><strong>检查是否完整表达观点</strong>
+              <p>加标题、数据标签和必要说明，确保读者无需额外信息也能理解图表核心观点。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：分析某店铺1月至12月销售额的变化趋势，最适合使用哪种图表？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq3','饼图适合展示各部分占比，不适合展示时间趋势。')">饼图</button>
+          <button class="mo" onclick="mq(this,true,'mq3','✅ 正确！折线图最适合展示随时间变化的趋势，能清晰看出增长、下降和波动规律。')">折线图</button>
+          <button class="mo" onclick="mq(this,false,'mq3','雷达图适合多维度综合评估，不适合时间序列数据。')">雷达图</button>
+          <button class="mo" onclick="mq(this,false,'mq3','漏斗图适合流程转化分析，不适合时间趋势展示。')">漏斗图</button>
+        </div>
+        <div id="mq3" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 6 ═══ -->
+    <section id="sec-s6" class="sec-block reveal">
+      <div class="sec-hd bc6">
+        <div class="sec-icon bg-c6" style="color:#fff;">📝</div>
+        <div>
+          <div class="sec-title txt-c6">步骤六：撰写数据分析报告</div>
+          <div class="sec-sub">三大原则 · 三层结构 · 各部分要求</div>
+        </div>
+      </div>
+
+      <div class="lc" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);">
+        <div class="lc-tag">📝 核心定义</div>
+        <h4>侦探破案要呈堂结案——报告是数据分析的"最终答卷"！</h4>
+        <p>数据分析报告是对整个数据分析过程的<strong>总结与呈现</strong>。通过报告，把分析的思路、过程、结论及建议完整呈现，供决策者参考。</p>
+      </div>
+
+      <!-- 三大原则 -->
+      <div class="card reveal">
+        <h3 class="txt-c6" style="margin-bottom:16px;">✍️ 撰写报告的三大原则</h3>
+        <div class="g3">
+          <div
+            style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);border-radius:15px;padding:20px;color:#fff;text-align:center;">
+            <div style="font-size:28px;margin-bottom:8px;">📑</div>
+            <div style="font-size:15px;font-weight:900;margin-bottom:7px;">结构清晰</div>
+            <div style="font-size:12px;opacity:.9;line-height:1.65;">主次分明，使读者能正确理解报告内容，一目了然。</div>
+          </div>
+          <div
+            style="background:linear-gradient(135deg,#EC4899,#BE185D);border-radius:15px;padding:20px;color:#fff;text-align:center;">
+            <div style="font-size:28px;margin-bottom:8px;">🎨</div>
+            <div style="font-size:15px;font-weight:900;margin-bottom:7px;">图文并茂</div>
+            <div style="font-size:12px;opacity:.9;line-height:1.65;">提高视觉冲击力，助读者形象直观地看清问题和结论，从而产生思考。</div>
+          </div>
+          <div
+            style="background:linear-gradient(135deg,#0D9488,#0891B2);border-radius:15px;padding:20px;color:#fff;text-align:center;">
+            <div style="font-size:28px;margin-bottom:8px;">🔬</div>
+            <div style="font-size:15px;font-weight:900;margin-bottom:7px;">科学严谨</div>
+            <div style="font-size:12px;opacity:.9;line-height:1.65;">通过对分析方法的描述和数据处理过程，让读者感受到整个分析的严谨性。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 报告结构 -->
+      <div class="card reveal">
+        <h3 class="txt-c6" style="margin-bottom:16px;">📚 数据分析报告的一般结构</h3>
+        <div class="rt-grid">
+          <div class="rt-s" style="background:#EDE9FE;border-color:#8B5CF6;">
+            <div class="rt-t" style="color:#6D28D9;">📖 引入部分</div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#8B5CF6;">①</div>
+              <div>
+                <div class="rt-tx"><strong>标题页</strong></div>
+                <div class="rt-sub">报告名称、数据来源、日期；精简干练，抓住读者兴趣</div>
+              </div>
+            </div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#A78BFA;">②</div>
+              <div>
+                <div class="rt-tx"><strong>目录页</strong></div>
+                <div class="rt-sub">各部分内容索引，清晰体现报告分析思路</div>
+              </div>
+            </div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#C4B5FD;">③</div>
+              <div>
+                <div class="rt-tx"><strong>前言页</strong></div>
+                <div class="rt-sub">分析背景、目的、思路；展示报告达成目标和内容指标</div>
+              </div>
+            </div>
+          </div>
+          <div class="rt-s" style="background:#D1FAE5;border-color:#10B981;">
+            <div class="rt-t" style="color:#065F46;">📊 正文部分（核心）</div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#10B981;">①</div>
+              <div>
+                <div class="rt-tx"><strong>具体分析过程</strong></div>
+                <div class="rt-sub">严谨科学的论证，确保观点合理性和真实性</div>
+              </div>
+            </div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#34D399;">②</div>
+              <div>
+                <div class="rt-tx"><strong>数据展示</strong></div>
+                <div class="rt-sub">图文并茂，美观统一，不要加入太多样式</div>
+              </div>
+            </div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#6EE7B7;">③</div>
+              <div>
+                <div class="rt-tx"><strong>评估分析结果</strong></div>
+                <div class="rt-sub">客观评价分析发现，为结论部分奠定基础</div>
+              </div>
+            </div>
+          </div>
+          <div class="rt-s" style="background:#FEF3C7;border-color:#F59E0B;">
+            <div class="rt-t" style="color:#92400E;">🎯 结论部分</div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#F59E0B;">①</div>
+              <div>
+                <div class="rt-tx"><strong>结论与建议</strong></div>
+                <div class="rt-sub">明确结论、建议和解决方案；措辞须严谨准确</div>
+              </div>
+            </div>
+            <div class="rt-i">
+              <div class="rt-dot" style="background:#FCD34D;">②</div>
+              <div>
+                <div class="rt-tx"><strong>附录（选填）</strong></div>
+                <div class="rt-sub">补充分析方法、专业术语、重要原始数据；非必备</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hl purple">
+          <div class="hi">💡</div>
+          <div class="hb"><strong>附录不是必备的！</strong>
+            <p>附录可根据需要决定是否撰写，一般补充正文用到的分析方法、图形、专业术语和重要原始数据等内容，供有需要的读者深入了解。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 思考题 -->
+      <div class="card reveal" style="border:2px dashed var(--c2);background:var(--c2l);">
+        <h3 style="color:var(--c2d);margin-bottom:12px;">💭 想一想</h3>
+        <p style="font-size:15px;font-weight:700;margin-bottom:12px;">结合上面所学内容，想一想如何撰写好一份数据分析报告？</p>
+        <div class="g3">
+          <div class="hl purple">
+            <div class="hi">1️⃣</div>
+            <div class="hb"><strong>结构清晰先行</strong>
+              <p>按引入→正文→结论三层组织内容，确保逻辑清晰、层次分明。</p>
+            </div>
+          </div>
+          <div class="hl pink">
+            <div class="hi">2️⃣</div>
+            <div class="hb"><strong>图文并茂表达</strong>
+              <p>每个分析结论配对应图表，让枯燥的数字变得直观生动。</p>
+            </div>
+          </div>
+          <div class="hl teal">
+            <div class="hi">3️⃣</div>
+            <div class="hb"><strong>结论建议落地</strong>
+              <p>结论要具体、可执行，建议要有针对性，让决策者能直接参考。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mq reveal">
+        <h5>⚡ 即时测验：数据分析报告中最核心的部分是哪个？</h5>
+        <div class="mo-wrap">
+          <button class="mo" onclick="mq(this,false,'mq4','引入部分是报告的开场，包含标题页/目录页/前言页，不是核心内容。')">引入部分</button>
+          <button class="mo" onclick="mq(this,true,'mq4','✅ 正确！正文部分是报告核心，包含具体分析过程、数据展示和评估结果，要严谨科学、图文并茂。')">正文部分</button>
+          <button class="mo" onclick="mq(this,false,'mq4','附录是可选内容，不是核心部分。')">附录</button>
+          <button class="mo" onclick="mq(this,false,'mq4','标题页属于引入部分，只是报告的封面，不是核心。')">标题页</button>
+        </div>
+        <div id="mq4" class="mfb"></div>
+      </div>
+    </section>
+
+    <!-- ═══ 知识导图 ═══ -->
+    <section id="sec-map" class="sec-block reveal">
+      <div class="sec-hd">
+        <div class="sec-icon" style="background:linear-gradient(135deg,#0D9488,#0F766E);color:#fff;">🗺️</div>
+        <div>
+          <div class="sec-title txt-c1">本节知识导图</div>
+          <div class="sec-sub">模块一·单元三 · 数据分析流程 · 全局概览</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;overflow-x:auto;">
+        <svg viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:720px;">
+          <defs>
+            <filter id="sh3">
+              <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity=".13" />
+            </filter>
+            <linearGradient id="gc" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#0D9488" />
+              <stop offset="100%" style="stop-color:#0F766E" />
+            </linearGradient>
+          </defs>
+
+          <!-- 中心节点 -->
+          <rect x="340" y="220" width="280" height="60" rx="30" fill="url(#gc)" filter="url(#sh3)" />
+          <text x="480" y="256" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">电商数据分析流程（六步）</text>
+
+          <!-- ── 上方三步 ── -->
+          <!-- Step 1: 明确目标 -->
+          <line x1="400" y1="220" x2="120" y2="110" stroke="#0D9488" stroke-width="2" stroke-dasharray="6,3" />
+          <rect x="20" y="70" width="200" height="70" rx="14" fill="#CCFBF1" stroke="#0D9488" stroke-width="2"
+            filter="url(#sh3)" />
+          <text x="120" y="100" text-anchor="middle" fill="#0F766E" font-size="13" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">① 明确分析目标</text>
+          <text x="120" y="120" text-anchor="middle" fill="#555" font-size="11"
+            font-family="'Noto Sans SC',sans-serif">分析目的 · 方向指引</text>
+
+          <!-- Step 2: 采集数据 -->
+          <line x1="440" y1="220" x2="300" y2="90" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6,3" />
+          <rect x="200" y="50" width="200" height="70" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"
+            filter="url(#sh3)" />
+          <text x="300" y="80" text-anchor="middle" fill="#D97706" font-size="13" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">② 采集数据</text>
+          <text x="300" y="100" text-anchor="middle" fill="#555" font-size="11"
+            font-family="'Noto Sans SC',sans-serif">直接获取 · 间接获取</text>
+
+          <!-- Step 3: 处理数据 -->
+          <line x1="480" y1="220" x2="480" y2="90" stroke="#6366F1" stroke-width="2" stroke-dasharray="6,3" />
+          <rect x="380" y="50" width="200" height="70" rx="14" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"
+            filter="url(#sh3)" />
+          <text x="480" y="80" text-anchor="middle" fill="#4F46E5" font-size="13" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">③ 处理数据</text>
+          <text x="480" y="100" text-anchor="middle" fill="#555" font-size="11"
+            font-family="'Noto Sans SC',sans-serif">清洗·转化·提取·计算</text>
+
+          <!-- ── 下方三步 ── -->
+          <!-- Step 4: 分析数据 -->
+          <line x1="440" y1="280" x2="300" y2="420" stroke="#EC4899" stroke-width="2" stroke-dasharray="6,3" />
+          <rect x="200" y="400" width="200" height="70" rx="14" fill="#FCE7F3" stroke="#EC4899" stroke-width="2"
+            filter="url(#sh3)" />
+          <text x="300" y="430" text-anchor="middle" fill="#BE185D" font-size="13" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">④ 分析数据</text>
+          <text x="300" y="450" text-anchor="middle" fill="#555" font-size="11"
+            font-family="'Noto Sans SC',sans-serif">10种图表 · 数据洞察</text>
+
+          <!-- Step 5: 展现数据 -->
+          <line x1="480" y1="280" x2="480" y2="410" stroke="#10B981" stroke-width="2" stroke-dasharray="6,3" />
+          <rect x="380" y="400" width="200" height="70" rx="14" fill="#D1FAE5" stroke="#10B981" stroke-width="2"
+            filter="url(#sh3)" />
+          <text x="480" y="430" text-anchor="middle" fill="#059669" font-size="13" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">⑤ 展现数据</text>
+          <text x="480" y="450" text-anchor="middle" fill="#555" font-size="11"
+            font-family="'Noto Sans SC',sans-serif">可视化 · 核对图表准确</text>
+
+          <!-- Step 6: 撰写报告 -->
+          <line x1="520" y1="280" x2="660" y2="420" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="6,3" />
+          <rect x="560" y="400" width="200" height="70" rx="14" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2"
+            filter="url(#sh3)" />
+          <text x="660" y="430" text-anchor="middle" fill="#7C3AED" font-size="13" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">⑥ 撰写分析报告</text>
+          <text x="660" y="450" text-anchor="middle" fill="#555" font-size="11"
+            font-family="'Noto Sans SC',sans-serif">结构·图文并茂·决策</text>
+
+          <!-- ── 右侧扩展节点 ── -->
+          <!-- 报告结构子节点 -->
+          <line x1="760" y1="435" x2="870" y2="320" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="4,3" />
+          <rect x="790" y="270" width="170" height="100" rx="12" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="1.5"
+            filter="url(#sh3)" />
+          <text x="875" y="298" text-anchor="middle" fill="#7C3AED" font-size="12" font-weight="bold"
+            font-family="'Noto Sans SC',sans-serif">报告结构</text>
+          <text x="875" y="316" text-anchor="middle" fill="#777" font-size="10"
+            font-family="'Noto Sans SC',sans-serif">封面 · 目录</text>
+          <text x="875" y="332" text-anchor="middle" fill="#777" font-size="10"
+            font-family="'Noto Sans SC',sans-serif">摘要 · 正文</text>
+          <text x="875" y="348" text-anchor="middle" fill="#777" font-size="10"
+            font-family="'Noto Sans SC',sans-serif">结论 · 附录</text>
+
+          <!-- 采集子节点：工具 -->
+          <line x1="300" y1="50" x2="160" y2="10" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3,2" />
+          <rect x="60" y="0" width="200" height="26" rx="8" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5" />
+          <text x="160" y="18" text-anchor="middle" fill="#92400E" font-size="10"
+            font-family="'Noto Sans SC',sans-serif">工具：生意参谋 · 百度指数</text>
+
+          <!-- 流程顺序箭头（循环） -->
+          <text x="70" y="160" text-anchor="middle" fill="#0D9488" font-size="20">↓</text>
+          <text x="246" y="30" text-anchor="middle" fill="#F59E0B" font-size="16">→</text>
+          <text x="246" y="450" text-anchor="middle" fill="#EC4899" font-size="16">→</text>
+
+          <!-- 标题 -->
+          <text x="480" y="510" text-anchor="middle" fill="#999" font-size="12"
+            font-family="'Noto Sans SC',sans-serif">🗺️ 模块一·单元三 · 电商数据分析流程 · 知识导图</text>
+        </svg>
+      </div>
+
+      <div class="hl teal" style="margin-top:16px;">
+        <div class="hi">💡</div>
+        <div class="hb">
+          <strong>口诀记忆：目 → 采 → 处 → 析 → 展 → 报</strong>
+          <p>六步缺一不可，前后相互依赖：明确目标提供方向，采集数据提供原料，处理数据保证质量，分析数据发现洞见，展现数据让结论可视，撰写报告服务最终决策。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ QUIZ ═══ -->
+    <section id="sec-quiz" class="sec-block reveal">
+      <div class="qhd">
+        <span style="font-size:32px;">✅</span>
+        <div>
+          <h2 style="font-size:20px;">综合知识测试</h2>
+          <p style="font-size:13px;opacity:.85;margin-top:2px;">5道题，检验你的掌握情况！</p>
+        </div>
+      </div>
+      <div class="qbody">
+
+        <div class="qi" id="qz1">
+          <div class="qq"><span class="qnum">1</span>关于「数据处理」的描述，最准确的是？</div>
+          <div class="qopts">
+            <div class="qopt" onclick="selOpt(this,'qz1',false)">
+              <div class="ok2">A</div>
+              <div>直接对原始数据进行分析，无需提前处理</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz1',true)">
+              <div class="ok2">B</div>
+              <div>对采集数据进行加工整理，保证一致性和有效性，是数据分析前必不可少的阶段</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz1',false)">
+              <div class="ok2">C</div>
+              <div>数据处理就是制作图表，展示数据结果</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz1',false)">
+              <div class="ok2">D</div>
+              <div>数据处理仅包含数据清洗一个步骤</div>
+            </div>
+          </div>
+          <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+          <div id="qz1-fb" class="qfb"></div>
+        </div>
+
+        <div class="qi" id="qz2">
+          <div class="qq"><span class="qnum">2</span>以下哪项正确区分了「直接获取」和「间接获取」？</div>
+          <div class="qopts">
+            <div class="qopt" onclick="selOpt(this,'qz2',false)">
+              <div class="ok2">A</div>
+              <div>直接获取是免费的，间接获取需要付费购买</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz2',false)">
+              <div class="ok2">B</div>
+              <div>直接获取是线上数据，间接获取是线下数据</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz2',true)">
+              <div class="ok2">C</div>
+              <div>直接获取是通过统计调查/实验得到一手数据；间接获取是通过查阅资料、数据统计工具等获取已有数据</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz2',false)">
+              <div class="ok2">D</div>
+              <div>两种方式没有本质区别，可以互换使用</div>
+            </div>
+          </div>
+          <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+          <div id="qz2-fb" class="qfb"></div>
+        </div>
+
+        <div class="qi" id="qz3">
+          <div class="qq"><span class="qnum">3</span>图表制作6步法中，第5步「检查是否真实反映数据」的主要目的是？</div>
+          <div class="qopts">
+            <div class="qopt" onclick="selOpt(this,'qz3',false)">
+              <div class="ok2">A</div>
+              <div>让图表颜色搭配更好看</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz3',false)">
+              <div class="ok2">B</div>
+              <div>增加图表中的数据量，使信息更丰富</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz3',true)">
+              <div class="ok2">C</div>
+              <div>核对数据与图表是否一致，避免坐标轴设置不当产生误导性视觉效果</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz3',false)">
+              <div class="ok2">D</div>
+              <div>为图表加上标题和图例说明</div>
+            </div>
+          </div>
+          <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+          <div id="qz3-fb" class="qfb"></div>
+        </div>
+
+        <div class="qi" id="qz4">
+          <div class="qq"><span class="qnum">4</span>数据分析报告正文部分最重要的特点是？</div>
+          <div class="qopts">
+            <div class="qopt" onclick="selOpt(this,'qz4',false)">
+              <div class="ok2">A</div>
+              <div>只需要文字描述，不需要图表，保持简洁</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz4',false)">
+              <div class="ok2">B</div>
+              <div>越简短越好，最好控制在一页以内</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz4',true)">
+              <div class="ok2">C</div>
+              <div>以严谨科学的论证确保观点合理性，以图文并茂方式展示分析过程和结果，风格美观统一</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz4',false)">
+              <div class="ok2">D</div>
+              <div>只展示最终结论，不需要展示分析过程</div>
+            </div>
+          </div>
+          <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+          <div id="qz4-fb" class="qfb"></div>
+        </div>
+
+        <div class="qi" id="qz5">
+          <div class="qq"><span class="qnum">5</span>关于电子商务数据分析流程，以下描述正确的是？</div>
+          <div class="qopts">
+            <div class="qopt" onclick="selOpt(this,'qz5',false)">
+              <div class="ok2">A</div>
+              <div>数据采集是第一步，不需要先明确分析目标</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz5',false)">
+              <div class="ok2">B</div>
+              <div>数据展现和数据分析是同一个步骤，可以合并</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz5',false)">
+              <div class="ok2">C</div>
+              <div>数据处理不是必须的，质量好的数据可以直接分析</div>
+            </div>
+            <div class="qopt" onclick="selOpt(this,'qz5',true)">
+              <div class="ok2">D</div>
+              <div>明确数据分析目标是整个流程的先决条件，为后续采集、处理、分析提供清晰的指引方向</div>
+            </div>
+          </div>
+          <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+          <div id="qz5-fb" class="qfb"></div>
+        </div>
+
+        <div id="qz-score" class="score-box">
+          <div class="sc-emoji" id="sc-emoji">🎉</div>
+          <div class="sc-num" id="sc-num">0/5</div>
+          <div class="sc-msg" id="sc-msg"></div>
+          <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /container -->
+
+  <footer
+    style="background:#134E4A;color:rgba(255,255,255,.55);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+    <p>📚 <span style="color:#5EEAD4;">商务数据分析</span> · 模块一 · 单元三 电子商务数据分析的流程</p>
+    <p style="margin-top:6px;">中职电子商务专业 · 六步闭环，数据驱动决策 🚀</p>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/learning.js"></script>
+  <script>/* 模块一·单元三 综合测试数据 */
+    window.QUIZ_DATA = {
+      qz1: { exp: '数据处理是对采集数据进行加工整理的过程，包含清洗、转化、提取、计算四个步骤，保证数据一致性和有效性，是数据分析前必不可少的阶段。' },
+      qz2: { exp: '直接获取是通过统计调查/科学实验得到的一手/内部数据；间接获取是通过查阅资料、数据统计工具（如生意参谋、百度指数）等获取的二手数据。' },
+      qz3: { exp: '第5步目的是核对数据与图表是否一致，防止坐标轴截断、比例失真等问题产生误导性视觉效果，确保图表真实反映原始数据。' },
+      qz4: { exp: '正文部分是报告核心，要以严谨科学的论证确保观点合理性，以图文并茂的方式展示分析过程和结果，风格要美观且统一，不加入太多样式。' },
+      qz5: { exp: '明确数据分析目标是六步流程的第一步，也是整个流程的先决条件。带着清晰目的进行分析才不会偏离方向，同时为后续采集、处理、分析提供清晰的指引方向。' }
+    };
+
+    /* 图表展示数据（1_3 特有，保留内联） */
+    const CD = {
+      pie: { n: '饼图', i: '🥧', c: '#F59E0B', bg: '#FEF3C7', u: '展示各部分占整体的比例关系，适合5个以内分类。', eg: '🌰 各地区销售额占比；流量来源结构分析。', w: '⚠️ 类别超过5个时建议改用柱状图，避免读取困难。' },
+      bar: { n: '柱状图', i: '📊', c: '#6366F1', bg: '#EEF2FF', u: '对比不同类别/时期的数量差异，竖向展示。', eg: '🌰 不同商品月销量对比；各月广告效果对比。', w: '⚠️ 类别过多时建议使用条形图（横向）。' },
+      hbar: { n: '条形图', i: '📉', c: '#0D9488', bg: '#CCFBF1', u: '横向展示类别对比，适合类别名称较长的情况。', eg: '🌰 各省销售额排名；多个SKU库存对比。', w: '⚠️ 与柱状图本质相同，仅方向不同，类别多时更易读。' },
+      line: { n: '折线图', i: '📈', c: '#10B981', bg: '#D1FAE5', u: '展示数据随时间变化的趋势，时间序列分析首选。', eg: '🌰 店铺1-12月销售额变化；日UV波动分析。', w: '⚠️ 折线图适合连续数据，不适合独立类别对比。' },
+      bubble: { n: '气泡图', i: '🫧', c: '#8B5CF6', bg: '#EDE9FE', u: '同时分析三个维度的数据（X轴/Y轴/气泡大小）。', eg: '🌰 X=广告费，Y=转化率，气泡大小=销售额。', w: '⚠️ 适合高级分析，数据点建议10个以内。' },
+      scatter: { n: '散点图', i: '⭕', c: '#EC4899', bg: '#FCE7F3', u: '分析两个变量之间的相关性，判断正/负相关。', eg: '🌰 广告投入与销售额的相关性分析。', w: '⚠️ 需要大量数据点才能看出规律。' },
+      radar: { n: '雷达图', i: '🕸️', c: '#F59E0B', bg: '#FEF3C7', u: '多维度综合评估，同时展示多个指标的优劣势。', eg: '🌰 两款商品在价格/评分/销量/品牌力的综合对比。', w: '⚠️ 维度一般为3-8个，超过8个会难以阅读。' },
+      pyramid: { n: '金字塔图', i: '🔺', c: '#D97706', bg: '#FEF3C7', u: '展示层级结构，上层少下层多，或表达优先级。', eg: '🌰 客户分层（高/中/低价值）；预算层级分配。', w: '⚠️ 适合3-6个层级，过多会使图形拥挤。' },
+      matrix: { n: '矩阵图', i: '⊞', c: '#0891B2', bg: '#E0F2FE', u: '四象限分析，根据两个维度对对象进行分类。', eg: '🌰 BCG矩阵分析产品组合（明星/瘦狗/现金牛/问题产品）。', w: '⚠️ 两个维度需有分析意义，四象限含义要提前定义。' },
+      funnel: { n: '漏斗图', i: '🔻', c: '#6366F1', bg: '#EEF2FF', u: '展示流程中各环节的转化率，找出流失最多的节点。', eg: '🌰 展现→点击→加购→下单→付款各环节转化率。', w: '⚠️ 阶段顺序须合理，数值从大到小，反映真实转化。' }
+    };
+    function showChart(k, e) {
+      document.querySelectorAll('.ch').forEach(c => c.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      const d = CD[k], el = document.getElementById('chartDet');
+      el.innerHTML =\`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><span style="font-size:34px;">\${d.i}</span><div><div style="font-size:17px;font-weight:900;color:\${d.c};">\${d.n}</div><div style="font-size:11px;color:var(--muted);">数据可视化图表</div></div></div><div style="font-size:13px;line-height:1.75;"><p style="margin-bottom:7px;"><strong>📌 适用场景：</strong>\${d.u}</p><p style="margin-bottom:7px;">\${d.eg}</p><p style="background:rgba(0,0,0,.04);padding:8px 11px;border-radius:8px;font-size:12px;">\${d.w}</p></div>\`;
+  el.style.borderColor=d.c;el.style.background=d.bg;el.classList.add('show');
+}</script>
+</body>
+
+</html>
