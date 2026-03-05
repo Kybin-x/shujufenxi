@@ -227,7 +227,7 @@ function submitA() {
 
   // 得分 & 统计
   if (ok) {
-    G.score++;
+    G.score += 5;
     G.combo++;
     if (q.type === 'single') G.sC++;
     else if (q.type === 'multi') G.mC++;
@@ -246,7 +246,7 @@ function submitA() {
   const fb = document.getElementById('gfb');
   if (fb) {
     fb.innerHTML = `
-      <div class="fb-hd ${ok ? 'ok' : 'no'}">${ok ? '🎯 回答正确！+1分' : '💔 回答错误'}</div>
+      <div class="fb-hd ${ok ? 'ok' : 'no'}">${ok ? '🎯 回答正确！+5分' : '💔 回答错误'}</div>
       ${q.exp}
       <div class="fb-ans">
         <span style="color:var(--gold);font-weight:700;">正确答案：</span>
@@ -274,7 +274,7 @@ function nextQ() {
 function showResult() {
   showScr('sResult');
   const Q = window.Q || [];
-  const pct = Math.round((G.score / Q.length) * 100);
+  const pct = G.score; // 总分100，G.score 即百分制得分
 
   const el = {
     bigSc:  document.getElementById('bigSc'),
@@ -289,9 +289,9 @@ function showResult() {
   };
 
   if (el.bigSc) el.bigSc.textContent = G.score;
-  if (el.sb1)   el.sb1.textContent   = G.sC;
-  if (el.sb2)   el.sb2.textContent   = G.mC;
-  if (el.sb3)   el.sb3.textContent   = G.jC;
+  if (el.sb1)   el.sb1.textContent   = G.sC * 5;
+  if (el.sb2)   el.sb2.textContent   = G.mC * 5;
+  if (el.sb3)   el.sb3.textContent   = G.jC * 5;
   if (el.rNm)   el.rNm.textContent   = `同学：${G.name}（学号：${G.id}）`;
 
   let em, grade, ach, bg;
@@ -302,15 +302,15 @@ function showResult() {
   } else if (pct >= 80) {
     em = '🥈⭐✨'; grade = '学习精英';
     bg = 'linear-gradient(135deg,#00D4FF,#7C3AED)';
-    ach = `很棒！${G.name}同学，得分${G.score}/${Q.length}，知识掌握相当扎实。把错题再复习一遍，满分就在眼前！`;
+    ach = `很棒！${G.name}同学，得分${G.score}/100，知识掌握相当扎实。把错题再复习一遍，满分就在眼前！`;
   } else if (pct >= 60) {
     em = '🥉📚💡'; grade = '进步之星';
     bg = 'linear-gradient(135deg,#00E5CC,#0D9488)';
-    ach = `加油，${G.name}同学！得分${G.score}/${Q.length}，基础已掌握。建议重点复习错题涉及的知识点，再来挑战！`;
+    ach = `加油，${G.name}同学！得分${G.score}/100，基础已掌握。建议重点复习错题涉及的知识点，再来挑战！`;
   } else {
     em = '📖🔁💪'; grade = '勇于挑战者';
     bg = 'linear-gradient(135deg,#FF6B9D,#C026D3)';
-    ach = `勇气可嘉，${G.name}同学！得分${G.score}/${Q.length}。建议重新学习内容后再来挑战，相信你下次一定大有进步！`;
+    ach = `勇气可嘉，${G.name}同学！得分${G.score}/100。建议重新学习内容后再来挑战，相信你下次一定大有进步！`;
   }
 
   if (el.rIcon)  { el.rIcon.style.background = bg; el.rIcon.textContent = em.split('')[0]; }
