@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块二·单元二 数据采集的渠道及工具</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/learning.css">
+    <style>
+        :root {
+            --c1: #7C3AED;
+            --c1l: #F5F3FF;
+            --c1d: #6D28D9;
+            --c2: #8B5CF6;
+            --c3: #C4B5FD;
+            --primary: #7C3AED;
+            --secondary: #8B5CF6;
+            --accent: #C4B5FD;
+            --bg: #FFF9F0;
+            --text: #2c3e50;
+            --muted: #7f8c9a;
+            --card: #FFFFFF;
+            --r: 16px;
+        }
+
+        .quiz-section,
+        #quiz {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            border-radius: 20px;
+            padding: 32px;
+            border: 2px solid var(--c1);
+            margin-top: 40px;
+        }
+
+        .quiz-header {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .quiz-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--c1);
+            margin: 0;
+        }
+
+        .quiz-body {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .quiz-item {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .quiz-q {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .quiz-num {
+            background: var(--c1);
+            color: #fff;
+            border-radius: 8px;
+            padding: 2px 10px;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .quiz-opt {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 2px solid #eee;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 14px;
+        }
+
+        .quiz-opt:hover {
+            border-color: var(--c1);
+            background: var(--c1l);
+        }
+
+        .quiz-opt.selected {
+            border-color: var(--c1);
+            background: var(--c1l);
+        }
+
+        .quiz-opt.correct {
+            background: #d1fae5;
+            border-color: #059669;
+        }
+
+        .quiz-opt.wrong {
+            background: #fee2e2;
+            border-color: #dc2626;
+        }
+
+        .opt-label {
+            background: var(--c1);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .quiz-submit {
+            background: var(--c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit;
+        }
+
+        .quiz-submit:hover {
+            opacity: .85;
+            transform: translateY(-1px);
+        }
+
+        .quiz-submit:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-feedback {
+            font-size: 14px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct-fb {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .quiz-feedback.wrong-fb {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 32px;
+            background: linear-gradient(135deg, var(--c1), var(--c1d));
+            color: #fff;
+            border-radius: 20px;
+            margin-top: 24px;
+        }
+
+        .score-emoji {
+            font-size: 64px;
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: 900;
+        }
+
+        .score-message {
+            font-size: 18px;
+            margin-top: 8px;
+        }
+
+        .score-retry {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, .25);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, .6);
+            border-radius: 12px;
+            padding: 10px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* tool cards */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .tool-card {
+            border-radius: 18px;
+            border: 2px solid #e8e8e8;
+            padding: 20px;
+            cursor: pointer;
+            transition: all .25s;
+            position: relative;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+        }
+
+        .tool-card.active {
+            border-color: var(--c1);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, .15);
+        }
+
+        .tc-logo {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .tc-name {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--c1d);
+            margin-bottom: 3px;
+        }
+
+        .tc-platform {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .tc-summary {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .tc-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .tool-detail {
+            display: none;
+            border-radius: 16px;
+            padding: 22px;
+            margin-top: 14px;
+            border: 2px solid var(--c1);
+            background: var(--c1l);
+            animation: fadeUp .3s ease;
+        }
+
+        .tool-detail.show {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .td-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(124, 58, 237, .15);
+        }
+
+        .td-logo {
+            font-size: 38px;
+        }
+
+        .td-name {
+            font-size: 19px;
+            font-weight: 900;
+            color: var(--c1d);
+        }
+
+        .td-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .td-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media(max-width:600px) {
+            .td-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .td-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .td-box-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--c1d);
+            margin-bottom: 7px;
+        }
+
+        .td-box-content {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.75;
+        }
+
+        .td-tag {
+            display: inline-block;
+            background: var(--c1l);
+            color: var(--c1d);
+            border: 1px solid var(--c3);
+            border-radius: 5px;
+            padding: 2px 7px;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 2px;
+        }
+
+        /* ext channels */
+        .ext-ch-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .ext-ch-item {
+            border-radius: 12px;
+            padding: 13px 15px;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ext-ch-num {
+            font-size: 10px;
+            font-weight: 900;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .ext-ch-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .ext-ch-desc {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.65;
+        }
+
+        .ext-ch-eg {
+            margin-top: 6px;
+        }
+
+        /* src split */
+        .src-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 16px;
+        }
+
+        @media(max-width:640px) {
+            .src-split {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .src-box {
+            border-radius: 18px;
+            padding: 20px;
+            border: 2px solid #e8e8e8;
+        }
+
+        .src-box-title {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-badge">📚 模块二 · 单元二</div>
+        <h1>数据采集的渠道及工具</h1>
+        <h2>内部 vs 外部 · 六大工具详解 · 数据从哪来、用什么采</h2>
+        <div class="hero-tags">
+            <span class="hero-tag">⏱ 预计40分钟</span>
+            <span class="hero-tag">🔄 2大数据来源</span>
+            <span class="hero-tag">📡 4类外部渠道</span>
+            <span class="hero-tag">🛠️ 6款采集工具</span>
+            <span class="hero-tag">✅ 5道测试题</span>
+        </div>
+        <div class="flow-banner">
+            <div class="fb-step">🏠 内部数据</div>
+            <div class="fb-arr">⟺</div>
+            <div class="fb-step">🌐 外部数据</div>
+            <div class="fb-arr">→</div>
+            <div class="fb-step">🛠️ 采集工具</div>
+            <div class="fb-arr">→</div>
+            <div class="fb-step">📊 数据分析</div>
+        </div>
+    </header>
+
+    <nav class="sticky-nav">
+        <a class="nav-item active" href="#sec-src">📡 来源总览</a>
+        <a class="nav-item" href="#sec-internal">🏠 内部数据</a>
+        <a class="nav-item" href="#sec-external">🌐 外部数据</a>
+        <a class="nav-item" href="#sec-tools">🛠️ 采集工具</a>
+        <a class="nav-item" href="#sec-practice">💡 实践题</a>
+        <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+        <a class="nav-item" href="#sec-quiz">✅ 测试</a>
+    </nav>
+
+    <div class="container">
+
+        <!-- ═══ 来源总览 ═══ -->
+        <section id="sec-src" class="sec-block reveal">
+            <div class="sec-hd bc1">
+                <div class="sec-icon bg-c1" style="color:#fff;">📡</div>
+                <div>
+                    <div class="sec-title txt-c1">一、数据的主要来源渠道</div>
+                    <div class="sec-sub">内部数据 + 外部数据，构成电商数据分析的双引擎</div>
+                </div>
+            </div>
+
+            <div class="lc" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);">
+                <div class="lc-tag">🎯 情景引入</div>
+                <h4>老板要了解双十一的竞争格局——你去哪里找数据？</h4>
+                <p>自己店铺的销售数据从<strong>后台</strong>查，行业大盘数据从<strong>平台/指数工具</strong>下载……数据来源大体分为<strong>内部</strong>和<strong>外部</strong>两大类。搞清楚各自的渠道，采集起来才能有的放矢！
+                </p>
+            </div>
+
+            <div class="card reveal">
+                <h3 class="txt-c1" style="margin-bottom:18px;">🗺️ 数据来源全景图</h3>
+                <div class="src-split">
+                    <div class="src-box" style="background:#F5F3FF;border-color:#A78BFA;">
+                        <div class="src-box-title" style="color:#6D28D9;">🏠 内部数据</div>
+                        <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:12px;">
+                            电子商务站点、店铺<strong>自身产生</strong>的数据信息。</p>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div style="background:#EDE9FE;border-radius:10px;padding:10px 14px;font-size:13px;"><strong
+                                    style="color:#6D28D9;">📊 流量数据</strong>
+                                <div style="color:#555;margin-top:3px;">访客数、浏览量、收藏量……</div>
+                            </div>
+                            <div style="background:#EDE9FE;border-radius:10px;padding:10px 14px;font-size:13px;"><strong
+                                    style="color:#6D28D9;">💰 交易数据</strong>
+                                <div style="color:#555;margin-top:3px;">订单数量、订单信息、加购数量……</div>
+                            </div>
+                        </div>
+                        <div
+                            style="margin-top:10px;padding:8px 12px;background:#fff;border-radius:8px;font-size:12px;color:#6D28D9;font-weight:700;">
+                            📍 获取渠道 → <a href="#sec-internal" style="color:#7C3AED;">点击查看 ↓</a></div>
+                    </div>
+                    <div class="src-box" style="background:#FFF7ED;border-color:#FB923C;">
+                        <div class="src-box-title" style="color:#C2410C;">🌐 外部数据</div>
+                        <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:12px;">
+                            来自企业外部，按渠道分为4类，覆盖行业宏观到竞品微观。</p>
+                        <div style="display:flex;flex-direction:column;gap:6px;">
+                            <div
+                                style="background:#FEE2E2;border-radius:8px;padding:7px 12px;font-size:12px;display:flex;gap:8px;align-items:center;">
+                                <span
+                                    style="background:#C2410C;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:900;">1</span><span>政府部门、机构协会、媒体</span>
+                            </div>
+                            <div
+                                style="background:#FEF3C7;border-radius:8px;padding:7px 12px;font-size:12px;display:flex;gap:8px;align-items:center;">
+                                <span
+                                    style="background:#D97706;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:900;">2</span><span>权威网站、数据机构</span>
+                            </div>
+                            <div
+                                style="background:#DBEAFE;border-radius:8px;padding:7px 12px;font-size:12px;display:flex;gap:8px;align-items:center;">
+                                <span
+                                    style="background:#1D4ED8;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:900;">3</span><span>电子商务平台</span>
+                            </div>
+                            <div
+                                style="background:#D1FAE5;border-radius:8px;padding:7px 12px;font-size:12px;display:flex;gap:8px;align-items:center;">
+                                <span
+                                    style="background:#065F46;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:900;">4</span><span>指数工具</span>
+                            </div>
+                        </div>
+                        <div
+                            style="margin-top:10px;padding:8px 12px;background:#fff;border-radius:8px;font-size:12px;color:#C2410C;font-weight:700;">
+                            📍 各渠道详情 → <a href="#sec-external" style="color:#C2410C;">点击查看 ↓</a></div>
+                    </div>
+                </div>
+                <div class="hl purple" style="margin-top:16px;">
+                    <div class="hi">💡</div>
+                    <div class="hb"><strong>内外结合才完整</strong>
+                        <p>内部数据反映<strong>自己店铺</strong>的运营状况；外部数据反映<strong>行业大盘、竞争格局</strong>。两者结合，才能做出全面客观的分析。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mq reveal">
+                <h5>⚡ 即时测验：以下哪项属于「内部数据」？</h5>
+                <div class="mo-wrap">
+                    <button class="mo" onclick="mq(this,false,'mq0','百度指数是依托百度用户搜索数据的外部指数工具，不是内部数据。')">百度指数搜索热度</button>
+                    <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！店铺后台的订单数量是电子商务站点自身产生的内部数据。')">店铺后台订单数量</button>
+                    <button class="mo" onclick="mq(this,false,'mq0','艾瑞咨询是外部权威数据机构，其报告属于外部数据。')">艾瑞咨询行业报告</button>
+                    <button class="mo" onclick="mq(this,false,'mq0','国家统计局属于政府部门，其统计数据属于外部数据。')">国家统计局数据</button>
+                </div>
+                <div id="mq0" class="mfb"></div>
+            </div>
+        </section>
+
+        <!-- ═══ 内部数据 ═══ -->
+        <section id="sec-internal" class="sec-block reveal">
+            <div class="sec-hd bc1">
+                <div class="sec-icon bg-c1" style="color:#fff;">🏠</div>
+                <div>
+                    <div class="sec-title txt-c1">二、内部数据详解</div>
+                    <div class="sec-sub">来自自身店铺 · 流量数据 + 交易数据</div>
+                </div>
+            </div>
+
+            <div class="lc" style="background:linear-gradient(135deg,#7C3AED,#9333EA);">
+                <div class="lc-tag">🏠 核心定义</div>
+                <h4>内部数据 = 你自己家的数据！</h4>
+                <p>在电子商务项目运营过程中，电子商务站点、店铺<strong>自身所产生</strong>的数据信息，就是内部数据。这是最直接反映店铺运营状况的第一手资料，是日常经营分析的核心依据。</p>
+            </div>
+
+            <div class="card reveal">
+                <h3 class="txt-c1" style="margin-bottom:18px;">📊 内部数据的两大类型</h3>
+                <div class="g2">
+                    <div style="border-radius:16px;padding:20px;background:#F5F3FF;border:2px solid #A78BFA;">
+                        <div style="font-size:28px;margin-bottom:9px;">📊</div>
+                        <h4 style="color:#6D28D9;margin-bottom:9px;">流量数据</h4>
+                        <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:12px;">反映用户进入店铺、浏览页面的行为数据。</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                            <span
+                                style="background:#EDE9FE;color:#6D28D9;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;">👥
+                                访客数（UV）</span>
+                            <span
+                                style="background:#EDE9FE;color:#6D28D9;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;">👁️
+                                浏览量（PV）</span>
+                            <span
+                                style="background:#EDE9FE;color:#6D28D9;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;">❤️
+                                收藏量</span>
+                        </div>
+                    </div>
+                    <div style="border-radius:16px;padding:20px;background:#FFF7ED;border:2px solid #FB923C;">
+                        <div style="font-size:28px;margin-bottom:9px;">💰</div>
+                        <h4 style="color:#C2410C;margin-bottom:9px;">交易数据</h4>
+                        <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:12px;">反映用户购买行为及交易结果的数据。</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                            <span
+                                style="background:#FEE2E2;color:#C2410C;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;">📦
+                                订单数量</span>
+                            <span
+                                style="background:#FEE2E2;color:#C2410C;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;">📋
+                                订单信息</span>
+                            <span
+                                style="background:#FEE2E2;color:#C2410C;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;">🛒
+                                加购数量</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="txt-c1" style="margin:22px 0 14px;">🔑 内部数据三种获取方式</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div
+                        style="border-radius:12px;padding:14px 18px;background:#F5F3FF;border-left:4px solid var(--c1);display:flex;gap:12px;align-items:flex-start;">
+                        <span style="font-size:22px;flex-shrink:0;">🖥️</span>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:var(--c1d);margin-bottom:3px;">电子商务站点 /
+                                店铺后台</div>
+                            <div style="font-size:13px;color:#555;line-height:1.6;">最直接的方式，在管理后台查看实时流量、订单、商品等运营数据。</div>
+                        </div>
+                    </div>
+                    <div
+                        style="border-radius:12px;padding:14px 18px;background:#CCFBF1;border-left:4px solid #0D9488;display:flex;gap:12px;align-items:flex-start;">
+                        <span style="font-size:22px;flex-shrink:0;">🏪</span>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#0F766E;margin-bottom:4px;">平台数据工具</div>
+                            <div style="font-size:13px;color:#555;line-height:1.6;"><span
+                                    style="background:#fff;color:#0F766E;padding:1px 8px;border-radius:5px;font-weight:700;border:1px solid #5EEAD4;">生意参谋</span>（淘宝/天猫）
+                                · <span
+                                    style="background:#fff;color:#1D4ED8;padding:1px 8px;border-radius:5px;font-weight:700;border:1px solid #93C5FD;">京东商智</span>（京东）
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        style="border-radius:12px;padding:14px 18px;background:#EFF6FF;border-left:4px solid #3B82F6;display:flex;gap:12px;align-items:flex-start;">
+                        <span style="font-size:22px;flex-shrink:0;">📈</span>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#1D4ED8;margin-bottom:4px;">独立站点流量统计工具
+                            </div>
+                            <div style="font-size:13px;color:#555;line-height:1.6;"><span
+                                    style="background:#fff;color:#1D4ED8;padding:1px 8px;border-radius:5px;font-weight:700;border:1px solid #93C5FD;">百度统计</span>
+                                · <span
+                                    style="background:#fff;color:#1D4ED8;padding:1px 8px;border-radius:5px;font-weight:700;border:1px solid #93C5FD;">友盟</span>
+                                等，适用于自建网站的流量分析。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 外部数据 ═══ -->
+        <section id="sec-external" class="sec-block reveal">
+            <div class="sec-hd bc2">
+                <div class="sec-icon" style="background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;">🌐</div>
+                <div>
+                    <div class="sec-title" style="color:#D97706;">三、外部数据的四大来源渠道</div>
+                    <div class="sec-sub">政府机构 · 权威数据 · 电商平台 · 指数工具</div>
+                </div>
+            </div>
+
+            <div class="lc" style="background:linear-gradient(135deg,#F59E0B,#D97706);">
+                <div class="lc-tag">🌐 场景引入</div>
+                <h4>想了解行业大盘，靠自己店铺的数据远远不够！</h4>
+                <p>外部数据帮我们看清<strong>行业格局、竞争趋势、用户需求</strong>。四大渠道各有侧重，组合使用才能做出全局视角的分析。</p>
+            </div>
+
+            <div class="card reveal">
+                <h3 style="color:#D97706;margin-bottom:18px;">📡 四大外部数据来源渠道</h3>
+                <div class="ext-ch-list">
+                    <div class="ext-ch-item" style="background:#FEE2E2;">
+                        <div class="ext-ch-num" style="background:#C2410C;color:#fff;">1</div>
+                        <div>
+                            <div class="ext-ch-name" style="color:#C2410C;">🏛️ 政府部门、机构协会、媒体</div>
+                            <div class="ext-ch-desc">
+                                政府部门、行业协会、新闻媒体、出版社等发布的<strong>统计数据、行业调查报告、新闻报道、出版物</strong>。权威性高，数据来源可靠。</div>
+                            <div class="ext-ch-eg"><span
+                                    style="background:#fff;color:#C2410C;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #FCA5A5;">国家统计局</span>
+                                <span
+                                    style="background:#fff;color:#C2410C;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #FCA5A5;">行业协会报告</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ext-ch-item" style="background:#FEF3C7;">
+                        <div class="ext-ch-num" style="background:#D97706;color:#fff;">2</div>
+                        <div>
+                            <div class="ext-ch-name" style="color:#D97706;">🔬 权威网站、数据机构</div>
+                            <div class="ext-ch-desc">行业权威网站或专业数据机构发布的<strong>研究报告、白皮书</strong>等，是行业深度分析的重要依据。</div>
+                            <div class="ext-ch-eg"><span
+                                    style="background:#fff;color:#D97706;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #FCD34D;">易观数据</span>
+                                <span
+                                    style="background:#fff;color:#D97706;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #FCD34D;">艾瑞咨询</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ext-ch-item" style="background:#DBEAFE;">
+                        <div class="ext-ch-num" style="background:#1D4ED8;color:#fff;">3</div>
+                        <div>
+                            <div class="ext-ch-name" style="color:#1D4ED8;">🛒 电子商务平台</div>
+                            <div class="ext-ch-desc">
+                                平台上聚集着<strong>众多行业卖家和买家</strong>，是电子商务数据产生的重要源泉。可通过平台数据工具获取行业销售趋势、热门商品、竞争对手数据。</div>
+                            <div class="ext-ch-eg"><span
+                                    style="background:#fff;color:#1D4ED8;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #93C5FD;">淘宝/天猫</span>
+                                <span
+                                    style="background:#fff;color:#1D4ED8;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #93C5FD;">京东</span>
+                                <span
+                                    style="background:#fff;color:#1D4ED8;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #93C5FD;">拼多多</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ext-ch-item" style="background:#D1FAE5;">
+                        <div class="ext-ch-num" style="background:#065F46;color:#fff;">4</div>
+                        <div>
+                            <div class="ext-ch-name" style="color:#065F46;">📈 指数工具</div>
+                            <div class="ext-ch-desc">依托平台<strong>海量用户搜索数据</strong>，将搜索趋势、需求图谱、用户画像等数据向用户公开，是了解用户需求动态的利器。
+                            </div>
+                            <div class="ext-ch-eg"><span
+                                    style="background:#fff;color:#065F46;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #6EE7B7;">百度指数</span>
+                                <span
+                                    style="background:#fff;color:#065F46;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #6EE7B7;">360趋势</span>
+                                <span
+                                    style="background:#fff;color:#065F46;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #6EE7B7;">搜狗指数</span>
+                                <span
+                                    style="background:#fff;color:#065F46;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #6EE7B7;">阿里指数</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hl green" style="margin-top:16px;">
+                    <div class="hi">⭐</div>
+                    <div class="hb"><strong>指数工具的三大价值</strong>
+                        <p>① <strong>市场行业分析</strong>——了解搜索热度与市场规模；② <strong>用户需求分析</strong>——发现用户最关心什么；③
+                            <strong>用户画像分析</strong>——描绘目标用户的特征轮廓。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mq reveal">
+                <h5>⚡ 即时测验：「百度指数」属于外部数据的哪种来源渠道？</h5>
+                <div class="mo-wrap">
+                    <button class="mo"
+                        onclick="mq(this,false,'mq1','政府部门、机构协会是指国家统计局等官方机构，百度指数不属于此类。')">政府部门、机构协会</button>
+                    <button class="mo"
+                        onclick="mq(this,false,'mq1','权威数据机构指易观数据、艾瑞咨询等专业研究机构，不是搜索指数工具。')">权威网站、数据机构</button>
+                    <button class="mo"
+                        onclick="mq(this,true,'mq1','✅ 正确！百度指数属于「指数工具」，依托百度海量用户搜索数据，提供搜索趋势、需求图谱、用户画像等数据。')">指数工具</button>
+                    <button class="mo"
+                        onclick="mq(this,false,'mq1','电子商务平台是指淘宝、京东、拼多多等购物平台，百度指数不属于此类。')">电子商务平台</button>
+                </div>
+                <div id="mq1" class="mfb"></div>
+            </div>
+        </section>
+
+        <!-- ═══ 采集工具 ═══ -->
+        <section id="sec-tools" class="sec-block reveal">
+            <div class="sec-hd bc1">
+                <div class="sec-icon bg-c1" style="color:#fff;">🛠️</div>
+                <div>
+                    <div class="sec-title txt-c1">四、数据采集常用工具（6款）</div>
+                    <div class="sec-sub">平台专属工具 + 通用采集工具 · 点击卡片查看详情</div>
+                </div>
+            </div>
+
+            <div class="lc" style="background:linear-gradient(135deg,#7C3AED,#4F46E5);">
+                <div class="lc-tag">🛠️ 工具引入</div>
+                <h4>有了采集渠道，还要有趁手的工具！</h4>
+                <p>采集自己数据用<strong>平台官方工具</strong>；分析竞争对手用<strong>店侦探、淘数据</strong>；通用爬取用<strong>八爪鱼、火车采集器</strong>。6款工具各显神通，认准每款的核心价值！
+                </p>
+            </div>
+
+            <div class="card reveal">
+                <h3 class="txt-c1" style="margin-bottom:14px;">📋 工具概览表</h3>
+                <div class="tb-wrap">
+                    <table>
+                        <tr>
+                            <th>工具名称</th>
+                            <th>所属平台</th>
+                            <th>核心功能</th>
+                            <th>类型</th>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:#7C3AED;">🏷️ 生意参谋</strong></td>
+                            <td>淘宝 / 天猫</td>
+                            <td>综合性网店数据分析平台</td>
+                            <td><span
+                                    style="background:#EDE9FE;color:#6D28D9;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;">平台官方</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:#7C3AED;">🕵️ 店侦探</strong></td>
+                            <td>淘宝 / 天猫</td>
+                            <td>竞争对手数据采集分析</td>
+                            <td><span
+                                    style="background:#EDE9FE;color:#6D28D9;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;">平台专属</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:#7C3AED;">📦 淘数据</strong></td>
+                            <td>国内 + 跨境电商</td>
+                            <td>行业和店铺数据采集分析</td>
+                            <td><span
+                                    style="background:#EDE9FE;color:#6D28D9;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;">平台专属</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:#7C3AED;">🔵 京东商智</strong></td>
+                            <td>京东</td>
+                            <td>多渠道店铺与行业数据服务</td>
+                            <td><span
+                                    style="background:#DBEAFE;color:#1D4ED8;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;">平台官方</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:#7C3AED;">🐙 八爪鱼采集器</strong></td>
+                            <td>通用</td>
+                            <td>可视化网页数据采集</td>
+                            <td><span
+                                    style="background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;">通用工具</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:#7C3AED;">🚂 火车采集器</strong></td>
+                            <td>通用</td>
+                            <td>多线程内容采集发布</td>
+                            <td><span
+                                    style="background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;">通用工具</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <h3 class="txt-c1" style="margin-bottom:6px;">🔍 各工具详细介绍</h3>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">点击任意工具卡片展开详细说明</p>
+                <div class="tool-grid">
+                    <div class="tool-card" style="background:#F5F3FF;" onclick="showTool('t1',this)"><span
+                            class="tc-badge" style="background:#EDE9FE;color:#6D28D9;">官方</span>
+                        <div class="tc-logo">🏷️</div>
+                        <div class="tc-name">生意参谋</div>
+                        <div class="tc-platform">淘宝 / 天猫</div>
+                        <div class="tc-summary">官方综合性平台，全链路数据覆盖，自营+市场行情。</div>
+                    </div>
+                    <div class="tool-card" style="background:#FFF7ED;" onclick="showTool('t2',this)"><span
+                            class="tc-badge" style="background:#FEF3C7;color:#D97706;">竞品</span>
+                        <div class="tc-logo">🕵️</div>
+                        <div class="tc-name">店侦探</div>
+                        <div class="tc-platform">淘宝 / 天猫</div>
+                        <div class="tc-summary">专注竞争对手数据，快速掌握竞品动态。</div>
+                    </div>
+                    <div class="tool-card" style="background:#FFF7ED;" onclick="showTool('t3',this)"><span
+                            class="tc-badge" style="background:#FEE2E2;color:#C2410C;">跨境</span>
+                        <div class="tc-logo">📦</div>
+                        <div class="tc-name">淘数据</div>
+                        <div class="tc-platform">国内 + 跨境电商</div>
+                        <div class="tc-summary">同时支持国内和跨境电商的行业与店铺数据。</div>
+                    </div>
+                    <div class="tool-card" style="background:#EFF6FF;" onclick="showTool('t4',this)"><span
+                            class="tc-badge" style="background:#DBEAFE;color:#1D4ED8;">官方</span>
+                        <div class="tc-logo">🔵</div>
+                        <div class="tc-name">京东商智</div>
+                        <div class="tc-platform">京东</div>
+                        <div class="tc-summary">京东官方多渠道数据服务，覆盖五大渠道。</div>
+                    </div>
+                    <div class="tool-card" style="background:#F0FDF4;" onclick="showTool('t5',this)"><span
+                            class="tc-badge" style="background:#D1FAE5;color:#065F46;">通用</span>
+                        <div class="tc-logo">🐙</div>
+                        <div class="tc-name">八爪鱼采集器</div>
+                        <div class="tc-platform">任意网站</div>
+                        <div class="tc-summary">可视化操作，任意网站均可采集，上手极简。</div>
+                    </div>
+                    <div class="tool-card" style="background:#F0FDF4;" onclick="showTool('t6',this)"><span
+                            class="tc-badge" style="background:#D1FAE5;color:#065F46;">通用</span>
+                        <div class="tc-logo">🚂</div>
+                        <div class="tc-name">火车采集器</div>
+                        <div class="tc-platform">任意网站</div>
+                        <div class="tc-summary">多线程内容采集+发布，采集与导出双功能。</div>
+                    </div>
+                </div>
+
+                <!-- 详情面板 -->
+                <div class="tool-detail" id="t1">
+                    <div class="td-header">
+                        <div class="td-logo">🏷️</div>
+                        <div>
+                            <div class="td-name">生意参谋</div>
+                            <div class="td-sub">淘宝网官方 · 综合性网店数据分析平台</div>
+                        </div>
+                    </div>
+                    <div class="td-body">
+                        <div class="td-box">
+                            <div class="td-box-title">📍 定位 & 服务对象</div>
+                            <div class="td-box-content">
+                                淘宝网<strong>官方</strong>提供的综合性网店数据分析平台，专为<strong>天猫/淘宝卖家</strong>服务。</div>
+                        </div>
+                        <div class="td-box">
+                            <div class="td-box-title">⚡ 核心功能</div>
+                            <div class="td-box-content">流量、商品、交易等网店经营<strong>全链路</strong>的数据展示、分析、解读、预测。</div>
+                        </div>
+                        <div class="td-box" style="grid-column:1/-1;">
+                            <div class="td-box-title">📊 数据范围</div>
+                            <div class="td-box-content">✅ 自己店铺的各项运营数据（流量、交易、服务、产品等）<br>✅
+                                通过<strong>市场行情</strong>板块获取淘宝/天猫平台的<strong>行业销售经营数据</strong></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-detail" id="t2">
+                    <div class="td-header">
+                        <div class="td-logo">🕵️</div>
+                        <div>
+                            <div class="td-name">店侦探</div>
+                            <div class="td-sub">淘宝/天猫 · 竞争对手数据专属工具</div>
+                        </div>
+                    </div>
+                    <div class="td-body">
+                        <div class="td-box">
+                            <div class="td-box-title">🎯 核心价值</div>
+                            <div class="td-box-content">专门为淘宝及天猫卖家提供数据采集分析，快速掌握<strong>竞争对手</strong>的数据信息。</div>
+                        </div>
+                        <div class="td-box">
+                            <div class="td-box-title">📡 可采集数据</div>
+                            <div class="td-box-content"><span class="td-tag">店铺销售数据</span><span
+                                    class="td-tag">引流途径</span><span class="td-tag">广告投放</span><span
+                                    class="td-tag">活动推广</span><span class="td-tag">买家购买行为</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-detail" id="t3">
+                    <div class="td-header">
+                        <div class="td-logo">📦</div>
+                        <div>
+                            <div class="td-name">淘数据</div>
+                            <div class="td-sub">国内 + 跨境电商 · 行业与店铺数据分析</div>
+                        </div>
+                    </div>
+                    <div class="td-body">
+                        <div class="td-box">
+                            <div class="td-box-title">🌏 覆盖范围</div>
+                            <div class="td-box-content">针对<strong>国内和跨境</strong>电子商务提供数据采集和分析，跨境卖家的重要数据工具。</div>
+                        </div>
+                        <div class="td-box">
+                            <div class="td-box-title">📊 数据维度</div>
+                            <div class="td-box-content">
+                                为卖家提供<strong>行业</strong>和<strong>店铺</strong>两个维度的各项数据，既能看大盘，又能盯竞品。</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-detail" id="t4">
+                    <div class="td-header">
+                        <div class="td-logo">🔵</div>
+                        <div>
+                            <div class="td-name">京东商智</div>
+                            <div class="td-sub">京东官方 · 多渠道数据服务平台</div>
+                        </div>
+                    </div>
+                    <div class="td-body">
+                        <div class="td-box">
+                            <div class="td-box-title">📍 定位</div>
+                            <div class="td-box-content">京东向<strong>第三方商家</strong>提供数据服务的官方产品。</div>
+                        </div>
+                        <div class="td-box">
+                            <div class="td-box-title">📡 覆盖五大渠道</div>
+                            <div class="td-box-content"><span class="td-tag"
+                                    style="background:#EFF6FF;color:#1D4ED8;">PC端</span><span class="td-tag"
+                                    style="background:#EFF6FF;color:#1D4ED8;">APP</span><span class="td-tag"
+                                    style="background:#EFF6FF;color:#1D4ED8;">微信</span><span class="td-tag"
+                                    style="background:#EFF6FF;color:#1D4ED8;">手机QQ</span><span class="td-tag"
+                                    style="background:#EFF6FF;color:#1D4ED8;">移动网页端</span></div>
+                        </div>
+                        <div class="td-box" style="grid-column:1/-1;">
+                            <div class="td-box-title">📊 数据维度</div>
+                            <div class="td-box-content">店铺与行业的<strong>流量、销量、客户、商品</strong>等多维度数据，帮助商家全面了解经营状况。</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-detail" id="t5">
+                    <div class="td-header">
+                        <div class="td-logo">🐙</div>
+                        <div>
+                            <div class="td-name">八爪鱼采集器</div>
+                            <div class="td-sub">通用 · 可视化网页数据采集</div>
+                        </div>
+                    </div>
+                    <div class="td-body">
+                        <div class="td-box">
+                            <div class="td-box-title">✨ 三大特点</div>
+                            <div class="td-box-content">① 使用简单，完全<strong>可视化操作</strong><br>②
+                                功能强大，<strong>任何网站</strong>均可采集<br>③ 数据可导出为<strong>多种格式</strong>（Excel、CSV等）</div>
+                        </div>
+                        <div class="td-box">
+                            <div class="td-box-title">📦 可采集内容</div>
+                            <div class="td-box-content"><span class="td-tag"
+                                    style="background:#D1FAE5;color:#065F46;">商品价格</span><span class="td-tag"
+                                    style="background:#D1FAE5;color:#065F46;">销量数据</span><span class="td-tag"
+                                    style="background:#D1FAE5;color:#065F46;">用户评价</span><span class="td-tag"
+                                    style="background:#D1FAE5;color:#065F46;">商品描述</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-detail" id="t6">
+                    <div class="td-header">
+                        <div class="td-logo">🚂</div>
+                        <div>
+                            <div class="td-name">火车采集器</div>
+                            <div class="td-sub">通用 · 多线程内容采集发布程序</div>
+                        </div>
+                    </div>
+                    <div class="td-body">
+                        <div class="td-box">
+                            <div class="td-box-title">📍 定位</div>
+                            <div class="td-box-content">供各大主流文章系统、论坛系统等使用的<strong>多线程</strong>内容采集发布程序。</div>
+                        </div>
+                        <div class="td-box">
+                            <div class="td-box-title">⚙️ 两大功能</div>
+                            <div class="td-box-content">① <strong>采集数据</strong>——在目标数据源网站采集相应数据<br>②
+                                <strong>发布数据</strong>——整理成表格或TXT导出</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mq reveal">
+                <h5>⚡ 即时测验：哪款工具专门用于采集竞争对手的店铺销售数据、引流途径等信息？</h5>
+                <div class="mo-wrap">
+                    <button class="mo" onclick="mq(this,false,'mq2','生意参谋是淘宝官方工具，主要分析自己店铺的经营数据，兼顾市场行情。')">生意参谋</button>
+                    <button class="mo"
+                        onclick="mq(this,true,'mq2','✅ 正确！店侦探专门为淘宝及天猫卖家提供竞争对手的数据采集与分析，核心价值就是快速掌握竞品动态。')">店侦探</button>
+                    <button class="mo"
+                        onclick="mq(this,false,'mq2','八爪鱼是通用网页采集器，可采集任意网站，但不是专门针对竞品分析的工具。')">八爪鱼采集器</button>
+                    <button class="mo" onclick="mq(this,false,'mq2','京东商智是京东官方工具，主要服务京东商家，不是竞品分析专属工具。')">京东商智</button>
+                </div>
+                <div id="mq2" class="mfb"></div>
+            </div>
+        </section>
+
+        <!-- ═══ 实践题 ═══ -->
+        <section id="sec-practice" class="sec-block reveal">
+            <div class="sec-hd bc1">
+                <div class="sec-icon bg-c1" style="color:#fff;">💡</div>
+                <div>
+                    <div class="sec-title txt-c1">五、想一想（实践任务）</div>
+                    <div class="sec-sub">综合运用所学，完成真实数据采集任务</div>
+                </div>
+            </div>
+
+            <div class="card reveal" style="border:2px solid var(--c1);background:var(--c1l);">
+                <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;">
+                    <span style="font-size:38px;">🍎</span>
+                    <div>
+                        <h3 class="txt-c1" style="margin-bottom:6px;">实践任务</h3>
+                        <p style="font-size:15px;font-weight:700;color:#2c3e50;">
+                            选择任一数据采集工具，采集淘宝网「陕西苹果」关键词下<strong>销量前三页</strong>的商品销售价格。</p>
+                    </div>
+                </div>
+
+                <h4 class="txt-c1" style="margin-bottom:14px;">📋 操作思路（以八爪鱼采集器为例）</h4>
+                <div class="tl">
+                    <div class="tl-i">
+                        <div class="tl-d" style="background:#7C3AED;">1</div>
+                        <div class="tl-b"><strong>选择采集工具</strong>
+                            <p>推荐「八爪鱼采集器」——可视化操作，无需编程基础，上手快。</p>
+                        </div>
+                    </div>
+                    <div class="tl-i">
+                        <div class="tl-d" style="background:#9333EA;">2</div>
+                        <div class="tl-b"><strong>搜索关键词并排序</strong>
+                            <p>打开淘宝，搜索「陕西苹果」，结果页按<strong>销量排序</strong>，确保采集的是销量最高的商品。</p>
+                        </div>
+                    </div>
+                    <div class="tl-i">
+                        <div class="tl-d" style="background:#A855F7;">3</div>
+                        <div class="tl-b"><strong>配置采集规则</strong>
+                            <p>在八爪鱼中设置采集字段（<strong>商品名称、销售价格、销量</strong>），配置翻页规则，抓取前3页数据。</p>
+                        </div>
+                    </div>
+                    <div class="tl-i">
+                        <div class="tl-d" style="background:#C026D3;">4</div>
+                        <div class="tl-b"><strong>导出 & 整理数据</strong>
+                            <p>将采集结果导出为<strong>Excel格式</strong>，进一步比较不同卖家的定价策略与价格区间。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hl purple" style="margin-top:16px;">
+                    <div class="hi">🎯</div>
+                    <div class="hb"><strong>本次实践的意义</strong>
+                        <p>将<strong>外部数据采集（电商平台渠道）</strong>与<strong>网页数据采集工具</strong>结合运用，体验从"找到渠道"→"选对工具"→"采集数据"的完整链路。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 知识导图 ═══ -->
+        <section id="sec-map" class="sec-block reveal">
+            <div class="sec-hd">
+                <div class="sec-icon" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;">🗺️</div>
+                <div>
+                    <div class="sec-title txt-c1">本节知识导图</div>
+                    <div class="sec-sub">模块二·单元二 · 数据采集渠道及工具 · 全局概览</div>
+                </div>
+            </div>
+
+            <div class="card" style="padding:20px;overflow-x:auto;">
+                <svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;">
+                    <defs>
+                        <filter id="sh5">
+                            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity=".12" />
+                        </filter>
+                        <linearGradient id="gv" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#7C3AED" />
+                            <stop offset="100%" style="stop-color:#6D28D9" />
+                        </linearGradient>
+                    </defs>
+                    <!-- 中心 -->
+                    <rect x="305" y="225" width="270" height="60" rx="30" fill="url(#gv)" filter="url(#sh5)" />
+                    <text x="440" y="250" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">数据采集的渠道及工具</text>
+                    <text x="440" y="270" text-anchor="middle" fill="rgba(255,255,255,.8)" font-size="11"
+                        font-family="'Noto Sans SC',sans-serif">模块二 · 单元二</text>
+
+                    <!-- 左枝：内外数据来源 -->
+                    <line x1="305" y1="248" x2="155" y2="155" stroke="#7C3AED" stroke-width="2"
+                        stroke-dasharray="6,3" />
+                    <rect x="20" y="115" width="270" height="70" rx="14" fill="#F5F3FF" stroke="#7C3AED"
+                        stroke-width="2" filter="url(#sh5)" />
+                    <text x="155" y="145" text-anchor="middle" fill="#6D28D9" font-size="13" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">一、数据来源渠道</text>
+                    <text x="155" y="165" text-anchor="middle" fill="#555" font-size="11"
+                        font-family="'Noto Sans SC',sans-serif">内部数据 · 外部数据</text>
+
+                    <!-- 内部子 -->
+                    <line x1="75" y1="115" x2="55" y2="65" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="4,3" />
+                    <rect x="5" y="28" width="155" height="42" rx="10" fill="#EDE9FE" stroke="#A78BFA"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="82" y="47" text-anchor="middle" fill="#6D28D9" font-size="11" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">🏠 内部数据</text>
+                    <text x="82" y="62" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">后台·生意参谋·友盟</text>
+
+                    <!-- 外部子 -->
+                    <line x1="240" y1="115" x2="270" y2="65" stroke="#F59E0B" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+                    <rect x="168" y="28" width="200" height="42" rx="10" fill="#FEF3C7" stroke="#F59E0B"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="268" y="47" text-anchor="middle" fill="#D97706" font-size="11" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">🌐 外部数据（4渠道）</text>
+                    <text x="268" y="62" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">政府·权威·平台·指数</text>
+
+                    <!-- 右枝：采集工具 -->
+                    <line x1="575" y1="248" x2="720" y2="155" stroke="#7C3AED" stroke-width="2"
+                        stroke-dasharray="6,3" />
+                    <rect x="640" y="115" width="300" height="70" rx="14" fill="#F5F3FF" stroke="#7C3AED"
+                        stroke-width="2" filter="url(#sh5)" />
+                    <text x="790" y="145" text-anchor="middle" fill="#6D28D9" font-size="13" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">二、采集工具（6款）</text>
+                    <text x="790" y="165" text-anchor="middle" fill="#555" font-size="11"
+                        font-family="'Noto Sans SC',sans-serif">平台专属 + 通用采集</text>
+
+                    <!-- 平台专属 -->
+                    <line x1="690" y1="115" x2="660" y2="65" stroke="#6D28D9" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+                    <rect x="545" y="28" width="230" height="42" rx="10" fill="#EDE9FE" stroke="#A78BFA"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="660" y="47" text-anchor="middle" fill="#6D28D9" font-size="11" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">🏷️ 平台专属（4款）</text>
+                    <text x="660" y="62" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">生意参谋·店侦探·淘数据·京东商智</text>
+
+                    <!-- 通用 -->
+                    <line x1="885" y1="115" x2="900" y2="65" stroke="#065F46" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+                    <rect x="790" y="28" width="170" height="42" rx="10" fill="#D1FAE5" stroke="#10B981"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="875" y="47" text-anchor="middle" fill="#065F46" font-size="11" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">🐙 通用工具（2款）</text>
+                    <text x="875" y="62" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">八爪鱼 · 火车采集器</text>
+
+                    <!-- 下方四条外部渠道 -->
+                    <line x1="365" y1="285" x2="115" y2="400" stroke="#C2410C" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+                    <rect x="15" y="385" width="200" height="58" rx="12" fill="#FEE2E2" stroke="#C2410C"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="115" y="410" text-anchor="middle" fill="#C2410C" font-size="12" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">① 政府/机构/媒体</text>
+                    <text x="115" y="430" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">国家统计局等</text>
+
+                    <line x1="400" y1="285" x2="265" y2="400" stroke="#D97706" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+                    <rect x="165" y="385" width="200" height="58" rx="12" fill="#FEF3C7" stroke="#D97706"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="265" y="410" text-anchor="middle" fill="#D97706" font-size="12" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">② 权威网站/数据机构</text>
+                    <text x="265" y="430" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">易观·艾瑞咨询</text>
+
+                    <line x1="470" y1="285" x2="465" y2="400" stroke="#1D4ED8" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+                    <rect x="365" y="385" width="200" height="58" rx="12" fill="#DBEAFE" stroke="#1D4ED8"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="465" y="410" text-anchor="middle" fill="#1D4ED8" font-size="12" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">③ 电子商务平台</text>
+                    <text x="465" y="430" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">淘宝·京东·拼多多</text>
+
+                    <line x1="520" y1="285" x2="640" y2="400" stroke="#065F46" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+                    <rect x="540" y="385" width="200" height="58" rx="12" fill="#D1FAE5" stroke="#10B981"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="640" y="410" text-anchor="middle" fill="#065F46" font-size="12" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">④ 指数工具</text>
+                    <text x="640" y="430" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">百度指数·阿里指数</text>
+
+                    <!-- 实践题节点 -->
+                    <line x1="440" y1="285" x2="840" y2="400" stroke="#7C3AED" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+                    <rect x="745" y="385" width="205" height="58" rx="12" fill="#EDE9FE" stroke="#7C3AED"
+                        stroke-width="1.5" filter="url(#sh5)" />
+                    <text x="847" y="410" text-anchor="middle" fill="#6D28D9" font-size="12" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">💡 实践：陕西苹果</text>
+                    <text x="847" y="430" text-anchor="middle" fill="#777" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">八爪鱼采集前3页</text>
+
+                    <!-- 底部口诀 -->
+                    <rect x="80" y="470" width="800" height="46" rx="14" fill="#F5F3FF" stroke="#A78BFA"
+                        stroke-width="1.5" />
+                    <text x="480" y="490" text-anchor="middle" fill="#6D28D9" font-size="12" font-weight="bold"
+                        font-family="'Noto Sans SC',sans-serif">记忆口诀：内外双渠道，6工具各显通</text>
+                    <text x="480" y="507" text-anchor="middle" fill="#888" font-size="10"
+                        font-family="'Noto Sans SC',sans-serif">官方看自店 · 侦探盯竞品 · 八爪抓全网 · 火车多线程</text>
+                </svg>
+            </div>
+
+            <div class="hl purple" style="margin-top:16px;">
+                <div class="hi">🧠</div>
+                <div class="hb"><strong>记忆口诀：内外双渠道，6工具各显通</strong>
+                    <p><strong>官方看自店</strong>（生意参谋·京东商智），<strong>侦探盯竞品</strong>（店侦探·淘数据），<strong>八爪抓全网</strong>，<strong>火车多线程</strong>。数据来自内外两侧，工具分平台与通用两类！
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 综合测试 ═══ -->
+        <section id="sec-quiz" class="sec-block reveal">
+            <div class="qhd">
+                <span style="font-size:32px;">✅</span>
+                <div>
+                    <h2 style="font-size:20px;">综合知识测试</h2>
+                    <p style="font-size:13px;opacity:.85;margin-top:2px;">5道题，检验你的掌握情况！</p>
+                </div>
+            </div>
+            <div class="qbody">
+
+                <div class="qi" id="qz1">
+                    <div class="qq"><span class="qnum">1</span>下列哪项数据属于「内部数据」？</div>
+                    <div class="qopts">
+                        <div class="qopt" onclick="selOpt(this,'qz1',false)">
+                            <div class="ok2">A</div>
+                            <div>艾瑞咨询发布的电商行业白皮书</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz1',true)">
+                            <div class="ok2">B</div>
+                            <div>店铺后台的访客数（UV）和浏览量（PV）</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz1',false)">
+                            <div class="ok2">C</div>
+                            <div>百度指数的关键词搜索趋势数据</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz1',false)">
+                            <div class="ok2">D</div>
+                            <div>拼多多平台公开的行业大盘数据</div>
+                        </div>
+                    </div>
+                    <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+                    <div id="qz1-fb" class="qfb"></div>
+                </div>
+
+                <div class="qi" id="qz2">
+                    <div class="qq"><span class="qnum">2</span>「指数工具」的数据价值主要体现在哪三个方面？</div>
+                    <div class="qopts">
+                        <div class="qopt" onclick="selOpt(this,'qz2',false)">
+                            <div class="ok2">A</div>
+                            <div>店铺运营分析、商品定价分析、广告效果分析</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz2',true)">
+                            <div class="ok2">B</div>
+                            <div>市场行业分析、用户需求分析、用户画像分析</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz2',false)">
+                            <div class="ok2">C</div>
+                            <div>竞品价格分析、竞品流量分析、竞品转化分析</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz2',false)">
+                            <div class="ok2">D</div>
+                            <div>财务报表分析、供应链分析、物流效率分析</div>
+                        </div>
+                    </div>
+                    <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+                    <div id="qz2-fb" class="qfb"></div>
+                </div>
+
+                <div class="qi" id="qz3">
+                    <div class="qq"><span class="qnum">3</span>「生意参谋」和「店侦探」最大的区别是？</div>
+                    <div class="qopts">
+                        <div class="qopt" onclick="selOpt(this,'qz3',false)">
+                            <div class="ok2">A</div>
+                            <div>生意参谋是付费工具，店侦探是免费工具</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz3',false)">
+                            <div class="ok2">B</div>
+                            <div>生意参谋只能分析流量数据，店侦探可以分析交易数据</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz3',true)">
+                            <div class="ok2">C</div>
+                            <div>生意参谋主要分析自身店铺数据（兼顾市场行情）；店侦探专注于采集分析竞争对手数据</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz3',false)">
+                            <div class="ok2">D</div>
+                            <div>生意参谋适用于京东平台，店侦探适用于淘宝平台</div>
+                        </div>
+                    </div>
+                    <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+                    <div id="qz3-fb" class="qfb"></div>
+                </div>
+
+                <div class="qi" id="qz4">
+                    <div class="qq"><span class="qnum">4</span>京东商智覆盖了哪五大渠道？</div>
+                    <div class="qopts">
+                        <div class="qopt" onclick="selOpt(this,'qz4',false)">
+                            <div class="ok2">A</div>
+                            <div>PC端、APP、微博、抖音、小红书</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz4',true)">
+                            <div class="ok2">B</div>
+                            <div>PC端、APP、微信、手机QQ、移动网页端</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz4',false)">
+                            <div class="ok2">C</div>
+                            <div>淘宝、京东、拼多多、天猫、苏宁</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz4',false)">
+                            <div class="ok2">D</div>
+                            <div>PC端、APP、微信、支付宝、百度</div>
+                        </div>
+                    </div>
+                    <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+                    <div id="qz4-fb" class="qfb"></div>
+                </div>
+
+                <div class="qi" id="qz5">
+                    <div class="qq"><span class="qnum">5</span>「八爪鱼采集器」相比「火车采集器」最突出的优势是？</div>
+                    <div class="qopts">
+                        <div class="qopt" onclick="selOpt(this,'qz5',false)">
+                            <div class="ok2">A</div>
+                            <div>火车采集器只能采集电商平台，八爪鱼可以采集任意网站</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz5',false)">
+                            <div class="ok2">B</div>
+                            <div>八爪鱼采集速度比火车采集器快10倍</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz5',true)">
+                            <div class="ok2">C</div>
+                            <div>八爪鱼完全可视化操作，使用简单，无需编程基础；火车采集器侧重多线程内容采集与发布</div>
+                        </div>
+                        <div class="qopt" onclick="selOpt(this,'qz5',false)">
+                            <div class="ok2">D</div>
+                            <div>八爪鱼只能采集价格数据，火车采集器可采集所有类型数据</div>
+                        </div>
+                    </div>
+                    <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+                    <div id="qz5-fb" class="qfb"></div>
+                </div>
+
+                <div id="qz-score" class="score-box">
+                    <div class="sc-emoji" id="sc-emoji">🎉</div>
+                    <div class="sc-num" id="sc-num">0/5</div>
+                    <div class="sc-msg" id="sc-msg"></div>
+                    <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- /container -->
+
+    <footer
+        style="background:#3B0764;color:rgba(255,255,255,.55);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+        <p>📚 <span style="color:#C4B5FD;">商务数据分析</span> · 模块二 · 单元二 数据采集的渠道及工具</p>
+        <p style="margin-top:6px;">中职电子商务专业 · 内外双渠道，6工具各显通 🚀</p>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/learning.js"></script>
+    <script>
+        window.QUIZ_DATA = {
+            qz1: { exp: '店铺后台的访客数（UV）和浏览量（PV）是电子商务店铺自身产生的数据，属于内部数据。艾瑞咨询报告、百度指数、平台大盘数据均来自外部，属于外部数据。' },
+            qz2: { exp: '指数工具（百度指数、阿里指数等）依托平台海量用户搜索数据，其价值主要体现在：①市场行业分析——了解行业搜索热度；②用户需求分析——发现用户关心什么；③用户画像分析——描绘目标用户特征。' },
+            qz3: { exp: '生意参谋是淘宝官方提供的综合性平台，核心是分析自己店铺的全链路运营数据，同时可通过"市场行情"板块了解行业大盘。店侦探则专门针对竞争对手，帮助卖家快速掌握竞品的销售数据、引流途径、广告投放等信息。' },
+            qz4: { exp: '京东商智覆盖的五大渠道是：PC端、APP、微信、手机QQ、移动网页端。这五大渠道覆盖了京东平台用户访问的主要路径，帮助商家全面了解多端流量和销售情况。' },
+            qz5: { exp: '八爪鱼采集器的最大特点是"完全可视化操作，使用简单，功能强大，任何网站均可采集"，不需要编程基础，适合普通电商运营人员使用。火车采集器的特色是"多线程"内容采集与发布，功能分为采集数据和发布数据两部分，侧重内容系统。两者都可采集任意网站，但操作方式和功能侧重不同。' }
+        };
+
+        function showTool(id, card) {
+            const all = document.querySelectorAll('.tool-detail');
+            const allCards = document.querySelectorAll('.tool-card');
+            const target = document.getElementById(id);
+            const isOpen = target.classList.contains('show');
+            all.forEach(d => d.classList.remove('show'));
+            allCards.forEach(c => c.classList.remove('active'));
+            if (!isOpen) {
+                target.classList.add('show');
+                card.classList.add('active');
+                target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    </script>
+</body>
+
+</html>
