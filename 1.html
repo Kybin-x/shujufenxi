@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块一综合闯关 · 实习生第一天</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/game.css">
+<style>
+:root {
+  --amber:  #F59E0B;
+  --amberd: #D97706;
+  --amberl: #FEF3C7;
+  --wang:   #0D9488;
+  --wangl:  #CCFBF1;
+  --li:     #3B82F6;
+  --lil:    #DBEAFE;
+  --boss:   #D97706;
+  --bossl:  #FEF3C7;
+  --ok:     #10B981;
+  --err:    #EF4444;
+}
+
+/* ── 星空 ── */
+.stars { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0; }
+
+/* ── 屏幕基础 ── */
+.screen { display:none;position:relative;z-index:1;min-height:100vh; }
+.screen.active { display:flex;flex-direction:column;align-items:center;justify-content:center; }
+
+/* ══ 登录屏 ══ */
+.login-box {
+  background:rgba(15,23,42,.85);border:1px solid rgba(245,158,11,.3);
+  border-radius:24px;padding:44px 40px;width:min(420px,92vw);
+  backdrop-filter:blur(12px);text-align:center;
+  box-shadow:0 0 60px rgba(245,158,11,.12);
+}
+.co-logo { font-size:52px;margin-bottom:12px; }
+.co-name { font-size:13px;color:rgba(245,158,11,.7);letter-spacing:3px;margin-bottom:8px; }
+.game-title { font-size:24px;font-weight:900;color:#fff;margin-bottom:4px;font-family:'ZCOOL KuaiLe',cursive; }
+.game-sub   { font-size:13px;color:rgba(255,255,255,.5);margin-bottom:24px; }
+.badge-row  { display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:24px; }
+.bdg { font-size:12px;padding:4px 12px;border-radius:20px;font-weight:700; }
+.bdg.s { background:rgba(59,130,246,.2);color:#93C5FD;border:1px solid rgba(59,130,246,.3); }
+.bdg.m { background:rgba(16,185,129,.2);color:#6EE7B7;border:1px solid rgba(16,185,129,.3); }
+.bdg.j { background:rgba(245,158,11,.2);color:#FCD34D;border:1px solid rgba(245,158,11,.3); }
+.inp-g { text-align:left;margin-bottom:14px; }
+.inp-g label { display:block;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:5px; }
+.inp-g input { width:100%;padding:12px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:15px;font-family:inherit;box-sizing:border-box;transition:border .2s; }
+.inp-g input:focus { outline:none;border-color:var(--amber); }
+.start-btn { width:100%;padding:14px;background:linear-gradient(135deg,var(--amber),var(--amberd));color:#1A0000;border:none;border-radius:14px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s; }
+.start-btn:hover { transform:translateY(-2px);box-shadow:0 6px 24px rgba(245,158,11,.4); }
+
+/* ══ 剧情介绍屏 ══ */
+.intro-wrap { width:min(600px,94vw);text-align:center; }
+.intro-company { font-size:12px;color:var(--amber);letter-spacing:3px;margin-bottom:12px; }
+.intro-h1 { font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;font-family:'ZCOOL KuaiLe',cursive; }
+.intro-h2 { font-size:15px;color:rgba(255,255,255,.6);margin-bottom:32px; }
+.intro-card {
+  background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);
+  border-radius:20px;padding:28px 32px;margin-bottom:24px;text-align:left;
+}
+.intro-card p { font-size:14px;color:rgba(255,255,255,.8);line-height:1.9;margin:0 0 10px; }
+.intro-card p:last-child { margin:0; }
+.intro-card strong { color:var(--amber); }
+.role-badge {
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(217,119,6,.2));
+  border:1px solid rgba(245,158,11,.4);border-radius:12px;padding:10px 20px;margin-bottom:24px;
+}
+.role-badge .ri { font-size:24px; }
+.role-badge .rt { font-size:14px;color:#FCD34D;font-weight:700; }
+.next-btn {
+  padding:13px 40px;background:linear-gradient(135deg,var(--amber),var(--amberd));
+  color:#1A0000;border:none;border-radius:14px;font-size:16px;font-weight:900;
+  cursor:pointer;font-family:inherit;transition:transform .15s;
+}
+.next-btn:hover { transform:translateY(-2px); }
+
+/* ══ 关卡过渡屏 ══ */
+.stage-wrap { width:min(560px,94vw); }
+.stage-num-tag {
+  text-align:center;font-size:12px;color:var(--amber);letter-spacing:3px;margin-bottom:8px;
+}
+.stage-title { text-align:center;font-size:26px;font-weight:900;color:#fff;margin-bottom:4px;font-family:'ZCOOL KuaiLe',cursive; }
+.stage-sub   { text-align:center;font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px; }
+/* NPC 对话气泡 */
+.npc-chat { display:flex;flex-direction:column;gap:12px;margin-bottom:28px; }
+.chat-bubble { display:flex;gap:12px;align-items:flex-start;animation:slideIn .4s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+.chat-avatar {
+  width:44px;height:44px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;border:2px solid rgba(255,255,255,.2);
+}
+.av-wang { background:linear-gradient(135deg,var(--wang),#0F766E); }
+.av-li   { background:linear-gradient(135deg,var(--li),#1D4ED8); }
+.av-boss { background:linear-gradient(135deg,var(--boss),#92400E); }
+.chat-body { flex:1; }
+.chat-name { font-size:12px;font-weight:700;margin-bottom:4px; }
+.cn-wang { color:#5EEAD4; } .cn-li { color:#93C5FD; } .cn-boss { color:#FCD34D; }
+.chat-text {
+  background:rgba(255,255,255,.08);border-radius:0 14px 14px 14px;
+  padding:12px 16px;font-size:14px;color:rgba(255,255,255,.88);line-height:1.7;
+}
+/* 关卡信息条 */
+.stage-info-bar {
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);
+  border-radius:14px;padding:14px 20px;margin-bottom:24px;
+}
+.sib-item { text-align:center; }
+.sib-val  { font-size:18px;font-weight:900;color:var(--amber); }
+.sib-lbl  { font-size:11px;color:rgba(255,255,255,.45);margin-top:2px; }
+
+/* ══ 游戏主屏 ══ */
+.game-wrap { width:min(640px,96vw);padding:0 0 40px; }
+/* 顶部信息栏 */
+.g-topbar {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 0;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.g-player { display:flex;align-items:center;gap:10px; }
+.g-avt {
+  width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--amberd));
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#1A0000;
+}
+.g-name { font-size:14px;font-weight:700;color:#fff; }
+.g-id   { font-size:11px;color:rgba(255,255,255,.4); }
+.g-score-disp { display:flex;align-items:center;gap:6px; }
+.g-sc-v { font-size:20px;font-weight:900;color:var(--amber); }
+.g-sc-t { font-size:12px;color:rgba(255,255,255,.4); }
+/* 5段进度条 */
+.stage-prog { display:flex;gap:4px;margin-bottom:16px; }
+.sp-seg {
+  flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.1);
+  transition:background .3s;
+}
+.sp-seg.done { background:var(--amber); }
+.sp-seg.cur  { background:rgba(245,158,11,.5); }
+.sp-label { display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.3);margin-bottom:20px; }
+/* 题目卡 */
+.qcard {
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;overflow:hidden;
+}
+/* NPC mini 上下文条 */
+.q-npc-bar { display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06); }
+.q-npc-av {
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;
+}
+.q-npc-name { font-size:12px;font-weight:700; }
+.q-npc-ctx  { font-size:13px;color:rgba(255,255,255,.65);line-height:1.5; }
+.q-body { padding:20px; }
+.q-meta { display:flex;align-items:center;gap:8px;margin-bottom:12px; }
+.q-type-tag {
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;
+}
+.qt-single { background:rgba(59,130,246,.2);color:#93C5FD; }
+.qt-multi  { background:rgba(16,185,129,.2);color:#6EE7B7; }
+.qt-judge  { background:rgba(245,158,11,.2);color:#FCD34D; }
+.q-pts { font-size:11px;color:rgba(255,255,255,.3); }
+.q-num { font-size:11px;color:rgba(255,255,255,.3);margin-left:auto; }
+.q-text { font-size:15px;color:#fff;line-height:1.7;margin-bottom:18px;font-weight:500; }
+/* 选项 */
+.opts { display:flex;flex-direction:column;gap:8px;margin-bottom:16px; }
+.opt {
+  display:flex;align-items:flex-start;gap:12px;padding:12px 16px;
+  border-radius:12px;border:2px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.03);cursor:pointer;transition:all .2s;
+}
+.opt:hover:not(.locked) { border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.06); }
+.opt.selected { border-color:var(--amber);background:rgba(245,158,11,.12); }
+.opt.correct  { border-color:var(--ok) !important;background:rgba(16,185,129,.12) !important; }
+.opt.wrong    { border-color:var(--err) !important;background:rgba(239,68,68,.1) !important; }
+.opt.locked   { cursor:not-allowed; }
+.opt-key {
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;border:2px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.6);transition:all .2s;
+}
+.opt.selected .opt-key { background:var(--amber);color:#1A0000;border-color:var(--amber); }
+.opt.correct  .opt-key { background:var(--ok);color:#fff;border-color:var(--ok); }
+.opt.wrong    .opt-key { background:var(--err);color:#fff;border-color:var(--err); }
+.opt-text { font-size:14px;color:rgba(255,255,255,.85);line-height:1.6;padding-top:3px; }
+/* 提交/下一题按钮 */
+.btn-row { display:flex;gap:10px; }
+.sub-btn {
+  flex:1;padding:12px;background:linear-gradient(135deg,var(--amber),var(--amberd));
+  color:#1A0000;border:none;border-radius:12px;font-size:15px;font-weight:900;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.sub-btn:disabled { opacity:.35;cursor:not-allowed; }
+.sub-btn:not(:disabled):hover { transform:translateY(-1px);box-shadow:0 4px 16px rgba(245,158,11,.3); }
+.nxt-btn {
+  flex:1;padding:12px;background:rgba(16,185,129,.15);color:#6EE7B7;
+  border:1px solid rgba(16,185,129,.3);border-radius:12px;font-size:15px;font-weight:900;
+  cursor:pointer;font-family:inherit;display:none;transition:all .2s;
+}
+.nxt-btn.show { display:block; }
+.nxt-btn:hover { background:rgba(16,185,129,.25); }
+/* 反馈条 */
+.fb-bar {
+  border-radius:12px;padding:12px 16px;margin-bottom:14px;
+  font-size:13px;line-height:1.7;display:none;
+}
+.fb-bar.show { display:block; }
+.fb-bar.ok { background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#6EE7B7; }
+.fb-bar.no { background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#FCA5A5; }
+.fb-head { font-weight:700;margin-bottom:4px; }
+.fb-exp  { color:rgba(255,255,255,.65);font-size:12px; }
+/* combo toast */
+.combo-t { position:fixed;top:80px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:900;color:var(--amber);z-index:100;display:none;pointer-events:none; }
+/* particles */
+.ptc { position:fixed;pointer-events:none;font-size:22px;z-index:200;animation:ptcUp 2s ease forwards; }
+@keyframes ptcUp { to{opacity:0;transform:translateY(-120px) scale(1.4);} }
+
+/* ══ 结果屏 ══ */
+.result-wrap { width:min(620px,96vw);padding:20px 0 60px; }
+.res-fw { text-align:center;font-size:28px;margin-bottom:-8px;pointer-events:none; }
+.res-card {
+  background:rgba(15,23,42,.85);border:1px solid rgba(245,158,11,.25);
+  border-radius:24px;padding:32px;backdrop-filter:blur(12px);
+}
+.res-icon {
+  width:72px;height:72px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:32px;margin:0 auto 14px;
+}
+.res-grade { text-align:center;font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;font-family:'ZCOOL KuaiLe',cursive; }
+.res-nm    { text-align:center;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:20px; }
+.big-sc    { text-align:center;font-size:56px;font-weight:900;color:var(--amber);line-height:1; }
+.sc-lbl    { text-align:center;font-size:12px;color:rgba(255,255,255,.4);margin-bottom:24px; }
+.res-ach   { background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:16px 20px;font-size:13px;color:rgba(255,255,255,.8);line-height:1.8;margin-bottom:22px; }
+/* 关卡得分条 */
+.stage-bars { display:flex;flex-direction:column;gap:10px;margin-bottom:22px; }
+.sb-row { display:flex;align-items:center;gap:10px; }
+.sb-lbl { font-size:12px;color:rgba(255,255,255,.5);width:72px;flex-shrink:0; }
+.sb-track { flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden; }
+.sb-fill  { height:100%;border-radius:4px;background:linear-gradient(90deg,var(--amber),var(--amberd));transition:width 1s ease; }
+.sb-pts   { font-size:12px;color:var(--amber);font-weight:700;width:52px;text-align:right;flex-shrink:0; }
+/* 错题列表 */
+.wrong-list { margin-bottom:22px; }
+.wl-title { font-size:13px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+.wl-item { background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:10px 14px;margin-bottom:6px;font-size:12px; }
+.wl-q   { color:rgba(255,255,255,.7);margin-bottom:3px; }
+.wl-ans { color:#FCA5A5; }
+/* 工作总结 */
+.work-summary {
+  background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);
+  border-radius:14px;padding:16px 20px;font-size:13px;color:rgba(255,255,255,.75);
+  line-height:1.9;margin-bottom:24px;
+}
+.ws-title { font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px; }
+.retry-btn {
+  width:100%;padding:14px;background:linear-gradient(135deg,var(--amber),var(--amberd));
+  color:#1A0000;border:none;border-radius:14px;font-size:16px;font-weight:900;
+  cursor:pointer;font-family:inherit;transition:transform .15s;
+}
+.retry-btn:hover { transform:translateY(-2px); }
+</style>
+</head>
+<body>
+
+<canvas class="stars" id="stars"></canvas>
+<div class="combo-t" id="comboT"></div>
+
+<!-- ══════ 登录屏 ══════ -->
+<div class="screen active" id="sLogin">
+  <div class="login-box">
+    <div class="co-logo">🏢</div>
+    <div class="co-name">飞跃跨境 · 数据运营部</div>
+    <div class="game-title">实习生第一天</div>
+    <div class="game-sub">模块一综合闯关 · 5关30题 · 全程工作场景</div>
+    <div class="badge-row">
+      <span class="bdg s">🔵 单选 ×15（每题2分）</span>
+      <span class="bdg m">🟢 多选 ×8（每题7分）</span>
+      <span class="bdg j">🟡 判断 ×7（每题2分）</span>
+    </div>
+    <div class="inp-g"><label>📋 学号</label><input type="text" id="iId" placeholder="请输入学号" maxlength="20"></div>
+    <div class="inp-g"><label>✏️ 姓名</label><input type="text" id="iName" placeholder="请输入姓名" maxlength="12"></div>
+    <button class="start-btn" onclick="startGame()">⚡ 入职打卡，开始闯关！</button>
+  </div>
+</div>
+
+<!-- ══════ 剧情介绍屏 ══════ -->
+<div class="screen" id="sIntro">
+  <div class="intro-wrap">
+    <div class="intro-company">飞跃跨境电商有限公司 · 数据运营部</div>
+    <div class="intro-h1">🎉 恭喜你正式入职！</div>
+    <div class="intro-h2">今天是你在飞跃跨境的第一天</div>
+    <div class="role-badge"><span class="ri">📊</span><span class="rt">你的岗位：数据分析实习生</span></div>
+    <div class="intro-card">
+      <p>飞跃跨境是一家成长中的跨境电商公司，主营欧美市场的消费电子产品。</p>
+      <p>你将在<strong>数据运营部</strong>实习，导师是经验丰富的<strong>王静（王姐）</strong>，部门同事是<strong>小李</strong>，你们的顶头上司是<strong>张总</strong>。</p>
+      <p>今天，你需要通过<strong>5个工作关卡</strong>，完成第一天的任务考核。每一关都是真实的工作场景，准备好了吗？</p>
+    </div>
+    <button class="next-btn" onclick="showStageIntro()">准备好了，开始第一关 →</button>
+  </div>
+</div>
+
+<!-- ══════ 关卡过渡屏 ══════ -->
+<div class="screen" id="sStage">
+  <div class="stage-wrap">
+    <div class="stage-num-tag" id="stNumTag">关卡一 / 共五关</div>
+    <div class="stage-title" id="stTitle">关卡标题</div>
+    <div class="stage-sub" id="stSub">副标题</div>
+    <div class="npc-chat" id="npcChat"></div>
+    <div class="stage-info-bar">
+      <div class="sib-item"><div class="sib-val" id="stQCount">6</div><div class="sib-lbl">本关题数</div></div>
+      <div class="sib-item"><div class="sib-val" id="stMaxPts">—</div><div class="sib-lbl">本关满分</div></div>
+      <div class="sib-item"><div class="sib-val" id="stDiff">⭐</div><div class="sib-lbl">难度</div></div>
+    </div>
+    <button class="next-btn" id="stStartBtn" onclick="startStage()">开始本关 →</button>
+  </div>
+</div>
+
+<!-- ══════ 游戏主屏 ══════ -->
+<div class="screen" id="sGame">
+  <div class="game-wrap">
+    <div class="g-topbar">
+      <div class="g-player">
+        <div class="g-avt" id="gAvt">A</div>
+        <div><div class="g-name" id="gName">-</div><div class="g-id" id="gId">-</div></div>
+      </div>
+      <div class="g-score-disp">
+        <span style="font-size:16px;">⭐</span>
+        <div class="g-sc-v" id="gScore">0</div>
+        <div class="g-sc-t">/100分</div>
+      </div>
+    </div>
+    <div class="stage-prog" id="stageProg">
+      <div class="sp-seg" id="sp0"></div>
+      <div class="sp-seg" id="sp1"></div>
+      <div class="sp-seg" id="sp2"></div>
+      <div class="sp-seg" id="sp3"></div>
+      <div class="sp-seg" id="sp4"></div>
+    </div>
+    <div class="sp-label">
+      <span id="spStage">关卡一</span>
+      <span id="spProgress">第1题 · 共30题</span>
+    </div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+</div>
+
+<!-- ══════ 结果屏 ══════ -->
+<div class="screen" id="sResult">
+  <div class="result-wrap">
+    <div class="res-fw" id="resFw">🎉🏆🎊</div>
+    <div class="res-card">
+      <div class="res-icon" id="resIcon">🏆</div>
+      <div class="res-grade" id="resGrade">闯关完成！</div>
+      <div class="res-nm" id="resNm"></div>
+      <div class="big-sc" id="bigSc">0</div>
+      <div class="sc-lbl">综合得分（满分 100 分）</div>
+      <div class="res-ach" id="resAch"></div>
+      <!-- 关卡得分条 -->
+      <div class="stage-bars" id="stageBars"></div>
+      <!-- 工作总结 -->
+      <div class="work-summary" id="workSummary"></div>
+      <!-- 错题提示 -->
+      <div class="wrong-list" id="wrongList"></div>
+      <button class="retry-btn" onclick="retryGame()">🔄 重新入职，再战一次！</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+/* ══════════════════════════════════════
+   题库数据
+══════════════════════════════════════ */
+const STAGES_CFG = [
+  { id:1, title:'入职报到', sub:'基础概念·摸底考核', npc:'wang', diff:'⭐', maxPts:17,
+    lines:['欢迎来到飞跃跨境！我是你的导师王静，大家叫我王姐。','在开始正式工作之前，我需要了解一下你的基础水平。','别紧张，先来几道题热热身！😊'] },
+  { id:2, title:'第一个任务', sub:'核心指标·数字说话', npc:'wang', diff:'⭐⭐', maxPts:22,
+    lines:['不错嘛！基础还可以。','现在进入正题——电商核心数据指标。','老板天天问这些数字，你一定要搞清楚！💪'] },
+  { id:3, title:'同事求助', sub:'报告纠错·火眼金睛', npc:'li', diff:'⭐⭐⭐', maxPts:17,
+    lines:['哎，新来的帮个忙！','我做的数据分析报告被老板打回来了，说有几处明显错误……','你刚学完理论，帮我找找问题在哪？🙏'] },
+  { id:4, title:'独立任务', sub:'流程规划·独当一面', npc:'boss', diff:'⭐⭐⭐⭐', maxPts:22,
+    lines:['听说你这两天表现不错，王姐跟我提过你。','我给你一个独立任务：帮我规划下季度的数据分析工作。','先来验证一下，你对数据分析流程掌握得怎么样。'] },
+  { id:5, title:'最终汇报', sub:'综合应用·全面大考', npc:'boss', diff:'⭐⭐⭐⭐⭐', maxPts:22,
+    lines:['最后一关了——我要亲自验收你第一天的表现。','这些题目综合了今天所有的知识点。','想留下来继续实习吗？那就拿出你的真本事！🏆'] }
+];
+
+const NPC = {
+  wang: { emoji:'👩‍💼', name:'王姐（导师）', cls:'wang', ctx:'王姐问道：', ques_prefix:'王姐说：' },
+  li:   { emoji:'👨‍💻', name:'小李（同事）', cls:'li',   ctx:'小李求助：', ques_prefix:'小李拿来报告：' },
+  boss: { emoji:'👔',   name:'张总（老板）', cls:'boss', ctx:'张总提问：', ques_prefix:'张总问：' }
+};
+
+const Q = [
+/* ══ 关卡一 ══ */
+{st:1,type:'single',npc:'wang',pts:2,
+ intro:'先来了解一下你的基础认知。',
+ text:'数据的本质是什么？',
+ opts:['A. 只有数字形式的信息才叫数据','B. 记录客观事物的、可识别的符号','C. 只有图表和统计报表才是数据','D. 只有文字描述的信息'],
+ ans:[1], exp:'数据是记录客观事物的可识别符号，不仅仅是数字，还包括文字、图像、音频、视频等多种形式。'},
+{st:1,type:'single',npc:'wang',pts:2,
+ intro:'了解一下你对电商数据分析应用场景的认识。',
+ text:'以下哪项不属于电商数据分析的实际应用场景？',
+ opts:['A. 通过流量数据判断某商品的爆款潜力','B. 分析用户购买行为，优化商品详情页','C. 直接通过数据预测竞争对手老板的决策心理','D. 通过转化率数据优化广告投放效果'],
+ ans:[2], exp:'数据分析可以分析用户行为和市场规律，但无法"预测竞争对手的心理"——这属于主观判断，不是数据分析的能力范畴。'},
+{st:1,type:'single',npc:'wang',pts:2,
+ intro:'数据分类是基础知识，来考考你。',
+ text:'按照数据是否可以量化，数据可以分为？',
+ opts:['A. 结构化数据和非结构化数据','B. 定性数据和定量数据','C. 内部数据和外部数据','D. 原始数据和加工数据'],
+ ans:[1], exp:'按是否可量化，数据分为定性数据（描述性、文字性，如商品好评内容）和定量数据（可计算，如销量、价格）。'},
+{st:1,type:'judge',npc:'wang',pts:2,
+ intro:'判断一下这个说法是否正确。',
+ text:'电商数据分析只适用于大型电商企业，小型个人店铺不需要进行数据分析。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1], exp:'错误！无论店铺大小，数据分析都是提升经营效率的重要工具。小型店铺同样可以通过分析流量、转化率等数据来优化运营，数据分析没有规模门槛。'},
+{st:1,type:'judge',npc:'wang',pts:2,
+ intro:'这道题判断一下数据分类的概念。',
+ text:'「订单数量、销售金额」属于定量数据；「商品评价文字内容、用户性别标签」属于定性数据。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[0], exp:'正确！订单数量、销售金额可以量化计算，属于定量数据；商品评价文字、性别标签是描述性信息，属于定性数据。'},
+{st:1,type:'multi',npc:'wang',pts:7,
+ intro:'综合一下，来道多选题。',
+ text:'电商数据分析的主要应用领域包括哪些？（多选，全选才得分）',
+ opts:['A. 市场分析（行业趋势、竞品对比）','B. 店铺运营分析（流量、转化、销售）','C. 商品分析（爆款判断、选品决策）','D. 营销分析（广告效果、推广策略）','E. 分析员工的私人生活状况'],
+ ans:[0,1,2,3], exp:'电商数据分析的四大应用领域：市场分析、店铺运营分析、商品分析、营销分析。分析员工私生活不在业务范围内，且涉及隐私问题。'},
+
+/* ══ 关卡二 ══ */
+{st:2,type:'single',npc:'wang',pts:2,
+ intro:'核心指标是每天都要看的，先把公式搞清楚。',
+ text:'电商销售额核心公式「销售额 = ___ × 转化率 × 客单价」，空白处应填入？',
+ opts:['A. 浏览量（PV）','B. 访客数（UV / 流量）','C. 收藏量','D. 加购量'],
+ ans:[1], exp:'销售额 = 流量（访客数UV）× 转化率 × 客单价。UV代表独立访客数，是衡量流量的核心指标。PV是浏览量，同一个人浏览多次会重复计算。'},
+{st:2,type:'single',npc:'wang',pts:2,
+ intro:'来道计算题，看你能不能在工作中实际用上这个公式。',
+ text:'昨天店铺UV为5000，最终成交200单。请问支付转化率是多少？',
+ opts:['A. 2.5%','B. 4%','C. 25%','D. 40%'],
+ ans:[1], exp:'支付转化率 = 成交订单数 ÷ 访客数 = 200 ÷ 5000 = 4%。这是衡量流量转化效率的关键指标。'},
+{st:2,type:'single',npc:'wang',pts:2,
+ intro:'「跳出率」是一个容易混淆的指标。',
+ text:'在电商数据中，「跳出率」是指用户的什么行为比率？',
+ opts:['A. 加入购物车后未付款的比率','B. 只浏览一个页面就直接离开的访客比率','C. 收藏商品后未购买的比率','D. 申请退货退款的比率'],
+ ans:[1], exp:'跳出率 = 只访问一个页面就离开的用户数 ÷ 总访客数。跳出率高说明着陆页吸引力不足，用户进来就走，需要优化页面内容或广告精准度。'},
+{st:2,type:'judge',npc:'wang',pts:2,
+ intro:'判断这个关于客单价的说法。',
+ text:'客单价越高，说明店铺的整体经营状况越好。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1], exp:'错误！客单价高不能单独代表经营好。需要结合流量和转化率综合判断。客单价很高但转化率极低、访客极少，整体销售额可能反而不好。三个指标要综合分析。'},
+{st:2,type:'multi',npc:'wang',pts:7,
+ intro:'考考你对流量指标的全面掌握。',
+ text:'以下哪些属于电商「流量指标」？（多选）',
+ opts:['A. 访客数（UV）','B. 浏览量（PV）','C. 跳出率','D. 支付转化率','E. 加购率'],
+ ans:[0,1,2], exp:'流量指标主要包括：UV（独立访客数）、PV（浏览量）、跳出率（衡量流量质量）。支付转化率和加购率属于「转化指标」，不是流量指标。'},
+{st:2,type:'multi',npc:'wang',pts:7,
+ intro:'这道题考查对销售额公式的综合运用。',
+ text:'根据「销售额 = 流量 × 转化率 × 客单价」，以下哪些途径可以有效提升销售额？（多选）',
+ opts:['A. 通过SEO/广告投放增加访客数（提升流量）','B. 优化商品详情页和客服响应（提升转化率）','C. 做关联推荐、套餐搭配（提升客单价）','D. 大量增加仓库面积和员工数量','E. 立刻全面降价50%以吸引顾客'],
+ ans:[0,1,2], exp:'提升销售额的三条路径对应公式三要素：增加流量(A)、提升转化率(B)、提高客单价(C)。增加仓库和员工不直接影响公式指标；大幅降价可能短期增流量但会压低客单价，还损害利润，属于错误策略。'},
+
+/* ══ 关卡三 ══ */
+{st:3,type:'single',npc:'li',pts:2,
+ intro:'小李的报告里有这样一句话，帮他找找错误。',
+ text:'小李报告中写道：「本月店铺PV为12000，说明共有12000位独立访客浏览了店铺。」这句话的错误在哪？',
+ opts:['A. PV数据是虚假的，不可信','B. PV是页面浏览量（含重复访问），不等于独立访客数；独立访客数应看UV','C. 12000这个数字太少，说明流量不够','D. 这句话没有错误，PV就是独立访客数'],
+ ans:[1], exp:'PV（Page View）是页面浏览量，同一个用户浏览10次就计10次PV；UV（Unique Visitor）才是独立访客数，同一用户无论访问多少次都只计1次。'},
+{st:3,type:'single',npc:'li',pts:2,
+ intro:'小李对加购率的定义也有问题。',
+ text:'小李将「加购率」定义为「加入购物车的商品件数 ÷ 总浏览量PV」。正确的加购率应该是？',
+ opts:['A. 加入购物车的人数 ÷ 访客数（UV）','B. 加入购物车的商品件数 ÷ 成交件数','C. 成交件数 ÷ 访客数（UV）','D. 加入购物车的人数 ÷ 浏览量（PV）'],
+ ans:[0], exp:'加购率 = 加入购物车的访客数 ÷ 总访客数（UV）。衡量的是"有多少访客把商品加入购物车"，分子和分母都以「人次」为单位，而非商品件数。'},
+{st:3,type:'judge',npc:'li',pts:2,
+ intro:'小李的结论有没有问题？',
+ text:'某月销售额同比增长20%，小李在报告中直接得出「本店经营状况大幅改善」的结论。这个结论正确吗？',
+ opts:['A. ✅ 正确，销售额增长就代表经营改善','B. ❌ 错误，需对比行业增速才能判断'],
+ ans:[1], exp:'错误！销售额同比增长20%，但如果行业整体增长了50%，说明店铺其实是在跑输大盘，相对竞争力在下降。数据分析要结合行业背景，不能孤立看绝对数值。'},
+{st:3,type:'single',npc:'li',pts:2,
+ intro:'数据分析中有很多时间比较维度，要弄清楚。',
+ text:'报告中用到了「同比增长」，请问「同比」是指与什么进行比较？',
+ opts:['A. 与上个月（环比）相比','B. 与上一年同期相比','C. 与行业平均水平相比','D. 与竞争对手相比'],
+ ans:[1], exp:'同比 = 与上一年同期比较（如今年3月 vs 去年3月）；环比 = 与上一个周期比较（如3月 vs 2月）。这是数据分析报告中最常用的两个对比维度。'},
+{st:3,type:'multi',npc:'li',pts:7,
+ intro:'小李不确定商品分析应该包含哪些指标，你来帮他列举。',
+ text:'以下哪些属于电商「商品分析」的常见指标？（多选）',
+ opts:['A. 商品浏览量（单品PV）','B. 商品收藏量','C. 商品加购量','D. 商品转化率（单品成交率）','E. 运营人员每天的工作时长'],
+ ans:[0,1,2,3], exp:'商品分析指标包括：单品浏览量、收藏量、加购量、商品转化率等，这些数据反映了某件商品对用户的吸引力和购买转化能力。员工工作时长是人事管理数据，不是商品分析指标。'},
+{st:3,type:'judge',npc:'li',pts:2,
+ intro:'关于数据分析报告的结构，帮小李判断一下。',
+ text:'数据分析报告的「引入部分」包括标题页、目录页和前言页三个组成部分。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[0], exp:'正确！报告结构分三部分：①引入部分（标题页+目录页+前言页）→②正文部分（核心分析内容）→③结论部分（结论建议+附录可选）。引入部分的这三个组成是标准结构。'},
+
+/* ══ 关卡四 ══ */
+{st:4,type:'single',npc:'boss',pts:2,
+ intro:'张总开口了，先考数据分析流程的基础。',
+ text:'数据分析六步流程中，第一步是什么？',
+ opts:['A. 采集数据','B. 处理数据','C. 明确数据分析目标','D. 分析数据'],
+ ans:[2], exp:'六步流程依次为：①明确目标→②采集数据→③处理数据→④分析数据→⑤展现数据→⑥撰写报告。明确目标是整个流程的前提和基础，没有清晰的目标，后续所有工作都会方向偏移。'},
+{st:4,type:'single',npc:'boss',pts:2,
+ intro:'张总要你推荐图表类型。',
+ text:'需要分析「过去12个月各月销售额的变化趋势」，应选用哪种图表？',
+ opts:['A. 饼图（圆形图）','B. 折线图','C. 雷达图','D. 漏斗图'],
+ ans:[1], exp:'折线图最适合展示时间序列的变化趋势，能清晰呈现数据随时间的走势、波峰波谷。饼图用于比例分析；雷达图用于多维度对比；漏斗图用于转化流程分析。'},
+{st:4,type:'single',npc:'boss',pts:2,
+ intro:'数据处理是关键一步，流程顺序很重要。',
+ text:'数据处理的四个步骤，正确的顺序是？',
+ opts:['A. 清洗→提取→转化→计算','B. 清洗→转化→提取→计算','C. 提取→清洗→转化→计算','D. 转化→清洗→提取→计算'],
+ ans:[1], exp:'数据处理四步骤：①清洗（去除脏数据、缺失值处理）→②转化（统一格式、单位换算）→③提取（筛选所需数据）→④计算（求和、求均值等统计运算）。顺序有严格的逻辑关系。'},
+{st:4,type:'judge',npc:'boss',pts:2,
+ intro:'张总就报告质量问了你一个问题。',
+ text:'数据分析报告中，图表越多越好，能体现分析的专业性和全面性。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1], exp:'错误！图表应服务于分析目标，"图文并茂"不是"图表堆砌"。过多无关图表会分散注意力，降低报告可读性。每个图表都要有明确的分析目的，宁少而精，不多而滥。'},
+{st:4,type:'multi',npc:'boss',pts:7,
+ intro:'报告三大原则，张总要考你。',
+ text:'一份高质量数据分析报告应遵循哪三大原则？（多选）',
+ opts:['A. 结构清晰（逻辑分明，层次有序）','B. 图文并茂（数据与图表有机结合）','C. 科学严谨（数据来源可靠，结论有据可查）','D. 篇幅越长越好，显示工作量','E. 尽量多用不同类型的图表，体现多样性'],
+ ans:[0,1,2], exp:'报告三大原则：结构清晰、图文并茂、科学严谨。篇幅长短由内容需要决定，不是越长越好；图表类型要根据数据特点选择，不是为了多样性而堆砌。'},
+{st:4,type:'multi',npc:'boss',pts:7,
+ intro:'张总追问：选图表你是怎么考虑的？',
+ text:'在「展现数据」阶段选择图表时，应重点考虑哪些因素？（多选）',
+ opts:['A. 数据的分析目的（比例/趋势/对比/分布）','B. 图表能否直观清晰地表达分析结论','C. 数据维度的数量（如多维对比适合雷达图）','D. 图表的颜色是否好看漂亮'],
+ ans:[0,1,2], exp:'选图表要考虑：①分析目的（趋势→折线，比例→饼图，对比→柱状图）；②是否能直观表达结论；③数据维度数量（多维→雷达图）。颜色美观是锦上添花，但不是核心考量因素。'},
+
+/* ══ 关卡五 ══ */
+{st:5,type:'single',npc:'boss',pts:2,
+ intro:'张总出了一道综合应用题。',
+ text:'需要分析「欧洲各国销售额在总销售额中的占比」，最适合用哪种图表？',
+ opts:['A. 折线图','B. 柱状图','C. 饼图（或环形图）','D. 散点图'],
+ ans:[2], exp:'饼图专门用于展示各部分占整体的比例关系。当需要看"占比"时，饼图（或环形图）是首选。折线图看趋势，柱状图看数量对比，散点图看相关性。'},
+{st:5,type:'single',npc:'boss',pts:2,
+ intro:'关于数据分析流程，张总要来综合考查。',
+ text:'以下关于数据分析六步流程的说法，哪项是正确的？',
+ opts:['A. 数据采集是第一步，采集越多越好','B. 如果数据质量已经很好，可以跳过数据处理步骤','C. 明确目标是整个流程的前提，目标不清则后续所有步骤都会偏移','D. 撰写报告是最重要的步骤，其他步骤都是辅助'],
+ ans:[2], exp:'明确目标是整个分析流程的"北极星"，决定采集什么数据、用什么方法分析、得出什么结论。其他选项：采集要有针对性而非越多越好；数据处理无论质量好坏都是必要步骤；报告只是成果呈现，分析过程才是核心。'},
+{st:5,type:'judge',npc:'boss',pts:2,
+ intro:'张总考了一道容易混淆的判断题。',
+ text:'「直接获取法」是指通过生意参谋、百度指数等第三方平台工具来获取数据。',
+ opts:['A. ✅ 正确','B. ❌ 错误'],
+ ans:[1], exp:'错误！直接获取法是指通过统计调查、实地实验等方式亲自采集原始数据。通过生意参谋、百度指数等第三方工具获取数据，属于「间接获取法」——数据已由他人采集加工完毕，我们间接调取使用。'},
+{st:5,type:'single',npc:'boss',pts:2,
+ intro:'张总抛出了一个真实业务问题，考你的综合判断。',
+ text:'张总说：「最近店铺UV很高，但销售额一直上不去，你觉得问题最可能出在哪？」你的回答是？',
+ opts:['A. 商品SKU数量太少，需要立即扩品','B. 根据销售额=流量×转化率×客单价，流量OK说明问题在转化率或客单价偏低','C. 广告费花得不够多，需要继续加大投放','D. 店铺装修风格不够好看，需要全面改版'],
+ ans:[1], exp:'UV高=流量没问题；销售额低=公式中转化率或客单价出了问题。应该深入分析：是详情页转化率低（优化内容/评价），还是客单价低（做关联推荐/套餐）？这是运用核心公式解决实际问题的典型场景。'},
+{st:5,type:'multi',npc:'boss',pts:7,
+ intro:'图表类型综合应用，张总要考你全面掌握。',
+ text:'以下哪些图表类型主要用于「对比分析」？（多选）',
+ opts:['A. 柱状图（纵向类别对比）','B. 折线图（时间趋势变化）','C. 条形图（横向类别对比）','D. 雷达图（多维度综合对比）','E. 饼图（各部分占比）'],
+ ans:[0,2,3], exp:'对比分析的图表：柱状图（不同类别数量对比）、条形图（横向对比，适合类别名称较长）、雷达图（多个维度综合对比，如五款商品的5个属性）。折线图用于趋势，饼图用于占比，都不是对比分析的主要图表。'},
+{st:5,type:'multi',npc:'boss',pts:7,
+ intro:'最后一题，考查报告正文部分的核心要素。',
+ text:'一份完整数据分析报告的「正文部分」应包含哪些核心要素？（多选）',
+ opts:['A. 数据来源与分析背景说明','B. 核心数据的图表可视化展示','C. 各维度数据的深入解读与分析','D. 仅有原始数据表格，无需任何解读','E. 基于数据的判断、洞察与结论'],
+ ans:[0,1,2,4], exp:'报告正文需要：交代数据来源和背景(A)、用图表直观展示数据(B)、对数据进行分析解读(C)、得出有价值的判断和洞察(E)。仅有原始数据表格而没有分析解读(D)，等于只做了数据采集，不是分析报告。'}
+];
+
+/* ══════════════════════════════════════
+   游戏状态
+══════════════════════════════════════ */
+let G = {
+  name:'', id:'',
+  stageIdx:0,    // 0-4
+  qAbsIdx:0,     // 全局题号 0-29
+  stageQIdx:0,   // 当前关卡内题号 0-5
+  score:0,
+  stageScores:[0,0,0,0,0],
+  wrongQs:[],
+  sel:new Set(),
+  combo:0
+};
+
+/* ══════════════════════════════════════
+   星空初始化
+══════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('stars');
+  if(!c)return;
+  const ctx=c.getContext('2d');let stars=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;stars=[];for(let i=0;i<160;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.3,a:Math.random(),sp:Math.random()*.35+.1});}
+  function draw(){ctx.clearRect(0,0,c.width,c.height);stars.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${p.a})`;ctx.fill();p.a+=p.sp*.01;if(p.a>1)p.sp=-Math.abs(p.sp);if(p.a<.1)p.sp=Math.abs(p.sp);});requestAnimationFrame(draw);}
+  addEventListener('resize',resize);resize();draw();
+})();
+
+/* ══════════════════════════════════════
+   流程控制
+══════════════════════════════════════ */
+function showScr(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame(){
+  const idEl=document.getElementById('iId');
+  const nmEl=document.getElementById('iName');
+  G.id=idEl.value.trim(); G.name=nmEl.value.trim();
+  if(!G.id){alert('请输入学号！');return;}
+  if(!G.name){alert('请输入姓名！');return;}
+  G.stageIdx=0;G.qAbsIdx=0;G.stageQIdx=0;G.score=0;
+  G.stageScores=[0,0,0,0,0];G.wrongQs=[];G.combo=0;
+  const av=document.getElementById('gAvt');
+  const gn=document.getElementById('gName');
+  const gi=document.getElementById('gId');
+  if(av)av.textContent=G.name[0];
+  if(gn)gn.textContent=G.name;
+  if(gi)gi.textContent='学号：'+G.id;
+  showScr('sIntro');
+}
+
+function showStageIntro(){
+  const cfg=STAGES_CFG[G.stageIdx];
+  const npc=NPC[cfg.npc];
+  document.getElementById('stNumTag').textContent=`关卡${['一','二','三','四','五'][G.stageIdx]} / 共五关`;
+  document.getElementById('stTitle').textContent=cfg.title;
+  document.getElementById('stSub').textContent=cfg.sub;
+  document.getElementById('stMaxPts').textContent=cfg.maxPts+'分';
+  document.getElementById('stDiff').textContent=cfg.diff;
+
+  // NPC 对话气泡
+  const chat=document.getElementById('npcChat');
+  chat.innerHTML='';
+  cfg.lines.forEach((line,i)=>{
+    setTimeout(()=>{
+      const b=document.createElement('div');
+      b.className='chat-bubble';
+      b.innerHTML=`<div class="chat-avatar av-${cfg.npc}">${npc.emoji}</div>
+        <div class="chat-body"><div class="chat-name cn-${cfg.npc}">${npc.name}</div>
+        <div class="chat-text">${line}</div></div>`;
+      chat.appendChild(b);
+    },i*280);
+  });
+  showScr('sStage');
+}
+
+function startStage(){
+  G.stageQIdx=0;
+  updateProgBar();
+  renderQ();
+  showScr('sGame');
+}
+
+/* ══════════════════════════════════════
+   题目渲染
+══════════════════════════════════════ */
+function renderQ(){
+  const q=Q[G.qAbsIdx];
+  const npc=NPC[q.npc];
+  const qcard=document.getElementById('qcard');
+  G.sel.clear();
+
+  const typeMap={single:'单选题 · 2分',multi:'多选题 · 7分',judge:'判断题 · 2分'};
+  const typeCls={single:'qt-single',multi:'qt-multi',judge:'qt-judge'};
+  const keys=['A','B','C','D','E'];
+
+  let optsHtml=q.opts.map((o,i)=>`
+    <div class="opt" id="opt${i}" onclick="toggleOpt(${i})">
+      <div class="opt-key">${keys[i]||i}</div>
+      <div class="opt-text">${o}</div>
+    </div>`).join('');
+
+  qcard.innerHTML=`
+    <div class="q-npc-bar">
+      <div class="q-npc-av av-${q.npc}">${npc.emoji}</div>
+      <div><div class="q-npc-name cn-${q.npc}">${npc.name}</div>
+      <div class="q-npc-ctx">${q.intro}</div></div>
+    </div>
+    <div class="q-body">
+      <div class="q-meta">
+        <span class="q-type-tag ${typeCls[q.type]}">${typeMap[q.type]}</span>
+        <span class="q-num">第${G.qAbsIdx+1}题 / 共30题</span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="opts" id="opts">${optsHtml}</div>
+      <div class="fb-bar" id="fbBar"></div>
+      <div class="btn-row">
+        <button class="sub-btn" id="subBtn" onclick="submitA()" disabled>提交答案</button>
+        <button class="nxt-btn" id="nxtBtn" onclick="nextQ()">下一题 →</button>
+      </div>
+    </div>`;
+
+  document.getElementById('spStage').textContent='关卡'+['一','二','三','四','五'][G.stageIdx];
+  document.getElementById('spProgress').textContent=`第${G.qAbsIdx+1}题 · 共30题`;
+  updateProgBar();
+}
+
+function toggleOpt(i){
+  const q=Q[G.qAbsIdx];
+  const el=document.getElementById('opt'+i);
+  if(el.classList.contains('locked'))return;
+  if(q.type==='single'||q.type==='judge'){
+    G.sel.clear();
+    document.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+    G.sel.add(i); el.classList.add('selected');
+  } else {
+    if(G.sel.has(i)){G.sel.delete(i);el.classList.remove('selected');}
+    else{G.sel.add(i);el.classList.add('selected');}
+  }
+  document.getElementById('subBtn').disabled=G.sel.size===0;
+}
+
+function submitA(){
+  const q=Q[G.qAbsIdx];
+  const chosen=[...G.sel].sort();
+  const correct=[...q.ans].sort();
+  const ok=JSON.stringify(chosen)===JSON.stringify(correct);
+
+  // 锁定选项
+  document.querySelectorAll('.opt').forEach(el=>{el.classList.add('locked');el.onclick=null;});
+  q.ans.forEach(i=>{const el=document.getElementById('opt'+i);if(el){el.classList.remove('selected');el.classList.add('correct');}});
+  chosen.forEach(i=>{const el=document.getElementById('opt'+i);if(!el)return;if(q.ans.includes(i)){el.classList.remove('selected');el.classList.add('correct');}else el.classList.add('wrong');});
+
+  // 得分
+  if(ok){
+    G.score+=q.pts;
+    G.stageScores[G.stageIdx]+=q.pts;
+    G.combo++;
+    document.getElementById('gScore').textContent=G.score;
+    if(G.combo>=3)showCombo(G.combo);
+    spawnP(['⭐','✨','🎉','💫']);
+  } else {
+    G.combo=0;
+    G.wrongQs.push({absIdx:G.qAbsIdx,stageIdx:G.stageIdx,q:q});
+  }
+
+  // 反馈
+  const fb=document.getElementById('fbBar');
+  const npc=NPC[q.npc];
+  const stageNames=['入职报到','核心指标','报告纠错','流程规划','最终汇报'];
+  let fbHead,fbClass;
+  if(ok){
+    const okMsgs=['👍 完全正确！王姐满意地点点头。','🎯 答对了！这就是我们需要的水平。','✅ 对的！这个错误你找到了。','💡 很好！张总赞许地看了你一眼。','🏆 出色！张总在本子上记了一笔。'];
+    fbHead=okMsgs[G.stageIdx]||'🎯 回答正确！';fbClass='ok';
+  } else {
+    const noMsgs=['🤔 再想想…王姐摇摇头。','❗ 数字不对，回去看看公式。','😅 这个错误没找准，继续分析。','😐 张总皱眉，流程还没吃透。','😑 张总叹了口气，要努力了。'];
+    fbHead=noMsgs[G.stageIdx]||'💔 回答有误';fbClass='no';
+  }
+  fb.innerHTML=`<div class="fb-head">${fbHead}</div><div class="fb-exp">📖 ${q.exp}</div>`;
+  fb.className=`fb-bar show ${fbClass}`;
+
+  document.getElementById('subBtn').style.display='none';
+  document.getElementById('nxtBtn').classList.add('show');
+}
+
+function nextQ(){
+  G.qAbsIdx++;
+  G.stageQIdx++;
+  // 检查是否关卡结束
+  const stageQs=Q.filter(q=>q.st===STAGES_CFG[G.stageIdx].id);
+  if(G.stageQIdx>=stageQs.length){
+    G.stageIdx++;
+    G.stageQIdx=0;
+    if(G.stageIdx>=STAGES_CFG.length){
+      showResult();
+    } else {
+      showStageIntro();
+    }
+  } else {
+    renderQ();
+  }
+}
+
+function updateProgBar(){
+  for(let i=0;i<5;i++){
+    const el=document.getElementById('sp'+i);
+    if(!el)continue;
+    if(i<G.stageIdx)el.className='sp-seg done';
+    else if(i===G.stageIdx)el.className='sp-seg cur';
+    else el.className='sp-seg';
+  }
+}
+
+/* ══════════════════════════════════════
+   结果页
+══════════════════════════════════════ */
+function showResult(){
+  showScr('sResult');
+  const pct=G.score;
+  document.getElementById('bigSc').textContent=G.score;
+  document.getElementById('resNm').textContent=`${G.name}（学号：${G.id}）`;
+
+  let em,grade,bg,ach;
+  if(pct>=90){
+    em='🏆🌟🥇';grade='数据精英 · 闯关完成！';bg='linear-gradient(135deg,#FFD700,#FFA500)';
+    ach=`太厉害了，${G.name}！以近满分的成绩通过了所有考核，充分展示了扎实的数据分析功底。张总已经在你的实习档案上写下了「重点培养」四个字——继续保持，前途无量！🎊`;
+  } else if(pct>=75){
+    em='🥈⭐✨';grade='潜力新星 · 表现良好！';bg='linear-gradient(135deg,#00D4FF,#7C3AED)';
+    ach=`干得不错，${G.name}！你顺利通过了第一天的考核，王姐对你的表现表示满意。还有一些知识点需要继续巩固，建议重点复习错题涉及的内容，争取下次满分！💪`;
+  } else if(pct>=60){
+    em='🥉📚💡';grade='加油新人 · 基本合格！';bg='linear-gradient(135deg,#00E5CC,#0D9488)';
+    ach=`加油，${G.name}！基础知识已经掌握了，但还有一些关键概念需要强化。建议认真复习错题对应的知识点，重新闯关冲击更高分数！📖`;
+  } else {
+    em='📖🔁💪';grade='继续努力 · 不要放弃！';bg='linear-gradient(135deg,#FF6B9D,#C026D3)';
+    ach=`没关系，${G.name}！每个数据专家都是从基础学起的。建议回到学习页面认真复习模块一的内容，把知识点吃透之后再来挑战。相信你下次一定能大幅提升！🌱`;
+  }
+
+  const icon=document.getElementById('resIcon');
+  icon.style.background=bg; icon.textContent=em.split('')[0];
+  document.getElementById('resGrade').textContent=grade;
+  document.getElementById('resAch').textContent=ach;
+  document.getElementById('resFw').textContent=em;
+
+  // 关卡得分条
+  const bars=document.getElementById('stageBars');
+  const stageNames=['关卡一·基础摸底','关卡二·核心指标','关卡三·报告纠错','关卡四·流程规划','关卡五·综合汇报'];
+  bars.innerHTML='<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:10px;">📊 各关卡得分</div>';
+  STAGES_CFG.forEach((cfg,i)=>{
+    const got=G.stageScores[i];const pct2=Math.round(got/cfg.maxPts*100);
+    bars.innerHTML+=`<div class="sb-row">
+      <div class="sb-lbl">${stageNames[i].split('·')[0]}</div>
+      <div class="sb-track"><div class="sb-fill" style="width:${pct2}%"></div></div>
+      <div class="sb-pts">${got}/${cfg.maxPts}</div></div>`;
+  });
+
+  // 工作总结
+  const ws=document.getElementById('workSummary');
+  const allRight=G.wrongQs.length===0;
+  ws.innerHTML=`<div class="ws-title">📋 今日工作总结</div>
+  <p>实习生 <strong style="color:var(--amber);">${G.name}</strong> 完成了第一天的全部考核任务。</p>
+  <p>共完成 <strong style="color:#fff;">30道题目</strong>，涵盖数据分析概述、核心指标体系和分析流程三大模块，最终获得 <strong style="color:var(--amber);">${G.score}分</strong>（满分100分）。</p>
+  ${allRight?'<p style="color:#6EE7B7;font-weight:700;">🎊 全部答对，零错题！王姐和张总对你的表现都非常满意。</p>':`<p>共有 <strong style="color:#FCA5A5;">${G.wrongQs.length}道题</strong> 需要复习，已列在下方，建议逐题回顾知识点。</p>`}`;
+
+  // 错题列表
+  const wl=document.getElementById('wrongList');
+  if(G.wrongQs.length>0){
+    const stNames=['关卡一','关卡二','关卡三','关卡四','关卡五'];
+    wl.innerHTML=`<div class="wl-title">❌ 需要复习的题目（${G.wrongQs.length}题）</div>`;
+    G.wrongQs.forEach(w=>{
+      const keys=['A','B','C','D','E'];
+      const correctStr=w.q.ans.map(i=>keys[i]).join('、');
+      wl.innerHTML+=`<div class="wl-item">
+        <div class="wl-q">【${stNames[w.stageIdx]}·第${w.absIdx+1}题】${w.q.text}</div>
+        <div class="wl-ans">✅ 正确答案：${correctStr} — ${w.q.exp.substring(0,60)}…</div></div>`;
+    });
+  }
+
+  setTimeout(()=>spawnP(['🎉','⭐','🏆','✨','🎊','💫','🌟'],24),300);
+}
+
+function retryGame(){
+  document.getElementById('iId').value='';
+  document.getElementById('iName').value='';
+  showScr('sLogin');
+}
+
+/* ══ 彩蛋 ══ */
+function spawnP(emojis,n=12){
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');p.className='ptc';
+      p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      p.style.left=Math.random()*100+'vw';p.style.top=Math.random()*60+20+'vh';
+      p.style.animationDuration=(1.5+Math.random())+'s';
+      document.body.appendChild(p);setTimeout(()=>p.remove(),2500);
+    },i*70);
+  }
+}
+function showCombo(n){
+  const t=document.getElementById('comboT');if(!t)return;
+  const msgs={3:'🔥 三连正确！',4:'🔥🔥 四连！',5:'🔥🔥🔥 五连！无敌！'};
+  t.textContent=n<=5?(msgs[n]||`🔥×${n} 连续正确！`):`🔥×${n} 传奇连击！`;
+  t.style.display='block';t.style.animation='none';
+  requestAnimationFrame(()=>{t.style.animation='comboIn 2.2s ease forwards';});
+  setTimeout(()=>{t.style.display='none';},2300);
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){const l=document.getElementById('sLogin');if(l&&l.classList.contains('active'))startGame();}
+});
+</script>
+</body>
+</html>
