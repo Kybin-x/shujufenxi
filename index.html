@@ -41,7 +41,7 @@
         .login-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12); }
         .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: var(--r-sm); font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
         .btn-login:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
-        .login-tip { text-align: center; font-size: 12px; color: var(--text-light); margin-top: 16px; }
+        .login-tip { text-align: center; font-size: 12px; color: var(--danger); margin-top: 16px; font-weight: 600; }
         
         /* Navbar */
         .navbar { position: sticky; top: 0; z-index: 100; background: rgba(255, 251, 245, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(249, 115, 22, 0.12); height: 60px; display: flex; align-items: center; padding: 0 32px; }
@@ -133,6 +133,11 @@
         .lb-live-dot { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: var(--r-full); font-size: 11px; font-weight: 700; color: #15803d; }
         .lb-live-dot::before { content: ''; width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: live-blink 1.5s infinite; }
         @keyframes live-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        /* Dropdown 班级筛选样式 */
+        .lb-class-filter { padding: 5px 12px; border-radius: var(--r-full); border: 1.5px solid #E7E5E4; font-size: 13px; font-weight: 600; color: var(--text-mid); background: #fff; outline: none; cursor: pointer; font-family: inherit; transition: border-color 0.2s; }
+        .lb-class-filter:focus, .lb-class-filter:hover { border-color: var(--primary-light); }
+
         .lb-tabs { display: flex; gap: 6px; }
         .lb-tab { padding: 5px 14px; border-radius: var(--r-full); font-size: 12px; font-weight: 700; cursor: pointer; border: 1.5px solid #E7E5E4; color: var(--text-light); background: transparent; transition: all 0.2s; }
         .lb-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(249,115,22,0.25); }
@@ -154,10 +159,6 @@
         .lb-xp-unit { font-size: 11px; font-weight: 600; color: var(--text-light); text-align: right; }
         .lb-empty { text-align: center; padding: 48px; background: var(--bg-card); border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
         
-        .supabase-config-banner { background: linear-gradient(135deg, #1e1b4b, #312e81); border-radius: var(--r-md); padding: 20px; margin-bottom: 16px; color: #fff; display: flex; gap: 14px; }
-        .supabase-config-banner.hidden { display: none; }
-        .scb-code { background: rgba(255,255,255,0.15); padding: 1px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; }
-
         .footer { background: var(--bg-card); border-top: 1px solid rgba(0,0,0,0.04); padding: 24px; text-align: center; font-size: 12px; color: var(--text-light); }
         .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1C1917; color: white; padding: 12px 24px; border-radius: var(--r-full); font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 500; transition: transform 0.3s; }
         .toast.show { transform: translateX(-50%) translateY(0); }
@@ -213,7 +214,7 @@
 
             <div class="login-field">
                 <label for="inputName">👤 你的姓名</label>
-                <input type="text" id="inputName" placeholder="请输入你的真实姓名（仅限汉字）" maxlength="20" autocomplete="off" />
+                <input type="text" id="inputName" placeholder="请输入你的真实姓名" maxlength="20" autocomplete="off" />
             </div>
             <div class="login-field">
                 <label for="inputId">🎓 学号</label>
@@ -221,11 +222,11 @@
             </div>
 
             <div class="login-sync-status" id="loginSyncStatus">
-                <span id="syncMsg">正在同步云端进度…</span>
+                <span id="syncMsg">正在验证身份…</span>
             </div>
 
-            <button class="btn-login" id="btnLogin" onclick="handleLogin()">🚀 开始学习之旅</button>
-            <p class="login-tip">☁️ 学习进度自动云端同步，可在多台电脑继续学习</p>
+            <button class="btn-login" id="btnLogin" onclick="handleLogin()">🚀 登录系统</button>
+            <p class="login-tip">⚠️ 本系统已关闭自由注册，必须由教师导入名单后方可登录</p>
         </div>
     </div>
 
@@ -391,16 +392,13 @@
         </section>
 
         <section class="leaderboard">
-            <div class="supabase-config-banner" id="supabaseConfigBanner">
-                <div class="scb-icon">⚙️</div>
-                <div>
-                    <div class="scb-title">排行榜需要配置 Supabase 才能启用</div>
-                    <div class="scb-body">在文件顶部填入 <span class="scb-code">SUPABASE_URL</span> 和 <span class="scb-code">SUPABASE_ANON_KEY</span></div>
-                </div>
-            </div>
-
             <div class="lb-header-row">
-                <h2 class="section-title" style="margin-bottom:0">🏅 班级排行榜 <span class="lb-live-dot" id="lbLiveDot">实时更新中</span></h2>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <h2 class="section-title" style="margin-bottom:0">🏅 班级排行榜 <span class="lb-live-dot" id="lbLiveDot">实时更新中</span></h2>
+                    <select id="classFilter" class="lb-class-filter" onchange="onClassFilterChange(this.value)">
+                        <option value="all">所有班级</option>
+                    </select>
+                </div>
                 <div class="lb-tabs">
                     <button class="lb-tab active" onclick="switchTab('xp')" id="tab-xp">⚡ XP 排名</button>
                     <button class="lb-tab" onclick="switchTab('units')" id="tab-units">📚 完成进度</button>
@@ -431,15 +429,17 @@
             <input type="password" id="adminPwdInput" class="ap-input" placeholder="请输入管理员密码" maxlength="30" onkeydown="if(event.key==='Enter')verifyAdmin()" />
             <button class="ap-btn ap-btn-primary" onclick="verifyAdmin()">登录</button>
           </div>
-         
+          <div class="ap-hint">默认密码：teacher2025</div>
           <div class="ap-err hidden" id="adminPwdErr">❌ 密码错误</div>
         </div>
         <div id="adminMainArea" class="hidden">
           <div class="ap-tabs">
-            <button class="ap-tab active" onclick="switchAdminTab('units')" id="atab-units">📚 单元开放管理</button>
-            <button class="ap-tab" onclick="switchAdminTab('export')" id="atab-export">📊 学生数据导出</button>
-            <button class="ap-tab" onclick="switchAdminTab('scores')" id="atab-scores">🏆 异常分数修复</button>
+            <button class="ap-tab active" onclick="switchAdminTab('units')" id="atab-units">📚 单元开放</button>
+            <button class="ap-tab" onclick="switchAdminTab('import')" id="atab-import">📥 导入名单</button>
+            <button class="ap-tab" onclick="switchAdminTab('export')" id="atab-export">📊 数据导出</button>
+            <button class="ap-tab" onclick="switchAdminTab('scores')" id="atab-scores">🏆 异常修复</button>
           </div>
+          
           <div class="ap-tab-content active" id="acontent-units">
             <div class="ap-section-title">📚 单元开放状态管理 <span style="font-size:11px;color:#888">（更改后全班屏幕立刻同步生效）</span></div>
             <div style="display:flex; gap:8px; margin-bottom:8px">
@@ -460,6 +460,18 @@
               <span style="font-size:11px;color:#27ae60;font-weight:bold" id="adminSaveHint"></span>
             </div>
           </div>
+          
+          <div class="ap-tab-content" id="acontent-import">
+            <div class="ap-section-title">📥 批量导入学生名单 <span style="font-size:11px;color:#888">（系统已关闭学生自行注册，必须先在此导入）</span></div>
+            <div style="background:#f8f9fa; padding:14px; border-radius:8px; margin-bottom:14px;">
+                <p style="font-size:12px; color:#555; margin-bottom:8px;">请将 Excel 中的 <b>姓名</b> 和 <b>学号</b> 复制粘贴到下方。<br/>支持用空格、逗号或制表符分隔，每行一位同学。（班级字段可选，不影响核验）</p>
+                <textarea id="adminImportText" rows="10" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:13px; font-family:monospace; resize:vertical; outline:none;" placeholder="示例：&#10;张三 202400001 电商一班&#10;李四 202400002 电商一班"></textarea>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="ap-btn ap-btn-success" onclick="importStudents()">➕ 确认批量导入</button>
+            </div>
+          </div>
+
           <div class="ap-tab-content" id="acontent-export">
             <div class="ap-section-title">📊 学生数据导出</div>
             <div style="background:#f8f9fa; padding:14px; border-radius:8px; display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px">
@@ -480,6 +492,7 @@
               <div style="max-height:300px; overflow:auto"><table class="ap-table" id="previewTable"></table></div>
             </div>
           </div>
+
           <div class="ap-tab-content" id="acontent-scores">
             <div class="ap-section-title">🏆 异常分数修复</div>
             <div style="display:flex; gap:8px; margin-bottom:14px">
@@ -529,31 +542,25 @@
 
         function loadAdminConfig() { try { const r = localStorage.getItem(ADMIN_KEY); if (r) return JSON.parse(r); } catch {} return { unlockedUnits: ['m1u1'] }; }
         
-        // 🚨 巧妙的云端保存策略：寄存在 student_progress 现有的表中，免去了数据库建表的麻烦！
         function saveAdminConfig(cfg) { 
             localStorage.setItem(ADMIN_KEY, JSON.stringify(cfg)); 
             if (_supabase) {
-                // 利用现成的数据表，存为一个名为 admin_system_config 的特殊假学生
                 _supabase.from('student_progress').upsert({ 
                     student_id: 'admin_system_config', 
                     name: 'System Admin', 
-                    xp: -1, // 负数经验值，防止上榜
-                    units: cfg, // 把配置塞进 JSON 里
+                    xp: -1, 
+                    units: cfg, 
                     updated_at: new Date().toISOString() 
-                }, { onConflict: 'student_id' })
-                .then(({ error }) => { if (error) console.error('Admin sync err:', error.message); }); 
+                }, { onConflict: 'student_id' }).then(); 
             }
         }
         
-        // 🚨 启动时强制拉取云端配置
         async function loadAdminConfigFromCloud() {
             if (!_supabase) return;
             try {
                 const { data } = await _supabase.from('student_progress').select('units').eq('student_id','admin_system_config').maybeSingle();
-                if (data && data.units && Array.isArray(data.units.unlockedUnits)) {
-                    localStorage.setItem(ADMIN_KEY, JSON.stringify(data.units));
-                }
-            } catch (e) { console.error('Load admin config error:', e); }
+                if (data && data.units && Array.isArray(data.units.unlockedUnits)) localStorage.setItem(ADMIN_KEY, JSON.stringify(data.units));
+            } catch (e) {}
         }
 
         function getLevel(xp) { let lvl = LEVELS[0]; for (const l of LEVELS) if (xp >= l.min) lvl = l; return lvl; }
@@ -577,9 +584,8 @@
                 _supabase.from('student_progress').upsert({ student_id: data.studentId, name: data.name, xp: data.xp, completed_units: done, total_stars: stars, week_xp: data.weekXp||0, week_start: data.weekStart||w, achievements: data.achievements, units: data.units, updated_at: data.updatedAt }, { onConflict: 'student_id' }).then();
             }
         }
-        function createUser(name, id) {
-            const u = {}; ALL_UNITS.forEach(i => u[i]={completed:false, stars:0, score:0, xpEarned:0});
-            return { name, studentId: id, xp: 15, weekXp: 15, weekStart: getWeekStart(), createdAt: new Date().toISOString(), lastVisit: new Date().toISOString(), units: u, achievements: ['first_login'] };
+        function buildEmptyUnits() {
+            const u = {}; ALL_UNITS.forEach(i => u[i]={completed:false, stars:0, score:0, xpEarned:0}); return u;
         }
 
         function sanitizeAchievements(user) {
@@ -652,39 +658,63 @@
         async function handleLogin() {
             const name = document.getElementById('inputName').value.trim();
             const sid = document.getElementById('inputId').value.trim();
-            if (!/^[\u4e00-\u9fa5]{2,}$/.test(name)) return showToast('⚠️ 姓名必须是2个字以上的纯汉字');
-            if (!/^\d{9}$/.test(sid)) return showToast('⚠️ 学号必须是9位纯数字');
+            if (!name || !sid) return showToast('⚠️ 姓名和学号不能为空');
 
             const btn = document.getElementById('btnLogin'), st = document.getElementById('loginSyncStatus'), msg = document.getElementById('syncMsg');
-            btn.classList.add('loading'); st.style.display='flex'; msg.textContent='正在查询云端…';
+            btn.classList.add('loading'); st.style.display='flex'; msg.textContent='正在向云端核验身份…';
 
             try {
-                let localUser = loadUser();
-                let finalUser = null; let isNew = false;
-                
                 if (!_supabase) {
-                    if (!localUser || localUser.studentId !== sid) {
-                        finalUser = createUser(name, sid); isNew = true;
-                    } else { finalUser = localUser; finalUser.name = name; }
-                } else {
-                    const { data: row } = await _supabase.from('student_progress').select('*').eq('student_id', sid).maybeSingle();
-                    if (row) {
-                        const cTs = new Date(row.updated_at||0).getTime(); const lTs = localUser ? new Date(localUser.updatedAt||0).getTime() : 0;
-                        if (localUser && localUser.studentId === sid && lTs > cTs) { finalUser = localUser; finalUser.name = name; }
-                        else { finalUser = { name, studentId: sid, xp: row.xp||0, weekXp: row.week_xp||0, weekStart: row.week_start||getWeekStart(), createdAt: row.created_at||new Date().toISOString(), updatedAt: row.updated_at, units: row.units||buildEmptyUnits(), achievements: row.achievements||['first_login'] }; }
+                    let localUser = loadUser();
+                    if (!localUser || localUser.studentId !== sid || localUser.name !== name) {
+                        return showToast('❌ 本地离线模式：未找到该账号信息');
                     } else {
-                        if (localUser && localUser.studentId === sid) { finalUser = localUser; finalUser.name = name; }
-                        else { finalUser = createUser(name, sid); isNew = true; }
+                        document.getElementById('loginOverlay').classList.add('hidden');
+                        showToast(`👋 欢迎回来，${name}！(离线模式)`);
+                        renderAll(localUser);
                     }
+                    return;
                 }
-                saveUser(finalUser); renderAll(finalUser);
+
+                const { data: row, error } = await _supabase.from('student_progress').select('*').eq('student_id', sid).maybeSingle();
+                
+                if (error) throw error;
+                if (!row) {
+                    return showToast('❌ 该学号不存在，请联系老师导入名单！');
+                }
+                if (row.name !== name) {
+                    return showToast('❌ 姓名与学号不匹配，请检查输入！');
+                }
+
+                let finalUser = { 
+                    name: row.name, 
+                    studentId: sid, 
+                    xp: row.xp || 0, 
+                    weekXp: row.week_xp || 0, 
+                    weekStart: row.week_start || getWeekStart(), 
+                    createdAt: row.created_at || new Date().toISOString(), 
+                    updatedAt: row.updated_at, 
+                    units: row.units || buildEmptyUnits(), 
+                    achievements: row.achievements || ['first_login'] 
+                };
+
+                const doneUnits = ALL_UNITS.filter(id => finalUser.units[id]?.completed).length;
+                if (finalUser.xp === 15 && doneUnits === 0 && finalUser.achievements.length <= 1) {
+                    launchConfetti(); showToast('🎉 身份验证成功！首次登录 +15 XP');
+                } else {
+                    showToast(`👋 欢迎回来，${name}！`);
+                }
+
+                saveUser(finalUser); 
+                renderAll(finalUser);
                 document.getElementById('loginOverlay').classList.add('hidden');
-                if(isNew) { launchConfetti(); showToast('🎉 欢迎来到数据课堂！+15 XP'); } else showToast(`👋 欢迎回来，${name}`);
+
             } catch(e) {
-                let u = loadUser();
-                if(!u || u.studentId !== sid) { u = createUser(name, sid); saveUser(u); launchConfetti(); }
-                renderAll(u); document.getElementById('loginOverlay').classList.add('hidden'); showToast('云端连接失败，已进入离线模式');
-            } finally { btn.classList.remove('loading'); st.style.display='none'; }
+                console.error(e);
+                showToast('⚠️ 云端连接失败，请检查网络');
+            } finally { 
+                btn.classList.remove('loading'); st.style.display='none'; 
+            }
         }
 
         function handleLogout() {
@@ -707,38 +737,95 @@
 
         // ================= Leaderboard =================
         let lbTab = 'xp', lbData = null;
+        let currentClassFilter = 'all';
+
         function switchTab(t) { lbTab = t; ['xp','units','stars','week'].forEach(x => document.getElementById(`tab-${x}`).classList.toggle('active',x===t)); if(lbData) renderLeaderboard(lbData); }
+        
+        // 💡 筛选班级发生变化
+        function onClassFilterChange(val) {
+            currentClassFilter = val;
+            if(lbData) renderLeaderboard(lbData);
+        }
+
         async function loadLeaderboard() {
-            if(!_supabase) { document.getElementById('supabaseConfigBanner').classList.remove('hidden'); document.getElementById('lbLiveDot').style.display='none'; document.getElementById('lbList').innerHTML='<div class="lb-empty">未连接数据库</div>'; return; }
+            if(!_supabase) { document.getElementById('lbLiveDot').style.display='none'; document.getElementById('lbList').innerHTML='<div class="lb-empty">未连接数据库</div>'; return; }
             
-            // 💡 排行榜查询：排除代表管理员设置的假学生 "admin_system_config"
+            // 💡 查询时拉取 units（包含 _class 班级字段）
             const { data } = await _supabase.from('student_progress')
-                .select('student_id, name, xp, completed_units, total_stars, week_xp, week_start')
+                .select('student_id, name, xp, completed_units, total_stars, week_xp, week_start, units')
                 .neq('student_id', 'admin_system_config') 
                 .order('xp', {ascending:false});
-            if(data) { lbData = data; renderLeaderboard(data); }
+                
+            if(data) { 
+                lbData = data; 
+                
+                // 💡 动态提取存在的班级并填充下拉框
+                const classes = new Set();
+                data.forEach(r => {
+                    if(r.units && r.units._class) classes.add(r.units._class);
+                });
+                
+                const filterEl = document.getElementById('classFilter');
+                const oldVal = filterEl.value; // 记住之前的选项防止重置刷新
+                filterEl.innerHTML = '<option value="all">所有班级</option>';
+                [...classes].sort().forEach(c => {
+                    filterEl.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+                if (classes.has(oldVal)) {
+                    filterEl.value = oldVal;
+                    currentClassFilter = oldVal;
+                } else {
+                    filterEl.value = 'all';
+                    currentClassFilter = 'all';
+                }
+
+                renderLeaderboard(data); 
+            }
         }
+
         function renderLeaderboard(data) {
             const sid = loadUser()?.studentId, w = getWeekStart();
-            const sorted = [...data].sort((a,b) => {
+            
+            // 💡 进行班级筛选
+            let filteredData = data;
+            if (currentClassFilter !== 'all') {
+                filteredData = data.filter(r => r.units && r.units._class === currentClassFilter);
+            }
+
+            const sorted = [...filteredData].sort((a,b) => {
                 if(lbTab==='xp') return b.xp - a.xp; if(lbTab==='units') return b.completed_units - a.completed_units;
                 if(lbTab==='stars') return b.total_stars - a.total_stars;
                 const aw = a.week_start===w?a.week_xp:0, bw = b.week_start===w?b.week_xp:0; return bw-aw;
             });
             const maxW = Math.max(1, ...sorted.map(r=>r.week_start===w?r.week_xp:0));
             if(!sorted.length) return document.getElementById('lbList').innerHTML='<div class="lb-empty">暂无数据</div>';
+            
             document.getElementById('lbList').innerHTML = sorted.map((r,i) => {
                 const me = r.student_id===sid, rank = i<=2 ? ['🥇','🥈','🥉'][i] : `<span style="color:#A8A29E">${i+1}</span>`;
                 const rW = r.week_start===w?(r.week_xp||0):0;
                 let val='', lab='';
                 if(lbTab==='xp'){val=r.xp;lab='XP'} else if(lbTab==='units'){val=r.completed_units;lab='单元'} else if(lbTab==='stars'){val=r.total_stars;lab='⭐'} else {val=rW;lab='XP'}
-                return `<div class="lb-row ${me?'is-me':''}" style="animation-delay:${i*0.02}s"><div class="lb-rank ${i<=2?'medal':''}">${rank}</div><div class="lb-avatar">${r.name.charAt(0)}</div><div class="lb-info"><div class="lb-name">${r.name}${me?'<span class="lb-me-tag">我</span>':''}</div><div class="lb-stats"><span>⚡ ${r.xp} XP</span> <span>📚 ${r.completed_units} 单元</span> <span>⭐ ${r.total_stars} 星</span></div></div><div><div class="lb-xp">${val}</div><div class="lb-xp-unit">${lab}</div></div></div>`;
+                
+                // 💡 提取班级名称并制作 UI 标签
+                const clsName = (r.units && r.units._class) ? r.units._class : '未分班';
+                const clsTag = `<div style="font-size:11px; font-weight:600; color:var(--primary); background:var(--primary-lightest); padding:3px 10px; border-radius:12px; border:1px solid var(--primary-lighter); white-space:nowrap; margin-right:10px;">${clsName}</div>`;
+
+                // 💡 渲染：将班级标签放在姓名信息的右侧（中间位置）
+                return `<div class="lb-row ${me?'is-me':''}" style="animation-delay:${i*0.02}s">
+                    <div class="lb-rank ${i<=2?'medal':''}">${rank}</div>
+                    <div class="lb-avatar">${r.name.charAt(0)}</div>
+                    <div class="lb-info">
+                        <div class="lb-name">${r.name}${me?'<span class="lb-me-tag">我</span>':''}</div>
+                        <div class="lb-stats"><span>⚡ ${r.xp} XP</span> <span>📚 ${r.completed_units} 单元</span> <span>⭐ ${r.total_stars} 星</span></div>
+                    </div>
+                    ${clsTag}
+                    <div><div class="lb-xp">${val}</div><div class="lb-xp-unit">${lab}</div></div>
+                </div>`;
             }).join('');
         }
 
         // ================= Init =================
         (async function init() {
-            // 先尝试从云端拉取管理员设定
             await loadAdminConfigFromCloud();
 
             let u = loadUser();
@@ -754,24 +841,20 @@
                 }
             }
             if(_supabase) {
-                // 🚨 综合实时监听器：监听排行榜变化，以及管理员设定的瞬间变动！
                 _supabase.channel('system_sync').on('postgres_changes', {event:'*', schema:'public', table:'student_progress'}, (payload) => {
                     if (payload.new && payload.new.student_id === 'admin_system_config') {
-                        // 监听到管理员配置更新
                         const newCfg = payload.new.units;
                         if (newCfg && newCfg.unlockedUnits) {
                             localStorage.setItem(ADMIN_KEY, JSON.stringify(newCfg));
                             const currentUser = loadUser();
-                            if (currentUser) renderAll(currentUser); // 实时更新全班地图的锁！
+                            if (currentUser) renderAll(currentUser); 
                             
-                            // 若老师电脑开着面板，更新面板
                             if (!document.getElementById('adminOverlay').classList.contains('hidden')) {
                                 pending = new Set(newCfg.unlockedUnits);
                                 renderAdminUnitGrid();
                             }
                         }
                     } else {
-                        // 监听到学生数据更新，刷新排行榜
                         loadLeaderboard();
                     }
                 }).subscribe();
@@ -783,7 +866,7 @@
         function openAdminPanel() { document.getElementById('adminOverlay').classList.remove('hidden'); if(sessionStorage.getItem('ad')==='1') { document.getElementById('adminLoginArea').style.display='none'; document.getElementById('adminMainArea').classList.remove('hidden'); renderAdminUnitGrid(); } }
         function closeAdminPanel() { document.getElementById('adminOverlay').classList.add('hidden'); }
         function verifyAdmin() { if(document.getElementById('adminPwdInput').value===ADMIN_PASSWORD) { sessionStorage.setItem('ad','1'); document.getElementById('adminLoginArea').style.display='none'; document.getElementById('adminMainArea').classList.remove('hidden'); renderAdminUnitGrid(); } else document.getElementById('adminPwdErr').classList.remove('hidden'); }
-        function switchAdminTab(t) { ['units','export','scores'].forEach(x => { document.getElementById(`atab-${x}`).classList.toggle('active',x===t); document.getElementById(`acontent-${x}`).classList.toggle('active',x===t); }); }
+        function switchAdminTab(t) { ['units','import','export','scores'].forEach(x => { document.getElementById(`atab-${x}`).classList.toggle('active',x===t); document.getElementById(`acontent-${x}`).classList.toggle('active',x===t); }); }
         
         let pending = null;
         function renderAdminUnitGrid() {
@@ -803,10 +886,71 @@
             const u=loadUser(); if(u) renderAll(u); 
         }
 
+        async function importStudents() {
+            if (!_supabase) return alert("未连接云端数据库，无法导入。");
+            const text = document.getElementById('adminImportText').value.trim();
+            if (!text) return alert('请输入需要导入的名单');
+            
+            const lines = text.split('\n');
+            const newStudents = [];
+            const w = getWeekStart();
+            
+            let addedCount = 0, updateCount = 0;
+
+            try {
+                const { data: existing } = await _supabase.from('student_progress').select('student_id');
+                const existingIds = new Set((existing || []).map(e => e.student_id));
+
+                for(let line of lines) {
+                    line = line.trim();
+                    if(!line) continue;
+                    const parts = line.split(/[,，\t\s]+/).filter(Boolean);
+                    if(parts.length >= 2) {
+                        const name = parts[0];
+                        const sid = parts[1];
+                        const cls = parts.length >= 3 ? parts[2] : ''; 
+                        
+                        if (!existingIds.has(sid)) {
+                            const emUnits = buildEmptyUnits();
+                            if (cls) emUnits._class = cls; 
+                            
+                            newStudents.push({
+                                student_id: sid,
+                                name: name,
+                                xp: 15,
+                                completed_units: 0,
+                                total_stars: 0,
+                                week_xp: 15,
+                                week_start: w,
+                                achievements: ['first_login'],
+                                units: emUnits,
+                                updated_at: new Date().toISOString()
+                            });
+                            addedCount++;
+                            existingIds.add(sid); 
+                        } else {
+                            updateCount++;
+                        }
+                    }
+                }
+
+                if (newStudents.length > 0) {
+                    const { error } = await _supabase.from('student_progress').upsert(newStudents, { onConflict: 'student_id' });
+                    if (error) throw error;
+                    alert(`✅ 成功为 ${addedCount} 名新学生开通账号！\n（跳过了 ${updateCount} 个已存在账号的同学，以免清空他们的进度）`);
+                    document.getElementById('adminImportText').value = '';
+                    loadAdminScores(); 
+                } else {
+                    alert(`没有发现新的学生。\n（你粘贴的学生可能已经都存在于数据库中了，已跳过 ${updateCount} 人）`);
+                }
+            } catch (err) {
+                alert('导入失败：' + err.message);
+            }
+        }
+
         let cachedRows = null;
         async function fetchAll() {
             if(!_supabase) { const u=loadUser(); return u?[{student_id:u.studentId, name:u.name, xp:u.xp, completed_units:ALL_UNITS.filter(i=>u.units[i]?.completed).length, total_stars:ALL_UNITS.reduce((s,i)=>s+(u.units[i]?.stars||0),0), units:u.units, achievements:u.achievements}]:[]; }
-            // 💡 排除 admin 账号
             const {data} = await _supabase.from('student_progress').select('*').neq('student_id', 'admin_system_config').order('xp',{ascending:false});
             cachedRows = data||[]; return cachedRows;
         }
@@ -819,8 +963,11 @@
         }
         async function exportStudentData() {
             const rows = await fetchAll();
-            const lines = ['\uFEFF姓名,学号,XP,完成单元,总星'];
-            rows.forEach(r => lines.push(`"${r.name}","${r.student_id}",${r.xp||0},${r.completed_units||0},${r.total_stars||0}`));
+            const lines = ['\uFEFF姓名,学号,班级,XP,完成单元,总星'];
+            rows.forEach(r => {
+                const cls = (r.units && r.units._class) ? r.units._class : ''; 
+                lines.push(`"${r.name}","${r.student_id}","${cls}",${r.xp||0},${r.completed_units||0},${r.total_stars||0}`)
+            });
             const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'}));
             a.download = `学生成绩.csv`; a.click();
         }
@@ -831,7 +978,8 @@
             el.innerHTML = rows.map((r,i) => {
                 const max = 15 + (r.completed_units||0)*80; let bad = (r.xp||0)>max;
                 ALL_UNITS.forEach(id => { const u=r.units?.[id]; if(u && (u.xpEarned>80 || (!u.completed && u.xpEarned>0))) bad=true; });
-                return `<div class="ap-score-row"><div style="width:20px;color:#888;font-weight:bold">${i+1}</div><div style="flex:1"><b>${r.name}</b><div style="color:#999;font-size:10px">${r.student_id}</div></div><div style="width:180px;text-align:right">📚${r.completed_units||0} ⭐${r.total_stars||0} ⚡${r.xp||0}</div><div style="margin-left:10px">${bad?'<span class="ap-score-flag">⚠️异常</span> <button class="ap-btn" style="padding:2px 6px" onclick="resetOne(\''+r.student_id+'\')">重置</button>':'<span class="ap-score-flag clean">✅正常</span>'}</div></div>`;
+                const cls = (r.units && r.units._class) ? `[${r.units._class}] ` : '';
+                return `<div class="ap-score-row"><div style="width:20px;color:#888;font-weight:bold">${i+1}</div><div style="flex:1"><b>${cls}${r.name}</b><div style="color:#999;font-size:10px">${r.student_id}</div></div><div style="width:180px;text-align:right">📚${r.completed_units||0} ⭐${r.total_stars||0} ⚡${r.xp||0}</div><div style="margin-left:10px">${bad?'<span class="ap-score-flag">⚠️异常</span> <button class="ap-btn" style="padding:2px 6px" onclick="resetOne(\''+r.student_id+'\')">重置</button>':'<span class="ap-score-flag clean">✅正常</span>'}</div></div>`;
             }).join('');
         }
         async function resetOne(sid) {
