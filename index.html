@@ -134,7 +134,6 @@
         .lb-live-dot::before { content: ''; width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: live-blink 1.5s infinite; }
         @keyframes live-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         
-        /* Dropdown 班级筛选样式 */
         .lb-class-filter { padding: 5px 12px; border-radius: var(--r-full); border: 1.5px solid #E7E5E4; font-size: 13px; font-weight: 600; color: var(--text-mid); background: #fff; outline: none; cursor: pointer; font-family: inherit; transition: border-color 0.2s; }
         .lb-class-filter:focus, .lb-class-filter:hover { border-color: var(--primary-light); }
 
@@ -464,11 +463,11 @@
           <div class="ap-tab-content" id="acontent-import">
             <div class="ap-section-title">📥 批量导入学生名单 <span style="font-size:11px;color:#888">（系统已关闭学生自行注册，必须先在此导入）</span></div>
             <div style="background:#f8f9fa; padding:14px; border-radius:8px; margin-bottom:14px;">
-                <p style="font-size:12px; color:#555; margin-bottom:8px;">请将 Excel 中的 <b>姓名</b> 和 <b>学号</b> 复制粘贴到下方。<br/>支持用空格、逗号或制表符分隔，每行一位同学。（班级字段可选，不影响核验）</p>
+                <p style="font-size:12px; color:#555; margin-bottom:8px;">请将 Excel 中的 <b>姓名</b> 和 <b>学号</b> 复制粘贴到下方。<br/>支持用空格、逗号或制表符分隔，每行一位同学。（班级字段可选，即使是老账号也会自动补充上最新填写的班级）</p>
                 <textarea id="adminImportText" rows="10" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:13px; font-family:monospace; resize:vertical; outline:none;" placeholder="示例：&#10;张三 202400001 电商一班&#10;李四 202400002 电商一班"></textarea>
             </div>
             <div style="display:flex; gap:8px;">
-                <button class="ap-btn ap-btn-success" onclick="importStudents()">➕ 确认批量导入</button>
+                <button class="ap-btn ap-btn-success" onclick="importStudents(event)">➕ 确认批量导入</button>
             </div>
           </div>
 
@@ -741,7 +740,6 @@
 
         function switchTab(t) { lbTab = t; ['xp','units','stars','week'].forEach(x => document.getElementById(`tab-${x}`).classList.toggle('active',x===t)); if(lbData) renderLeaderboard(lbData); }
         
-        // 💡 筛选班级发生变化
         function onClassFilterChange(val) {
             currentClassFilter = val;
             if(lbData) renderLeaderboard(lbData);
@@ -750,7 +748,6 @@
         async function loadLeaderboard() {
             if(!_supabase) { document.getElementById('lbLiveDot').style.display='none'; document.getElementById('lbList').innerHTML='<div class="lb-empty">未连接数据库</div>'; return; }
             
-            // 💡 查询时拉取 units（包含 _class 班级字段）
             const { data } = await _supabase.from('student_progress')
                 .select('student_id, name, xp, completed_units, total_stars, week_xp, week_start, units')
                 .neq('student_id', 'admin_system_config') 
@@ -759,14 +756,13 @@
             if(data) { 
                 lbData = data; 
                 
-                // 💡 动态提取存在的班级并填充下拉框
                 const classes = new Set();
                 data.forEach(r => {
                     if(r.units && r.units._class) classes.add(r.units._class);
                 });
                 
                 const filterEl = document.getElementById('classFilter');
-                const oldVal = filterEl.value; // 记住之前的选项防止重置刷新
+                const oldVal = filterEl.value; 
                 filterEl.innerHTML = '<option value="all">所有班级</option>';
                 [...classes].sort().forEach(c => {
                     filterEl.innerHTML += `<option value="${c}">${c}</option>`;
@@ -786,7 +782,6 @@
         function renderLeaderboard(data) {
             const sid = loadUser()?.studentId, w = getWeekStart();
             
-            // 💡 进行班级筛选
             let filteredData = data;
             if (currentClassFilter !== 'all') {
                 filteredData = data.filter(r => r.units && r.units._class === currentClassFilter);
@@ -806,11 +801,9 @@
                 let val='', lab='';
                 if(lbTab==='xp'){val=r.xp;lab='XP'} else if(lbTab==='units'){val=r.completed_units;lab='单元'} else if(lbTab==='stars'){val=r.total_stars;lab='⭐'} else {val=rW;lab='XP'}
                 
-                // 💡 提取班级名称并制作 UI 标签
                 const clsName = (r.units && r.units._class) ? r.units._class : '未分班';
                 const clsTag = `<div style="font-size:11px; font-weight:600; color:var(--primary); background:var(--primary-lightest); padding:3px 10px; border-radius:12px; border:1px solid var(--primary-lighter); white-space:nowrap; margin-right:10px;">${clsName}</div>`;
 
-                // 💡 渲染：将班级标签放在姓名信息的右侧（中间位置）
                 return `<div class="lb-row ${me?'is-me':''}" style="animation-delay:${i*0.02}s">
                     <div class="lb-rank ${i<=2?'medal':''}">${rank}</div>
                     <div class="lb-avatar">${r.name.charAt(0)}</div>
@@ -886,20 +879,28 @@
             const u=loadUser(); if(u) renderAll(u); 
         }
 
-        async function importStudents() {
+        async function importStudents(event) {
             if (!_supabase) return alert("未连接云端数据库，无法导入。");
             const text = document.getElementById('adminImportText').value.trim();
             if (!text) return alert('请输入需要导入的名单');
             
             const lines = text.split('\n');
             const newStudents = [];
+            const updatePromises = [];
             const w = getWeekStart();
             
-            let addedCount = 0, updateCount = 0;
+            let addedCount = 0, updateCount = 0, skipCount = 0;
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ 正在处理中...';
+            btn.disabled = true;
 
             try {
-                const { data: existing } = await _supabase.from('student_progress').select('student_id');
-                const existingIds = new Set((existing || []).map(e => e.student_id));
+                const { data: existing, error: fetchErr } = await _supabase.from('student_progress').select('student_id, name, units');
+                if (fetchErr) throw fetchErr;
+                
+                const existingMap = new Map((existing || []).map(e => [e.student_id, e]));
 
                 for(let line of lines) {
                     line = line.trim();
@@ -910,7 +911,8 @@
                         const sid = parts[1];
                         const cls = parts.length >= 3 ? parts[2] : ''; 
                         
-                        if (!existingIds.has(sid)) {
+                        const ex = existingMap.get(sid);
+                        if (!ex) {
                             const emUnits = buildEmptyUnits();
                             if (cls) emUnits._class = cls; 
                             
@@ -927,9 +929,29 @@
                                 updated_at: new Date().toISOString()
                             });
                             addedCount++;
-                            existingIds.add(sid); 
-                        } else {
-                            updateCount++;
+                            existingMap.set(sid, true); 
+                        } else if (ex !== true) {
+                            let needsUpdate = false;
+                            const exUnits = ex.units || buildEmptyUnits();
+                            
+                            if (cls && exUnits._class !== cls) {
+                                exUnits._class = cls;
+                                needsUpdate = true;
+                            }
+                            if (ex.name !== name) {
+                                needsUpdate = true;
+                            }
+                            
+                            if (needsUpdate) {
+                                updatePromises.push(
+                                    _supabase.from('student_progress')
+                                        .update({ units: exUnits, name: name, updated_at: new Date().toISOString() })
+                                        .eq('student_id', sid)
+                                );
+                                updateCount++;
+                            } else {
+                                skipCount++;
+                            }
                         }
                     }
                 }
@@ -937,14 +959,21 @@
                 if (newStudents.length > 0) {
                     const { error } = await _supabase.from('student_progress').upsert(newStudents, { onConflict: 'student_id' });
                     if (error) throw error;
-                    alert(`✅ 成功为 ${addedCount} 名新学生开通账号！\n（跳过了 ${updateCount} 个已存在账号的同学，以免清空他们的进度）`);
-                    document.getElementById('adminImportText').value = '';
-                    loadAdminScores(); 
-                } else {
-                    alert(`没有发现新的学生。\n（你粘贴的学生可能已经都存在于数据库中了，已跳过 ${updateCount} 人）`);
                 }
+                
+                if (updatePromises.length > 0) {
+                    await Promise.all(updatePromises);
+                }
+
+                alert(`✅ 导入处理完成！\n\n➕ 新增开通账号：${addedCount} 人\n🔄 补充班级/更正姓名：${updateCount} 人\n⏭️ 无需更改跳过：${skipCount} 人`);
+                document.getElementById('adminImportText').value = '';
+                loadAdminScores(); 
+                loadLeaderboard();
             } catch (err) {
                 alert('导入失败：' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
 
