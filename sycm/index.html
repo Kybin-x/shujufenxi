@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生意参谋 - 模拟教学平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- ========== 登录页 ========== -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-bg-decor"></div>
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h1>生意参谋</h1>
+                <p class="login-subtitle">商务数据分析模拟教学平台</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label><i class="fas fa-store"></i> 店铺账号</label>
+                    <input type="text" id="loginUser" placeholder="请输入店铺账号" value="demo">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> 登录密码</label>
+                    <input type="password" id="loginPass" placeholder="请输入密码" value="123456">
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" checked> 记住账号
+                    </label>
+                    <a href="#" class="forgot-link">忘记密码？</a>
+                </div>
+                <button type="submit" class="btn-login">登录</button>
+                <div class="login-tip">
+                    <i class="fas fa-info-circle"></i> 
+                    教学演示：任意账号密码均可登录
+                </div>
+            </form>
+            <div class="login-footer">
+                <p>中职电子商务专业 · 商务数据采集与处理课程</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 主界面 ========== -->
+    <div id="mainApp" class="main-app" style="display:none;">
+        <!-- 顶部导航 -->
+        <header class="top-header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span>生意参谋</span>
+                </div>
+                <span class="header-badge">教学模拟版</span>
+            </div>
+            <div class="header-center">
+                <div class="store-selector">
+                    <i class="fas fa-store"></i>
+                    <span id="storeName">优品生活旗舰店</span>
+                    <i class="fas fa-caret-down"></i>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-item" title="消息">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="header-item" title="帮助">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="header-item user-info" id="userMenu">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="currentUser">演示用户</span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-body">
+            <!-- 侧边导航 -->
+            <nav class="sidebar" id="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>首页概况</span>
+                    </li>
+                    <li class="nav-item" data-page="traffic">
+                        <i class="fas fa-users"></i>
+                        <span>流量分析</span>
+                    </li>
+                    <li class="nav-item" data-page="product">
+                        <i class="fas fa-box-open"></i>
+                        <span>商品分析</span>
+                    </li>
+                    <li class="nav-item" data-page="transaction">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>交易分析</span>
+                    </li>
+                    <li class="nav-item" data-page="market">
+                        <i class="fas fa-globe"></i>
+                        <span>市场行情</span>
+                    </li>
+                    <li class="nav-item" data-page="customer">
+                        <i class="fas fa-user-friends"></i>
+                        <span>客户分析</span>
+                    </li>
+                    <li class="nav-item" data-page="keyword">
+                        <i class="fas fa-search"></i>
+                        <span>搜索词分析</span>
+                    </li>
+                    <li class="nav-item" data-page="competition">
+                        <i class="fas fa-chess"></i>
+                        <span>竞争分析</span>
+                    </li>
+                </ul>
+                <div class="sidebar-footer">
+                    <div class="data-update-info">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>数据更新于 <br><span id="updateTime"></span></span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- 主内容区 -->
+            <main class="content-area" id="contentArea">
+                <!-- 动态内容由JS渲染 -->
+            </main>
+        </div>
+    </div>
+
+    <!-- 导出提示 -->
+    <div id="exportModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-download"></i> 数据导出</h3>
+                <span class="modal-close" onclick="closeExportModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <label class="export-option">
+                        <input type="radio" name="exportType" value="csv" checked>
+                        <div class="option-card">
+                            <i class="fas fa-file-csv"></i>
+                            <span>CSV 格式</span>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportType" value="excel">
+                        <div class="option-card">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Excel 格式</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="export-range">
+                    <label>导出范围：</label>
+                    <select id="exportRange">
+                        <option value="current">当前页面数据</option>
+                        <option value="all">全部数据</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExportModal()">取消</button>
+                <button class="btn btn-primary" onclick="executeExport()">
+                    <i class="fas fa-download"></i> 确认导出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 教学提示面板 -->
+    <div id="teachingTip" class="teaching-tip" style="display:none;">
+        <div class="tip-header">
+            <i class="fas fa-graduation-cap"></i>
+            <span>教学提示</span>
+            <button class="tip-close" onclick="closeTeachingTip()">×</button>
+        </div>
+        <div class="tip-content" id="tipContent"></div>
+    </div>
+
+    <button class="teaching-toggle" id="teachingToggle" title="教学提示">
+        <i class="fas fa-graduation-cap"></i>
+    </button>
+
+    <script src="js/mockData.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
