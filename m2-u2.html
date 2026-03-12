@@ -1,1 +1,715 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>M2-U2 数据采集的渠道及工具</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#00897B;--teal2:#26A69A;--tealD:#00695C;--tealL:#E0F2F1;--tealM:#B2DFDB;
+  --ink:#1A2332;--ink2:#3D5066;--ink3:#7A90A8;
+  --bg:#F4FAF9;--card:#fff;--border:rgba(0,137,123,.15);
+  --shadow:0 2px 14px rgba(0,137,123,.1);--gold:#F4A907;--r:12px;
+}
+body{font-family:"PingFang SC","Noto Sans SC",-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:2px solid var(--tealL);display:flex;align-items:center;padding:0 18px;height:52px;gap:12px;box-shadow:0 2px 8px rgba(0,137,123,.08)}
+.nav-logo{font-size:18px}.nav-title{font-size:13px;font-weight:800;color:var(--tealD);flex:1}
+.nav-xp{font-size:13px;font-weight:800;color:var(--teal);background:var(--tealL);padding:4px 12px;border-radius:20px}
+.nav-home{padding:6px 14px;background:var(--teal);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.progress-bar{height:4px;background:var(--tealL)}
+.progress-fill{height:4px;background:linear-gradient(90deg,var(--teal2),var(--teal));transition:width .5s}
+.container{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+.part-nav{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.part-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--tealM);background:#fff;color:var(--ink2);transition:all .2s;font-family:inherit}
+.part-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.part-btn.done::after{content:" ✓"}
+.part-panel{display:none}.part-panel.active{display:block}
+.part-title{font-size:19px;font-weight:900;color:var(--tealD);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.part-title::before{content:'';display:block;width:5px;height:22px;background:linear-gradient(180deg,var(--teal2),var(--teal));border-radius:3px;flex-shrink:0}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.card-head{padding:14px 20px 12px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff}
+.card-head h2{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+.card-head p{font-size:12px;opacity:.85;margin-top:3px}
+.card-body{padding:18px 20px}
+
+/* 渠道两栏 */
+.channel-tabs{display:flex;gap:0;border-radius:var(--r);overflow:hidden;border:1.5px solid var(--tealM);margin-bottom:16px}
+.ch-tab{flex:1;padding:12px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink2);background:#fff;transition:all .2s;border:none;font-family:inherit}
+.ch-tab.active{background:var(--teal);color:#fff}
+.ch-tab:first-child{border-right:1.5px solid var(--tealM)}
+.ch-panel{display:none}.ch-panel.active{display:block}
+.ch-desc{font-size:13px;color:var(--ink2);line-height:1.85;background:var(--tealL);border-left:4px solid var(--teal2);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin-bottom:14px}
+.ch-items{display:grid;gap:10px}
+.ch-item{display:flex;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fafffe;align-items:flex-start}
+.ch-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ch-item h4{font-size:13px;font-weight:800;color:var(--tealD);margin-bottom:3px}
+.ch-item p{font-size:12px;color:var(--ink2);line-height:1.7}
+
+/* 工具卡片 */
+.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.tool-card{border:1.5px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:#fafffe}
+.tool-card:hover{border-color:var(--teal);box-shadow:0 4px 16px rgba(0,137,123,.15);transform:translateY(-2px)}
+.tool-card.sel{border-color:var(--teal);background:var(--tealL)}
+.tool-icon{font-size:26px;margin-bottom:6px}
+.tool-name{font-size:12px;font-weight:800;color:var(--ink)}
+.tool-type{font-size:10px;color:var(--ink3);margin-top:2px}
+.tool-detail{display:none;animation:fd .25s}.tool-detail.show{display:block}
+@keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.td-inner{background:#fff;border:1.5px solid var(--teal2);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.td-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.td-icon{font-size:28px}.td-name{font-size:15px;font-weight:900;color:var(--tealD)}
+.td-sub{font-size:11px;color:var(--ink3)}
+.td-desc{font-size:13px;color:var(--ink2);line-height:1.8;margin-bottom:10px}
+.td-tags{display:flex;flex-wrap:wrap;gap:6px}
+.td-tag{background:var(--tealL);color:var(--tealD);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+
+/* quiz */
+.quiz-box{background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border);padding:16px;margin-bottom:12px}
+.quiz-q{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:11px;line-height:1.6}
+.quiz-opts{display:grid;gap:7px}
+.qopt{padding:9px 15px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;cursor:pointer;text-align:left;font-family:inherit;font-weight:600;color:var(--ink2);transition:all .2s}
+.qopt:hover:not(:disabled){border-color:var(--teal2);color:var(--teal)}
+.qopt.ok{background:var(--tealL);border-color:var(--teal);color:var(--tealD)}
+.qopt.err{background:#FFF0EE;border-color:#E74C3C;color:#C0392B}
+.quiz-fb{font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;margin-top:7px;display:none}
+.quiz-fb.ok{background:var(--tealL);color:var(--tealD);display:block}
+.quiz-fb.err{background:#FFF0EE;color:#C0392B;display:block}
+
+/* 拖拽分类 */
+.sort-label{font-size:13px;color:var(--ink2);line-height:1.75;margin-bottom:12px}
+.sort-chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px;min-height:52px;background:#fafffe;border:2px dashed var(--tealM);border-radius:var(--r);margin-bottom:12px}
+.sort-chip{padding:6px 14px;background:var(--teal);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:grab;user-select:none;transition:all .15s}
+.sort-chip:hover{background:var(--tealD);transform:scale(1.04)}
+.sort-chip.placed{opacity:.4;cursor:default}
+.sort-zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sort-zone{border:2px dashed var(--border);border-radius:var(--r);padding:10px;min-height:80px}
+.sort-zone.over{border-color:var(--teal);background:var(--tealL)}
+.sz-label{font-size:11px;font-weight:800;color:var(--ink3);margin-bottom:6px;letter-spacing:.06em}
+.sz-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:40px}
+.sort-fb{font-size:13px;font-weight:700;padding:9px 14px;border-radius:var(--r);display:none;margin-bottom:8px}
+.sort-fb.ok{background:var(--tealL);color:var(--tealD);display:block}
+.sort-fb.err{background:#FFF0EE;color:#C0392B;display:block}
+.btn-check{padding:8px 22px;background:var(--teal);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-right:8px}
+.btn-reset{padding:8px 18px;background:#fff;color:var(--ink2);border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* 完成 */
+.complete-card{background:linear-gradient(135deg,#004D40,#00695C);color:#fff;border-radius:var(--r);padding:28px;text-align:center}
+.complete-title{font-size:22px;font-weight:900;margin-bottom:8px}
+.complete-sub{font-size:13px;opacity:.8;margin-bottom:20px}
+.c-stats{display:flex;justify-content:center;gap:28px;margin-bottom:22px}
+.cst{text-align:center}
+.cst-val{font-size:28px;font-weight:900}
+.cst-lbl{font-size:11px;opacity:.7;margin-top:2px}
+.btn-finish{padding:13px 34px;background:var(--gold);color:#1A2332;border-radius:30px;font-size:15px;font-weight:900;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-finish:hover{transform:scale(1.04);box-shadow:0 6px 24px rgba(244,169,7,.4)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2332;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;transition:transform .3s;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.xp-pop{position:fixed;top:66px;right:18px;background:var(--teal);color:#fff;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:800;z-index:999;opacity:0;transform:translateY(-10px);transition:all .4s;pointer-events:none}
+.xp-pop.show{opacity:1;transform:translateY(0)}
+@media(max-width:600px){.tool-grid{grid-template-columns:repeat(2,1fr)}.sort-zones{grid-template-columns:1fr}.c-stats{gap:16px}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">📊</div>
+  <div class="nav-title">M2-U2 数据采集的渠道及工具</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+  <button class="nav-home" onclick="completeUnit()">🏠 保存返回</button>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+
+<div class="container">
+  <div class="part-nav">
+    <button class="part-btn active" id="btn1" onclick="showPart(1)">① 数据来源渠道</button>
+    <button class="part-btn" id="btn2" onclick="showPart(2)">② 常用采集工具</button>
+    <button class="part-btn" id="btn3" onclick="showPart(3)">③ 练一练</button>
+    <button class="part-btn" id="btn4" onclick="showPart(4)">④ 完成本单元</button>
+  </div>
+
+  <!-- ══ PART 1 ══ -->
+  <div class="part-panel active" id="part1">
+    <div class="part-title">一、数据的主要来源渠道</div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>🗂️ 两大数据来源</h2>
+        <p>电商数据按来源分为内部数据和外部数据，点击切换查看</p>
+      </div>
+      <div class="card-body">
+        <div class="channel-tabs">
+          <button class="ch-tab active" onclick="switchCh('inner')">🏪 内部数据</button>
+          <button class="ch-tab" onclick="switchCh('outer')">🌐 外部数据</button>
+        </div>
+
+        <div class="ch-panel active" id="ch-inner">
+          <div class="ch-desc">
+            在电子商务项目运营过程中，电子商务站点、店铺<strong>自身所产生的数据信息</strong>，如站点的访客数、浏览量、收藏量，商品的订单数量、订单信息、加购数量等。可通过店铺后台或专业数据工具获取。
+          </div>
+          <div class="ch-items">
+            <div class="ch-item">
+              <div class="ch-num">1</div>
+              <div>
+                <h4>店铺 / 站点后台</h4>
+                <p>直接在电商平台后台查看流量、订单、商品、客户等基础经营数据，数据实时准确，是最直接的内部数据来源。</p>
+              </div>
+            </div>
+            <div class="ch-item">
+              <div class="ch-num">2</div>
+              <div>
+                <h4>平台官方数据工具</h4>
+                <p>如淘宝/天猫的<strong>生意参谋</strong>、京东的<strong>京东商智</strong>，提供流量、交易、商品、竞争等全链路数据分析功能，兼具内外部数据。</p>
+              </div>
+            </div>
+            <div class="ch-item">
+              <div class="ch-num">3</div>
+              <div>
+                <h4>独立站流量统计工具</h4>
+                <p>对于独立站点，可使用<strong>百度统计</strong>、<strong>友盟</strong>等工具对网站流量、用户行为进行统计采集与分析。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ch-panel" id="ch-outer">
+          <div class="ch-desc">
+            来自店铺/站点<strong>外部第三方</strong>的数据，涵盖宏观行业、市场竞争、用户趋势等维度，是市场分析和竞品研究的重要来源。
+          </div>
+          <div class="ch-items">
+            <div class="ch-item">
+              <div class="ch-num">1</div>
+              <div>
+                <h4>政府部门 · 机构协会 · 媒体</h4>
+                <p>政府部门、行业协会、新闻媒体、出版社等发布的<strong>统计数据、行业调查报告、新闻报道、出版物</strong>。如国家统计局、各部委官网等。</p>
+              </div>
+            </div>
+            <div class="ch-item">
+              <div class="ch-num">2</div>
+              <div>
+                <h4>权威网站 · 数据机构</h4>
+                <p>行业权威网站或数据机构发布的<strong>报告、白皮书</strong>等，常见的有<strong>易观数据、艾瑞咨询</strong>等，可获取行业全景数据与趋势洞察。</p>
+              </div>
+            </div>
+            <div class="ch-item">
+              <div class="ch-num">3</div>
+              <div>
+                <h4>电子商务平台</h4>
+                <p>电子商务平台聚集着众多行业卖家和买家，是电商数据产生的<strong>重要源泉</strong>，可通过平台公开数据或第三方工具进行采集分析。</p>
+              </div>
+            </div>
+            <div class="ch-item">
+              <div class="ch-num">4</div>
+              <div>
+                <h4>指数工具</h4>
+                <p><strong>百度指数、360趋势、搜狗指数、阿里指数</strong>等，依托平台海量用户搜索数据，提供搜索趋势、需求图谱、用户画像等数据，可为市场与用户分析提供参考依据。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:right;margin-top:6px">
+      <button class="btn-check" onclick="doPart1Quiz()">📝 完成小测验 → 继续</button>
+    </div>
+
+    <!-- Part1 inline quiz -->
+    <div id="p1quiz" style="margin-top:16px;display:none">
+      <div class="card">
+        <div class="card-head"><h2>🧠 快速理解测验</h2><p>答对得 +8 XP，一起来检验一下吧</p></div>
+        <div class="card-body">
+          <div class="quiz-box" id="q1a">
+            <div class="quiz-q">1. 以下哪项属于<span>内部数据</span>的采集工具？</div>
+            <div class="quiz-opts">
+              <button class="qopt" onclick="ansQ('q1a',0,2,'生意参谋是淘宝官方的内部数据工具，可采集店铺流量、交易等数据。')">A. 国家统计局官网</button>
+              <button class="qopt" onclick="ansQ('q1a',1,2,'艾瑞咨询是外部数据机构，提供行业研究报告。')">B. 艾瑞咨询</button>
+              <button class="qopt" onclick="ansQ('q1a',2,2,'✅ 正确！生意参谋是淘宝/天猫官方数据平台，属于内部数据工具。')">C. 生意参谋</button>
+              <button class="qopt" onclick="ansQ('q1a',3,2,'百度指数是外部指数工具，反映搜索趋势。')">D. 百度指数</button>
+            </div>
+            <div class="quiz-fb" id="q1a-fb"></div>
+          </div>
+          <div class="quiz-box" id="q1b">
+            <div class="quiz-q">2. 指数工具（如百度指数）的数据来源是？</div>
+            <div class="quiz-opts">
+              <button class="qopt" onclick="ansQ('q1b',0,1,'店铺后台数据是内部数据，不是指数工具的来源。')">A. 店铺后台销售数据</button>
+              <button class="qopt" onclick="ansQ('q1b',1,1,'✅ 正确！指数工具依托平台海量用户搜索数据，反映搜索趋势与用户需求。')">B. 平台海量用户搜索数据</button>
+              <button class="qopt" onclick="ansQ('q1b',2,1,'政府统计数据是外部权威数据，不是指数工具的来源。')">C. 政府部门统计报告</button>
+              <button class="qopt" onclick="ansQ('q1b',3,1,'卖家问卷是一次性的原始数据收集，不是指数工具来源。')">D. 卖家问卷调查结果</button>
+            </div>
+            <div class="quiz-fb" id="q1b-fb"></div>
+          </div>
+          <div class="quiz-box" id="q1c">
+            <div class="quiz-q">3. 某跨境电商运营想了解"全球羽绒服行业市场规模"，最合适的数据来源是？</div>
+            <div class="quiz-opts">
+              <button class="qopt" onclick="ansQ('q1c',0,1,'生意参谋主要提供淘宝/天猫平台自身店铺数据，不适合全球行业研究。')">A. 生意参谋市场行情</button>
+              <button class="qopt" onclick="ansQ('q1c',1,1,'✅ 正确！行业研究机构（艾瑞、易观等）发布的白皮书、报告，是了解行业规模的权威外部数据。')">B. 艾瑞咨询等机构发布的行业报告</button>
+              <button class="qopt" onclick="ansQ('q1c',2,1,'店铺评价只能反映单个产品，无法代表行业市场规模。')">C. 自家店铺的商品评价数量</button>
+              <button class="qopt" onclick="ansQ('q1c',3,1,'百度指数反映搜索热度，不直接反映市场规模。')">D. 百度指数热度趋势</button>
+            </div>
+            <div class="quiz-fb" id="q1c-fb"></div>
+          </div>
+          <div id="p1done" style="display:none;margin-top:10px;text-align:center">
+            <div style="background:var(--tealL);color:var(--tealD);padding:12px;border-radius:var(--r);font-weight:800;margin-bottom:10px">🎉 答完啦！继续学习常用工具 →</div>
+            <button class="btn-check" onclick="showPart(2)">下一部分：常用采集工具 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART 2 ══ -->
+  <div class="part-panel" id="part2">
+    <div class="part-title">二、数据采集常用工具</div>
+    <div class="card">
+      <div class="card-head">
+        <h2>🛠️ 点击工具卡片查看详情</h2>
+        <p>了解6大常用数据采集工具的功能特点和适用场景</p>
+      </div>
+      <div class="card-body">
+        <div class="tool-grid">
+          <div class="tool-card" id="tc0" onclick="showTool(0)">
+            <div class="tool-icon">🧭</div>
+            <div class="tool-name">生意参谋</div>
+            <div class="tool-type">官方 · 内部</div>
+          </div>
+          <div class="tool-card" id="tc1" onclick="showTool(1)">
+            <div class="tool-icon">🔍</div>
+            <div class="tool-name">店侦探</div>
+            <div class="tool-type">第三方 · 竞品</div>
+          </div>
+          <div class="tool-card" id="tc2" onclick="showTool(2)">
+            <div class="tool-icon">📈</div>
+            <div class="tool-name">淘数据</div>
+            <div class="tool-type">第三方 · 行业</div>
+          </div>
+          <div class="tool-card" id="tc3" onclick="showTool(3)">
+            <div class="tool-icon">🏪</div>
+            <div class="tool-name">京东商智</div>
+            <div class="tool-type">官方 · 京东</div>
+          </div>
+          <div class="tool-card" id="tc4" onclick="showTool(4)">
+            <div class="tool-icon">🐙</div>
+            <div class="tool-name">八爪鱼采集器</div>
+            <div class="tool-type">通用 · 爬虫</div>
+          </div>
+          <div class="tool-card" id="tc5" onclick="showTool(5)">
+            <div class="tool-icon">🚂</div>
+            <div class="tool-name">火车采集器</div>
+            <div class="tool-type">通用 · 爬虫</div>
+          </div>
+        </div>
+
+        <div class="tool-detail" id="td0">
+          <div class="td-inner">
+            <div class="td-head"><div class="td-icon">🧭</div><div><div class="td-name">生意参谋</div><div class="td-sub">淘宝/天猫官方 · 综合性网店数据分析平台</div></div></div>
+            <div class="td-desc">淘宝网官方提供的综合性网店数据分析平台，不仅是店铺数据的重要来源渠道，同时也是淘宝/天猫平台卖家的重要数据采集工具。为天猫/淘宝卖家提供<strong>流量、商品、交易</strong>等网店经营全链路的数据展示、分析、解读、预测等功能。数据采集人员不仅可采集自己店铺各项运营数据（流量、交易、服务、产品），通过<strong>市场行情</strong>板块还能获取淘宝/天猫平台的行业销售经营数据。</div>
+            <div class="td-tags"><span class="td-tag">流量分析</span><span class="td-tag">交易数据</span><span class="td-tag">市场行情</span><span class="td-tag">竞品对比</span><span class="td-tag">内外部兼备</span></div>
+          </div>
+        </div>
+        <div class="tool-detail" id="td1">
+          <div class="td-inner">
+            <div class="td-head"><div class="td-icon">🔍</div><div><div class="td-name">店侦探</div><div class="td-sub">第三方 · 专注竞品数据分析</div></div></div>
+            <div class="td-desc">一款专门为淘宝及天猫卖家提供数据采集、数据分析的数据工具。通过对各个店铺、宝贝运营数据进行采集分析，可以快速掌握<strong>竞争对手店铺销售数据、引流途径、广告投放、活动推广、买家购买行为</strong>等数据信息，是竞品监控的利器。</div>
+            <div class="td-tags"><span class="td-tag">竞品销售</span><span class="td-tag">引流分析</span><span class="td-tag">广告投放</span><span class="td-tag">买家行为</span></div>
+          </div>
+        </div>
+        <div class="tool-detail" id="td2">
+          <div class="td-inner">
+            <div class="td-head"><div class="td-icon">📈</div><div><div class="td-name">淘数据</div><div class="td-sub">第三方 · 国内+跨境 · taosj.com</div></div></div>
+            <div class="td-desc">一款针对<strong>国内和跨境电子商务</strong>提供数据采集和分析的工具，为卖家提供行业和店铺的各项数据，包括整体市场行情、热销宝贝排行、热销店铺排行、屋性成交分布、行业协同排行等多维度数据，帮助卖家全面了解行业动态。</div>
+            <div class="td-tags"><span class="td-tag">行业数据</span><span class="td-tag">跨境支持</span><span class="td-tag">热销排行</span><span class="td-tag">价格分析</span></div>
+          </div>
+        </div>
+        <div class="tool-detail" id="td3">
+          <div class="td-inner">
+            <div class="td-head"><div class="td-icon">🏪</div><div><div class="td-name">京东商智</div><div class="td-sub">京东官方 · 向第三方商家提供数据服务</div></div></div>
+            <div class="td-desc">京东向第三方商家提供数据服务的产品。覆盖<strong>PC、APP、微信、手机QQ、移动网页端五大渠道</strong>，提供店铺与行业的流量、销量、客户、商品等数据，是京东卖家进行数据分析的核心工具。</div>
+            <div class="td-tags"><span class="td-tag">五大渠道</span><span class="td-tag">流量分析</span><span class="td-tag">行业数据</span><span class="td-tag">客户洞察</span></div>
+          </div>
+        </div>
+        <div class="tool-detail" id="td4">
+          <div class="td-inner">
+            <div class="td-head"><div class="td-icon">🐙</div><div><div class="td-name">八爪鱼采集器</div><div class="td-sub">通用爬虫 · 可视化操作 · 无需编程</div></div></div>
+            <div class="td-desc">一款通用网页数据采集器，<strong>使用简单，完全可视化操作</strong>；功能强大，任何网站均可采集，数据可导出为多种格式。可以用来采集商品的<strong>价格、销量、评价、描述</strong>等内容，内置主流数据源模板，无需配置即可一键采集。</div>
+            <div class="td-tags"><span class="td-tag">可视化操作</span><span class="td-tag">任意网站</span><span class="td-tag">多格式导出</span><span class="td-tag">无需编程</span></div>
+          </div>
+        </div>
+        <div class="tool-detail" id="td5">
+          <div class="td-inner">
+            <div class="td-head"><div class="td-icon">🚂</div><div><div class="td-name">火车采集器</div><div class="td-sub">通用爬虫 · 多线程 · 采集+发布</div></div></div>
+            <div class="td-desc">一个供各大主流文章系统、论坛系统等使用的<strong>多线程内容采集发布程序</strong>。对于数据的采集分为两部分：一是<strong>采集数据</strong>；二是<strong>发布数据</strong>。借助火车采集器可以根据采集需求在目标数据源网站采集相应数据，并整理成<strong>表格或TXT</strong>导出。</div>
+            <div class="td-tags"><span class="td-tag">多线程</span><span class="td-tag">采集+发布</span><span class="td-tag">表格导出</span><span class="td-tag">TXT导出</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:4px">
+      <div class="card-head"><h2>💡 工具选择小技巧</h2></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--tealL);border-radius:var(--r);padding:14px">
+            <div style="font-size:13px;font-weight:800;color:var(--tealD);margin-bottom:7px">📌 分析自家店铺</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.8">淘宝/天猫 → 生意参谋<br>京东 → 京东商智</div>
+          </div>
+          <div style="background:var(--tealL);border-radius:var(--r);padding:14px">
+            <div style="font-size:13px;font-weight:800;color:var(--tealD);margin-bottom:7px">📌 研究竞争对手</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.8">店侦探（监控竞品动态）<br>淘数据（行业排行分析）</div>
+          </div>
+          <div style="background:var(--tealL);border-radius:var(--r);padding:14px">
+            <div style="font-size:13px;font-weight:800;color:var(--tealD);margin-bottom:7px">📌 采集任意网站数据</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.8">八爪鱼（无需编程，可视化）<br>火车采集器（多线程批量）</div>
+          </div>
+          <div style="background:var(--tealL);border-radius:var(--r);padding:14px">
+            <div style="font-size:13px;font-weight:800;color:var(--tealD);margin-bottom:7px">📌 了解宏观行业趋势</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.8">百度指数/阿里指数（搜索趋势）<br>易观/艾瑞报告（行业报告）</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;text-align:right">
+          <button class="btn-check" onclick="showPart(3)">去做练习题 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART 3 ══ -->
+  <div class="part-panel" id="part3">
+    <div class="part-title">三、练一练 · 综合测验</div>
+
+    <div class="card">
+      <div class="card-head"><h2>🎯 工具匹配挑战</h2><p>把下方工具拖拽到正确的分类区 · 全部正确得 +20 XP</p></div>
+      <div class="card-body">
+        <div class="sort-label">
+          根据工具特点，将它们分别拖拽到「<strong>官方平台工具</strong>」和「<strong>第三方/通用工具</strong>」两个区域中：
+        </div>
+        <div class="sort-chips" id="sortBank"></div>
+        <div class="sort-zones">
+          <div class="sort-zone" id="zone0" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropChip(event,0)">
+            <div class="sz-label">🏢 官方平台工具</div>
+            <div class="sz-chips" id="zone0-chips"></div>
+          </div>
+          <div class="sort-zone" id="zone1" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropChip(event,1)">
+            <div class="sz-label">🔧 第三方 / 通用工具</div>
+            <div class="sz-chips" id="zone1-chips"></div>
+          </div>
+        </div>
+        <div class="sort-fb" id="sortFb"></div>
+        <div>
+          <button class="btn-check" onclick="checkSort()">✅ 提交答案</button>
+          <button class="btn-reset" onclick="resetSort()">🔄 重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:4px">
+      <div class="card-head"><h2>📝 综合选择题</h2><p>每题 +8 XP</p></div>
+      <div class="card-body">
+        <div class="quiz-box" id="q2a">
+          <div class="quiz-q">1. 某淘宝店主想查看自己店铺<span>过去30天的商品转化率</span>，最合适的工具是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2a',0,0,'生意参谋是淘宝官方数据平台，直接查看店铺转化率等运营数据最为方便。')">A. 生意参谋</button>
+            <button class="qopt" onclick="ansQ('q2a',1,0,'店侦探主要用于监控竞争对手数据，不适合查看自家转化率。')">B. 店侦探</button>
+            <button class="qopt" onclick="ansQ('q2a',2,0,'八爪鱼是通用网页爬虫，无法直接获取店铺后台数据。')">C. 八爪鱼采集器</button>
+            <button class="qopt" onclick="ansQ('q2a',3,0,'淘数据主要用于行业数据分析，自家转化率用生意参谋更直接。')">D. 淘数据</button>
+          </div>
+          <div class="quiz-fb" id="q2a-fb"></div>
+        </div>
+        <div class="quiz-box" id="q2b">
+          <div class="quiz-q">2. 想要采集淘宝网上某关键词前三页商品的<span>销量和价格</span>，最适合使用？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2b',0,1,'生意参谋需要有店铺账号才能使用，不适合批量采集公开商品数据。')">A. 生意参谋</button>
+            <button class="qopt" onclick="ansQ('q2b',1,2,'✅ 正确！八爪鱼采集器可以抓取任意网页数据，是采集公开商品信息的理想工具。')">B. 八爪鱼采集器</button>
+            <button class="qopt" onclick="ansQ('q2b',2,2,'火车采集器也可以做到，但八爪鱼的可视化操作更适合初学者。')">C. 火车采集器</button>
+            <button class="qopt" onclick="ansQ('q2b',3,2,'京东商智是京东平台的工具，不适用于淘宝数据采集。')">D. 京东商智</button>
+          </div>
+          <div class="quiz-fb" id="q2b-fb"></div>
+        </div>
+        <div class="quiz-box" id="q2c">
+          <div class="quiz-q">3. 以下关于<span>外部数据</span>的说法，错误的是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2c',0,3,'正确。国家统计局确实是获取宏观统计数据的权威渠道。')">A. 国家统计局是获取宏观统计数据的权威渠道</button>
+            <button class="qopt" onclick="ansQ('q2c',1,3,'正确。艾瑞咨询等机构发布行业报告，属于外部数据来源。')">B. 艾瑞咨询等机构报告属于外部数据来源</button>
+            <button class="qopt" onclick="ansQ('q2c',2,3,'正确。百度指数依托搜索大数据，可反映用户需求趋势。')">C. 百度指数可以反映用户搜索趋势与需求</button>
+            <button class="qopt" onclick="ansQ('q2c',3,3,'✅ 找到错误！生意参谋的店铺数据属于内部数据，不属于外部数据。')">D. 生意参谋提供的店铺销售数据属于外部数据</button>
+          </div>
+          <div class="quiz-fb" id="q2c-fb"></div>
+        </div>
+        <div class="quiz-box" id="q2d">
+          <div class="quiz-q">4. 京东商智覆盖哪五大渠道的数据？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2d',0,1,'✅ 正确！京东商智覆盖PC、APP、微信、手机QQ、移动网页端五大渠道的数据。')">A. PC、APP、微信、手机QQ、移动网页端</button>
+            <button class="qopt" onclick="ansQ('q2d',1,1,'淘宝、天猫、拼多多是不同平台，不属于京东商智的数据渠道。')">B. 淘宝、天猫、拼多多、京东、抖音</button>
+            <button class="qopt" onclick="ansQ('q2d',2,1,'微博、微信、抖音、快手、小红书是社交媒体，不是京东商智的渠道。')">C. 微博、微信、抖音、快手、小红书</button>
+            <button class="qopt" onclick="ansQ('q2d',3,1,'流量、交易、商品、客户、服务是数据维度，不是渠道名称。')">D. 流量、交易、商品、客户、服务</button>
+          </div>
+          <div class="quiz-fb" id="q2d-fb"></div>
+        </div>
+        <div id="p3done" style="display:none;margin-top:12px;text-align:center">
+          <div style="background:var(--tealL);color:var(--tealD);padding:12px;border-radius:var(--r);font-weight:800;margin-bottom:10px">🎉 全部完成！去提交本单元成绩吧！</div>
+          <button class="btn-check" onclick="showPart(4)">完成本单元 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART 4 ══ -->
+  <div class="part-panel" id="part4">
+    <div class="complete-card">
+      <div style="font-size:40px;margin-bottom:12px">🎊</div>
+      <div class="complete-title">单元完成！</div>
+      <div class="complete-sub">M2-U2 数据采集的渠道及工具 · 学习结束</div>
+      <div class="c-stats">
+        <div class="cst"><div class="cst-val" id="finalStars">☆☆☆☆☆</div><div class="cst-lbl">本单元评级</div></div>
+        <div class="cst"><div class="cst-val" id="finalXP">+0</div><div class="cst-lbl">获得 XP</div></div>
+        <div class="cst"><div class="cst-val" id="finalScore">0</div><div class="cst-lbl">综合得分</div></div>
+      </div>
+      <button class="btn-finish" onclick="completeUnit()">💾 保存进度 · 返回课程首页</button>
+    </div>
+    <div style="margin-top:18px;background:#fff;border-radius:var(--r);padding:18px;border:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:800;color:var(--tealD);margin-bottom:10px">💭 想一想（课后拓展）</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.9">
+        选择任意一款数据采集工具，尝试采集淘宝网"陕西苹果"关键词下销量前三页商品的销售价格，并思考：<br>
+        ① 你选用了哪款工具？为什么？<br>
+        ② 采集到的数据有哪些不同价格区间？<br>
+        ③ 这些数据对店铺定价有什么参考价值？
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="xp-pop" id="xpPop"></div>
+<div id="confetti"></div>
+
+<script>
+/* ═══ Supabase ═══ */
+const SUPABASE_URL = 'https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _supabase = null;
+if (SUPABASE_URL.startsWith('https://') && window.supabase) {
+  _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+const STORAGE_KEY = 'ecommerce_data_analysis_user';
+const ALL_UNITS = ['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+
+let earnedXP = 0, gameStars = 0;
+let p1q = 0, p3q = 0; // quiz counters
+let sortDone = false;
+
+/* ═══ User helpers ═══ */
+function loadUser(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function getWeekStart(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function saveUser(data){
+  data.lastVisit = new Date().toISOString();
+  const ws = getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws;}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_supabase){
+    const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;
+    const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _supabase.from('student_progress').upsert({
+      student_id:data.studentId,name:data.name,xp:data.xp,
+      completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,
+      week_start:data.weekStart||ws,achievements:data.achievements,
+      units:data.units,updated_at:new Date().toISOString()
+    },{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('sync:',error.message)});
+  }
+}
+
+/* ═══ UI helpers ═══ */
+function showToast(msg,d=2500){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d)}
+function showXP(amt){const e=document.getElementById('xpPop');e.textContent='+'+amt+' XP';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function addXP(amt){earnedXP+=amt;const u=loadUser();document.getElementById('navXP').textContent='⚡ '+(u?u.xp+earnedXP:earnedXP)+' XP';showXP(amt)}
+function launchConfetti(){
+  const c=document.getElementById('confetti'),cols=['#F97316','#3B82F6','#8B5CF6','#10B981','#EC4899','#FBBF24'];
+  c.innerHTML='';
+  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p);}
+  setTimeout(()=>c.innerHTML='',4000);
+}
+
+/* ═══ Part navigation ═══ */
+function showPart(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('part'+i).classList.toggle('active',i===n);
+    document.getElementById('btn'+i).classList.toggle('active',i===n);
+  });
+  const pct=[0,25,55,80,100][n];
+  document.getElementById('progFill').style.width=pct+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══ Channel tabs ═══ */
+function switchCh(id){
+  ['inner','outer'].forEach(k=>{
+    document.getElementById('ch-'+k).classList.toggle('active',k===id);
+  });
+  document.querySelectorAll('.ch-tab').forEach((b,i)=>b.classList.toggle('active',i===(id==='inner'?0:1)));
+}
+
+/* ═══ Tool detail ═══ */
+let curTool=-1;
+function showTool(n){
+  if(curTool===n){document.getElementById('td'+n).classList.remove('show');document.getElementById('tc'+n).classList.remove('sel');curTool=-1;return;}
+  if(curTool>=0){document.getElementById('td'+curTool).classList.remove('show');document.getElementById('tc'+curTool).classList.remove('sel');}
+  document.getElementById('td'+n).classList.add('show');
+  document.getElementById('tc'+n).classList.add('sel');
+  curTool=n;
+  if(!earnedXP||n>0){addXP(3);showToast('📖 +3 XP 学习新工具！');}
+}
+
+/* ═══ Quiz engine ═══ */
+const quizDone={};
+function ansQ(qid, chosen, correct, fb){
+  if(quizDone[qid]) return;
+  quizDone[qid]=true;
+  const box=document.getElementById(qid);
+  box.querySelectorAll('.qopt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct) b.classList.add('ok');
+    else if(i===chosen && chosen!==correct) b.classList.add('err');
+  });
+  const fbEl=document.getElementById(qid+'-fb');
+  if(chosen===correct){
+    fbEl.textContent='✅ '+fb; fbEl.className='quiz-fb ok';
+    addXP(8); showToast('✅ 答对了！+8 XP');
+  } else {
+    fbEl.textContent='❌ '+fb; fbEl.className='quiz-fb err';
+    showToast('❌ 答错了，看看解析再想想');
+  }
+  checkPartDone();
+}
+
+function doPart1Quiz(){
+  document.getElementById('p1quiz').style.display='block';
+  document.getElementById('p1quiz').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function checkPartDone(){
+  const p1qs=['q1a','q1b','q1c'];
+  if(p1qs.every(q=>quizDone[q])) document.getElementById('p1done').style.display='block';
+  const p3qs=['q2a','q2b','q2c','q2d'];
+  if(p3qs.every(q=>quizDone[q])) document.getElementById('p3done').style.display='block';
+}
+
+/* ═══ Sort / Drag game ═══ */
+const SORT_ITEMS=[
+  {name:'生意参谋',zone:0},{name:'京东商智',zone:0},
+  {name:'店侦探',zone:1},{name:'淘数据',zone:1},
+  {name:'八爪鱼采集器',zone:1},{name:'火车采集器',zone:1}
+];
+let placed={};
+
+function initSort(){
+  const bank=document.getElementById('sortBank');
+  bank.innerHTML='';
+  placed={};
+  SORT_ITEMS.sort(()=>Math.random()-.5).forEach(item=>{
+    const chip=document.createElement('div');
+    chip.className='sort-chip';
+    chip.textContent=item.name;
+    chip.draggable=true;
+    chip.id='chip-'+item.name;
+    chip.addEventListener('dragstart',e=>{e.dataTransfer.setData('text',item.name)});
+    bank.appendChild(chip);
+  });
+  [0,1].forEach(z=>document.getElementById('zone'+z+'-chips').innerHTML='');
+  document.getElementById('sortFb').style.display='none';
+  document.getElementById('sortFb').className='sort-fb';
+}
+
+function dropChip(event,zone){
+  event.preventDefault();
+  const name=event.dataTransfer.getData('text');
+  const chip=document.getElementById('chip-'+name);
+  if(!chip||chip.classList.contains('placed')) return;
+  chip.classList.add('placed');
+  const newChip=chip.cloneNode(true);
+  newChip.classList.remove('placed');
+  newChip.draggable=false;
+  newChip.id='placed-'+name;
+  document.getElementById('zone'+zone+'-chips').appendChild(newChip);
+  document.getElementById('zone'+zone).classList.remove('over');
+  placed[name]=zone;
+}
+
+function checkSort(){
+  let correct=0;
+  SORT_ITEMS.forEach(item=>{
+    if(placed[item.name]===item.zone) correct++;
+  });
+  const total=SORT_ITEMS.length;
+  const fb=document.getElementById('sortFb');
+  if(correct===total){
+    fb.textContent='🎉 全部正确！官方工具和第三方工具区分得很准确！+20 XP';
+    fb.className='sort-fb ok'; addXP(20);
+    launchConfetti(); gameStars=Math.max(gameStars,3);
+    sortDone=true; checkPartDone();
+    showToast('🌟 分类全对！+20 XP！');
+  } else {
+    fb.textContent=`还差 ${total-correct} 个没分对，官方工具：生意参谋、京东商智；其他均为第三方/通用工具。再试试？`;
+    fb.className='sort-fb err';
+  }
+}
+
+function resetSort(){
+  placed={};
+  initSort();
+}
+
+/* ═══ Complete unit ═══ */
+function completeUnit(){
+  const user=loadUser();
+  if(!user){window.location.href='index.html';return;}
+
+  const score=Math.min(100, 20+Math.round(earnedXP*0.8));
+  const stars=gameStars>0?gameStars:(score>=90?5:score>=75?4:score>=60?3:score>=45?2:1);
+  const totalXP=earnedXP+20;
+
+  // Anti-cheat
+  const alreadyDone=user.units['m2u2']?.completed && user.units['m2u2']?.xpEarned>0;
+  const actualXP=alreadyDone?0:totalXP;
+  const prev=user.units['m2u2']||{};
+
+  user.units['m2u2']={
+    completed:true,
+    stars:Math.max(prev.stars||0,stars),
+    score:Math.max(prev.score||0,score),
+    xpEarned:alreadyDone?(prev.xpEarned||0):totalXP
+  };
+  user.xp+=actualXP;
+  user.weekXp=(user.weekXp||0)+actualXP;
+
+  const ach=user.achievements||[];
+  if(!ach.includes('first_unit')) ach.push('first_unit');
+  if(stars>=3 && !ach.includes('first_star3')) ach.push('first_star3');
+  user.achievements=ach;
+
+  saveUser(user);
+
+  document.getElementById('finalStars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('finalXP').textContent='+'+(alreadyDone?0:totalXP);
+  document.getElementById('finalScore').textContent=score;
+
+  showPart(4);
+  if(stars>=4) launchConfetti();
+  showToast(alreadyDone?'🔄 已重新提交，XP不重复计入':`🎉 已保存！获得 +${totalXP} XP`,2200);
+  setTimeout(()=>window.location.href='index.html',2300);
+}
+
+/* ═══ Init ═══ */
+(function(){
+  const user=loadUser();
+  document.getElementById('navXP').textContent='⚡ '+(user?user.xp:0)+' XP';
+  initSort();
+  // dragover fix for zones
+  document.getElementById('zone0').addEventListener('dragover',e=>e.preventDefault());
+  document.getElementById('zone1').addEventListener('dragover',e=>e.preventDefault());
+})();
+</script>
+</body>
+</html>
