@@ -1,1 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>M2-U4 运营数据采集</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#6A1B9A;--c2:#8E24AA;--cl:#F3E5F5;--cm:#CE93D8;
+  --ink:#1A2332;--ink2:#3D5066;--ink3:#7A90A8;
+  --bg:#FCF5FF;--card:#fff;--border:rgba(106,27,154,.13);
+  --shadow:0 2px 14px rgba(106,27,154,.10);--gold:#F4A907;--r:12px;
+}
+body{font-family:"PingFang SC","Noto Sans SC",-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:2px solid var(--cl);display:flex;align-items:center;padding:0 18px;height:52px;gap:12px;box-shadow:0 2px 8px rgba(106,27,154,.08)}
+.nav-logo{font-size:18px}.nav-title{font-size:13px;font-weight:800;color:var(--c1);flex:1}
+.nav-xp{font-size:13px;font-weight:800;color:var(--c1);background:var(--cl);padding:4px 12px;border-radius:20px}
+.nav-home{padding:6px 14px;background:var(--c1);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.pbar{height:4px;background:var(--cl)}.pfill{height:4px;background:linear-gradient(90deg,var(--c2),var(--c1));transition:width .5s}
+.container{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+.pnav{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.pb{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--cm);background:#fff;color:var(--ink2);transition:all .2s;font-family:inherit}
+.pb.active{background:var(--c1);color:#fff;border-color:var(--c1)}
+.panel{display:none}.panel.active{display:block}
+.ptitle{font-size:19px;font-weight:900;color:var(--c1);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.ptitle::before{content:'';display:block;width:5px;height:22px;background:linear-gradient(180deg,var(--c2),var(--c1));border-radius:3px}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.ch{padding:14px 20px 12px;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff}
+.ch h2{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+.ch p{font-size:12px;opacity:.85;margin-top:3px}
+.cb{padding:18px 20px}
+.stabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.stab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--cm);background:#fff;color:var(--ink2);transition:all .2s;font-family:inherit}
+.stab.active{background:var(--c1);color:#fff;border-color:var(--c1)}
+.sp{display:none}.sp.active{display:block}
+.inf-box{background:var(--cl);border-left:4px solid var(--c2);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink2);line-height:1.8}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--cl);color:var(--c1)}
+.mini-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.mini-table th{background:var(--c1);color:#fff;padding:7px 10px;text-align:left}
+.mini-table td{padding:7px 10px;border-bottom:1px solid #f3e5f5;color:var(--ink2);line-height:1.6;vertical-align:top}
+.mini-table tr:nth-child(even) td{background:#fdf7ff}
+.notice{background:#FFF8E1;border:1.5px solid #FFD54F;border-radius:var(--r);padding:12px 16px;font-size:12px;color:#5D4037;line-height:1.8;margin-bottom:12px}
+.notice strong{color:#E65100}
+.promo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.promo-card{border:1.5px solid var(--border);border-radius:var(--r);padding:14px;background:#fff}
+.promo-head{font-size:13px;font-weight:800;color:var(--c1);margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.promo-sub{font-size:11px;color:var(--ink3);margin-bottom:8px}
+.promo-body{font-size:12px;color:var(--ink2);line-height:1.7}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:var(--cl);color:var(--c1);margin-left:4px}
+.badge.green{background:#E8F5E9;color:#2E7D32}
+.badge.new{background:#FCE4EC;color:#C62828}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.metric-item{background:var(--cl);border-radius:8px;padding:10px 12px;text-align:center}
+.metric-name{font-size:11px;font-weight:800;color:var(--c1)}
+.metric-note{font-size:10px;color:var(--ink3);margin-top:3px}
+.path-steps{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.path-step{padding:7px 14px;background:var(--cl);border-radius:20px;font-size:12px;font-weight:700;color:var(--c1)}
+.path-arrow{font-size:14px;color:var(--cm)}
+.match-area{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{padding:10px 14px;background:#fff;border:2px solid var(--border);border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .25s;color:var(--ink2)}
+.match-item.sel{border-color:var(--c1);background:var(--cl);color:var(--c1)}
+.match-item.matched{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;cursor:default}
+.match-item.wrong{animation:shake .3s;border-color:#E74C3C;background:#FFF0EE}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.match-score{background:var(--cl);color:var(--c1);padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:800;text-align:center;margin-bottom:12px;display:none}
+.match-score.show{display:block}
+.quiz-box{background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border);padding:16px;margin-bottom:12px}
+.quiz-q{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:11px;line-height:1.6}
+.quiz-q span{color:var(--c1)}
+.qopts{display:grid;gap:7px}
+.qopt{padding:9px 15px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;cursor:pointer;text-align:left;font-family:inherit;font-weight:600;color:var(--ink2);transition:all .2s}
+.qopt:hover:not(:disabled){border-color:var(--cm);color:var(--c1)}
+.qopt.ok{background:var(--cl);border-color:var(--c1);color:var(--c1)}
+.qopt.err{background:#FFF0EE;border-color:#E74C3C;color:#C0392B}
+.qfb{font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;margin-top:7px;display:none}
+.qfb.ok{background:var(--cl);color:var(--c1);display:block}
+.qfb.err{background:#FFF0EE;color:#C0392B;display:block}
+.btn-check{padding:8px 22px;background:var(--c1);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-right:8px}
+.btn-reset{padding:8px 18px;background:#fff;color:var(--ink2);border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.complete-card{background:linear-gradient(135deg,#4A0072,#6A1B9A);color:#fff;border-radius:var(--r);padding:28px;text-align:center}
+.ctitle{font-size:22px;font-weight:900;margin-bottom:8px}
+.csub{font-size:13px;opacity:.8;margin-bottom:20px}
+.cstats{display:flex;justify-content:center;gap:28px;margin-bottom:22px}
+.cst-val{font-size:28px;font-weight:900}.cst-lbl{font-size:11px;opacity:.7;margin-top:2px}
+.btn-finish{padding:13px 34px;background:var(--gold);color:#1A2332;border-radius:30px;font-size:15px;font-weight:900;border:none;cursor:pointer;font-family:inherit}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2332;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;transition:transform .3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.xppop{position:fixed;top:66px;right:18px;background:var(--c1);color:#fff;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:800;z-index:999;opacity:0;transform:translateY(-10px);transition:all .4s;pointer-events:none}
+.xppop.show{opacity:1;transform:translateY(0)}
+#conf{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@media(max-width:600px){.promo-grid,.match-area,.metric-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">⚙️</div>
+  <div class="nav-title">M2-U4 运营数据采集</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+  <button class="nav-home" onclick="completeUnit()">🏠 保存返回</button>
+</nav>
+<div class="pbar"><div class="pfill" id="pf" style="width:0%"></div></div>
+<div class="container">
+  <div class="pnav">
+    <button class="pb active" id="btn1" onclick="sp(1)">① 客户数据</button>
+    <button class="pb" id="btn2" onclick="sp(2)">② 推广数据</button>
+    <button class="pb" id="btn3" onclick="sp(3)">③ 销售数据</button>
+    <button class="pb" id="btn4" onclick="sp(4)">④ 供应链数据</button>
+    <button class="pb" id="btn5" onclick="sp(5)">⑤ 练一练</button>
+    <button class="pb" id="btn6" onclick="sp(6)">⑥ 完成</button>
+  </div>
 
+  <div class="panel active" id="p1">
+    <div class="ptitle">一、客户数据采集</div>
+    <div class="card">
+      <div class="ch"><h2>👥 了解你的买家，才能精准服务</h2><p>客户数据 = 行为数据 + 画像数据</p></div>
+      <div class="cb">
+        <div class="stabs">
+          <button class="stab active" onclick="sst('a',0)">🖱️ 行为数据</button>
+          <button class="stab" onclick="sst('a',1)">🎨 画像数据</button>
+          <button class="stab" onclick="sst('a',2)">🛠️ 采集工具</button>
+        </div>
+        <div class="sp active" id="a0">
+          <div class="inf-box">记录买家在店铺内的每一个动作，反映购买意愿和决策路径。</div>
+          <div class="tag-wrap">
+            <span class="tag">商品名称</span><span class="tag">购买数量</span><span class="tag">购买次数</span>
+            <span class="tag">收藏数量</span><span class="tag">购物车数量</span><span class="tag">退款次数</span>
+            <span class="tag">退款金额</span><span class="tag">购物时间段</span>
+          </div>
+        </div>
+        <div class="sp" id="a1">
+          <div class="inf-box">描绘买家群体的社会特征，为精准营销和人群投放提供基础。</div>
+          <div class="tag-wrap">
+            <span class="tag">性别分布</span><span class="tag">年龄层次</span><span class="tag">收货地址/地域</span>
+            <span class="tag">职业特征</span><span class="tag">消费层级</span><span class="tag">兴趣偏好</span><span class="tag">购买力</span>
+          </div>
+        </div>
+        <div class="sp" id="a2">
+          <div class="inf-box">📌 两大主要采集工具：</div>
+          <div class="promo-grid">
+            <div class="promo-card">
+              <div class="promo-head">生意参谋【品类360】<span class="badge green">2024全面免费</span></div>
+              <div class="promo-sub">阿里官方，数据最权威</div>
+              <div class="promo-body">查看访客画像（年龄、性别、地域）、买家行为（收藏、加购、成交等），可按时间段筛选，支持人群标签细分。</div>
+            </div>
+            <div class="promo-card">
+              <div class="promo-head">百度指数【人群画像】</div>
+              <div class="promo-sub">搜索行为侧的用户特征</div>
+              <div class="promo-body">通过关键词搜索数据，了解关注某类产品的用户的年龄、性别、地域分布及兴趣特征，辅助验证平台内部数据。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="sp(2)">下一节：推广数据 →</button></div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="ptitle">二、推广数据采集</div>
+    <div class="card">
+      <div class="ch"><h2>📣 2024年推广工具重大升级</h2><p>直通车/引力魔方/万相台 → 万相台无界版（2024年8月15日起全面替换）</p></div>
+      <div class="cb">
+        <div class="stabs">
+          <button class="stab active" onclick="sst('b',0)">🆕 万相台无界版</button>
+          <button class="stab" onclick="sst('b',1)">📊 推广效果指标</button>
+          <button class="stab" onclick="sst('b',2)">📥 数据采集方法</button>
+        </div>
+        <div class="sp active" id="b0">
+          <div class="notice">🔔 <strong>重要变化（2024年8月15日）：</strong>淘宝直通车、引力魔方、原万相台已正式停止服务，全部整合升级为<strong>万相台无界版</strong>，原工具网站同步关闭。</div>
+          <div class="inf-box">万相台无界版是阿里妈妈推出的<strong>一站式全域营销投放系统</strong>，整合了淘系几乎所有商业流量，覆盖搜索、推荐、短视频、直播等全渠道，共七大营销场景。</div>
+          <div class="promo-grid">
+            <div class="promo-card">
+              <div class="promo-head">🎯 关键词推广<span class="badge">原直通车</span></div>
+              <div class="promo-body">基于产品关键词在搜索结果中竞价展示，精准拦截有主动购买意向的买家。</div>
+            </div>
+            <div class="promo-card">
+              <div class="promo-head">👤 精准人群推广<span class="badge">原引力魔方</span></div>
+              <div class="promo-body">基于人群标签在猜你喜欢、首焦等推荐位展示，唤醒潜在需求，适合种草拉新。</div>
+            </div>
+            <div class="promo-card">
+              <div class="promo-head">🛒 货品运营</div>
+              <div class="promo-body">围绕商品目标（测款、上新、货品加速）进行智能投放，快速启动新品冷启动。</div>
+            </div>
+            <div class="promo-card">
+              <div class="promo-head">📱 内容运营</div>
+              <div class="promo-body">整合直播、短视频、图文内容的推广投放，覆盖内容种草到成交的完整链路。</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--ink3);background:var(--cl);border-radius:var(--r);padding:10px 13px;line-height:1.8">另有：活动运营、消费者运营、店铺运营，共<strong>七大营销场景</strong>。整合后商家可在同一后台完成全渠道投放管理。</div>
+        </div>
+        <div class="sp" id="b1">
+          <div class="inf-box">万相台无界版报表中可采集的核心推广效果指标（原直通车等工具指标均已迁移）：</div>
+          <div class="metric-grid">
+            <div class="metric-item"><div class="metric-name">曝光量</div><div class="metric-note">广告展示总次数</div></div>
+            <div class="metric-item"><div class="metric-name">点击量</div><div class="metric-note">点击广告的次数</div></div>
+            <div class="metric-item"><div class="metric-name">点击率(CTR)</div><div class="metric-note">点击/曝光×100%</div></div>
+            <div class="metric-item"><div class="metric-name">花费</div><div class="metric-note">广告总投入费用</div></div>
+            <div class="metric-item"><div class="metric-name">成交笔数</div><div class="metric-note">广告带动的订单量</div></div>
+            <div class="metric-item"><div class="metric-name">成交金额</div><div class="metric-note">广告带动的销售额</div></div>
+            <div class="metric-item"><div class="metric-name">ROI</div><div class="metric-note">成交额÷花费</div></div>
+            <div class="metric-item"><div class="metric-name">收藏数</div><div class="metric-note">店铺/宝贝收藏量</div></div>
+            <div class="metric-item"><div class="metric-name">加购数</div><div class="metric-note">加入购物车数量</div></div>
+            <div class="metric-item"><div class="metric-name">转化率</div><div class="metric-note">成交/点击×100%</div></div>
+            <div class="metric-item"><div class="metric-name">平均点击花费</div><div class="metric-note">CPC（每次点击费用）</div></div>
+            <div class="metric-item"><div class="metric-name">千次展现花费</div><div class="metric-note">CPM</div></div>
+          </div>
+        </div>
+        <div class="sp" id="b2">
+          <table class="mini-table">
+            <tr><th>采集渠道</th><th>操作路径</th><th>可获数据</th></tr>
+            <tr><td><strong>万相台无界版后台</strong></td><td>阿里妈妈 → 万相台无界 → 推广报表 → 选择计划/时间段下载</td><td>曝光、点击、花费、成交、ROI、收藏、加购等全量报表</td></tr>
+            <tr><td><strong>生意参谋【流量】</strong></td><td>生意参谋 → 流量 → 来源分析 → 付费流量</td><td>各推广渠道的流量贡献、访客来源占比</td></tr>
+            <tr><td><strong>第三方工具</strong></td><td>店侦探、店查查等插件，查看竞品推广关键词和策略</td><td>竞品推广关键词、引流词排名（估算数据）</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="sp(3)">下一节：销售数据 →</button></div>
+  </div>
+
+  <div class="panel" id="p3">
+    <div class="ptitle">三、销售数据采集</div>
+    <div class="card">
+      <div class="ch"><h2>💰 销售是核心，数据是镜子</h2><p>交易数据 + 服务数据</p></div>
+      <div class="cb">
+        <div class="stabs">
+          <button class="stab active" onclick="sst('c',0)">🛒 交易数据</button>
+          <button class="stab" onclick="sst('c',1)">🎧 服务数据</button>
+        </div>
+        <div class="sp active" id="c0">
+          <div class="inf-box">反映店铺实际销售规模和趋势的核心指标。</div>
+          <div class="tag-wrap">
+            <span class="tag">订单量（付款/发货/完成）</span><span class="tag">成交量</span>
+            <span class="tag">销售额</span><span class="tag">客单价</span><span class="tag">退款率</span>
+          </div>
+          <div class="inf-box">📍 <strong>采集路径（淘宝/天猫）：</strong></div>
+          <div class="path-steps">
+            <span class="path-step">卖家后台</span>
+            <span class="path-arrow">→</span>
+            <span class="path-step">交易管理</span>
+            <span class="path-arrow">→</span>
+            <span class="path-step">已卖出的宝贝</span>
+            <span class="path-arrow">→</span>
+            <span class="path-step">导出数据</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);background:var(--cl);border-radius:var(--r);padding:10px 13px;line-height:1.8">补充：生意参谋【经营】→ 交易概况，可查看按日/周/月的销售额趋势、订单分布、商品成交排行等。</div>
+        </div>
+        <div class="sp" id="c1">
+          <div class="inf-box">衡量买家体验和客服效率的重要指标，直接影响店铺DSR评分。</div>
+          <div class="tag-wrap">
+            <span class="tag">首次响应时长</span><span class="tag">咨询人数</span>
+            <span class="tag">咨询转化率</span><span class="tag">问题解决率</span><span class="tag">退款纠纷数</span>
+          </div>
+          <div class="inf-box">📍 <strong>采集工具：</strong>生意参谋【服务】板块，可查看客服响应、咨询转化、售后处理等服务数据。店小蜜（2024年已免费）也提供服务报表。</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="sp(4)">下一节：供应链数据 →</button></div>
+  </div>
+
+  <div class="panel" id="p4">
+    <div class="ptitle">四、供应链数据采集</div>
+    <div class="card">
+      <div class="ch"><h2>🏭 供应链数据：保障货品稳定运转的基础</h2><p>采购 · 库存 · 物流 三大环节</p></div>
+      <div class="cb">
+        <div class="stabs">
+          <button class="stab active" onclick="sst('d',0)">🛒 采购数据</button>
+          <button class="stab" onclick="sst('d',1)">📦 库存数据</button>
+          <button class="stab" onclick="sst('d',2)">🚚 物流数据</button>
+        </div>
+        <div class="sp active" id="d0">
+          <div class="tag-wrap">
+            <span class="tag">采购数量</span><span class="tag">采购金额</span><span class="tag">采购周期</span>
+            <span class="tag">供应商信息</span><span class="tag">采购成本</span><span class="tag">次品率</span>
+            <span class="tag">账期</span><span class="tag">最小起订量(MOQ)</span><span class="tag">交货准时率</span>
+          </div>
+          <div class="inf-box">📌 采集渠道：采购系统/ERP软件、进价台账、供应商对账单。</div>
+        </div>
+        <div class="sp" id="d1">
+          <div class="tag-wrap">
+            <span class="tag">库存总量</span><span class="tag">可用库存</span>
+            <span class="tag">滞销库存比例</span><span class="tag">库存周转率</span>
+          </div>
+          <div class="inf-box">📌 采集渠道：仓储管理系统（WMS）、ERP库存模块、卖家后台库存报表。</div>
+        </div>
+        <div class="sp" id="d2">
+          <div class="tag-wrap">
+            <span class="tag">发货时效</span><span class="tag">物流费用</span><span class="tag">签收率</span>
+          </div>
+          <div class="inf-box">📌 采集渠道：快递公司系统后台（菜鸟裹裹/顺丰/快递100）、卖家后台物流报表、生意参谋【物流】板块。</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="sp(5)">去做练习题 →</button></div>
+  </div>
+
+  <div class="panel" id="p5">
+    <div class="ptitle">五、练一练</div>
+    <div class="card">
+      <div class="ch"><h2>🔗 连连看：数据指标配对</h2><p>点击左栏指标，再点击右栏对应类别，配对成功 +8 XP/对</p></div>
+      <div class="cb">
+        <div class="match-score" id="mscore"></div>
+        <div class="match-area">
+          <div class="match-col" id="mleft">
+            <div class="match-item" id="mi0" onclick="sel(0,'L')">首次响应时长</div>
+            <div class="match-item" id="mi1" onclick="sel(1,'L')">采购周期</div>
+            <div class="match-item" id="mi2" onclick="sel(2,'L')">点击率(CTR)</div>
+            <div class="match-item" id="mi3" onclick="sel(3,'L')">库存周转率</div>
+            <div class="match-item" id="mi4" onclick="sel(4,'L')">客单价</div>
+          </div>
+          <div class="match-col" id="mright">
+            <div class="match-item" id="mr0" onclick="sel(0,'R')">服务数据</div>
+            <div class="match-item" id="mr1" onclick="sel(1,'R')">供应链-采购</div>
+            <div class="match-item" id="mr2" onclick="sel(2,'R')">推广效果数据</div>
+            <div class="match-item" id="mr3" onclick="sel(3,'R')">供应链-库存</div>
+            <div class="match-item" id="mr4" onclick="sel(4,'R')">销售-交易数据</div>
+          </div>
+        </div>
+        <button class="btn-reset" onclick="resetMatch()">🔄 重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2>📝 选择题</h2><p>每题 +8 XP</p></div>
+      <div class="cb">
+        <div class="quiz-box" id="qa">
+          <div class="quiz-q">1. 2024年8月15日之后，淘宝商家如需采集付费推广的<span>关键词投放数据</span>，应在哪里操作？</div>
+          <div class="qopts">
+            <button class="qopt" onclick="aq('qa',0,2,'直通车已于2024年8月15日正式停止服务，网站已关闭。')">A. 淘宝直通车后台</button>
+            <button class="qopt" onclick="aq('qa',1,2,'引力魔方已于2024年8月15日正式停止服务，不能再使用。')">B. 引力魔方后台</button>
+            <button class="qopt" onclick="aq('qa',2,2,'✅ 正确！直通车、引力魔方、原万相台已全部整合至万相台无界版，推广数据统一在万相台无界后台报表中查看和下载。')">C. 万相台无界版后台报表</button>
+            <button class="qopt" onclick="aq('qa',3,2,'钻石展位也已整合进万相台无界版，单独的钻展后台不再使用。')">D. 钻石展位后台</button>
+          </div>
+          <div class="qfb" id="qa-fb"></div>
+        </div>
+        <div class="quiz-box" id="qb">
+          <div class="quiz-q">2. 销售数据中，"咨询转化率"和"首次响应时长"属于哪类数据？</div>
+          <div class="qopts">
+            <button class="qopt" onclick="aq('qb',0,1,'交易数据主要是订单量、销售额、客单价等成交相关数据。')">A. 交易数据</button>
+            <button class="qopt" onclick="aq('qb',1,1,'✅ 正确！咨询转化率和首次响应时长反映的是客服服务质量，属于销售中的服务数据，可通过生意参谋【服务】板块采集。')">B. 服务数据</button>
+            <button class="qopt" onclick="aq('qb',2,1,'推广效果数据主要是曝光、点击、花费、ROI等广告投放相关数据。')">C. 推广效果数据</button>
+            <button class="qopt" onclick="aq('qb',3,1,'供应链数据主要是采购、库存、物流相关数据。')">D. 供应链数据</button>
+          </div>
+          <div class="qfb" id="qb-fb"></div>
+        </div>
+        <div class="quiz-box" id="qc">
+          <div class="quiz-q">3. 万相台无界版整合了哪些原有推广工具？</div>
+          <div class="qopts">
+            <button class="qopt" onclick="aq('qc',0,2,'超级推荐是抖音/快手推广工具，不是淘系工具。')">A. 直通车 + 超级推荐 + 万相台</button>
+            <button class="qopt" onclick="aq('qc',1,2,'UniDesk是站外内容投放工具，不在此次整合范围内。')">B. 直通车 + UniDesk + 引力魔方</button>
+            <button class="qopt" onclick="aq('qc',2,2,'✅ 正确！万相台无界版于2024年8月15日全面上线，整合了直通车（关键词推广）、引力魔方（精准人群推广）和原万相台（多场景投放）三大工具的全部功能。')">C. 直通车 + 引力魔方 + 原万相台</button>
+            <button class="qopt" onclick="aq('qc',3,2,'生意参谋是数据分析工具，不是推广工具，未整合到万相台无界版中。')">D. 直通车 + 生意参谋 + 引力魔方</button>
+          </div>
+          <div class="qfb" id="qc-fb"></div>
+        </div>
+        <div id="p5done" style="display:none;margin-top:12px;text-align:center">
+          <div style="background:var(--cl);color:var(--c1);padding:12px;border-radius:var(--r);font-weight:800;margin-bottom:10px">🎉 练习全部完成！</div>
+          <button class="btn-check" onclick="sp(6)">完成本单元 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="p6">
+    <div class="complete-card">
+      <div style="font-size:40px;margin-bottom:12px">🎊</div>
+      <div class="ctitle">单元完成！</div>
+      <div class="csub">M2-U4 运营数据采集 · 学习结束</div>
+      <div class="cstats">
+        <div class="cst"><div class="cst-val" id="fstars">☆☆☆☆☆</div><div class="cst-lbl">本单元评级</div></div>
+        <div class="cst"><div class="cst-val" id="fxp">+0</div><div class="cst-lbl">获得 XP</div></div>
+        <div class="cst"><div class="cst-val" id="fscore">0</div><div class="cst-lbl">综合得分</div></div>
+      </div>
+      <button class="btn-finish" onclick="completeUnit()">💾 保存进度 · 返回课程首页</button>
+    </div>
+    <div style="margin-top:18px;background:#fff;border-radius:var(--r);padding:18px;border:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:800;color:var(--c1);margin-bottom:10px">💭 课后思考</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.9">
+        针对一家淘宝女装店，结合本单元知识：<br>
+        ① 推广数据采集工具已从"直通车+引力魔方"更新为万相台无界版，作为运营人员，具体在哪里查看关键词推广的点击率和ROI数据？<br>
+        ② 如果店铺"咨询量高但成交低"，可能是哪类数据出现了问题？应从哪个工具入手分析？<br>
+        ③ 双十一大促备货时，你需要从供应链的哪些维度采集数据来支撑备货决策？
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="xppop" id="xppop"></div>
+<div id="conf"></div>
+<script>
+const SUPABASE_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _sb=null;
+if(window.supabase)_sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const SK='ecommerce_data_analysis_user';
+const AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+let xp=0,gstars=0,matchXP=0;
+const qd={};
+const matchAns=[0,1,2,3,4];
+let selL=-1,selR=-1,matched=new Set();
+function lu(){try{return JSON.parse(localStorage.getItem(SK))||null}catch{return null}}
+function gws(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function su(data){
+  data.lastVisit=new Date().toISOString();const ws=gws();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws;}
+  localStorage.setItem(SK,JSON.stringify(data));
+  if(_sb){const cu=AU.filter(id=>data.units[id]?.completed).length,ts=AU.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _sb.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn(error.message)});}
+}
+function toast(m,d=2500){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d)}
+function popxp(a){const e=document.getElementById('xppop');e.textContent='+'+a+' XP';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function axp(a){xp+=a;const u=lu();document.getElementById('navXP').textContent='⚡ '+(u?u.xp+xp:xp)+' XP';popxp(a)}
+function conf(){
+  const c=document.getElementById('conf'),cl=['#9C27B0','#CE93D8','#4CAF50','#FFCA28','#2196F3','#E91E63'];c.innerHTML='';
+  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cl[Math.floor(Math.random()*cl.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p);}
+  setTimeout(()=>c.innerHTML='',4000);
+}
+function sp(n){
+  [1,2,3,4,5,6].forEach(i=>{document.getElementById('p'+i).classList.toggle('active',i===n);document.getElementById('btn'+i).classList.toggle('active',i===n);});
+  document.getElementById('pf').style.width=[0,17,33,50,67,83,100][n]+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function sst(g,n){
+  const m={a:['a0','a1','a2'],b:['b0','b1','b2'],c:['c0','c1'],d:['d0','d1','d2']};
+  const pm={a:'#p1',b:'#p2',c:'#p3',d:'#p4'};
+  m[g].forEach((id,i)=>document.getElementById(id).classList.toggle('active',i===n));
+  document.querySelectorAll(pm[g]+' .stab').forEach((b,i)=>b.classList.toggle('active',i===n));
+}
+function aq(qid,ch,ok,fb){
+  if(qd[qid])return;qd[qid]=true;
+  const box=document.getElementById(qid);
+  box.querySelectorAll('.qopt').forEach((b,i)=>{b.disabled=true;if(i===ok)b.classList.add('ok');else if(i===ch&&ch!==ok)b.classList.add('err');});
+  const fe=document.getElementById(qid+'-fb');
+  if(ch===ok){fe.textContent='✅ '+fb;fe.className='qfb ok';axp(8);toast('✅ 答对！+8 XP');}
+  else{fe.textContent='❌ '+fb;fe.className='qfb err';toast('❌ 答错了，看解析');}
+  if(['qa','qb','qc'].every(q=>qd[q])&&matched.size>=5)document.getElementById('p5done').style.display='block';
+}
+function sel(idx,side){
+  if(side==='L'){if(matched.has(idx+'L'))return;selL=idx;document.querySelectorAll('#mleft .match-item').forEach((el,i)=>el.classList.toggle('sel',i===idx&&!matched.has(i+'L')));}
+  else{if(matched.has(idx+'R'))return;selR=idx;}
+  if(selL>=0&&selR>=0){
+    if(matchAns[selL]===selR){
+      const el=document.getElementById('mi'+selL),er=document.getElementById('mr'+selR);
+      el.classList.remove('sel');el.classList.add('matched');er.classList.add('matched');el.onclick=null;er.onclick=null;
+      matched.add(selL+'L');matched.add(selR+'R');matchXP+=8;axp(8);toast('✅ 配对成功！+8 XP');
+      const sc=document.getElementById('mscore');sc.textContent='✅ 已完成 '+matched.size/2+'/5 对 · 本游戏共 +'+(matched.size/2*8)+' XP';sc.classList.add('show');
+      if(matched.size>=10){gstars=Math.max(gstars,3);if(['qa','qb','qc'].every(q=>qd[q]))document.getElementById('p5done').style.display='block';}
+    }else{
+      const el=document.getElementById('mi'+selL),er=document.getElementById('mr'+selR);
+      el.classList.add('wrong');er.classList.add('wrong');el.classList.remove('sel');er.classList.remove('sel');
+      setTimeout(()=>{el.classList.remove('wrong');er.classList.remove('wrong');},350);toast('❌ 配对错误，再想想');
+    }
+    selL=-1;selR=-1;
+  }
+}
+function resetMatch(){selL=-1;selR=-1;matched=new Set();matchXP=0;document.getElementById('mscore').classList.remove('show');[0,1,2,3,4].forEach(i=>{document.getElementById('mi'+i).className='match-item';document.getElementById('mr'+i).className='match-item';document.getElementById('mi'+i).onclick=()=>sel(i,'L');document.getElementById('mr'+i).onclick=()=>sel(i,'R');});}
+function completeUnit(){
+  const u=lu();if(!u){window.location.href='index.html';return;}
+  const score=Math.min(100,20+Math.round(xp*.8));
+  const stars=gstars>0?gstars:(score>=90?5:score>=75?4:score>=60?3:score>=45?2:1);
+  const total=xp+20;
+  const done=u.units['m2u4']?.completed&&u.units['m2u4']?.xpEarned>0;
+  const actual=done?0:total;const prev=u.units['m2u4']||{};
+  u.units['m2u4']={completed:true,stars:Math.max(prev.stars||0,stars),score:Math.max(prev.score||0,score),xpEarned:done?(prev.xpEarned||0):total};
+  u.xp+=actual;u.weekXp=(u.weekXp||0)+actual;
+  const ach=u.achievements||[];
+  if(!ach.includes('first_unit'))ach.push('first_unit');
+  if(stars>=3&&!ach.includes('first_star3'))ach.push('first_star3');
+  u.achievements=ach;su(u);
+  document.getElementById('fstars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('fxp').textContent='+'+(done?0:total);
+  document.getElementById('fscore').textContent=score;
+  sp(6);if(stars>=4)conf();
+  toast(done?'🔄 已重新提交，XP不重复计入':'🎉 已保存！+'+total+' XP',2200);
+  setTimeout(()=>window.location.href='index.html',2300);
+}
+(function(){const u=lu();document.getElementById('navXP').textContent='⚡ '+(u?u.xp:0)+' XP';})();
+</script>
+</body>
+</html>
