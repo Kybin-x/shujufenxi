@@ -1,1 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>M2-U5 产品数据采集</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ora:#E65100;--ora2:#F57C00;--oraD:#BF360C;--oraL:#FFF3E0;--oraM:#FFCC80;
+  --ink:#1A2332;--ink2:#3D5066;--ink3:#7A90A8;
+  --bg:#FFFBF5;--card:#fff;--border:rgba(230,81,0,.15);
+  --shadow:0 2px 14px rgba(230,81,0,.1);--gold:#F4A907;--r:12px;
+}
+body{font-family:"PingFang SC","Noto Sans SC",-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:2px solid var(--oraL);display:flex;align-items:center;padding:0 18px;height:52px;gap:12px;box-shadow:0 2px 8px rgba(230,81,0,.08)}
+.nav-logo{font-size:18px}.nav-title{font-size:13px;font-weight:800;color:var(--oraD);flex:1}
+.nav-xp{font-size:13px;font-weight:800;color:var(--ora);background:var(--oraL);padding:4px 12px;border-radius:20px}
+.nav-home{padding:6px 14px;background:var(--ora);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.progress-bar{height:4px;background:var(--oraL)}
+.progress-fill{height:4px;background:linear-gradient(90deg,var(--ora2),var(--ora));transition:width .5s}
+.container{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+.part-nav{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.part-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--oraM);background:#fff;color:var(--ink2);transition:all .2s;font-family:inherit}
+.part-btn.active{background:var(--ora);color:#fff;border-color:var(--ora)}
+.part-btn.done::after{content:" ✓"}
+.part-panel{display:none}.part-panel.active{display:block}
+.part-title{font-size:19px;font-weight:900;color:var(--oraD);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.part-title::before{content:'';display:block;width:5px;height:22px;background:linear-gradient(180deg,var(--ora2),var(--ora));border-radius:3px;flex-shrink:0}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.card-head{padding:14px 20px 12px;background:linear-gradient(135deg,var(--ora),var(--ora2));color:#fff}
+.card-head h2{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+.card-head p{font-size:12px;opacity:.85;margin-top:3px}
+.card-body{padding:18px 20px}
+/* sub tabs */
+.ch-tabs{display:flex;gap:0;border-radius:var(--r);overflow:hidden;border:1.5px solid var(--oraM);margin-bottom:16px}
+.ch-tab{flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink2);background:#fff;transition:all .2s;border:none;font-family:inherit}
+.ch-tab.active{background:var(--ora);color:#fff}
+.ch-tab:first-child{border-right:1.5px solid var(--oraM)}
+.ch-panel{display:none}.ch-panel.active{display:block}
+/* info */
+.info-hl{font-size:13px;color:var(--ink2);line-height:1.85;background:var(--oraL);border-left:4px solid var(--ora2);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin-bottom:14px}
+.info-hl strong{color:var(--oraD)}
+/* case */
+.case-box{background:#FFF8E1;border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:11px 15px;font-size:12px;color:#5D4037;line-height:1.8;margin-bottom:14px}
+.case-box strong{color:#E65100}
+/* tool items */
+.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.tool-card{border:1.5px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:#fffdf8}
+.tool-card:hover{border-color:var(--ora);box-shadow:0 4px 16px rgba(230,81,0,.15);transform:translateY(-2px)}
+.tool-card.sel{border-color:var(--ora);background:var(--oraL)}
+.tool-icon{font-size:26px;margin-bottom:6px}
+.tool-name{font-size:12px;font-weight:800;color:var(--ink)}
+.tool-type{font-size:10px;color:var(--ink3);margin-top:2px}
+.tool-detail{display:none;animation:fd .25s}.tool-detail.show{display:block}
+@keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.td-inner{background:#fff;border:1.5px solid var(--ora2);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.td-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.td-icon{font-size:28px}.td-name{font-size:15px;font-weight:900;color:var(--oraD)}
+.td-sub{font-size:11px;color:var(--ink3)}
+.td-desc{font-size:13px;color:var(--ink2);line-height:1.8;margin-bottom:10px}
+.td-tags{display:flex;flex-wrap:wrap;gap:6px}
+.td-tag{background:var(--oraL);color:var(--oraD);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+/* tags */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--oraL);color:var(--oraD)}
+/* table */
+.data-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.data-table th{background:var(--ora);color:#fff;padding:7px 10px;text-align:left;white-space:nowrap}
+.data-table td{padding:7px 10px;border-bottom:1px solid #fff3e0;color:var(--ink2);vertical-align:top;line-height:1.6}
+.data-table tr:nth-child(even) td{background:#fffbf5}
+/* formula */
+.formula-card{background:#fff;border:2px solid var(--oraM);border-radius:var(--r);padding:14px 18px;margin-bottom:10px}
+.formula-name{font-size:13px;font-weight:800;color:var(--oraD);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.formula-eq{font-size:13px;font-weight:700;color:var(--ink);background:var(--oraL);padding:8px 14px;border-radius:8px;margin:6px 0;font-family:monospace}
+.formula-note{font-size:11px;color:var(--ink3);margin-top:4px;line-height:1.6}
+/* step */
+.step-list{list-style:none}
+.step-item{display:flex;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;background:#fffdf8;align-items:flex-start}
+.step-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--ora),var(--ora2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-txt{font-size:13px;color:var(--ink2);line-height:1.7}.step-txt strong{color:var(--oraD)}
+/* quiz */
+.quiz-box{background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border);padding:16px;margin-bottom:12px}
+.quiz-q{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:11px;line-height:1.6}
+.quiz-q span{color:var(--ora)}
+.quiz-opts{display:grid;gap:7px}
+.qopt{padding:9px 15px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;cursor:pointer;text-align:left;font-family:inherit;font-weight:600;color:var(--ink2);transition:all .2s}
+.qopt:hover:not(:disabled){border-color:var(--ora2);color:var(--ora)}
+.qopt.ok{background:var(--oraL);border-color:var(--ora);color:var(--oraD)}
+.qopt.err{background:#FFF0EE;border-color:#E74C3C;color:#C0392B}
+.quiz-fb{font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;margin-top:7px;display:none}
+.quiz-fb.ok{background:var(--oraL);color:var(--oraD);display:block}
+.quiz-fb.err{background:#FFF0EE;color:#C0392B;display:block}
+/* sort */
+.sort-label{font-size:13px;color:var(--ink2);line-height:1.75;margin-bottom:12px}
+.sort-chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px;min-height:52px;background:#fffdf8;border:2px dashed var(--oraM);border-radius:var(--r);margin-bottom:12px}
+.sort-chip{padding:6px 14px;background:var(--ora);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:grab;user-select:none;transition:all .15s}
+.sort-chip:hover{background:var(--oraD);transform:scale(1.04)}
+.sort-chip.placed{opacity:.4;cursor:default}
+.sort-zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sort-zone{border:2px dashed var(--border);border-radius:var(--r);padding:10px;min-height:90px}
+.sort-zone.over{border-color:var(--ora);background:var(--oraL)}
+.sz-label{font-size:11px;font-weight:800;color:var(--ink3);margin-bottom:6px;letter-spacing:.06em}
+.sz-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:40px}
+.sort-fb{font-size:13px;font-weight:700;padding:9px 14px;border-radius:var(--r);display:none;margin-bottom:8px}
+.sort-fb.ok{background:var(--oraL);color:var(--oraD);display:block}
+.sort-fb.err{background:#FFF0EE;color:#C0392B;display:block}
+.btn-check{padding:8px 22px;background:var(--ora);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-right:8px}
+.btn-reset{padding:8px 18px;background:#fff;color:var(--ink2);border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+/* complete */
+.complete-card{background:linear-gradient(135deg,#7B2500,#BF360C);color:#fff;border-radius:var(--r);padding:28px;text-align:center}
+.complete-title{font-size:22px;font-weight:900;margin-bottom:8px}
+.complete-sub{font-size:13px;opacity:.8;margin-bottom:20px}
+.c-stats{display:flex;justify-content:center;gap:28px;margin-bottom:22px}
+.cst{text-align:center}.cst-val{font-size:28px;font-weight:900}.cst-lbl{font-size:11px;opacity:.7;margin-top:2px}
+.btn-finish{padding:13px 34px;background:var(--gold);color:#1A2332;border-radius:30px;font-size:15px;font-weight:900;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-finish:hover{transform:scale(1.04);box-shadow:0 6px 24px rgba(244,169,7,.4)}
+.mod-banner{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border-radius:var(--r);padding:20px;text-align:center;margin-top:18px}
+.mod-banner h3{font-size:17px;font-weight:900;margin-bottom:6px}
+.mod-banner p{font-size:13px;opacity:.88;line-height:1.7}
+.reflect-box{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:18px;margin-top:14px}
+.reflect-box h3{font-size:14px;font-weight:800;color:var(--oraD);margin-bottom:10px}
+.reflect-box p{font-size:13px;color:var(--ink2);line-height:1.9}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2332;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;transition:transform .3s;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.xp-pop{position:fixed;top:66px;right:18px;background:var(--ora);color:#fff;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:800;z-index:999;opacity:0;transform:translateY(-10px);transition:all .4s;pointer-events:none}
+.xp-pop.show{opacity:1;transform:translateY(0)}
+@media(max-width:600px){.tool-grid{grid-template-columns:repeat(2,1fr)}.sort-zones{grid-template-columns:1fr}.c-stats{gap:16px}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">📦</div>
+  <div class="nav-title">M2-U5 产品数据采集</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+  <button class="nav-home" onclick="completeUnit()">🏠 保存返回</button>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
 
+<div class="container">
+  <div class="part-nav">
+    <button class="part-btn active" id="btn1" onclick="showPart(1)">① 产品行业数据</button>
+    <button class="part-btn" id="btn2" onclick="showPart(2)">② 产品能力数据</button>
+    <button class="part-btn" id="btn3" onclick="showPart(3)">③ 练一练</button>
+    <button class="part-btn" id="btn4" onclick="showPart(4)">④ 完成本单元</button>
+  </div>
+
+  <!-- ══ PART 1：产品行业数据 ══ -->
+  <div class="part-panel active" id="part1">
+    <div class="part-title">一、产品行业数据采集</div>
+    <div class="card">
+      <div class="card-head">
+        <h2>🎯 核心目的：了解产品市场需求变化</h2>
+        <p>产品行业数据 = 产品搜索指数 + 产品交易指数，点击标签切换</p>
+      </div>
+      <div class="card-body">
+        <div class="ch-tabs">
+          <button class="ch-tab active" id="pt0" onclick="switchPT(0)">🔍 产品搜索指数</button>
+          <button class="ch-tab" id="pt1" onclick="switchPT(1)">💹 产品交易指数</button>
+        </div>
+
+        <!-- 搜索指数 -->
+        <div class="ch-panel active" id="pp0">
+          <div class="info-hl">产品搜索指数是用户在搜索相关产品关键词热度的<strong>数据化体现</strong>，从侧面反映用户对产品的<strong>关注度和兴趣度</strong>。</div>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:10px;letter-spacing:.05em">三大分析价值</div>
+          <div class="step-list" style="margin-bottom:14px">
+            <li class="step-item"><div class="step-num">①</div><div class="step-txt"><strong>关注度变化：</strong>通过某关键词一段时间内搜索指数涨跌态势，解读产品客户关注程度的变化</div></li>
+            <li class="step-item"><div class="step-num">②</div><div class="step-txt"><strong>客户群特征：</strong>分析关注这些关键词的客户群特征（年龄、性别、兴趣等），辅助优化营销方案</div></li>
+            <li class="step-item"><div class="step-num">③</div><div class="step-txt"><strong>需求与喜好：</strong>通过同一产品不同关键词的搜索指数趋势变化，分析用户需求和喜好的变化方向</div></li>
+          </div>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:10px;letter-spacing:.05em">采集工具</div>
+          <div class="tool-grid">
+            <div class="tool-card" id="tc0" onclick="showTool(0)">
+              <div class="tool-icon">📊</div>
+              <div class="tool-name">百度指数</div>
+              <div class="tool-type">主要工具</div>
+            </div>
+            <div class="tool-card" id="tc1" onclick="showTool(1)">
+              <div class="tool-icon">🔵</div>
+              <div class="tool-name">360趋势</div>
+              <div class="tool-type">补充参考</div>
+            </div>
+            <div class="tool-card" id="tc2" onclick="showTool(2)">
+              <div class="tool-icon">🟡</div>
+              <div class="tool-name">搜狗指数</div>
+              <div class="tool-type">补充参考</div>
+            </div>
+          </div>
+          <div class="tool-detail" id="td0">
+            <div class="td-inner">
+              <div class="td-head"><div class="td-icon">📊</div><div><div class="td-name">百度指数</div><div class="td-sub">搜索指数主要采集工具</div></div></div>
+              <div class="td-desc">采集方法：在百度指数搜索产品关键词，可按<strong>时间段</strong>、<strong>地域</strong>等指标筛选；建议使用<strong>多组关键词</strong>进行数据查询和采集，以提高数据精准度。</div>
+              <div class="td-tags"><span class="td-tag">搜索指数趋势</span><span class="td-tag">年龄分布</span><span class="td-tag">性别分布</span><span class="td-tag">地域分布</span><span class="td-tag">兴趣分类</span></div>
+            </div>
+          </div>
+          <div class="tool-detail" id="td1">
+            <div class="td-inner">
+              <div class="td-head"><div class="td-icon">🔵</div><div><div class="td-name">360趋势</div><div class="td-sub">补充参考工具</div></div></div>
+              <div class="td-desc">360旗下搜索指数工具，可与百度指数数据互相印证，补充在360搜索引擎用户中的产品关注度数据。</div>
+              <div class="td-tags"><span class="td-tag">搜索趋势</span><span class="td-tag">用户画像参考</span></div>
+            </div>
+          </div>
+          <div class="tool-detail" id="td2">
+            <div class="td-inner">
+              <div class="td-head"><div class="td-icon">🟡</div><div><div class="td-name">搜狗指数</div><div class="td-sub">补充参考工具</div></div></div>
+              <div class="td-desc">搜狗旗下搜索指数工具，补充搜狗用户群体的产品搜索热度数据，与百度指数组合使用可提升数据覆盖面。</div>
+              <div class="td-tags"><span class="td-tag">搜索趋势</span><span class="td-tag">用户兴趣参考</span></div>
+            </div>
+          </div>
+          <div class="case-box"><strong>📌 案例：</strong>搜索"连衣裙"关键词，可查看2017—2019年搜索指数变化趋势，以及人群属性（年龄分布、性别分布等），从而判断产品市场需求变化。</div>
+        </div>
+
+        <!-- 交易指数 -->
+        <div class="ch-panel" id="pp1">
+          <div class="info-hl">产品交易指数是产品在平台<strong>交易热度</strong>的体现，是衡量店铺、产品<strong>受欢迎程度</strong>的重要指标。<br><strong>交易指数越高 → 该产品越受消费者欢迎。</strong></div>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:10px;letter-spacing:.05em">采集工具：生意参谋【市场】板块</div>
+          <table class="data-table">
+            <tr><th>采集维度</th><th>可查看数据</th></tr>
+            <tr><td><strong>商品排行（市场排行）</strong></td><td>排名、类目、所属店铺、交易指数、交易增长幅度、支付转化指数</td></tr>
+            <tr><td><strong>店铺排行</strong></td><td>排名、店铺名称、交易指数、交易增长幅度、支付转化指数</td></tr>
+          </table>
+          <div style="font-size:12px;color:var(--ink3);background:var(--oraL);padding:9px 13px;border-radius:var(--r)">💡 通过生意参谋市场板块，既可看行业整体交易热度排行，也可对比不同店铺的交易竞争力。</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="showPart(2)">下一部分：产品能力数据 →</button></div>
+  </div>
+
+  <!-- ══ PART 2：产品能力数据 ══ -->
+  <div class="part-panel" id="part2">
+    <div class="part-title">二、产品能力数据采集</div>
+    <div class="card">
+      <div class="card-head">
+        <h2>⚡ 两大能力维度</h2>
+        <p>产品获客能力 + 产品盈利能力，点击标签切换</p>
+      </div>
+      <div class="card-body">
+        <div class="ch-tabs">
+          <button class="ch-tab active" id="pa0" onclick="switchPA(0)">🎣 产品获客能力</button>
+          <button class="ch-tab" id="pa1" onclick="switchPA(1)">💰 产品盈利能力</button>
+        </div>
+
+        <!-- 获客能力 -->
+        <div class="ch-panel active" id="ab0">
+          <div class="info-hl">对产品为店铺或平台<strong>获取新客户的能力</strong>的衡量。</div>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:8px;letter-spacing:.05em">5项采集指标</div>
+          <div class="tags" style="margin-bottom:14px">
+            <span class="tag">关注量</span><span class="tag">收藏量</span><span class="tag">注册量</span><span class="tag">新客点击量</span><span class="tag">重复购买率</span>
+          </div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink2);margin-bottom:10px">📍 采集示例：淘宝推广产品所带来的店铺收藏量</div>
+          <ul class="step-list">
+            <li class="step-item"><div class="step-num">1</div><div class="step-txt">进入推广平台后台 → 获取产品的<strong>推广报表</strong></div></li>
+            <li class="step-item"><div class="step-num">2</div><div class="step-txt">指标选择 <strong>"店铺收藏数"</strong> → 即可获取该数据</div></li>
+          </ul>
+          <div style="font-size:11px;color:var(--ink3);background:var(--oraL);border-radius:var(--r);padding:10px 13px;line-height:1.8">
+            报表可查字段：日期、推广计划、宝贝名称、花费、点击率、平均点击花费、<strong>宝贝收藏数、店铺收藏数、总收藏数</strong>、投入产出比、直接/间接/总购物车数等。
+          </div>
+        </div>
+
+        <!-- 盈利能力 -->
+        <div class="ch-panel" id="ab1">
+          <div class="info-hl">对产品为店铺<strong>销售或利润贡献能力</strong>的衡量。<br>⚠️ <strong>特点：该类型数据一般无法直接获取，需要通过公式进行计算。</strong></div>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:10px;letter-spacing:.05em">三大指标及计算公式</div>
+          <div class="formula-card">
+            <div class="formula-name">📌 客单件 <span style="font-size:11px;color:var(--ink3);font-weight:400">每位成交客户的平均购买数量</span></div>
+            <div class="formula-eq">客单件 = 商品销售数量 ÷ 订单数</div>
+            <div class="formula-note">需采集的基础数据：销售数量、订单数</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-name">📌 毛利率 <span style="font-size:11px;color:var(--ink3);font-weight:400">商品毛利润占销售额的百分比</span></div>
+            <div class="formula-eq">毛利率 = （销售收入 - 销售成本）÷ 销售收入 × 100%</div>
+            <div class="formula-note">需采集：销售收入、商品采购价、物流费用、包装费用</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-name">📌 成本费用利润率 <span style="font-size:11px;color:var(--ink3);font-weight:400">利润与成本费用的比率</span></div>
+            <div class="formula-eq">成本费用利润率 = 利润总额 ÷ 成本费用总额 × 100%</div>
+            <div class="formula-note">需采集：利润总额、成本费用总额（需进一步拆解）</div>
+          </div>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin:14px 0 9px;letter-spacing:.05em">盈利能力数据采集三步法</div>
+          <ul class="step-list" style="margin-bottom:14px">
+            <li class="step-item"><div class="step-num">1</div><div class="step-txt"><strong>分析拆解数据采集指标：</strong>根据公式拆解出需要采集的基础数据指标（如毛利率需要销售收入和销售成本）</div></li>
+            <li class="step-item"><div class="step-num">2</div><div class="step-txt"><strong>确定数据采集渠道：</strong>确认各指标数据的来源和获取方式</div></li>
+            <li class="step-item"><div class="step-num">3</div><div class="step-txt"><strong>执行数据采集：</strong>通过不同渠道完成采集，数据清洗后计算出结果</div></li>
+          </ul>
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:9px;letter-spacing:.05em">两大数据采集渠道</div>
+          <table class="data-table">
+            <tr><th>渠道</th><th>数据来源</th><th>可获取数据</th><th>获取方式</th></tr>
+            <tr><td><strong>① 站点后台/第三方工具</strong></td><td>产品运营过程中产生</td><td>销售额、销售量、订单数等</td><td>后台追踪记录或第三方采集工具</td></tr>
+            <tr><td><strong>② 企业内部系统</strong></td><td>ERP软件、进价表、损益表等</td><td>采购成本、推广费用、物流费用等</td><td>下载导出或复制粘贴</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="showPart(3)">去做综合练习 →</button></div>
+  </div>
+
+  <!-- ══ PART 3：练一练 ══ -->
+  <div class="part-panel" id="part3">
+    <div class="part-title">三、练一练</div>
+    <div class="card">
+      <div class="card-head"><h2>🎯 产品数据指标分类挑战</h2><p>把下方指标拖拽到正确分类区 · 全部正确得 +20 XP</p></div>
+      <div class="card-body">
+        <div class="sort-label">将以下指标分别归入「<strong>产品行业数据</strong>」和「<strong>产品能力数据</strong>」：</div>
+        <div class="sort-chips" id="sortBank"></div>
+        <div class="sort-zones">
+          <div class="sort-zone" id="zone0" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropChip(event,0)">
+            <div class="sz-label">🔍 产品行业数据</div>
+            <div class="sz-chips" id="zone0-chips"></div>
+          </div>
+          <div class="sort-zone" id="zone1" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropChip(event,1)">
+            <div class="sz-label">⚡ 产品能力数据</div>
+            <div class="sz-chips" id="zone1-chips"></div>
+          </div>
+        </div>
+        <div class="sort-fb" id="sortFb"></div>
+        <button class="btn-check" onclick="checkSort()">✅ 提交答案</button>
+        <button class="btn-reset" onclick="resetSort()">🔄 重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>📝 综合选择题</h2><p>每题答对 +8 XP</p></div>
+      <div class="card-body">
+        <div class="quiz-box" id="q1a">
+          <div class="quiz-q">1. 产品搜索指数的主要采集工具是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1a',0,0,'✅ 正确！百度指数是采集产品搜索指数的主要工具，360趋势和搜狗指数作为补充参考。可按时间段、地域筛选，建议使用多组关键词提高精准度。')">A. 百度指数（主要），360趋势和搜狗指数（补充参考）</button>
+            <button class="qopt" onclick="ansQ('q1a',1,0,'生意参谋市场板块用于采集产品交易指数，不是搜索指数工具。')">B. 生意参谋【市场】板块</button>
+            <button class="qopt" onclick="ansQ('q1a',2,0,'淘数据是商品分析工具，不是搜索指数采集的主要工具。')">C. 淘数据</button>
+            <button class="qopt" onclick="ansQ('q1a',3,0,'店侦探是竞品数据分析工具，不用于搜索指数采集。')">D. 店侦探</button>
+          </div>
+          <div class="quiz-fb" id="q1a-fb"></div>
+        </div>
+        <div class="quiz-box" id="q1b">
+          <div class="quiz-q">2. 采集产品<span>交易指数</span>（商品排行、店铺排行）的工具是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1b',0,1,'百度指数用于采集搜索指数，不是交易指数工具。')">A. 百度指数</button>
+            <button class="qopt" onclick="ansQ('q1b',1,1,'✅ 正确！产品交易指数通过生意参谋【市场】板块采集，可查看商品排行和店铺排行中的交易指数、交易增长幅度、支付转化指数等。')">B. 生意参谋【市场】板块</button>
+            <button class="qopt" onclick="ansQ('q1b',2,1,'八爪鱼是通用爬虫工具，不专门用于采集交易指数。')">C. 八爪鱼采集器</button>
+            <button class="qopt" onclick="ansQ('q1b',3,1,'直通车报表采集推广效果数据，不是采集市场交易指数的工具。')">D. 淘宝直通车报表</button>
+          </div>
+          <div class="quiz-fb" id="q1b-fb"></div>
+        </div>
+        <div class="quiz-box" id="q1c">
+          <div class="quiz-q">3. 以下哪项属于产品<span>获客能力</span>的采集指标？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1c',0,2,'毛利率是产品盈利能力指标，不是获客能力指标。')">A. 毛利率</button>
+            <button class="qopt" onclick="ansQ('q1c',1,2,'客单件是产品盈利能力指标，不是获客能力指标。')">B. 客单件</button>
+            <button class="qopt" onclick="ansQ('q1c',2,2,'✅ 正确！重复购买率是产品获客能力的5项指标之一（关注量、收藏量、注册量、新客点击量、重复购买率）。')">C. 重复购买率</button>
+            <button class="qopt" onclick="ansQ('q1c',3,2,'成本费用利润率是产品盈利能力指标，不是获客能力指标。')">D. 成本费用利润率</button>
+          </div>
+          <div class="quiz-fb" id="q1c-fb"></div>
+        </div>
+        <div class="quiz-box" id="q1d">
+          <div class="quiz-q">4. 产品盈利能力数据"<span>一般无法直接获取</span>"的原因是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1d',0,3,'需要管理员权限不是主要原因。')">A. 数据存储在数据库中，需要管理员权限才能查看</button>
+            <button class="qopt" onclick="ansQ('q1d',1,3,'电商平台会提供卖家的销售数据，这不是无法获取的主要原因。')">B. 电商平台不对卖家开放盈利数据</button>
+            <button class="qopt" onclick="ansQ('q1d',2,3,'竞争对手保护不是影响自家盈利数据采集的因素。')">C. 竞争对手的竞争使得数据保密</button>
+            <button class="qopt" onclick="ansQ('q1d',3,3,'✅ 正确！盈利能力数据（如毛利率）需要通过公式计算得出，无法在某一工具中直接查到，必须先从不同渠道采集基础数据再计算。')">D. 需通过公式计算，无法在单一系统中直接查取</button>
+          </div>
+          <div class="quiz-fb" id="q1d-fb"></div>
+        </div>
+        <div class="quiz-box" id="q1e">
+          <div class="quiz-q">5. 盈利能力数据采集三步法中，"<span>第一步：分析拆解数据采集指标</span>"的目的是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1e',0,1,'确认各指标来源和获取方式是第二步的任务。')">A. 确认各指标数据的来源和获取方式</button>
+            <button class="qopt" onclick="ansQ('q1e',1,1,'✅ 正确！第一步是根据计算公式（如毛利率 = 销售收入 - 销售成本），拆解出需要采集的基础数据指标，明确要采集什么数据。')">B. 根据计算公式拆解出需要采集的基础数据指标</button>
+            <button class="qopt" onclick="ansQ('q1e',2,1,'通过不同渠道完成采集是第三步的任务。')">C. 通过不同渠道完成数据采集</button>
+            <button class="qopt" onclick="ansQ('q1e',3,1,'数据清洗属于第三步执行阶段的工作内容。')">D. 对采集到的数据进行清洗和整理</button>
+          </div>
+          <div class="quiz-fb" id="q1e-fb"></div>
+        </div>
+        <div id="p3done" style="display:none;margin-top:12px;text-align:center">
+          <div style="background:var(--oraL);color:var(--oraD);padding:12px;border-radius:var(--r);font-weight:800;margin-bottom:10px">🎉 全部完成！模块二学习结束！</div>
+          <button class="btn-check" onclick="completeUnit()">完成本单元 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART 4：完成 ══ -->
+  <div class="part-panel" id="part4">
+    <div class="complete-card">
+      <div style="font-size:40px;margin-bottom:12px">🎊</div>
+      <div class="complete-title">单元完成！</div>
+      <div class="complete-sub">M2-U5 产品数据采集 · 学习结束</div>
+      <div class="c-stats">
+        <div class="cst"><div class="cst-val" id="finalStars">☆☆☆☆☆</div><div class="cst-lbl">本单元评级</div></div>
+        <div class="cst"><div class="cst-val" id="finalXP">+0</div><div class="cst-lbl">获得 XP</div></div>
+        <div class="cst"><div class="cst-val" id="finalScore">0</div><div class="cst-lbl">综合得分</div></div>
+      </div>
+      <button class="btn-finish" onclick="completeUnit()">💾 保存进度 · 返回课程首页</button>
+    </div>
+    <div class="mod-banner">
+      <h3>🏆 模块二全部完成！</h3>
+      <p>你已完成「基础数据采集」模块的全部 5 个单元：<br>数据采集认知 · 渠道及工具 · 市场数据 · 运营数据 · 产品数据<br>继续挑战模块三！</p>
+    </div>
+    <div class="reflect-box">
+      <h3>💭 课后综合思考练习</h3>
+      <p>以某网店为例，独立完成电子商务<strong>市场、运营、产品</strong>数据采集：<br>
+      ① 该网店经营的核心产品是什么？产品搜索指数呈现怎样的趋势？<br>
+      ② 用什么工具采集产品交易指数？能得到哪些排行数据？<br>
+      ③ 如何计算该产品的毛利率？需要从哪些渠道采集基础数据？<br>
+      ④ 产品的获客能力指标中，哪个指标对运营决策最有参考价值？</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="xp-pop" id="xpPop"></div>
+<div id="confetti"></div>
+
+<script>
+const SUPABASE_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _supabase=null;
+if(SUPABASE_URL.startsWith('https://')&&window.supabase){_supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}
+const STORAGE_KEY='ecommerce_data_analysis_user';
+const ALL_UNITS=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+let earnedXP=0,gameStars=0,sortDone=false;
+function loadUser(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function getWeekStart(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function saveUser(data){
+  data.lastVisit=new Date().toISOString();const ws=getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws;}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_supabase){const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _supabase.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('sync:',error.message)});
+  }
+}
+function showToast(msg,d=2500){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d)}
+function showXP(amt){const e=document.getElementById('xpPop');e.textContent='+'+amt+' XP';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function addXP(amt){earnedXP+=amt;const u=loadUser();document.getElementById('navXP').textContent='⚡ '+(u?u.xp+earnedXP:earnedXP)+' XP';showXP(amt)}
+function launchConfetti(){const c=document.getElementById('confetti'),cols=['#F97316','#3B82F6','#8B5CF6','#10B981','#EC4899','#FBBF24'];c.innerHTML='';for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p);}setTimeout(()=>c.innerHTML='',4000);}
+function showPart(n){[1,2,3,4].forEach(i=>{document.getElementById('part'+i).classList.toggle('active',i===n);document.getElementById('btn'+i).classList.toggle('active',i===n);});document.getElementById('progFill').style.width=[0,25,55,80,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function switchPT(n){[0,1].forEach(i=>{document.getElementById('pp'+i).classList.toggle('active',i===n);document.getElementById('pt'+i).classList.toggle('active',i===n);});}
+function switchPA(n){[0,1].forEach(i=>{document.getElementById('ab'+i).classList.toggle('active',i===n);document.getElementById('pa'+i).classList.toggle('active',i===n);});}
+// tool cards (part1)
+let curTool=-1;
+function showTool(n){
+  if(curTool===n){document.getElementById('td'+n).classList.remove('show');document.getElementById('tc'+n).classList.remove('sel');curTool=-1;return;}
+  if(curTool>=0){document.getElementById('td'+curTool).classList.remove('show');document.getElementById('tc'+curTool).classList.remove('sel');}
+  document.getElementById('td'+n).classList.add('show');document.getElementById('tc'+n).classList.add('sel');curTool=n;
+  addXP(3);showToast('📖 +3 XP 学习采集工具！');
+}
+const quizDone={};
+function ansQ(qid,chosen,correct,fb){
+  if(quizDone[qid])return;quizDone[qid]=true;
+  const box=document.getElementById(qid);
+  box.querySelectorAll('.qopt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===chosen&&chosen!==correct)b.classList.add('err');});
+  const fbEl=document.getElementById(qid+'-fb');
+  if(chosen===correct){fbEl.textContent='✅ '+fb;fbEl.className='quiz-fb ok';addXP(8);showToast('✅ 答对了！+8 XP');}
+  else{fbEl.textContent='❌ '+fb;fbEl.className='quiz-fb err';showToast('❌ 答错了，看看解析再想想');}
+  checkPartDone();
+}
+function checkPartDone(){
+  if(sortDone&&['q1a','q1b','q1c','q1d','q1e'].every(q=>quizDone[q]))document.getElementById('p3done').style.display='block';
+}
+// zone0=行业数据, zone1=能力数据
+const SORT_ITEMS=[
+  {name:'产品搜索指数',zone:0},{name:'交易指数排行',zone:0},{name:'支付转化指数',zone:0},{name:'搜索热度趋势',zone:0},
+  {name:'重复购买率',zone:1},{name:'新客点击量',zone:1},{name:'毛利率',zone:1},{name:'客单件',zone:1},
+];
+let placed={};
+function initSort(){
+  const bank=document.getElementById('sortBank');bank.innerHTML='';placed={};
+  SORT_ITEMS.sort(()=>Math.random()-.5).forEach(item=>{
+    const chip=document.createElement('div');chip.className='sort-chip';chip.textContent=item.name;chip.draggable=true;chip.id='chip-'+item.name;
+    chip.addEventListener('dragstart',e=>e.dataTransfer.setData('text',item.name));bank.appendChild(chip);
+  });
+  [0,1].forEach(z=>document.getElementById('zone'+z+'-chips').innerHTML='');
+  const fb=document.getElementById('sortFb');fb.style.display='none';fb.className='sort-fb';
+}
+function dropChip(event,zone){
+  event.preventDefault();const name=event.dataTransfer.getData('text');const chip=document.getElementById('chip-'+name);
+  if(!chip||chip.classList.contains('placed'))return;chip.classList.add('placed');
+  const nc=chip.cloneNode(true);nc.classList.remove('placed');nc.draggable=false;nc.id='placed-'+name;
+  document.getElementById('zone'+zone+'-chips').appendChild(nc);document.getElementById('zone'+zone).classList.remove('over');placed[name]=zone;
+}
+function checkSort(){
+  let correct=0;SORT_ITEMS.forEach(item=>{if(placed[item.name]===item.zone)correct++;});
+  const fb=document.getElementById('sortFb');
+  if(correct===SORT_ITEMS.length){fb.textContent='🎉 全部正确！行业数据：搜索指数/交易指数/支付转化；能力数据：获客指标/盈利指标。+20 XP';fb.className='sort-fb ok';addXP(20);launchConfetti();gameStars=Math.max(gameStars,3);sortDone=true;checkPartDone();showToast('🌟 分类全对！+20 XP！');}
+  else{fb.textContent=`还差 ${SORT_ITEMS.length-correct} 个。行业数据关注市场热度；能力数据关注产品的获客和盈利表现。`;fb.className='sort-fb err';}
+}
+function resetSort(){placed={};initSort();}
+function completeUnit(){
+  const user=loadUser();if(!user){window.location.href='index.html';return;}
+  const score=Math.min(100,20+Math.round(earnedXP*0.8));
+  const stars=gameStars>0?gameStars:(score>=90?5:score>=75?4:score>=60?3:score>=45?2:1);
+  const totalXP=earnedXP+20;
+  const alreadyDone=user.units['m2u5']?.completed&&user.units['m2u5']?.xpEarned>0;
+  const actualXP=alreadyDone?0:totalXP;const prev=user.units['m2u5']||{};
+  user.units['m2u5']={completed:true,stars:Math.max(prev.stars||0,stars),score:Math.max(prev.score||0,score),xpEarned:alreadyDone?(prev.xpEarned||0):totalXP};
+  user.xp+=actualXP;user.weekXp=(user.weekXp||0)+actualXP;
+  const ach=user.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(stars>=3&&!ach.includes('first_star3'))ach.push('first_star3');
+  const m2=['m2u1','m2u2','m2u3','m2u4','m2u5'];
+  if(m2.every(id=>user.units[id]?.completed)&&!ach.includes('m2_complete'))ach.push('m2_complete');
+  user.achievements=ach;
+  saveUser(user);
+  document.getElementById('finalStars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('finalXP').textContent='+'+(alreadyDone?0:totalXP);document.getElementById('finalScore').textContent=score;
+  showPart(4);if(stars>=4)launchConfetti();
+  showToast(alreadyDone?'🔄 已重新提交，XP不重复计入':`🎉 已保存！获得 +${totalXP} XP`,2200);
+  setTimeout(()=>window.location.href='index.html',2300);
+}
+(function(){
+  const user=loadUser();document.getElementById('navXP').textContent='⚡ '+(user?user.xp:0)+' XP';initSort();
+  document.getElementById('zone0').addEventListener('dragover',e=>e.preventDefault());
+  document.getElementById('zone1').addEventListener('dragover',e=>e.preventDefault());
+})();
+</script>
+</body>
+</html>
