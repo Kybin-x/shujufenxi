@@ -1,1 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>M2-U3 市场数据采集</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1565C0;--blue2:#1976D2;--blueD:#0D47A1;--blueL:#E3F2FD;--blueM:#BBDEFB;
+  --ink:#1A2332;--ink2:#3D5066;--ink3:#7A90A8;
+  --bg:#F0F6FF;--card:#fff;--border:rgba(21,101,192,.15);
+  --shadow:0 2px 14px rgba(21,101,192,.1);--gold:#F4A907;--r:12px;
+}
+body{font-family:"PingFang SC","Noto Sans SC",-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:2px solid var(--blueL);display:flex;align-items:center;padding:0 18px;height:52px;gap:12px;box-shadow:0 2px 8px rgba(21,101,192,.08)}
+.nav-logo{font-size:18px}.nav-title{font-size:13px;font-weight:800;color:var(--blueD);flex:1}
+.nav-xp{font-size:13px;font-weight:800;color:var(--blue);background:var(--blueL);padding:4px 12px;border-radius:20px}
+.nav-home{padding:6px 14px;background:var(--blue);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.progress-bar{height:4px;background:var(--blueL)}
+.progress-fill{height:4px;background:linear-gradient(90deg,var(--blue2),var(--blue));transition:width .5s}
+.container{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+.part-nav{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.part-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--blueM);background:#fff;color:var(--ink2);transition:all .2s;font-family:inherit}
+.part-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.part-btn.done::after{content:" ✓"}
+.part-panel{display:none}.part-panel.active{display:block}
+.part-title{font-size:19px;font-weight:900;color:var(--blueD);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.part-title::before{content:'';display:block;width:5px;height:22px;background:linear-gradient(180deg,var(--blue2),var(--blue));border-radius:3px;flex-shrink:0}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.card-head{padding:14px 20px 12px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.card-head h2{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+.card-head p{font-size:12px;opacity:.85;margin-top:3px}
+.card-body{padding:18px 20px}
+/* seg tabs */
+.seg-tabs{display:flex;gap:0;border-radius:var(--r);overflow:hidden;border:1.5px solid var(--blueM);margin-bottom:16px}
+.seg-tab{flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink2);background:#fff;transition:all .2s;border:none;font-family:inherit}
+.seg-tab.active{background:var(--blue);color:#fff}
+.seg-tab:not(:last-child){border-right:1.5px solid var(--blueM)}
+.seg-panel{display:none}.seg-panel.active{display:block}
+/* info */
+.info-hl{font-size:13px;color:var(--ink2);line-height:1.85;background:var(--blueL);border-left:4px solid var(--blue2);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin-bottom:14px}
+.info-hl strong{color:var(--blueD)}
+/* metric row */
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.metric-card{background:var(--blueL);border-radius:var(--r);padding:13px 14px}
+.metric-label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--blue);text-transform:uppercase;margin-bottom:6px}
+.metric-val{font-size:13px;font-weight:700;color:var(--ink2);line-height:1.7}
+/* case box */
+.case-box{background:#FFF8E1;border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:11px 15px;font-size:12px;color:#5D4037;line-height:1.8;margin-bottom:4px}
+.case-box strong{color:#E65100}
+/* dim grid */
+.dim-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.dim-item{display:flex;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#f8fbff;align-items:flex-start}
+.dim-icon{font-size:22px;flex-shrink:0}
+.dim-name{font-size:13px;font-weight:800;color:var(--blueD);margin-bottom:3px}
+.dim-desc{font-size:12px;color:var(--ink2);line-height:1.6}
+.tool-hint{font-size:12px;color:var(--ink3);background:var(--blueL);padding:8px 13px;border-radius:var(--r);margin-bottom:13px}
+/* tag groups */
+.tag-group{margin-bottom:12px}
+.tg-label{font-size:11px;font-weight:800;color:var(--ink3);letter-spacing:.06em;margin-bottom:7px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--blueL);color:var(--blueD)}
+/* method cards */
+.method-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.method-card{border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.mc-head{padding:10px 14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px}
+.mc-body{padding:13px 14px;font-size:12px;color:var(--ink2);line-height:1.8;background:#f8fbff}
+.mc-body strong{color:var(--blueD)}
+.limit-badge{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);color:#fff;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;margin-left:6px}
+/* table */
+.data-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px}
+.data-table th{background:var(--blue);color:#fff;padding:7px 8px;text-align:left;white-space:nowrap}
+.data-table td{padding:7px 8px;border-bottom:1px solid #ddeeff;color:var(--ink2);white-space:nowrap}
+.data-table tr:nth-child(even) td{background:#f0f6ff}
+/* quiz */
+.quiz-box{background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border);padding:16px;margin-bottom:12px}
+.quiz-q{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:11px;line-height:1.6}
+.quiz-q span{color:var(--blue)}
+.quiz-opts{display:grid;gap:7px}
+.qopt{padding:9px 15px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;cursor:pointer;text-align:left;font-family:inherit;font-weight:600;color:var(--ink2);transition:all .2s}
+.qopt:hover:not(:disabled){border-color:var(--blue2);color:var(--blue)}
+.qopt.ok{background:var(--blueL);border-color:var(--blue);color:var(--blueD)}
+.qopt.err{background:#FFF0EE;border-color:#E74C3C;color:#C0392B}
+.quiz-fb{font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;margin-top:7px;display:none}
+.quiz-fb.ok{background:var(--blueL);color:var(--blueD);display:block}
+.quiz-fb.err{background:#FFF0EE;color:#C0392B;display:block}
+/* sort */
+.sort-label{font-size:13px;color:var(--ink2);line-height:1.75;margin-bottom:12px}
+.sort-chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px;min-height:52px;background:#f8fbff;border:2px dashed var(--blueM);border-radius:var(--r);margin-bottom:12px}
+.sort-chip{padding:6px 14px;background:var(--blue);color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:grab;user-select:none;transition:all .15s}
+.sort-chip:hover{background:var(--blueD);transform:scale(1.04)}
+.sort-chip.placed{opacity:.4;cursor:default}
+.sort-zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sort-zone{border:2px dashed var(--border);border-radius:var(--r);padding:10px;min-height:90px}
+.sort-zone.over{border-color:var(--blue);background:var(--blueL)}
+.sz-label{font-size:11px;font-weight:800;color:var(--ink3);margin-bottom:6px;letter-spacing:.06em}
+.sz-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:40px}
+.sort-fb{font-size:13px;font-weight:700;padding:9px 14px;border-radius:var(--r);display:none;margin-bottom:8px}
+.sort-fb.ok{background:var(--blueL);color:var(--blueD);display:block}
+.sort-fb.err{background:#FFF0EE;color:#C0392B;display:block}
+.btn-check{padding:8px 22px;background:var(--blue);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-right:8px}
+.btn-reset{padding:8px 18px;background:#fff;color:var(--ink2);border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+/* complete */
+.complete-card{background:linear-gradient(135deg,#0D2B6B,#0D47A1);color:#fff;border-radius:var(--r);padding:28px;text-align:center}
+.complete-title{font-size:22px;font-weight:900;margin-bottom:8px}
+.complete-sub{font-size:13px;opacity:.8;margin-bottom:20px}
+.c-stats{display:flex;justify-content:center;gap:28px;margin-bottom:22px}
+.cst{text-align:center}.cst-val{font-size:28px;font-weight:900}.cst-lbl{font-size:11px;opacity:.7;margin-top:2px}
+.btn-finish{padding:13px 34px;background:var(--gold);color:#1A2332;border-radius:30px;font-size:15px;font-weight:900;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-finish:hover{transform:scale(1.04);box-shadow:0 6px 24px rgba(244,169,7,.4)}
+.reflect-box{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:18px;margin-top:18px}
+.reflect-box h3{font-size:14px;font-weight:800;color:var(--blueD);margin-bottom:10px}
+.reflect-box p{font-size:13px;color:var(--ink2);line-height:1.9}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2332;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;transition:transform .3s;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.xp-pop{position:fixed;top:66px;right:18px;background:var(--blue);color:#fff;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:800;z-index:999;opacity:0;transform:translateY(-10px);transition:all .4s;pointer-events:none}
+.xp-pop.show{opacity:1;transform:translateY(0)}
+@media(max-width:600px){.metric-row{grid-template-columns:1fr}.dim-grid{grid-template-columns:1fr}.method-cards{grid-template-columns:1fr}.sort-zones{grid-template-columns:1fr}.c-stats{gap:16px}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">📊</div>
+  <div class="nav-title">M2-U3 市场数据采集</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+  <button class="nav-home" onclick="completeUnit()">🏠 保存返回</button>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
 
+<div class="container">
+  <div class="part-nav">
+    <button class="part-btn active" id="btn1" onclick="showPart(1)">① 行业数据采集</button>
+    <button class="part-btn" id="btn2" onclick="showPart(2)">② 竞争数据采集</button>
+    <button class="part-btn" id="btn3" onclick="showPart(3)">③ 练一练</button>
+    <button class="part-btn" id="btn4" onclick="showPart(4)">④ 完成本单元</button>
+  </div>
+
+  <!-- ══ PART 1 ══ -->
+  <div class="part-panel active" id="part1">
+    <div class="part-title">一、行业数据采集</div>
+    <div class="card">
+      <div class="card-head">
+        <h2>📈 三类行业数据</h2>
+        <p>点击下方标签切换查看行业发展、市场需求、目标客户三类数据的采集方法</p>
+      </div>
+      <div class="card-body">
+        <div class="seg-tabs">
+          <button class="seg-tab active" id="st0" onclick="switchSeg(0)">📈 行业发展数据</button>
+          <button class="seg-tab" id="st1" onclick="switchSeg(1)">🔍 市场需求数据</button>
+          <button class="seg-tab" id="st2" onclick="switchSeg(2)">👥 目标客户数据</button>
+        </div>
+        <div class="seg-panel active" id="seg0">
+          <div class="metric-row">
+            <div class="metric-card"><div class="metric-label">涉及指标</div><div class="metric-val">行业总销售额<br>增长率</div></div>
+            <div class="metric-card"><div class="metric-label">数据来源</div><div class="metric-val">国家统计局<br>行业协会<br>数据公司（艾媒、艾瑞）</div></div>
+            <div class="metric-card"><div class="metric-label">数据形式</div><div class="metric-val">行业统计数据<br>行业调查报告</div></div>
+          </div>
+          <div class="case-box"><strong>📌 案例：</strong>2015—2019年中国服装电商市场规模从 <strong>4306.4亿元</strong> 增长至 <strong>10133.7亿元</strong>（预估），增长率保持在 18%~23% 之间。（数据来源：艾媒咨询）</div>
+        </div>
+        <div class="seg-panel" id="seg1">
+          <div class="metric-row">
+            <div class="metric-card"><div class="metric-label">涉及指标</div><div class="metric-val">需求量变化<br>品牌偏好</div></div>
+            <div class="metric-card"><div class="metric-label">数据来源</div><div class="metric-val">行业调查报告<br>用户搜索指数</div></div>
+            <div class="metric-card"><div class="metric-label">采集方法</div><div class="metric-val">通过搜索指数变化趋势分析用户需求和品牌偏好</div></div>
+          </div>
+          <div class="case-box"><strong>📌 案例：</strong>通过百度指数对比 <strong>"苹果手机""小米手机""华为手机""魅族手机"</strong> 等关键词搜索趋势，判断各品牌热度变化，了解市场需求偏好。</div>
+        </div>
+        <div class="seg-panel" id="seg2">
+          <div class="tool-hint">🛠️ <strong>采集工具：</strong>行业调查报告、百度指数 / 阿里指数等指数工具</div>
+          <div class="dim-grid">
+            <div class="dim-item"><div class="dim-icon">🗺️</div><div><div class="dim-name">地域分布</div><div class="dim-desc">目标客户所在省份/城市排名，如广东省、山东省、江苏省等</div></div></div>
+            <div class="dim-item"><div class="dim-icon">⚧️</div><div><div class="dim-name">性别占比</div><div class="dim-desc">目标客户群体中男女比例分布</div></div></div>
+            <div class="dim-item"><div class="dim-icon">🎂</div><div><div class="dim-name">年龄结构</div><div class="dim-desc">各年龄段（≤19 / 20~29 / 30~39 / 40~49 / ≥50）的占比分布</div></div></div>
+            <div class="dim-item"><div class="dim-icon">💼</div><div><div class="dim-name">职业领域</div><div class="dim-desc">公司职员、个体经营者、公务员等职业分布情况</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="p1quiz">
+      <div class="card-head"><h2>🧠 理解测验</h2><p>答对每题得 +8 XP</p></div>
+      <div class="card-body">
+        <div class="quiz-box" id="q1a">
+          <div class="quiz-q">1. 想了解"服装电商行业整体市场规模和增长率"，最合适的数据来源是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1a',0,1,'正确！艾媒咨询等数据公司及行业协会发布的行业调查报告，是行业发展数据的权威来源。')">A. 自己店铺的生意参谋后台数据</button>
+            <button class="qopt" onclick="ansQ('q1a',1,1,'✅ 正确！艾媒咨询等机构发布的行业调查报告，可查到总销售额、增长率等行业发展数据。')">B. 艾媒咨询等机构发布的行业调查报告</button>
+            <button class="qopt" onclick="ansQ('q1a',2,1,'百度指数反映关键词搜索热度，体现市场需求偏好，不直接反映行业销售规模。')">C. 百度指数关键词搜索趋势</button>
+            <button class="qopt" onclick="ansQ('q1a',3,1,'竞争对手采集表记录竞品运营数据，不代表行业整体规模。')">D. 竞争对手数据采集表</button>
+          </div>
+          <div class="quiz-fb" id="q1a-fb"></div>
+        </div>
+        <div class="quiz-box" id="q1b">
+          <div class="quiz-q">2. 通过百度指数对比"苹果手机""华为手机"的搜索趋势，主要是为了采集哪类行业数据？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1b',0,1,'行业发展数据关注市场规模和增长率，不通过品牌搜索趋势对比来采集。')">A. 行业发展数据（市场规模、增长率）</button>
+            <button class="qopt" onclick="ansQ('q1b',1,1,'✅ 正确！通过搜索指数变化趋势对比不同品牌热度，是采集市场需求数据（品牌偏好）的典型方法。')">B. 市场需求数据（品牌偏好、需求变化）</button>
+            <button class="qopt" onclick="ansQ('q1b',2,1,'目标客户数据关注人群特征（地域、年龄、职业），不是通过品牌搜索趋势对比获取的。')">C. 目标客户数据（地域、年龄、职业特征）</button>
+            <button class="qopt" onclick="ansQ('q1b',3,1,'竞争数据是竞品运营数据（价格、活动等），与搜索指数对比无关。')">D. 竞争数据（竞品运营信息）</button>
+          </div>
+          <div class="quiz-fb" id="q1b-fb"></div>
+        </div>
+        <div class="quiz-box" id="q1c">
+          <div class="quiz-q">3. 目标客户数据采集的四个维度中，<span>不包含</span>以下哪项？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q1c',0,3,'地域分布（客户所在省份/城市）是目标客户数据的重要维度。')">A. 地域分布</button>
+            <button class="qopt" onclick="ansQ('q1c',1,3,'年龄结构是目标客户数据的重要维度，反映各年龄段占比。')">B. 年龄结构</button>
+            <button class="qopt" onclick="ansQ('q1c',2,3,'职业领域（公司职员、个体经营者等）是目标客户数据的重要维度。')">C. 职业领域</button>
+            <button class="qopt" onclick="ansQ('q1c',3,3,'✅ 正确！竞品评价特色属于竞争数据，不是目标客户数据的采集维度。目标客户数据四维度：地域分布、性别占比、年龄结构、职业领域。')">D. 竞品评价特色</button>
+          </div>
+          <div class="quiz-fb" id="q1c-fb"></div>
+        </div>
+        <div id="p1done" style="display:none;margin-top:12px;text-align:center">
+          <div style="background:var(--blueL);color:var(--blueD);padding:12px;border-radius:var(--r);font-weight:800;margin-bottom:10px">✅ 行业数据测验完成！继续学习竞争数据采集</div>
+          <button class="btn-check" onclick="showPart(2)">下一部分 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART 2 ══ -->
+  <div class="part-panel" id="part2">
+    <div class="part-title">二、竞争数据采集</div>
+    <div class="card">
+      <div class="card-head"><h2>⚔️ 竞争数据：定义与意义</h2></div>
+      <div class="card-body">
+        <div class="info-hl">
+          <strong>定义：</strong>对电子商务业务中存在竞争关系的<strong>商家、品牌、产品（竞争对手）</strong>各项运营数据的总称。<br>
+          <strong>意义：</strong>帮助决策者和管理层了解竞争对手的发展势头，为企业战略策略制定和调整提供数据支持。
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>📋 竞争数据采集内容（三大维度）</h2></div>
+      <div class="card-body">
+        <div class="tag-group">
+          <div class="tg-label">📦 商品维度</div>
+          <div class="tags"><span class="tag">商品结构</span><span class="tag">商品构成</span><span class="tag">畅销商品</span><span class="tag">商品销量</span><span class="tag">交易额</span></div>
+        </div>
+        <div class="tag-group">
+          <div class="tg-label">💰 价格与活动</div>
+          <div class="tags"><span class="tag">销售价格</span><span class="tag">客单价</span><span class="tag">活动信息</span><span class="tag">活动内容</span><span class="tag">活动周期</span></div>
+        </div>
+        <div class="tag-group" style="margin-bottom:0">
+          <div class="tg-label">📣 评价与推广</div>
+          <div class="tags"><span class="tag">商品评价</span><span class="tag">服务政策</span><span class="tag">店铺流量</span><span class="tag">推广渠道</span><span class="tag">搜索排名</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>🔧 竞争数据采集方法</h2><p>工具采集（效率高但有局限）和人工监控（最有效）配合使用</p></div>
+      <div class="card-body">
+        <div class="method-cards">
+          <div class="method-card">
+            <div class="mc-head">🛠️ 工具采集 <span class="limit-badge">有局限性</span></div>
+            <div class="mc-body">
+              <p style="margin-bottom:8px"><strong>升业绩</strong>：采集淘宝/天猫竞争对手数据<br>❌ 平台规则变化导致历史数据无法采集或采集异常</p>
+              <p><strong>店侦探</strong>：采集淘宝/天猫竞争对手数据<br>❌ 营销活动内容等无法自动采集</p>
+            </div>
+          </div>
+          <div class="method-card">
+            <div class="mc-head">👁️ 人工监控（最有效）</div>
+            <div class="mc-body">
+              <p>制作<strong>竞争对手数据采集表</strong>，进行持续、系统的人工数据监控记录。</p>
+              <p style="margin-top:8px;color:var(--ink3)">✅ 适合采集工具无法自动获取的活动内容、评价特色、服务政策等数据。</p>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:8px;letter-spacing:.05em">📄 竞争对手数据采集表示例</div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <tr><th>序号</th><th>店铺名称（链接）</th><th>产品分类</th><th>店铺类别</th><th>热销产品（链接）</th><th>累计评价</th><th>成交量</th><th>售价</th><th>评价特色</th><th>评价缺陷</th><th>促销方式</th><th>备注</th></tr>
+            <tr><td>1</td><td>竞品A店</td><td>女装</td><td>专卖店</td><td>连衣裙爆款</td><td>2680</td><td>月销5230</td><td>¥128</td><td>面料舒适</td><td>尺码偏小</td><td>满减+赠品</td><td>主推春夏</td></tr>
+            <tr><td colspan="12" style="text-align:center;color:var(--ink3)">（持续记录更多竞品数据……）</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right"><button class="btn-check" onclick="showPart(3)">去做综合练习 →</button></div>
+  </div>
+
+  <!-- ══ PART 3 ══ -->
+  <div class="part-panel" id="part3">
+    <div class="part-title">三、练一练</div>
+    <div class="card">
+      <div class="card-head"><h2>🎯 数据类型分类挑战</h2><p>把下方数据项拖拽到正确分类区 · 全部正确得 +20 XP</p></div>
+      <div class="card-body">
+        <div class="sort-label">将以下数据项分别归入「<strong>行业数据</strong>」和「<strong>竞争数据</strong>」：</div>
+        <div class="sort-chips" id="sortBank"></div>
+        <div class="sort-zones">
+          <div class="sort-zone" id="zone0" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropChip(event,0)">
+            <div class="sz-label">📊 行业数据</div>
+            <div class="sz-chips" id="zone0-chips"></div>
+          </div>
+          <div class="sort-zone" id="zone1" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropChip(event,1)">
+            <div class="sz-label">⚔️ 竞争数据</div>
+            <div class="sz-chips" id="zone1-chips"></div>
+          </div>
+        </div>
+        <div class="sort-fb" id="sortFb"></div>
+        <button class="btn-check" onclick="checkSort()">✅ 提交答案</button>
+        <button class="btn-reset" onclick="resetSort()">🔄 重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>📝 综合选择题</h2><p>每题答对 +8 XP</p></div>
+      <div class="card-body">
+        <div class="quiz-box" id="q2a">
+          <div class="quiz-q">4. 竞争数据采集方法中，被认为"<span>最有效</span>"的方式是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2a',0,2,'升业绩是工具采集，存在平台规则变化导致数据异常的局限。')">A. 使用升业绩工具自动采集</button>
+            <button class="qopt" onclick="ansQ('q2a',1,2,'店侦探是工具采集，存在营销活动内容无法自动采集的局限。')">B. 使用店侦探工具自动监控</button>
+            <button class="qopt" onclick="ansQ('q2a',2,2,'✅ 正确！制作竞争对手数据采集表并进行持续人工监控，是竞争数据采集中最有效的方法。')">C. 制作竞争对手数据采集表进行持续人工监控</button>
+            <button class="qopt" onclick="ansQ('q2a',3,2,'直接复制竞争对手信息不是数据采集方法，也不合规。')">D. 直接复制竞争对手的商品信息</button>
+          </div>
+          <div class="quiz-fb" id="q2a-fb"></div>
+        </div>
+        <div class="quiz-box" id="q2b">
+          <div class="quiz-q">5. 竞争数据采集的"<span>价格与活动</span>"维度，包含哪些指标？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2b',0,0,'✅ 正确！价格与活动维度包含：销售价格、客单价、活动信息、活动内容、活动周期，共5项指标。')">A. 销售价格、客单价、活动信息、活动内容、活动周期</button>
+            <button class="qopt" onclick="ansQ('q2b',1,0,'商品结构、商品构成、畅销商品属于商品维度。')">B. 商品结构、商品构成、畅销商品</button>
+            <button class="qopt" onclick="ansQ('q2b',2,0,'店铺流量、推广渠道、搜索排名属于评价与推广维度。')">C. 店铺流量、推广渠道、搜索排名</button>
+            <button class="qopt" onclick="ansQ('q2b',3,0,'行业总销售额、增长率是行业发展数据，不属于竞争数据。')">D. 行业总销售额、增长率</button>
+          </div>
+          <div class="quiz-fb" id="q2b-fb"></div>
+        </div>
+        <div class="quiz-box" id="q2c">
+          <div class="quiz-q">6. 使用"店侦探"工具采集竞争数据存在的主要局限是？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2c',0,2,'时间和人力成本高是人工监控的特点，不是店侦探工具的局限。')">A. 耗费大量时间和人力成本</button>
+            <button class="qopt" onclick="ansQ('q2c',1,2,'工具采集公开数据不存在法律风险。')">B. 存在侵犯隐私的法律风险</button>
+            <button class="qopt" onclick="ansQ('q2c',2,2,'✅ 正确！店侦探工具无法自动采集营销活动内容等特殊数据，这是其主要局限。升业绩则存在平台规则变化导致历史数据异常的问题。')">C. 营销活动内容等特殊数据无法自动采集</button>
+            <button class="qopt" onclick="ansQ('q2c',3,2,'店侦探可以查看竞品公开的价格信息，这不是其局限所在。')">D. 无法采集竞品的销售价格</button>
+          </div>
+          <div class="quiz-fb" id="q2c-fb"></div>
+        </div>
+        <div class="quiz-box" id="q2d">
+          <div class="quiz-q">7. 想采集竞争对手双十一期间的<strong>促销活动方式和折扣力度</strong>，最适合用哪种方式？</div>
+          <div class="quiz-opts">
+            <button class="qopt" onclick="ansQ('q2d',0,1,'百度指数反映搜索热度，不适合采集竞品活动细节。')">A. 通过百度指数查看搜索热度变化</button>
+            <button class="qopt" onclick="ansQ('q2d',1,1,'✅ 正确！促销活动方式和折扣力度是需要人工观察的细节数据，应人工访问竞争对手店铺并填写数据采集表记录。')">B. 人工访问竞争对手店铺，填写竞争对手数据采集表</button>
+            <button class="qopt" onclick="ansQ('q2d',2,1,'生意参谋主要查看自己店铺和市场整体数据，无法直接监控竞品活动详情。')">C. 在生意参谋中直接查看竞争对手活动数据</button>
+            <button class="qopt" onclick="ansQ('q2d',3,1,'向竞争对手直接咨询不是数据采集方法。')">D. 直接向竞争对手咨询活动方案</button>
+          </div>
+          <div class="quiz-fb" id="q2d-fb"></div>
+        </div>
+        <div id="p3done" style="display:none;margin-top:12px;text-align:center">
+          <div style="background:var(--blueL);color:var(--blueD);padding:12px;border-radius:var(--r);font-weight:800;margin-bottom:10px">🎉 综合练习全部完成！</div>
+          <button class="btn-check" onclick="completeUnit()">完成本单元 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART 4 ══ -->
+  <div class="part-panel" id="part4">
+    <div class="complete-card">
+      <div style="font-size:40px;margin-bottom:12px">🎊</div>
+      <div class="complete-title">单元完成！</div>
+      <div class="complete-sub">M2-U3 市场数据采集 · 学习结束</div>
+      <div class="c-stats">
+        <div class="cst"><div class="cst-val" id="finalStars">☆☆☆☆☆</div><div class="cst-lbl">本单元评级</div></div>
+        <div class="cst"><div class="cst-val" id="finalXP">+0</div><div class="cst-lbl">获得 XP</div></div>
+        <div class="cst"><div class="cst-val" id="finalScore">0</div><div class="cst-lbl">综合得分</div></div>
+      </div>
+      <button class="btn-finish" onclick="completeUnit()">💾 保存进度 · 返回课程首页</button>
+    </div>
+    <div class="reflect-box">
+      <h3>💭 课后思考练习</h3>
+      <p>某独立电子商务网站准备上架一款<strong>智能窗帘设备</strong>，请思考：<br>
+      ① <strong>行业发展数据：</strong>通过哪些渠道了解智能家居市场规模和增长率趋势？<br>
+      ② <strong>市场需求数据：</strong>如何用百度指数分析用户对"智能窗帘"关键词的关注度变化？<br>
+      ③ <strong>目标客户数据：</strong>智能窗帘目标客户可能具备哪些地域/年龄/职业特征？<br>
+      ④ <strong>竞争数据：</strong>如何系统地监控同类产品竞争对手的价格、活动和评价信息？</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="xp-pop" id="xpPop"></div>
+<div id="confetti"></div>
+
+<script>
+const SUPABASE_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _supabase=null;
+if(SUPABASE_URL.startsWith('https://')&&window.supabase){_supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}
+const STORAGE_KEY='ecommerce_data_analysis_user';
+const ALL_UNITS=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+let earnedXP=0,gameStars=0,sortDone=false;
+function loadUser(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function getWeekStart(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function saveUser(data){
+  data.lastVisit=new Date().toISOString();const ws=getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws;}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_supabase){const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _supabase.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('sync:',error.message)});
+  }
+}
+function showToast(msg,d=2500){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d)}
+function showXP(amt){const e=document.getElementById('xpPop');e.textContent='+'+amt+' XP';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function addXP(amt){earnedXP+=amt;const u=loadUser();document.getElementById('navXP').textContent='⚡ '+(u?u.xp+earnedXP:earnedXP)+' XP';showXP(amt)}
+function launchConfetti(){const c=document.getElementById('confetti'),cols=['#F97316','#3B82F6','#8B5CF6','#10B981','#EC4899','#FBBF24'];c.innerHTML='';for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p);}setTimeout(()=>c.innerHTML='',4000);}
+function showPart(n){[1,2,3,4].forEach(i=>{document.getElementById('part'+i).classList.toggle('active',i===n);document.getElementById('btn'+i).classList.toggle('active',i===n);});document.getElementById('progFill').style.width=[0,25,55,80,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function switchSeg(n){[0,1,2].forEach(i=>{document.getElementById('seg'+i).classList.toggle('active',i===n);document.getElementById('st'+i).classList.toggle('active',i===n);});}
+const quizDone={};
+function ansQ(qid,chosen,correct,fb){
+  if(quizDone[qid])return;quizDone[qid]=true;
+  const box=document.getElementById(qid);
+  box.querySelectorAll('.qopt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===chosen&&chosen!==correct)b.classList.add('err');});
+  const fbEl=document.getElementById(qid+'-fb');
+  if(chosen===correct){fbEl.textContent='✅ '+fb;fbEl.className='quiz-fb ok';addXP(8);showToast('✅ 答对了！+8 XP');}
+  else{fbEl.textContent='❌ '+fb;fbEl.className='quiz-fb err';showToast('❌ 答错了，看看解析再想想');}
+  checkPartDone();
+}
+function checkPartDone(){
+  if(['q1a','q1b','q1c'].every(q=>quizDone[q]))document.getElementById('p1done').style.display='block';
+  if(sortDone&&['q2a','q2b','q2c','q2d'].every(q=>quizDone[q]))document.getElementById('p3done').style.display='block';
+}
+const SORT_ITEMS=[{name:'行业总销售额',zone:0},{name:'市场增长率',zone:0},{name:'品牌搜索指数',zone:0},{name:'目标客户年龄分布',zone:0},{name:'竞品销售价格',zone:1},{name:'竞品活动周期',zone:1},{name:'竞品推广渠道',zone:1},{name:'竞品客单价',zone:1}];
+let placed={};
+function initSort(){
+  const bank=document.getElementById('sortBank');bank.innerHTML='';placed={};
+  SORT_ITEMS.sort(()=>Math.random()-.5).forEach(item=>{
+    const chip=document.createElement('div');chip.className='sort-chip';chip.textContent=item.name;chip.draggable=true;chip.id='chip-'+item.name;
+    chip.addEventListener('dragstart',e=>e.dataTransfer.setData('text',item.name));bank.appendChild(chip);
+  });
+  [0,1].forEach(z=>document.getElementById('zone'+z+'-chips').innerHTML='');
+  const fb=document.getElementById('sortFb');fb.style.display='none';fb.className='sort-fb';
+}
+function dropChip(event,zone){
+  event.preventDefault();const name=event.dataTransfer.getData('text');const chip=document.getElementById('chip-'+name);
+  if(!chip||chip.classList.contains('placed'))return;chip.classList.add('placed');
+  const nc=chip.cloneNode(true);nc.classList.remove('placed');nc.draggable=false;nc.id='placed-'+name;
+  document.getElementById('zone'+zone+'-chips').appendChild(nc);document.getElementById('zone'+zone).classList.remove('over');placed[name]=zone;
+}
+function checkSort(){
+  let correct=0;SORT_ITEMS.forEach(item=>{if(placed[item.name]===item.zone)correct++;});
+  const fb=document.getElementById('sortFb');
+  if(correct===SORT_ITEMS.length){fb.textContent='🎉 全部正确！行业数据：总销售额/增长率/搜索指数/客户特征；竞争数据：竞品价格/活动/推广信息。+20 XP';fb.className='sort-fb ok';addXP(20);launchConfetti();gameStars=Math.max(gameStars,3);sortDone=true;checkPartDone();showToast('🌟 分类全对！+20 XP！');}
+  else{fb.textContent=`还差 ${SORT_ITEMS.length-correct} 个。行业数据包含市场整体数据和客户特征；竞争数据包含竞品运营细节。`;fb.className='sort-fb err';}
+}
+function resetSort(){placed={};initSort();}
+function completeUnit(){
+  const user=loadUser();if(!user){window.location.href='index.html';return;}
+  const score=Math.min(100,20+Math.round(earnedXP*0.8));
+  const stars=gameStars>0?gameStars:(score>=90?5:score>=75?4:score>=60?3:score>=45?2:1);
+  const totalXP=earnedXP+20;
+  const alreadyDone=user.units['m2u3']?.completed&&user.units['m2u3']?.xpEarned>0;
+  const actualXP=alreadyDone?0:totalXP;const prev=user.units['m2u3']||{};
+  user.units['m2u3']={completed:true,stars:Math.max(prev.stars||0,stars),score:Math.max(prev.score||0,score),xpEarned:alreadyDone?(prev.xpEarned||0):totalXP};
+  user.xp+=actualXP;user.weekXp=(user.weekXp||0)+actualXP;
+  const ach=user.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(stars>=3&&!ach.includes('first_star3'))ach.push('first_star3');user.achievements=ach;
+  saveUser(user);
+  document.getElementById('finalStars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('finalXP').textContent='+'+(alreadyDone?0:totalXP);document.getElementById('finalScore').textContent=score;
+  showPart(4);if(stars>=4)launchConfetti();
+  showToast(alreadyDone?'🔄 已重新提交，XP不重复计入':`🎉 已保存！获得 +${totalXP} XP`,2200);
+  setTimeout(()=>window.location.href='index.html',2300);
+}
+(function(){
+  const user=loadUser();document.getElementById('navXP').textContent='⚡ '+(user?user.xp:0)+' XP';initSort();
+  document.getElementById('zone0').addEventListener('dragover',e=>e.preventDefault());
+  document.getElementById('zone1').addEventListener('dragover',e=>e.preventDefault());
+})();
+</script>
+</body>
+</html>
