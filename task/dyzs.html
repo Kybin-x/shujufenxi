@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>实训任务1 · 巨量算数抖音指数选品分析</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pri:#1C1C1E;--acc:#FF4F64;--acc2:#FF7A00;
+  --accL:#FFF1F3;--accM:#FFCCD3;
+  --teal:#00BFA5;--tealL:#E0FAF7;
+  --violet:#6366F1;--violetL:#EEF2FF;
+  --amber:#F59E0B;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --green:#10B981;--greenL:#ECFDF5;--greenM:#6EE7B7;
+  --ink:#111827;--ink2:#374151;--ink3:#6B7280;--ink4:#9CA3AF;
+  --bg:#F8F8FA;--card:#FFFFFF;--border:#E5E7EB;
+  --r:12px;--shadow:0 1px 3px rgba(0,0,0,.07),0 6px 20px rgba(0,0,0,.06);
+}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
+
+/* ═══ HEADER ═══ */
+.page-header{background:var(--pri);color:#fff;padding:0;overflow:hidden;position:relative}
+.header-inner{max-width:960px;margin:0 auto;padding:38px 24px 34px;position:relative;z-index:1}
+.header-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(255,79,100,.18);border:1px solid rgba(255,79,100,.4);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:18px;letter-spacing:.04em;color:var(--acc)}
+.header-title{font-size:30px;font-weight:900;margin-bottom:10px;line-height:1.2}
+.header-title em{font-style:normal;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-sub{font-size:14px;color:rgba(255,255,255,.7);max-width:580px;line-height:1.8}
+.header-meta{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap}
+.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,.75)}
+/* deco circles */
+.deco{position:absolute;border-radius:50%;pointer-events:none}
+.deco1{right:-80px;top:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,79,100,.12),transparent 70%)}
+.deco2{left:-40px;bottom:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,122,0,.1),transparent 70%)}
+
+/* ═══ LAYOUT ═══ */
+.main{max-width:960px;margin:0 auto;padding:30px 20px 70px}
+
+/* ═══ SECTION TITLE ═══ */
+.sec-title{font-size:17px;font-weight:900;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.sec-title::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,var(--acc),var(--acc2));border-radius:2px;flex-shrink:0}
+
+/* ═══ DIFF BOX ═══ */
+.diff-banner{background:linear-gradient(135deg,#1C1C1E,#2C2C2E);color:#fff;border-radius:var(--r);padding:18px 22px;margin-bottom:22px;display:flex;align-items:flex-start;gap:16px}
+.diff-icon{font-size:32px;flex-shrink:0}
+.diff-title{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:6px}
+.diff-text{font-size:12px;color:rgba(255,255,255,.75);line-height:1.8}
+
+/* ═══ SCENARIO ═══ */
+.scenario{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+.scenario-head{background:linear-gradient(135deg,#1C1C1E,#333);color:#fff;padding:18px 24px}
+.scenario-head h2{font-size:15px;font-weight:900;margin-bottom:4px}
+.scenario-head p{font-size:12px;opacity:.7;line-height:1.6}
+.scenario-body{padding:20px 24px}
+.scenario-text{font-size:13px;color:var(--ink2);line-height:2;margin-bottom:14px}
+.scenario-text em{font-style:normal;font-weight:700;color:var(--acc)}
+.scenario-hl{background:var(--accL);border-left:4px solid var(--acc);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;font-size:13px;color:#7F1D1D;line-height:1.8}
+
+/* ═══ GOAL CARDS ═══ */
+.goal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.goal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;text-align:center;box-shadow:var(--shadow);transition:transform .2s}
+.goal-card:hover{transform:translateY(-3px)}
+.goal-icon{font-size:30px;margin-bottom:8px}
+.goal-label{font-size:10px;font-weight:700;color:var(--ink4);letter-spacing:.06em;margin-bottom:5px;text-transform:uppercase}
+.goal-text{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5}
+
+/* ═══ INDEX EXPLAINER ═══ */
+.idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.idx-card{border-radius:10px;padding:14px 16px;border:1.5px solid var(--border)}
+.idx-card.comp{border-color:var(--acc);background:var(--accL)}
+.idx-card.search{border-color:var(--teal);background:var(--tealL)}
+.idx-card-tag{display:inline-block;padding:3px 10px;border-radius:8px;font-size:10px;font-weight:700;margin-bottom:7px}
+.idx-card.comp .idx-card-tag{background:var(--acc);color:#fff}
+.idx-card.search .idx-card-tag{background:var(--teal);color:#fff}
+.idx-card-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:5px}
+.idx-card-text{font-size:11px;color:var(--ink2);line-height:1.75}
+
+/* ═══ STEP CARD ═══ */
+.steps-wrap{margin-bottom:24px}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+.step-header{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .18s}
+.step-header:hover{background:#FAFAFA}
+.step-num{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-info{flex:1}
+.step-name{font-size:14px;font-weight:800;color:var(--ink)}
+.step-desc{font-size:11px;color:var(--ink3);margin-top:2px}
+.step-toggle{font-size:13px;color:var(--ink3);transition:transform .25s}
+.step-toggle.open{transform:rotate(180deg)}
+.step-body{display:none;padding:4px 20px 18px 66px;border-top:1px solid #F3F4F6}
+.step-body.open{display:block}
+.op-list{list-style:none;margin:10px 0}
+.op-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #F9F9F9}
+.op-item:last-child{border:none}
+.op-dot{width:22px;height:22px;border-radius:50%;background:var(--accL);color:var(--acc);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.op-text{font-size:13px;color:var(--ink2);line-height:1.75;flex:1}
+.op-text strong{color:var(--ink)}
+.op-text code{background:#F3F4F6;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11.5px;color:var(--acc2)}
+.tip-box{background:var(--amberL);border:1px solid var(--amberM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#78350F;line-height:1.8;display:flex;gap:8px}
+.good-box{background:var(--greenL);border:1px solid var(--greenM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#065F46;line-height:1.8;display:flex;gap:8px}
+.screenshot-box{background:#F0FDF4;border:1.5px dashed var(--greenM);border-radius:8px;padding:11px 15px;margin:10px 0;font-size:12px;color:#065F46;line-height:1.7;display:flex;align-items:flex-start;gap:8px}
+
+/* ═══ PATH ROW ═══ */
+.path-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0;font-size:12px}
+.path-node{background:var(--accL);color:var(--acc);padding:5px 13px;border-radius:20px;font-weight:700}
+.path-arr{color:var(--ink4);font-size:14px}
+
+/* ═══ COMPARE TABLE ═══ */
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}
+.cmp-table th{padding:8px 12px;text-align:left;border-bottom:2px solid var(--border);color:var(--ink3);font-weight:700;font-size:11px;letter-spacing:.04em}
+.cmp-table td{padding:8px 12px;border-bottom:1px solid #F3F4F6;color:var(--ink2);vertical-align:top;line-height:1.6}
+.cmp-table tr:last-child td{border:none}
+.cmp-table td:first-child{font-weight:700;color:var(--ink)}
+.badge-comp{background:var(--accL);color:var(--acc);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700}
+.badge-search{background:var(--tealL);color:var(--teal);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700}
+
+/* ═══ DATA SAMPLE ═══ */
+.kw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 6px}
+.kw-item{background:var(--accL);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--accM)}
+.kw-name{font-size:11px;font-weight:700;color:var(--acc);margin-bottom:5px}
+.kw-val{font-size:18px;font-weight:900;color:var(--ink);margin-bottom:3px}
+.kw-note{font-size:10px;color:var(--ink3)}
+.kw-up{color:#10B981}.kw-down{color:#EF4444}
+
+/* ═══ ANALYSIS TEMPLATE ═══ */
+.analysis-template{background:var(--card);border:1.5px solid var(--acc);border-radius:var(--r);padding:20px 24px;margin-bottom:24px}
+.tmpl-title{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:14px}
+.tmpl-row{display:grid;grid-template-columns:148px 1fr;gap:10px;margin-bottom:9px;align-items:start}
+.tmpl-label{font-size:12px;font-weight:700;color:var(--ink3);padding:8px 0;line-height:1.5}
+.tmpl-input{background:#FFFDF9;border:1.5px solid var(--amberM);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--ink);width:100%;min-height:42px;font-family:inherit;resize:vertical;transition:border-color .2s,box-shadow .2s;line-height:1.7}
+.tmpl-input:focus{outline:none;border-color:var(--acc2);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+.tmpl-input::placeholder{color:#BCA57A;font-style:italic;font-size:12px}
+
+/* ═══ RECORD TABLE ═══ */
+.rec-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}
+.rec-table th{background:var(--pri);color:#fff;padding:8px 10px;text-align:left;font-size:11px}
+.rec-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:middle}
+.rec-table tr:nth-child(even) td{background:#FAFAFA}
+.rec-table td.fill{background:var(--amberL);padding:4px 6px}
+.rec-table td.fill input{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--amber);padding:4px 6px;font-size:12px;color:var(--ink);font-family:inherit;outline:none;min-width:80px}
+.rec-table td.fill input:focus{border-bottom-color:var(--acc2);background:rgba(255,122,0,.06);border-radius:3px}
+.rec-table td.fill input::placeholder{color:var(--ink4);font-style:italic}
+
+/* ═══ CHECKLIST ═══ */
+.checklist{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:24px}
+.check-title{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:14px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #F9F9F9;cursor:pointer;transition:background .15s}
+.check-item:hover{background:#FAFAFA;margin:0 -4px;padding:9px 4px}
+.check-item:last-child{border:none}
+.check-box{width:20px;height:20px;border:2px solid #D1D5DB;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;font-size:11px;color:#fff}
+.check-box.checked{background:var(--green);border-color:var(--green)}
+.check-text{font-size:13px;color:var(--ink2);line-height:1.65;flex:1}
+.check-text.done{color:var(--ink4);text-decoration:line-through}
+.check-progress{height:7px;background:#E5E7EB;border-radius:10px;margin-top:14px;overflow:hidden}
+.check-bar{height:7px;background:linear-gradient(90deg,var(--green),#34D399);border-radius:10px;transition:width .4s}
+.check-stat{font-size:11px;color:var(--ink3);margin-top:6px;text-align:right;font-weight:600}
+
+/* ═══ DELIVERABLE ═══ */
+.deliverable{background:var(--pri);color:#fff;border-radius:var(--r);padding:22px 24px;margin-bottom:24px}
+.deliv-title{font-size:15px;font-weight:800;margin-bottom:14px;color:var(--acc)}
+.deliv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.deliv-item{background:rgba(255,255,255,.07);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid rgba(255,255,255,.1)}
+.deliv-item-title{font-weight:800;margin-bottom:5px;color:var(--acc);font-size:13px}
+
+/* ═══ FOOTER ═══ */
+.page-footer{text-align:center;padding:20px;font-size:12px;color:var(--ink4);border-top:1px solid var(--border);margin-top:10px}
+
+@media(max-width:640px){
+  .goal-grid,.idx-grid,.kw-grid,.deliv-grid{grid-template-columns:1fr}
+  .header-title{font-size:23px}
+  .tmpl-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="deco deco1"></div>
+  <div class="deco deco2"></div>
+  <div class="header-inner">
+    <div class="header-eyebrow">📊 M2-U2 · 实训任务一</div>
+    <h1 class="header-title">用<em>巨量算数</em>做选品分析<br>——抖音指数热度洞察实训</h1>
+    <div class="header-sub">以"儿童益智玩具"赛道为例，学习使用巨量算数（抖音官方数据平台）采集综合指数、搜索指数、关联分析和人群画像数据，为抖音电商选品和内容方向提供数据支撑。</div>
+    <div class="header-meta">
+      <div class="meta-pill">⏱️ 参考用时：45分钟</div>
+      <div class="meta-pill">🛠️ 工具：巨量算数 trendinsight.oceanengine.com</div>
+      <div class="meta-pill">📁 提交：分析报告截图 + 填写表格</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ═══ 工具说明 ═══ -->
+  <div class="diff-banner">
+    <div class="diff-icon">📱</div>
+    <div>
+      <div class="diff-title">关于巨量算数（抖音指数）</div>
+      <div class="diff-text">
+        巨量算数是字节跳动旗下<strong style="color:#fff">巨量引擎</strong>官方推出的内容消费趋势洞察平台，<strong style="color:var(--acc)">无需登录</strong>即可免费使用。它提供"算数指数"功能，可查看关键词在抖音上的<strong style="color:#fff">综合指数</strong>（内容量+播放量+搜索量三维加权）和<strong style="color:#fff">搜索指数</strong>，以及关联分析和人群画像——相当于抖音版的"百度指数"，但更聚焦<strong style="color:var(--acc2)">短视频/直播种草生态</strong>下的内容热度，对抖音电商选品价值极高。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 综合指数 vs 搜索指数 ═══ -->
+  <div class="sec-title">📌 先弄清楚：两种指数的区别</div>
+  <div class="idx-grid" style="margin-bottom:22px">
+    <div class="idx-card comp">
+      <div class="idx-card-tag">综合指数</div>
+      <div class="idx-card-title">衡量该词在抖音的整体声量</div>
+      <div class="idx-card-text">
+        计算来源：相关视频内容数量 + 用户观看/播放量 + 搜索量 → 三维加权求和<br><br>
+        <strong>用途：</strong>了解这个品类在抖音"有多热"——内容越多、播放越高，综合指数越大
+      </div>
+    </div>
+    <div class="idx-card search">
+      <div class="idx-card-tag">搜索指数</div>
+      <div class="idx-card-title">衡量该词在抖音的搜索热度</div>
+      <div class="idx-card-text">
+        计算来源：用户在抖音主动搜索该关键词的相关数据加权得出（≠实际搜索量）<br><br>
+        <strong>用途：</strong>了解这个品类有多少人"主动搜索找货"——数值越高，说明购买意图越强
+      </div>
+    </div>
+  </div>
+  <div class="tip-box" style="margin-bottom:22px">
+    <div>💡</div>
+    <div>选品时两个指数要<strong>结合看</strong>：综合指数高说明内容多、流量大（适合做内容种草）；搜索指数高说明用户有主动找货意图（适合做搜索承接页/小店）。两个都高的词是<strong>最优赛道</strong>。</div>
+  </div>
+
+  <!-- ═══ 任务背景 ═══ -->
+  <div class="sec-title">📋 任务背景</div>
+  <div class="scenario">
+    <div class="scenario-head">
+      <h2>🏪 情景设定：飞跃跨境电商运营团队</h2>
+      <p>你是公司抖音电商运营专员，负责为选品团队提供数据支持</p>
+    </div>
+    <div class="scenario-body">
+      <div class="scenario-text">
+        飞跃公司决定在下半年正式发力<strong>抖音小店</strong>，主攻儿童益智玩具赛道。老板让你先做一轮数据摸底——不只是"大家在搜什么"，更要搞清楚<em>"抖音上这类产品的内容热度怎么样？有没有爆款内容空间？目标用户是谁？"</em><br><br>
+        你的任务是用<strong>巨量算数</strong>完成一次系统的关键词热度分析，找出最适合在抖音发力的儿童玩具细分品类，为选品会议提供数据依据。
+      </div>
+      <div class="scenario-hl">
+        💡 <strong>核心问题：</strong>哪些玩具品类在抖音有较高的综合声量和搜索意图？哪些词有上升趋势？抖音用户是谁、在哪里？内容关联词是什么（可以帮助创作视频标题/话题）？
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 实训目标 ═══ -->
+  <div class="sec-title">🎯 实训目标</div>
+  <div class="goal-grid">
+    <div class="goal-card">
+      <div class="goal-icon">📈</div>
+      <div class="goal-label">工具能力</div>
+      <div class="goal-text">掌握巨量算数算数指数的综合指数、搜索指数、关联分析、人群画像四大功能</div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-icon">🔍</div>
+      <div class="goal-label">数据能力</div>
+      <div class="goal-text">对比分析3个关键词的指数差异，找出综合声量最大和搜索意图最强的品类词</div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-icon">📝</div>
+      <div class="goal-label">输出能力</div>
+      <div class="goal-text">完成分析模板填写并截图保存关键数据，提炼出对选品和内容创作有用的结论</div>
+    </div>
+  </div>
+
+  <!-- ═══ 操作步骤 ═══ -->
+  <div class="sec-title">🔧 操作步骤（共5步）</div>
+  <div class="steps-wrap">
+
+    <!-- STEP 1 -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle('s1')">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-name">进入巨量算数，找到算数指数入口</div>
+          <div class="step-desc">打开平台，了解页面结构，进入关键词查询功能</div>
+        </div>
+        <div class="step-toggle open" id="st1">▼</div>
+      </div>
+      <div class="step-body open" id="sb1">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">打开浏览器，访问 <code>trendinsight.oceanengine.com</code>，即巨量算数官网（<strong>无需登录</strong>，直接可用）</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">观察顶部导航栏，找到并点击"<strong>算数指数</strong>"入口（也可直接访问 <code>trendinsight.oceanengine.com/arithmetic-index</code>）</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">在页面上方的<strong>关键词搜索框</strong>中，输入 <code>益智玩具</code>，点击搜索，观察出现的综合指数趋势曲线</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">注意页面上方有两个标签可切换：<strong>「综合指数」</strong>和<strong>「搜索指数」</strong>，先查看综合指数，了解整体声量情况</div></li>
+          <li class="op-item"><div class="op-dot">⑤</div><div class="op-text">将时间范围调整为"<strong>近180天</strong>"（或近一年），查看较完整的趋势变化</div></li>
+        </ul>
+        <div class="tip-box">
+          <div>💡</div>
+          <div>如果某个词"暂无数据"，说明该词在抖音平台的热度较低，可以换更短的词如 <code>积木</code>、<code>拼图</code> 再试。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle('s2')">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-name">多关键词对比分析（综合指数 + 搜索指数）</div>
+          <div class="step-desc">同时输入3个词，分别对比两种指数的高低和趋势走向</div>
+        </div>
+        <div class="step-toggle" id="st2">▼</div>
+      </div>
+      <div class="step-body" id="sb2">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">在搜索框旁点击"<strong>+添加对比词</strong>"，依次添加以下3个关键词进行对比：<code>儿童积木</code> / <code>儿童拼图</code> / <code>益智玩具</code></div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">先查看<strong>综合指数</strong>曲线：哪个词的综合声量最高？哪个词在近期有<strong>明显上升</strong>趋势？（上升趋势代表这个品类在抖音越来越热）</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">切换到<strong>搜索指数</strong>标签，再次对比三个词：搜索指数最高的词，说明<strong>用户主动找货的意图最强</strong>，是做抖音小店的重点词</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">找到峰值时间点：鼠标悬停在折线高点，记录哪个时间段指数最高（如"六一"前后、"双十一"前后、寒暑假期间）</div></li>
+          <li class="op-item"><div class="op-dot">⑤</div><div class="op-text">注意观察三个词的<strong>指数差距大小</strong>——如果差距悬殊，说明赛道集中度高；差距接近，说明品类均衡</div></li>
+        </ul>
+        <div class="tip-box">
+          <div>📌</div>
+          <div><strong>重点分析维度：</strong>综合指数高 → 视频内容多、流量大，适合做内容种草；搜索指数高 → 用户主动找货，适合做关键词搜索承接。<strong>两个都高</strong>的品类是最值得入场的赛道。</div>
+        </div>
+        <div class="screenshot-box">
+          <span>📸</span>
+          <div><strong>截图要求1：</strong>截取三个关键词<strong>综合指数对比折线图</strong>，保存为"截图1_综合指数对比.png"；再截取<strong>搜索指数对比图</strong>，保存为"截图1b_搜索指数对比.png"</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-top:10px">
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:10px">📊 示例数据参考（实际数据以巨量算数为准）</div>
+          <div class="kw-grid">
+            <div class="kw-item"><div class="kw-name">儿童积木</div><div class="kw-val">6,840</div><div class="kw-note kw-up">▲ 综合指数</div></div>
+            <div class="kw-item"><div class="kw-name">儿童拼图</div><div class="kw-val">3,210</div><div class="kw-note kw-down">搜索指数较弱</div></div>
+            <div class="kw-item"><div class="kw-name">益智玩具</div><div class="kw-val">12,500</div><div class="kw-note kw-up">▲ 两个指数均最高</div></div>
+            <div class="kw-item"><div class="kw-name">旺季峰值</div><div class="kw-val">六一/双11</div><div class="kw-note" style="color:var(--ink4)">节假日驱动</div></div>
+          </div>
+          <div style="font-size:10px;color:var(--ink4);margin-top:6px">⚠️ 以上数据为示意，请以你实际查到的巨量算数数据为准</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle('s3')">
+        <div class="step-num">3</div>
+        <div class="step-info">
+          <div class="step-name">查看关联分析，挖掘内容关联词和搜索关联词</div>
+          <div class="step-desc">了解消费者"同时看什么、同时搜什么"，为内容创作找素材</div>
+        </div>
+        <div class="step-toggle" id="st3">▼</div>
+      </div>
+      <div class="step-body" id="sb3">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">在"益智玩具"的指数页面，向下滚动找到"<strong>关联分析</strong>"板块（或点击页面上方的"关联分析"标签切换）</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">查看<strong>「内容关联词」</strong>：这些词和"益智玩具"频繁出现在同一条视频中，反映消费者<strong>观看这类视频时的内容兴趣</strong>。例如：出现"开箱""测评""亲子互动"等，说明视频创作可以往这些方向靠</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">查看<strong>「搜索关联词」</strong>：用户在搜索"益智玩具"时还会同步搜索的词，反映<strong>购买决策路径</strong>。例如：出现"几岁适合""推荐排行""哪个牌子好"等，说明买家在做选品比较</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">重点记录：<strong>关联度高且有上升趋势</strong>的词（通常标有↑箭头）——这些是蓝海细分词，提前布局可获取增量流量</div></li>
+          <li class="op-item"><div class="op-dot">⑤</div><div class="op-text">把你找到的最有价值的<strong>3-5个关联词</strong>记录下来，填入下方分析模板</div></li>
+        </ul>
+        <div class="good-box">
+          <div>✅</div>
+          <div>内容关联词 → 帮你找到<strong>视频脚本/话题标签</strong>的方向；搜索关联词 → 帮你优化<strong>商品标题/详情页</strong>中的关键词布局。两类词用途不同，都要记录。</div>
+        </div>
+        <div class="screenshot-box">
+          <span>📸</span>
+          <div><strong>截图要求2：</strong>截取"关联分析"页面（包含内容关联词和搜索关联词列表），保存为"截图2_关联分析.png"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle('s4')">
+        <div class="step-num">4</div>
+        <div class="step-info">
+          <div class="step-name">分析人群画像，了解抖音用户特征</div>
+          <div class="step-desc">查看关注/搜索该词的用户画像，为精准投放和内容风格提供依据</div>
+        </div>
+        <div class="step-toggle" id="st4">▼</div>
+      </div>
+      <div class="step-body" id="sb4">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">点击"<strong>人群画像</strong>"标签，进入用户特征分析页面</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">查看<strong>性别分布</strong>：男女比例如何？→ 影响视频风格和投放人群标签的设置（如女性占多数则视频色调可更温馨/精致）</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">查看<strong>年龄分布</strong>：主力人群是哪个年龄段？（注意：儿童玩具的<strong>购买者是父母</strong>，主力通常是25-35岁；但<strong>内容消费者</strong>包含孩子，两者可能不同）</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">查看<strong>地域分布</strong>：哪些省市搜索/观看最多？→ 可用于设置抖音小店或广告投放的<strong>优先地域</strong></div></li>
+          <li class="op-item"><div class="op-dot">⑤</div><div class="op-text">查看<strong>兴趣标签/内容偏好</strong>：这类用户还喜欢看什么内容？（如"母婴育儿""亲子游玩"等）→ 帮助你找到<strong>跨品类引流</strong>的切入点</div></li>
+        </ul>
+        <div class="tip-box">
+          <div>💡</div>
+          <div>抖音人群画像的<strong>地域数据</strong>尤其重要：一线城市用户偏好大品牌、重品质；下沉市场用户更关注价格和性价比——两类用户在短视频中的触达成本和转化率截然不同，选品定价策略需要差异化。</div>
+        </div>
+        <div class="screenshot-box">
+          <span>📸</span>
+          <div><strong>截图要求3：</strong>截取"人群画像"页面（包含年龄、性别、地域分布），保存为"截图3_人群画像.png"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle('s5')">
+        <div class="step-num">5</div>
+        <div class="step-info">
+          <div class="step-name">整理数据，填写选品分析报告</div>
+          <div class="step-desc">将采集到的数据整理成结论，给出可执行的选品/内容建议</div>
+        </div>
+        <div class="step-toggle" id="st5">▼</div>
+      </div>
+      <div class="step-body" id="sb5">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">回顾步骤2-4中记录的数据，填写下方的<strong>数据采集记录表</strong>和<strong>分析报告模板</strong></div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">在"<strong>选品建议</strong>"栏，写出数据驱动的结论，格式参考：<em>"建议主推[词]，综合指数[值]，旺季在[X月]，目标人群为[特征]，内容方向参考关联词[词1][词2]"</em></div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">将3张截图 + 填好的分析表，整理后提交给老师</div></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ 数据记录表 ═══ -->
+  <div class="sec-title">📊 数据采集记录表（请填写）</div>
+  <div class="scenario" style="margin-bottom:24px">
+    <div class="scenario-head"><h2>📋 三关键词指数对比记录</h2><p>在巨量算数中查询后，将数据填入下表</p></div>
+    <div class="scenario-body" style="padding:14px 20px">
+      <table class="rec-table">
+        <tr>
+          <th>关键词</th>
+          <th>综合指数（均值）</th>
+          <th>搜索指数（均值）</th>
+          <th>指数最高峰时间</th>
+          <th>近期趋势</th>
+        </tr>
+        <tr><td>儿童积木</td><td class="fill"><input type="text" id="t1_comp" placeholder="填入均值" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t1_srch" placeholder="填入均值" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t1_peak" placeholder="X月" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t1_trend" placeholder="上升/下降/平稳" oninput="save()" autocomplete="off"></td></tr>
+        <tr><td>儿童拼图</td><td class="fill"><input type="text" id="t2_comp" placeholder="填入均值" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t2_srch" placeholder="填入均值" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t2_peak" placeholder="X月" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t2_trend" placeholder="上升/下降/平稳" oninput="save()" autocomplete="off"></td></tr>
+        <tr><td>益智玩具</td><td class="fill"><input type="text" id="t3_comp" placeholder="填入均值" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t3_srch" placeholder="填入均值" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t3_peak" placeholder="X月" oninput="save()" autocomplete="off"></td><td class="fill"><input type="text" id="t3_trend" placeholder="上升/下降/平稳" oninput="save()" autocomplete="off"></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ 分析模板 ═══ -->
+  <div class="sec-title">✍️ 选品分析报告模板（请填写）</div>
+  <div class="analysis-template">
+    <div class="tmpl-title">📝 儿童益智玩具抖音电商选品数据分析摘要</div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">综合声量最强的词</div>
+      <textarea id="f_strongest" class="tmpl-input" placeholder="填写综合指数最高的关键词及其均值（该词代表抖音上内容最丰富、流量最大的品类）" rows="2" oninput="save()"></textarea>
+    </div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">搜索意图最强的词</div>
+      <textarea id="f_search" class="tmpl-input" placeholder="填写搜索指数最高的关键词（该词代表用户主动找货意图最强，是重点搜索承接词）" rows="2" oninput="save()"></textarea>
+    </div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">季节性旺季规律</div>
+      <textarea id="f_season" class="tmpl-input" placeholder="例如：每年X月出现综合指数峰值（六一前后/双十一/寒暑假），旺季持续约X个月" rows="2" oninput="save()"></textarea>
+    </div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">内容关联词（3-5个）</div>
+      <textarea id="f_content_rel" class="tmpl-input" placeholder="关联分析中找到的内容关联词（可以作为视频话题标签或脚本方向），如：开箱、测评、亲子互动……" rows="2" oninput="save()"></textarea>
+    </div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">搜索关联词（3-5个）</div>
+      <textarea id="f_search_rel" class="tmpl-input" placeholder="关联分析中找到的搜索关联词（可以优化商品标题/小店关键词），如：几岁适合、推荐排行……" rows="2" oninput="save()"></textarea>
+    </div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">目标用户画像</div>
+      <textarea id="f_persona" class="tmpl-input" placeholder="性别：___；主力年龄段：___；主要地区：___；内容偏好标签：___" rows="2" oninput="save()"></textarea>
+    </div>
+    <div class="tmpl-row">
+      <div class="tmpl-label">选品 / 内容方向建议</div>
+      <textarea id="f_suggest" class="tmpl-input" placeholder="根据以上数据，写出2-3条具体建议（需有数据支撑），例如：建议主推[词]，在X月前X周上架，视频内容方向参考[内容关联词]，首选投放地区为[地区]" rows="4" oninput="save()"></textarea>
+    </div>
+  </div>
+
+  <!-- ═══ 指数对比说明 ═══ -->
+  <div class="sec-title">🔄 巨量算数 vs 百度指数：核心区别</div>
+  <div class="scenario" style="margin-bottom:24px">
+    <div class="scenario-head"><h2>📊 两个工具分析的是不同的"用户行为"</h2><p>选品时要根据销售渠道来选择合适的工具</p></div>
+    <div class="scenario-body" style="padding:14px 20px">
+      <table class="cmp-table">
+        <tr>
+          <th>对比维度</th>
+          <th><span class="badge-comp">巨量算数（抖音指数）</span></th>
+          <th><span class="badge-search">百度指数</span></th>
+        </tr>
+        <tr><td>数据来源</td><td>抖音平台：视频播放+搜索+内容量</td><td>百度搜索引擎：网页搜索行为</td></tr>
+        <tr><td>指数含义</td><td>综合声量（内容生态热度）+ 平台搜索热度</td><td>网页搜索热度（主动信息获取行为）</td></tr>
+        <tr><td>最适合</td><td>抖音小店选品、短视频内容规划、直播选品</td><td>全网市场调研、淘宝/电商平台趋势参考</td></tr>
+        <tr><td>是否登录</td><td>无需登录，直接免费使用</td><td>需要登录百度账号</td></tr>
+        <tr><td>用于抖音电商时</td><td>✅ 强烈推荐，直接反映抖音生态热度</td><td>⚠️ 可作补充，但不直接反映抖音用户行为</td></tr>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ═══ 保存状态 ═══ -->
+  <div id="save-bar" style="display:flex;align-items:center;justify-content:space-between;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:10px 18px;margin-bottom:18px">
+    <span id="save-status" style="font-size:12px;color:#065F46;font-weight:700">📝 填写内容将自动保存在本浏览器中</span>
+    <div style="display:flex;gap:8px">
+      <button onclick="exportData()" style="padding:6px 14px;background:#059669;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 复制全部填写内容</button>
+      <button onclick="clearData()" style="padding:6px 14px;background:#fff;color:#EF4444;border:1.5px solid #FECACA;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑️ 清空重填</button>
+    </div>
+  </div>
+
+  <!-- ═══ 完成清单 ═══ -->
+  <div class="sec-title">✅ 任务完成清单</div>
+  <div class="checklist">
+    <div class="check-title">🗂️ 逐项检查，确认全部完成</div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已访问巨量算数官网，找到"算数指数"功能入口</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已成功搜索3个关键词，能看到综合指数和搜索指数的趋势曲线</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已对比3个词的综合指数，找出声量最大的词</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已切换到搜索指数，找出搜索意图最强的词</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">截图1a（综合指数对比）和截图1b（搜索指数对比）已保存</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已查看关联分析，分别记录了"内容关联词"和"搜索关联词"</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">截图2（关联分析）已保存</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已查看人群画像，记录了性别/年龄/地域/兴趣标签数据</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">截图3（人群画像）已保存</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">数据采集记录表已填写完毕</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">分析报告模板已全部填写，包含选品/内容方向建议</div></div>
+    <div class="check-progress"><div class="check-bar" id="check-bar" style="width:0%"></div></div>
+    <div class="check-stat" id="check-stat">0 / 11 项完成</div>
+  </div>
+
+  <!-- ═══ 提交物 ═══ -->
+  <div class="sec-title">📦 任务提交物</div>
+  <div class="deliverable">
+    <div class="deliv-title">🗂️ 需要提交的内容</div>
+    <div class="deliv-grid">
+      <div class="deliv-item">
+        <div class="deliv-item-title">📸 截图文件（4张）</div>
+        截图1a：综合指数对比折线图<br>
+        截图1b：搜索指数对比折线图<br>
+        截图2：关联分析（内容关联词+搜索关联词）<br>
+        截图3：人群画像（年龄+性别+地域）
+      </div>
+      <div class="deliv-item">
+        <div class="deliv-item-title">📝 分析报告（1份）</div>
+        包含：数据记录表 + 七项分析模板内容<br>
+        格式：Word/WPS 文档 或 本页面截图<br>
+        要求：建议部分不少于60字，需引用数据支撑
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 拓展思考 ═══ -->
+  <div class="sec-title">💭 拓展思考</div>
+  <div class="scenario">
+    <div class="scenario-head">
+      <h2>🤔 完成基础任务后，思考这些问题</h2>
+      <p>不需要提交，与同学讨论或自己思考</p>
+    </div>
+    <div class="scenario-body">
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+        <li style="display:flex;gap:10px;font-size:13px;color:var(--ink2)"><span style="font-size:16px">🧐</span><span>巨量算数的综合指数同时包含"内容量+播放量+搜索量"，如果一个词的综合指数很高，但搜索指数很低，说明什么问题？对选品有什么影响？</span></li>
+        <li style="display:flex;gap:10px;font-size:13px;color:var(--ink2)"><span style="font-size:16px">📊</span><span>同一个关键词在巨量算数里指数很高，但在生意参谋里的搜索热度一般——两个平台数据不一样，你在抖音做小店时，应该以哪个为主要参考？为什么？</span></li>
+        <li style="display:flex;gap=10px;font-size:13px;color:var(--ink2)"><span style="font-size:16px">🎯</span><span>如果关联词中出现了很多"开箱""测评"类词，说明消费者在抖音是以什么样的方式了解这类产品的？这对你制作第一条短视频有什么启发？</span></li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">M2-U2 · 实训任务一 · 巨量算数抖音指数选品分析 | 24电商6班</div>
+
+<script>
+const TOTAL = 11;
+let count = 0;
+const SK = 'task1_data';
+
+// ── Save & Load ──────────────────────────────
+function save() {
+  const data = {};
+  // table inputs
+  ['t1_comp','t1_srch','t1_peak','t1_trend',
+   't2_comp','t2_srch','t2_peak','t2_trend',
+   't3_comp','t3_srch','t3_peak','t3_trend'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  // textareas
+  ['f_strongest','f_search','f_season','f_content_rel','f_search_rel','f_persona','f_suggest'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  // checkboxes
+  data._checks = count;
+  data._checkStates = [];
+  document.querySelectorAll('.check-item').forEach((item, i) => {
+    data._checkStates[i] = item.querySelector('.check-box').classList.contains('checked');
+  });
+  localStorage.setItem(SK, JSON.stringify(data));
+  flashSaved();
+}
+
+function load() {
+  const raw = localStorage.getItem(SK);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    // table inputs
+    ['t1_comp','t1_srch','t1_peak','t1_trend',
+     't2_comp','t2_srch','t2_peak','t2_trend',
+     't3_comp','t3_srch','t3_peak','t3_trend'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id]) el.value = data[id];
+    });
+    // textareas
+    ['f_strongest','f_search','f_season','f_content_rel','f_search_rel','f_persona','f_suggest'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id]) el.value = data[id];
+    });
+    // restore checkboxes
+    if (data._checkStates) {
+      document.querySelectorAll('.check-item').forEach((item, i) => {
+        if (data._checkStates[i]) {
+          const box = item.querySelector('.check-box');
+          const txt = item.querySelector('.check-text');
+          box.classList.add('checked');
+          box.innerHTML = '✓';
+          txt.classList.add('done');
+          count++;
+        }
+      });
+      updateProgress();
+    }
+    if (data._checks > 0) {
+      const st = document.getElementById('save-status');
+      if (st) st.textContent = '✅ 已恢复上次保存的填写内容';
+    }
+  } catch(e) {}
+}
+
+let saveTimer;
+function flashSaved() {
+  clearTimeout(saveTimer);
+  const st = document.getElementById('save-status');
+  if (st) { st.textContent = '✅ 已自动保存'; st.style.color = '#059669'; }
+  saveTimer = setTimeout(() => {
+    if (st) { st.textContent = '📝 填写内容已保存在本浏览器中'; st.style.color = '#065F46'; }
+  }, 2000);
+}
+
+function exportData() {
+  const lines = ['【儿童益智玩具抖音电商选品数据分析摘要】', ''];
+  lines.push('一、关键词指数对比记录');
+  const rows = [
+    ['儿童积木', 't1_comp', 't1_srch', 't1_peak', 't1_trend'],
+    ['儿童拼图', 't2_comp', 't2_srch', 't2_peak', 't2_trend'],
+    ['益智玩具', 't3_comp', 't3_srch', 't3_peak', 't3_trend'],
+  ];
+  rows.forEach(([kw, ...ids]) => {
+    const vals = ids.map(id => { const el = document.getElementById(id); return el ? (el.value || '(未填)') : '(未填)'; });
+    lines.push(`  ${kw}：综合指数=${vals[0]}，搜索指数=${vals[1]}，峰值月份=${vals[2]}，趋势=${vals[3]}`);
+  });
+  lines.push('');
+  const labels = ['综合声量最强的词','搜索意图最强的词','季节性旺季规律','内容关联词（3-5个）','搜索关联词（3-5个）','目标用户画像','选品/内容方向建议'];
+  const ids = ['f_strongest','f_search','f_season','f_content_rel','f_search_rel','f_persona','f_suggest'];
+  lines.push('二、分析报告内容');
+  labels.forEach((lbl, i) => {
+    const el = document.getElementById(ids[i]);
+    lines.push(`【${lbl}】`);
+    lines.push((el && el.value) ? el.value : '(未填写)');
+    lines.push('');
+  });
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ 填写内容已复制到剪贴板！可粘贴到 Word 或发给老师。');
+  }).catch(() => {
+    prompt('复制以下内容：', text);
+  });
+}
+
+function clearData() {
+  if (!confirm('确定要清空所有填写内容吗？此操作不可恢复。')) return;
+  localStorage.removeItem(SK);
+  // clear inputs
+  document.querySelectorAll('.rec-table input, .tmpl-input').forEach(el => el.value = '');
+  // reset checks
+  count = 0;
+  document.querySelectorAll('.check-item').forEach(item => {
+    item.querySelector('.check-box').classList.remove('checked');
+    item.querySelector('.check-box').innerHTML = '';
+    item.querySelector('.check-text').classList.remove('done');
+  });
+  updateProgress();
+  const st = document.getElementById('save-status');
+  if (st) st.textContent = '🗑️ 已清空，可以重新填写';
+}
+
+// ── Checklist ────────────────────────────────
+function updateProgress() {
+  document.getElementById('check-bar').style.width = (count / TOTAL * 100) + '%';
+  document.getElementById('check-stat').textContent = count + ' / ' + TOTAL + ' 项完成';
+}
+
+function chk(item) {
+  const box = item.querySelector('.check-box');
+  const txt = item.querySelector('.check-text');
+  const on = box.classList.contains('checked');
+  box.classList.toggle('checked', !on);
+  txt.classList.toggle('done', !on);
+  box.innerHTML = on ? '' : '✓';
+  count = on ? count - 1 : count + 1;
+  updateProgress();
+  save();
+}
+
+// ── Step toggles ─────────────────────────────
+function toggle(id) {
+  const n = id.slice(1);
+  const body = document.getElementById('sb' + n);
+  const tog = document.getElementById('st' + n);
+  if (!body) return;
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  if (tog) tog.classList.toggle('open', !open);
+}
+
+// ── Init ─────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  ['2','3','4','5'].forEach(n => {
+    const b = document.getElementById('sb' + n);
+    const t = document.getElementById('st' + n);
+    if (b) b.classList.remove('open');
+    if (t) t.classList.remove('open');
+  });
+  load();
+});
+</script>
+</body>
+</html>
