@@ -8,29 +8,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --pri:#1C1C1E;--acc:#FF4F64;--acc2:#FF7A00;
-  --accL:#FFF1F3;--accM:#FFCCD3;
-  --teal:#00BFA5;--tealL:#E0FAF7;
-  --violet:#6366F1;--violetL:#EEF2FF;
-  --amber:#F59E0B;--amberL:#FFFBEB;--amberM:#FDE68A;
-  --green:#10B981;--greenL:#ECFDF5;--greenM:#6EE7B7;
-  --ink:#111827;--ink2:#374151;--ink3:#6B7280;--ink4:#9CA3AF;
-  --bg:#F8F8FA;--card:#FFFFFF;--border:#E5E7EB;
-  --r:12px;--shadow:0 1px 3px rgba(0,0,0,.07),0 6px 20px rgba(0,0,0,.06);
+  --pri:#E8440A;--acc:#E8440A;--acc2:#F97316;--acc3:#F59E0B;
+  --accL:#FFF1EC;--accM:#FED7C3;
+  --teal:#0EA5E9;--tealL:#E0F2FE;
+  --violet:#7C3AED;--violetL:#F5F3FF;
+  --amber:#D97706;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --green:#16A34A;--greenL:#F0FDF4;--greenM:#86EFAC;
+  --ink:#1C0A04;--ink2:#44200E;--ink3:#8B4513;--ink4:#C07040;
+  --bg:#FFFBF8;--card:#FFFFFF;--border:#FDDECF;
+  --r:12px;--shadow:0 2px 12px rgba(232,68,10,.09),0 1px 3px rgba(0,0,0,.06);
 }
-body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65;background-image:radial-gradient(ellipse 60% 40% at 80% 0%,rgba(232,68,10,.05),transparent),radial-gradient(ellipse 40% 30% at 20% 100%,rgba(249,115,22,.04),transparent)}
 
 /* ═══ HEADER ═══ */
-.page-header{background:var(--pri);color:#fff;padding:0;overflow:hidden;position:relative}
-.header-inner{max-width:960px;margin:0 auto;padding:38px 24px 34px;position:relative;z-index:1}
-.header-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(255,79,100,.18);border:1px solid rgba(255,79,100,.4);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:18px;letter-spacing:.04em;color:var(--acc)}
+.page-header{background:linear-gradient(135deg,#FFF1EC 0%,#FFE4D4 40%,#FFF8F0 100%);color:var(--ink);padding:0;overflow:hidden;position:relative;border-bottom:1.5px solid #FDDECF}
+.header-inner{max-width:960px;margin:0 auto;padding:32px 24px 28px;position:relative;z-index:1}
+.header-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(199,58,0,.1);border:1.5px solid rgba(199,58,0,.35);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:18px;letter-spacing:.04em;color:#C73A00}
 .header-title{font-size:30px;font-weight:900;margin-bottom:10px;line-height:1.2}
 .header-title em{font-style:normal;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-sub{font-size:14px;color:rgba(255,255,255,.7);max-width:580px;line-height:1.8}
+.header-sub{font-size:14px;color:#44200E;max-width:580px;line-height:1.8;font-weight:500}
 .header-meta{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap}
-.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,.75)}
+.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(232,68,10,.09);border:1.5px solid rgba(232,68,10,.22);border-radius:20px;padding:6px 14px;font-size:12px;color:#5C1A06;font-weight:600}
 /* deco circles */
-.deco{position:absolute;border-radius:50%;pointer-events:none}
+.deco{position:absolute;border-radius:50%;pointer-events:none;opacity:.6}
 .deco1{right:-80px;top:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,79,100,.12),transparent 70%)}
 .deco2{left:-40px;bottom:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,122,0,.1),transparent 70%)}
 
@@ -42,15 +42,15 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .sec-title::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,var(--acc),var(--acc2));border-radius:2px;flex-shrink:0}
 
 /* ═══ DIFF BOX ═══ */
-.diff-banner{background:linear-gradient(135deg,#1C1C1E,#2C2C2E);color:#fff;border-radius:var(--r);padding:18px 22px;margin-bottom:22px;display:flex;align-items:flex-start;gap:16px}
+.diff-banner{background:linear-gradient(135deg,#FFF4EE,#FFF8F0);color:var(--ink);border:1.5px solid #FDDECF;border-radius:var(--r);padding:18px 22px;margin-bottom:22px;display:flex;align-items:flex-start;gap:16px;box-shadow:0 2px 8px rgba(232,68,10,.07)}
 .diff-icon{font-size:32px;flex-shrink:0}
 .diff-title{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:6px}
-.diff-text{font-size:12px;color:rgba(255,255,255,.75);line-height:1.8}
+.diff-text{font-size:12px;color:var(--ink2);line-height:1.8}
 
 /* ═══ SCENARIO ═══ */
-.scenario{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
-.scenario-head{background:linear-gradient(135deg,#1C1C1E,#333);color:#fff;padding:18px 24px}
-.scenario-head h2{font-size:15px;font-weight:900;margin-bottom:4px}
+.scenario{background:#fff;border-radius:var(--r);border:1.5px solid #FDDECF;box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+.scenario-head{background:linear-gradient(135deg,#FEE8D6,#FFF3EA);color:var(--ink);padding:18px 24px;border-bottom:1px solid #FDDECF}
+.scenario-head h2{font-size:15px;font-weight:900;margin-bottom:4px;color:var(--ink)}
 .scenario-head p{font-size:12px;opacity:.7;line-height:1.6}
 .scenario-body{padding:20px 24px}
 .scenario-text{font-size:13px;color:var(--ink2);line-height:2;margin-bottom:14px}
@@ -123,7 +123,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .kw-up{color:#10B981}.kw-down{color:#EF4444}
 
 /* ═══ ANALYSIS TEMPLATE ═══ */
-.analysis-template{background:var(--card);border:1.5px solid var(--acc);border-radius:var(--r);padding:20px 24px;margin-bottom:24px}
+.analysis-template{background:#fff;border:1.5px solid rgba(232,68,10,.3);border-radius:var(--r);padding:20px 24px;margin-bottom:24px;box-shadow:var(--shadow)}
 .tmpl-title{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:14px}
 .tmpl-row{display:grid;grid-template-columns:148px 1fr;gap:10px;margin-bottom:9px;align-items:start}
 .tmpl-label{font-size:12px;font-weight:700;color:var(--ink3);padding:8px 0;line-height:1.5}
@@ -156,10 +156,10 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .check-stat{font-size:11px;color:var(--ink3);margin-top:6px;text-align:right;font-weight:600}
 
 /* ═══ DELIVERABLE ═══ */
-.deliverable{background:var(--pri);color:#fff;border-radius:var(--r);padding:22px 24px;margin-bottom:24px}
+.deliverable{background:linear-gradient(135deg,#FFF4EE,#FFF8F0);border:1.5px solid #FDDECF;border-radius:var(--r);padding:22px 24px;margin-bottom:24px;box-shadow:var(--shadow)}
 .deliv-title{font-size:15px;font-weight:800;margin-bottom:14px;color:var(--acc)}
 .deliv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.deliv-item{background:rgba(255,255,255,.07);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid rgba(255,255,255,.1)}
+.deliv-item{background:rgba(232,68,10,.04);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid #FDDECF;color:var(--ink2)}
 .deliv-item-title{font-weight:800;margin-bottom:5px;color:var(--acc);font-size:13px}
 
 /* ═══ FOOTER ═══ */
@@ -170,10 +170,37 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
   .header-title{font-size:23px}
   .tmpl-row{grid-template-columns:1fr}
 }
+
+/* ═══ STICKY TOPBAR ═══ */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(255,251,248,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid #FDDECF;display:flex;align-items:center;padding:0 20px;height:56px;gap:10px;box-shadow:0 2px 10px rgba(232,68,10,.08)}
+.tb-logo{font-size:18px;flex-shrink:0}
+.tb-title{font-size:13px;font-weight:800;color:var(--acc);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-save{font-size:11px;color:var(--ink3);white-space:nowrap;transition:color .3s}
+.tb-save.ok{color:var(--green)}
+.tb-div{width:1px;height:22px;background:#FDDECF;flex-shrink:0}
+.stu-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.stu-item{display:flex;align-items:center;gap:4px}
+.stu-lbl{font-size:11px;font-weight:700;color:var(--ink3);white-space:nowrap}
+.stu-inp{background:#fff;border:1.5px solid #FDDECF;border-radius:6px;padding:4px 8px;font-size:12px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+.stu-inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(232,68,10,.1)}
+.stu-inp::placeholder{color:var(--ink4);font-size:11px}
+.stu-inp.w-sm{width:78px}
+.stu-inp.w-md{width:96px}
 </style>
 </head>
 <body>
 
+<div class="topbar">
+  <div class="tb-logo">📊</div>
+  <div class="tb-title">巨量算数抖音指数分析实训</div>
+  <span class="tb-save" id="tb-save">— 未保存 —</span>
+  <div class="tb-div"></div>
+  <div class="stu-wrap">
+    <div class="stu-item"><span class="stu-lbl">班级</span><input class="stu-inp w-md" id="stu_class" placeholder="请输入班级" oninput="save()"></div>
+    <div class="stu-item"><span class="stu-lbl">姓名</span><input class="stu-inp w-md" id="stu_name" placeholder="请输入姓名" oninput="save()"></div>
+    <div class="stu-item"><span class="stu-lbl">学号</span><input class="stu-inp w-sm" id="stu_id" placeholder="学号" oninput="save()"></div>
+  </div>
+</div>
 <div class="page-header">
   <div class="deco deco1"></div>
   <div class="deco deco2"></div>
@@ -197,7 +224,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
     <div>
       <div class="diff-title">关于巨量算数（抖音指数）</div>
       <div class="diff-text">
-        巨量算数是字节跳动旗下<strong style="color:#fff">巨量引擎</strong>官方推出的内容消费趋势洞察平台，它提供"算数指数"功能，可查看关键词在抖音上的<strong style="color:#fff">综合指数</strong>（内容量+播放量+搜索量三维加权）和<strong style="color:#fff">搜索指数</strong>，以及关联分析和人群画像——相当于抖音版的"百度指数"，但更聚焦<strong style="color:var(--acc2)">短视频/直播种草生态</strong>下的内容热度，对抖音电商选品价值极高。
+        巨量算数是字节跳动旗下<strong style="color:#1C0A04">巨量引擎</strong>官方推出的内容消费趋势洞察平台。它提供"算数指数"功能，可查看关键词在抖音上的<strong style="color:var(--acc2)">综合指数</strong>（内容量+播放量+搜索量三维加权）和<strong style="color:var(--acc2)">搜索指数</strong>，以及关联分析和人群画像——相当于抖音版的"百度指数"，但更聚焦<strong style="color:var(--acc2)">短视频/直播种草生态</strong>下的内容热度，对抖音电商选品价值极高。
       </div>
     </div>
   </div>
@@ -281,7 +308,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
       </div>
       <div class="step-body open" id="sb1">
         <ul class="op-list">
-          <li class="op-item"><div class="op-dot">①</div><div class="op-text">打开浏览器，访问 <code>trendinsight.oceanengine.com</code>，即巨量算数官网</div></li>
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">打开浏览器，访问 <code>trendinsight.oceanengine.com</code>，即巨量算数官网（<strong>无需登录</strong>，直接可用）</div></li>
           <li class="op-item"><div class="op-dot">②</div><div class="op-text">观察顶部导航栏，找到并点击"<strong>算数指数</strong>"入口（也可直接访问 <code>trendinsight.oceanengine.com/arithmetic-index</code>）</div></li>
           <li class="op-item"><div class="op-dot">③</div><div class="op-text">在页面上方的<strong>关键词搜索框</strong>中，输入 <code>益智玩具</code>，点击搜索，观察出现的综合指数趋势曲线</div></li>
           <li class="op-item"><div class="op-dot">④</div><div class="op-text">注意页面上方有两个标签可切换：<strong>「综合指数」</strong>和<strong>「搜索指数」</strong>，先查看综合指数，了解整体声量情况</div></li>
@@ -488,8 +515,8 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 
 
   <!-- ═══ 保存状态 ═══ -->
-  <div id="save-bar" style="display:flex;align-items:center;justify-content:space-between;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:10px 18px;margin-bottom:18px">
-    <span id="save-status" style="font-size:12px;color:#065F46;font-weight:700">📝 填写内容将自动保存在本浏览器中</span>
+  <div id="save-bar" style="display:flex;align-items:center;justify-content:space-between;background:#FFF4EE;border:1.5px solid #FDDECF;border-radius:10px;padding:10px 18px;margin-bottom:18px">
+    <span id="save-status" style="font-size:12px;color:var(--ink3);font-weight:700">📝 填写内容将自动保存在本浏览器中</span>
     <div style="display:flex;gap:8px">
       <button onclick="exportData()" style="padding:6px 14px;background:#059669;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 复制全部填写内容</button>
       <button onclick="clearData()" style="padding:6px 14px;background:#fff;color:#EF4444;border:1.5px solid #FECACA;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑️ 清空重填</button>
@@ -554,7 +581,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 
 </div>
 
-<div class="page-footer"> 实训任务一 · 巨量算数抖音指数选品分析 </div>
+<div class="page-footer">巨量算数抖音指数分析实训</div>
 
 <script>
 const TOTAL = 11;
@@ -564,6 +591,10 @@ const SK = 'task1_data';
 // ── Save & Load ──────────────────────────────
 function save() {
   const data = {};
+  // student info
+  ['stu_class','stu_name','stu_id'].forEach(id => {
+    const el = document.getElementById(id); if (el) data[id] = el.value;
+  });
   // table inputs
   ['t1_comp','t1_srch','t1_peak','t1_trend',
    't2_comp','t2_srch','t2_peak','t2_trend',
@@ -598,6 +629,10 @@ function load() {
       const el = document.getElementById(id);
       if (el && data[id]) el.value = data[id];
     });
+    // student info
+    ['stu_class','stu_name','stu_id'].forEach(id => {
+      const el = document.getElementById(id); if (el && data[id]) el.value = data[id];
+    });
     // textareas
     ['f_strongest','f_search','f_season','f_content_rel','f_search_rel','f_persona','f_suggest'].forEach(id => {
       const el = document.getElementById(id);
@@ -628,14 +663,20 @@ let saveTimer;
 function flashSaved() {
   clearTimeout(saveTimer);
   const st = document.getElementById('save-status');
+  const tb = document.getElementById('tb-save');
   if (st) { st.textContent = '✅ 已自动保存'; st.style.color = '#059669'; }
+  if (tb) { tb.textContent = '✅ 已保存'; tb.className = 'tb-save ok'; }
   saveTimer = setTimeout(() => {
     if (st) { st.textContent = '📝 填写内容已保存在本浏览器中'; st.style.color = '#065F46'; }
-  }, 2000);
+    if (tb) { tb.textContent = '实时保存中'; tb.className = 'tb-save'; }
+  }, 2500);
 }
 
 function exportData() {
-  const lines = ['【儿童益智玩具抖音电商选品数据分析摘要】', ''];
+  const cls = document.getElementById('stu_class'), nm = document.getElementById('stu_name'), sid = document.getElementById('stu_id');
+  const lines = ['【M2-U2 实训任务一 · 巨量算数抖音指数分析】',
+    '班级：'+(cls?cls.value||'未填写':'未填写')+'  姓名：'+(nm?nm.value||'未填写':'未填写')+'  学号：'+(sid?sid.value||'未填写':'未填写'),
+    ''];
   lines.push('一、关键词指数对比记录');
   const rows = [
     ['儿童积木', 't1_comp', 't1_srch', 't1_peak', 't1_trend'],
