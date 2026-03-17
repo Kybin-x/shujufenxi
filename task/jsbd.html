@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>实训任务2 · 金山表单消费者调查</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0D9488;--teal2:#14B8A6;--tealL:#F0FDFA;--tealM:#99F6E4;--tealD:#0F766E;
+  --amber:#F59E0B;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --green:#10B981;--greenL:#ECFDF5;--greenM:#6EE7B7;
+  --red:#EF4444;--redL:#FEF2F2;
+  --ink:#111827;--ink2:#374151;--ink3:#6B7280;--ink4:#9CA3AF;
+  --bg:#F8FAFB;--card:#FFFFFF;--border:#E5E7EB;
+  --r:12px;--shadow:0 1px 3px rgba(0,0,0,.07),0 6px 20px rgba(0,0,0,.06);
+}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
+
+/* HEADER */
+.page-header{background:linear-gradient(135deg,#134E4A 0%,#0D9488 55%,#14B8A6 100%);color:#fff;overflow:hidden;position:relative}
+.header-inner{max-width:960px;margin:0 auto;padding:38px 24px 34px;position:relative;z-index:1}
+.header-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:18px;letter-spacing:.04em}
+.header-title{font-size:30px;font-weight:900;margin-bottom:10px;line-height:1.2}
+.header-title em{font-style:normal;color:var(--tealM)}
+.header-sub{font-size:14px;color:rgba(255,255,255,.75);max-width:600px;line-height:1.8}
+.header-meta{display:flex;gap:18px;margin-top:20px;flex-wrap:wrap}
+.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,.8)}
+.deco{position:absolute;border-radius:50%;pointer-events:none}
+.deco1{right:-70px;top:-70px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%)}
+.deco2{left:-50px;bottom:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.04),transparent 70%)}
+
+/* LAYOUT */
+.main{max-width:960px;margin:0 auto;padding:30px 20px 70px}
+
+/* SEC TITLE */
+.sec-title{font-size:17px;font-weight:900;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.sec-title::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,var(--teal),var(--teal2));border-radius:2px;flex-shrink:0}
+
+/* SCENARIO */
+.scenario{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+.scenario-head{background:linear-gradient(135deg,#134E4A,var(--teal));color:#fff;padding:18px 24px}
+.scenario-head h2{font-size:15px;font-weight:900;margin-bottom:4px}
+.scenario-head p{font-size:12px;opacity:.75;line-height:1.6}
+.scenario-body{padding:20px 24px}
+.scenario-text{font-size:13px;color:var(--ink2);line-height:2;margin-bottom:14px}
+.scenario-text em{font-style:normal;font-weight:700;color:var(--tealD)}
+.scenario-hl{background:var(--tealL);border-left:4px solid var(--teal2);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;font-size:13px;color:var(--tealD);line-height:1.8}
+
+/* GOAL CARDS */
+.goal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.goal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;text-align:center;box-shadow:var(--shadow);transition:transform .2s}
+.goal-card:hover{transform:translateY(-3px)}
+.goal-icon{font-size:30px;margin-bottom:8px}
+.goal-label{font-size:10px;font-weight:700;color:var(--ink4);letter-spacing:.06em;margin-bottom:5px}
+.goal-text{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5}
+
+/* KNOWLEDGE */
+.knowledge-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.know-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.know-head{background:linear-gradient(135deg,var(--tealD),var(--teal));color:#fff;padding:12px 16px;font-size:13px;font-weight:800}
+.know-body{padding:14px 16px;font-size:12px;color:var(--ink2);line-height:1.85}
+.know-body li{margin-left:16px;margin-bottom:4px}
+
+/* STRUCTURE */
+.structure-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:24px}
+.struct-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #F3F4F6}
+.struct-row:last-child{border:none}
+.struct-no{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.struct-body{flex:1}
+.struct-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.struct-note{font-size:11px;color:var(--ink3);line-height:1.6}
+.st{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px}
+.st-radio{background:#F5F3FF;color:#7C3AED}
+.st-check{background:#E0F2FE;color:#0369A1}
+.st-rate{background:#FEF3C7;color:#B45309}
+.st-text{background:#F0FDF4;color:#065F46}
+
+/* STEP CARD */
+.steps-wrap{margin-bottom:24px}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+.step-header{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .18s}
+.step-header:hover{background:#F9FFFE}
+.step-num{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--tealD),var(--teal2));color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-info{flex:1}
+.step-name{font-size:14px;font-weight:800;color:var(--ink)}
+.step-desc{font-size:11px;color:var(--ink3);margin-top:2px}
+.step-toggle{font-size:13px;color:var(--ink3);transition:transform .25s}
+.step-toggle.open{transform:rotate(180deg)}
+.step-body{display:none;padding:4px 20px 18px 66px;border-top:1px solid #F3F4F6}
+.step-body.open{display:block}
+.op-list{list-style:none;margin:10px 0}
+.op-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #F9F9F9}
+.op-item:last-child{border:none}
+.op-dot{width:22px;height:22px;border-radius:50%;background:var(--tealL);color:var(--teal);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.op-text{font-size:13px;color:var(--ink2);line-height:1.75;flex:1}
+.op-text strong{color:var(--ink)}
+.op-text code{background:#F3F4F6;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11.5px;color:var(--amber)}
+.tip-box{background:var(--amberL);border:1px solid var(--amberM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#78350F;line-height:1.8;display:flex;gap:8px}
+.warn-box{background:var(--redL);border:1px solid #FECACA;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#7F1D1D;line-height:1.8;display:flex;gap:8px}
+.good-box{background:var(--greenL);border:1px solid var(--greenM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#065F46;line-height:1.8;display:flex;gap:8px}
+.screenshot-box{background:#F0FDF4;border:1.5px dashed var(--greenM);border-radius:8px;padding:11px 15px;margin:10px 0;font-size:12px;color:#065F46;line-height:1.7;display:flex;align-items:flex-start;gap:8px}
+
+/* QUESTION TYPE CARDS */
+.qtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.qtype-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.qtype-head{padding:9px 14px;display:flex;align-items:center;gap:8px;background:var(--tealL);border-bottom:1px solid #CCFBF1}
+.qt-badge{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.qt-badge.radio{background:#7C3AED}
+.qt-badge.check{background:#0EA5E9}
+.qt-badge.rate{background:#F59E0B}
+.qt-badge.text{background:#10B981}
+.qtype-name{font-size:12px;font-weight:800;color:var(--ink)}
+.qtype-body{padding:10px 14px;font-size:11px;color:var(--ink2);line-height:1.7}
+
+/* ANALYSIS */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.an-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.an-icon{font-size:22px;margin-bottom:7px}
+.an-title{font-size:13px;font-weight:800;color:var(--tealD);margin-bottom:6px}
+.an-text{font-size:12px;color:var(--ink2);line-height:1.75}
+
+/* REPORT TEMPLATE */
+.report-tmpl{background:var(--card);border:1.5px solid var(--teal2);border-radius:var(--r);padding:20px 24px;margin-bottom:24px}
+.tmpl-title{font-size:14px;font-weight:800;color:var(--teal);margin-bottom:14px}
+.tmpl-row{display:grid;grid-template-columns:148px 1fr;gap:10px;margin-bottom:9px;align-items:start}
+.tmpl-label{font-size:12px;font-weight:700;color:var(--ink3);padding:8px 0;line-height:1.5}
+.tmpl-input{background:#FAFFFE;border:1.5px solid var(--tealM);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--ink);width:100%;min-height:42px;font-family:inherit;resize:vertical;transition:border-color .2s,box-shadow .2s;line-height:1.7}
+.tmpl-input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+.tmpl-input::placeholder{color:#7DBFBA;font-style:italic;font-size:12px}
+
+/* CHECKLIST */
+.checklist{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:24px}
+.check-title{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:14px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #F9F9F9;cursor:pointer;transition:background .15s}
+.check-item:hover{background:#F9FFFE;margin:0 -4px;padding:9px 4px}
+.check-item:last-child{border:none}
+.check-box{width:20px;height:20px;border:2px solid #D1D5DB;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;font-size:11px;color:#fff}
+.check-box.checked{background:var(--green);border-color:var(--green)}
+.check-text{font-size:13px;color:var(--ink2);line-height:1.65;flex:1}
+.check-text.done{color:var(--ink4);text-decoration:line-through}
+.check-progress{height:7px;background:#E5E7EB;border-radius:10px;margin-top:14px;overflow:hidden}
+.check-bar{height:7px;background:linear-gradient(90deg,var(--tealD),var(--teal2));border-radius:10px;transition:width .4s}
+.check-stat{font-size:11px;color:var(--ink3);margin-top:6px;text-align:right;font-weight:600}
+
+/* DELIVERABLE */
+.deliverable{background:linear-gradient(135deg,#134E4A,var(--teal));color:#fff;border-radius:var(--r);padding:22px 24px;margin-bottom:24px}
+.deliv-title{font-size:15px;font-weight:800;margin-bottom:14px;color:var(--tealM)}
+.deliv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.deliv-item{background:rgba(255,255,255,.1);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid rgba(255,255,255,.15)}
+.deliv-item-title{font-weight:800;margin-bottom:5px;color:var(--tealM);font-size:13px}
+
+/* FOOTER */
+.page-footer{text-align:center;padding:20px;font-size:12px;color:var(--ink4);border-top:1px solid var(--border);margin-top:10px}
+
+@media(max-width:640px){
+  .goal-grid,.knowledge-grid,.analysis-grid,.deliv-grid,.qtype-grid{grid-template-columns:1fr}
+  .header-title{font-size:23px}
+  .tmpl-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="deco deco1"></div>
+  <div class="deco deco2"></div>
+  <div class="header-inner">
+    <div class="header-badge">📋 M2-U2 · 实训任务二</div>
+    <h1 class="header-title">用<em>金山表单</em>采集消费者数据<br>——在线问卷设计与发布实训</h1>
+    <div class="header-sub">承接实训任务一（巨量算数抖音指数分析），以儿童益智玩具消费者调研为背景，完整走一遍「设计问卷 → 题型选择 → 发布分享 → 数据读取 → 提炼结论」全流程，亲身体验问卷这一一手数据采集方法。</div>
+    <div class="header-meta">
+      <div class="meta-pill">⏱️ 参考用时：50分钟</div>
+      <div class="meta-pill">🛠️ 工具：金山文档 kdocs.cn → 表单</div>
+      <div class="meta-pill">📁 提交：问卷链接 + 截图 + 分析小结</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- 任务背景 -->
+  <div class="sec-title">📋 任务背景</div>
+  <div class="scenario">
+    <div class="scenario-head">
+      <h2>🔗 承接任务一：二手数据 → 一手数据</h2>
+      <p>巨量算数只能告诉你"看了什么、搜了什么"，但消费者为什么买、最在意什么，得直接去问</p>
+    </div>
+    <div class="scenario-body">
+      <div class="scenario-text">
+        完成任务一的巨量算数数据分析后，选品经理小李说：<em>"指数数据帮我们搞清楚了哪些品类在抖音上最热、旺季在什么时候。但我们还想知道——消费者买玩具最看重什么？在哪个平台买？愿意花多少钱？这些问题，得用问卷直接去问。"</em><br><br>
+        于是你被安排设计一份<strong>消费者购买行为调查问卷</strong>，通过金山表单发布，向身边的家长群体收集第一手数据，作为抖音指数数据的重要补充，让选品决策更有说服力。
+      </div>
+      <div class="scenario-hl">
+        💡 <strong>核心任务：</strong>用金山表单设计一份包含9道题的调查问卷，发布并收集不少于10份有效回答，最后提炼3条数据结论——并与任务一的抖音指数数据进行对比印证。
+      </div>
+    </div>
+  </div>
+
+  <!-- 目标 -->
+  <div class="sec-title">🎯 实训目标</div>
+  <div class="goal-grid">
+    <div class="goal-card"><div class="goal-icon">📋</div><div class="goal-label">设计能力</div><div class="goal-text">学会设计结构合理、题型多样的调查问卷，避免常见的诱导性、模糊性问题</div></div>
+    <div class="goal-card"><div class="goal-icon">🛠️</div><div class="goal-label">工具能力</div><div class="goal-text">熟练使用金山表单的四种题型、发布设置和数据统计功能</div></div>
+    <div class="goal-card"><div class="goal-icon">📊</div><div class="goal-label">分析能力</div><div class="goal-text">读懂表单统计图表，提炼数据结论，并与抖音指数数据做对比验证</div></div>
+  </div>
+
+  <!-- 操作前必读 -->
+  <div class="sec-title">📚 操作前必读：问卷设计要点</div>
+  <div class="knowledge-grid">
+    <div class="know-card">
+      <div class="know-head">✅ 好问卷的特征</div>
+      <div class="know-body"><ul>
+        <li>题目数量适中（8-12题），完成时间不超过5分钟</li>
+        <li>每道题只问一件事，不写"又A又B"的复合问题</li>
+        <li>选项互斥穷举（不重叠、不遗漏），必要时加"其他"</li>
+        <li>敏感问题（如收入）放后面，先建立信任感</li>
+        <li>开头说明调查目的，承诺数据只用于学习研究</li>
+      </ul></div>
+    </div>
+    <div class="know-card">
+      <div class="know-head">❌ 常见设计错误</div>
+      <div class="know-body"><ul>
+        <li>诱导性问题：如"您是否认为高价玩具更好？"</li>
+        <li>模糊选项："偶尔""经常"没给出具体频次说明</li>
+        <li>题目太多：超过15题导致大量中途放弃</li>
+        <li>全部必填：部分开放题设为非必填更真实</li>
+        <li>双重否定句：让被调查者难以理解真实意图</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- 问卷结构 -->
+  <div class="sec-title">🗂️ 问卷结构规划（共9题）</div>
+  <div class="structure-card">
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:14px;line-height:1.7">以下是本次实训的<strong>完整问卷题目设计方案</strong>，请严格按照此结构在金山表单中创建（可微调题目文字，但题型和结构不变）。</div>
+    <div class="struct-row">
+      <div class="struct-no">1</div>
+      <div class="struct-body">
+        <div class="struct-title">您的孩子目前的年龄段是？<span class="st st-radio">单选题</span></div>
+        <div class="struct-note">选项：0-2岁 / 3-5岁 / 6-8岁 / 9-12岁 / 暂无孩子（此题为过滤题，用于了解受访者群体构成）</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">2</div>
+      <div class="struct-body">
+        <div class="struct-title">您家孩子目前拥有的益智玩具类型？（可多选）<span class="st st-check">多选题</span></div>
+        <div class="struct-note">选项：积木/拼装类 / 拼图类 / 桌游/棋类 / 科学实验类 / 绘画/手工类 / 其他（请补充）</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">3</div>
+      <div class="struct-body">
+        <div class="struct-title">您通常在哪些渠道购买儿童益智玩具？（可多选）<span class="st st-check">多选题</span></div>
+        <div class="struct-note">选项：淘宝/天猫 / 京东 / 拼多多 / <strong>抖音小店/直播间</strong> / 线下实体店 / 其他（请补充）</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">4</div>
+      <div class="struct-body">
+        <div class="struct-title">您每次购买儿童益智玩具的单次消费金额通常是？<span class="st st-radio">单选题</span></div>
+        <div class="struct-note">选项：50元以下 / 50-100元 / 100-200元 / 200-500元 / 500元以上</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">5</div>
+      <div class="struct-body">
+        <div class="struct-title">购买益智玩具时，您最看重哪些因素？（最多选3项）<span class="st st-check">多选题</span></div>
+        <div class="struct-note">选项：安全性/材质 / 益智功能/教育性 / 品牌知名度 / 价格 / 外观/颜色 / 年龄适配 / 买家好评数量 / 主播/达人推荐</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">6</div>
+      <div class="struct-body">
+        <div class="struct-title">您通常在什么时候给孩子购买玩具？（可多选）<span class="st st-check">多选题</span></div>
+        <div class="struct-note">选项：生日/节日 / 孩子主动要求时 / 日常随机购买 / 促销活动期间 / <strong>刷到短视频/直播后冲动购买</strong></div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">7</div>
+      <div class="struct-body">
+        <div class="struct-title">您通过哪些途径了解到新的儿童玩具？<span class="st st-check">多选题</span></div>
+        <div class="struct-note">选项：<strong>抖音短视频/直播种草</strong> / 小红书图文 / 亲友推荐 / 电商平台推荐 / 育儿公众号/社群 / 线下体验</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">8</div>
+      <div class="struct-body">
+        <div class="struct-title">您对目前市场上儿童益智玩具的满意程度？<span class="st st-rate">评分题（1-5星）</span></div>
+        <div class="struct-note">1=非常不满意，5=非常满意。评分题用于直观呈现整体满意度，后台会自动计算均值。</div>
+      </div>
+    </div>
+    <div class="struct-row">
+      <div class="struct-no">9</div>
+      <div class="struct-body">
+        <div class="struct-title">您认为目前儿童益智玩具市场最大的不足是什么？<span class="st st-text">填空题（非必填）</span></div>
+        <div class="struct-note">开放式回答，收集消费者真实痛点，为选品改进和内容创作提供方向参考。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 步骤 -->
+  <div class="sec-title">🔧 操作步骤（共6步）</div>
+  <div class="steps-wrap">
+
+    <div class="step-card">
+      <div class="step-header" onclick="tog('1')">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-name">登录金山文档，新建表单并完成基础设置</div>
+          <div class="step-desc">找到金山表单功能入口，写好开场白</div>
+        </div>
+        <div class="step-toggle open" id="st1">▼</div>
+      </div>
+      <div class="step-body open" id="sb1">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">打开浏览器访问 <code>www.kdocs.cn</code>，用微信/手机号登录金山文档账号</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">点击左上角"<strong>新建</strong>"→ 选择"<strong>表单</strong>"（注意：不是表格），进入表单编辑界面</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">点击顶部标题区域，改为：<code>儿童益智玩具购买行为调查</code></div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">在标题下方的<strong>描述文字框</strong>填写开场白：<em>"您好！我是电商数据分析专业的学生，本次调查旨在了解家长对儿童益智玩具的购买习惯和偏好，调查结果仅用于学习研究，大约需要3分钟，感谢配合！"</em></div></li>
+        </ul>
+        <div class="tip-box"><div>💡</div><div>好的开场白能提高填写率，关键要包含：① 调查目的；② 所需时间；③ 数据保密承诺。</div></div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="tog('2')">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-name">按规划逐题创建9道题目</div>
+          <div class="step-desc">使用单选、多选、评分、填空四种题型</div>
+        </div>
+        <div class="step-toggle" id="st2">▼</div>
+      </div>
+      <div class="step-body" id="sb2">
+        <div class="tip-box"><div>📌</div><div>金山表单共4种题型用于本次问卷，操作前先了解各自用途：</div></div>
+        <div class="qtype-grid">
+          <div class="qtype-card"><div class="qtype-head"><span class="qt-badge radio">单选题</span><span class="qtype-name">只能选一个选项</span></div><div class="qtype-body">适用：互斥选项（年龄段、消费金额）<br>操作：点击"+" → 选择"单选题"</div></div>
+          <div class="qtype-card"><div class="qtype-head"><span class="qt-badge check">多选题</span><span class="qtype-name">可选多个选项</span></div><div class="qtype-body">适用：购买渠道、考虑因素等并列内容<br>操作：点击"+" → 选择"多选题"</div></div>
+          <div class="qtype-card"><div class="qtype-head"><span class="qt-badge rate">评分题</span><span class="qtype-name">1-5星打分</span></div><div class="qtype-body">适用：满意度评价<br>操作：点击"+" → 选择"评分"</div></div>
+          <div class="qtype-card"><div class="qtype-head"><span class="qt-badge text">填空题</span><span class="qtype-name">开放式文字回答</span></div><div class="qtype-body">适用：意见建议等开放回答<br>操作：点击"+" → 选择"填写框"</div></div>
+        </div>
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">按照上方"问卷结构规划"的9道题，<strong>逐题添加</strong>（注意选择正确的题型）</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">第1-8题设为<strong>必填</strong>，第9题（填空）设为<strong>非必填</strong>——强制填写所有题会降低完成率</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">每道多选题的选项末尾加上"<strong>其他（请补充）</strong>"，避免遗漏特殊情况</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">全部题目添加完后，点击右上角"<strong>预览</strong>"，以填写者视角检查流畅度和完整性</div></li>
+        </ul>
+        <div class="warn-box"><div>⚠️</div><div>预览时重点检查：题目表述是否清晰？选项有无遗漏常见情况？有没有诱导性或模糊性措辞？</div></div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="tog('3')">
+        <div class="step-num">3</div>
+        <div class="step-info">
+          <div class="step-name">配置表单设置，写好感谢结束语</div>
+          <div class="step-desc">设置截止时间、答题限制和感谢页内容</div>
+        </div>
+        <div class="step-toggle" id="st3">▼</div>
+      </div>
+      <div class="step-body" id="sb3">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">点击顶部"<strong>设置</strong>"图标，进入表单配置页面</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text"><strong>截止时间</strong>：设置为3天后（给被调查者足够时间填写）</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text"><strong>每人只能提交一次</strong>：建议开启，防止重复提交影响数据质量（开启后填写者需要登录）</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">找到"<strong>结束语/感谢页</strong>"设置，填写：<em>"感谢您完成本次调查！您的回答将帮助我们更准确地了解消费者需求，非常感谢您的支持！"</em></div></li>
+        </ul>
+        <div class="screenshot-box"><span>📸</span><div><strong>截图要求1：</strong>截取金山表单的<strong>完整编辑界面</strong>（能看到全部9道题的列表），保存为"截图1_问卷设计.png"</div></div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="tog('4')">
+        <div class="step-num">4</div>
+        <div class="step-info">
+          <div class="step-name">发布问卷，收集10份以上回答</div>
+          <div class="step-desc">获取分享链接，通过微信/班级群分发</div>
+        </div>
+        <div class="step-toggle" id="st4">▼</div>
+      </div>
+      <div class="step-body" id="sb4">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">点击右上角"<strong>发布</strong>"或"<strong>收集回答</strong>"按钮，获取分享链接和二维码</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">将链接/二维码通过微信发给家人、朋友，或发布到班级群请同学帮忙填写</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">发送时附上简短说明：<em>"同学你好，这是我电商数据分析课的实训作业，一份关于儿童玩具的调查问卷，大约3分钟，谢谢帮忙！[链接]"</em></div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">目标是收集<strong>不少于10份有效回答</strong>（如果班级互填，每人都有机会达到）</div></li>
+        </ul>
+        <div class="tip-box"><div>💡</div><div>发问卷时附上简短说明（目的+所需时间）能显著提高回复率。如果身边被调查者不多，可以和同班同学互相填写对方的问卷。</div></div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="tog('5')">
+        <div class="step-num">5</div>
+        <div class="step-info">
+          <div class="step-name">查看统计后台，读取自动生成的图表数据</div>
+          <div class="step-desc">进入金山表单数据统计页面，逐题分析结果</div>
+        </div>
+        <div class="step-toggle" id="st5">▼</div>
+      </div>
+      <div class="step-body" id="sb5">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">收到足够回答后，在金山文档中打开该表单，点击"<strong>查看结果</strong>"或"<strong>数据统计</strong>"</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">查看<strong>整体概况</strong>：总回答数、平均完成时长、提交时间分布</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">逐题查看<strong>自动统计图表</strong>（单选/多选题会自动生成饼图或柱状图），记录每道题占比最高的选项</div></li>
+          <li class="op-item"><div class="op-dot">④</div><div class="op-text">查看第9题填空的<strong>文字回答列表</strong>，找出被提及最多的关键词和痛点</div></li>
+          <li class="op-item"><div class="op-dot">⑤</div><div class="op-text">如需深入分析，可点击"<strong>导出数据</strong>"将原始数据下载为 Excel 格式</div></li>
+        </ul>
+        <div class="screenshot-box"><span>📸</span><div><strong>截图要求2：</strong>截取统计后台的<strong>整体数据概览页面</strong>（包含回答总数和各题统计图），保存为"截图2_数据统计.png"</div></div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="tog('6')">
+        <div class="step-num">6</div>
+        <div class="step-info">
+          <div class="step-name">撰写分析小结，与抖音指数数据对比验证</div>
+          <div class="step-desc">提炼结论，联系任务一的巨量算数分析结果</div>
+        </div>
+        <div class="step-toggle" id="st6">▼</div>
+      </div>
+      <div class="step-body" id="sb6">
+        <ul class="op-list">
+          <li class="op-item"><div class="op-dot">①</div><div class="op-text">围绕"<strong>谁在买 → 在哪买 → 怎么发现的 → 买什么 → 看重什么</strong>"五个维度整理问卷数据</div></li>
+          <li class="op-item"><div class="op-dot">②</div><div class="op-text">对照任务一的抖音指数结论，看看两者是否<strong>相互印证</strong>。例如：巨量算数显示六一前综合指数飙升，问卷中是否有大量人回答"节日前购买"？</div></li>
+          <li class="op-item"><div class="op-dot">③</div><div class="op-text">写出至少<strong>3条数据驱动的结论</strong>，格式参考：<em>"根据问卷数据，X%的受访者通过抖音短视频/直播了解到玩具，建议优先制作短视频内容而非图文。"</em></div></li>
+        </ul>
+        <div class="good-box"><div>✅</div><div>好结论的格式：<strong>数据来源 → 发现的规律 → 对选品/运营的建议</strong>。不要只说"大部分人选了X"，要说"X%选择了X，建议……"，有数字才有说服力。</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 分析重点 -->
+  <div class="sec-title">📊 重点关注哪些题的数据？</div>
+  <div class="analysis-grid">
+    <div class="an-item"><div class="an-icon">🛒</div><div class="an-title">购买渠道（第3题）</div><div class="an-text">抖音小店/直播间占比多少？这直接验证了任务一中抖音热度数据的"变现可行性"。如果抖音渠道占比高，说明这个品类在抖音有真实成交，值得布局。</div></div>
+    <div class="an-item"><div class="an-icon">📱</div><div class="an-title">信息获取渠道（第7题）</div><div class="an-text">消费者主要通过抖音还是小红书被种草？这决定内容营销的主战场。结合任务一的综合指数（内容量）来对比：指数高的平台是否也是消费者的主要发现渠道？</div></div>
+    <div class="an-item"><div class="an-icon">💰</div><div class="an-title">消费金额（第4题）</div><div class="an-text">主流价格带在哪里？这直接指导选品的客单价定位。如果问卷显示主流是100-200元，选品时要卡准这个区间，避免选品价格与市场预期脱节。</div></div>
+    <div class="an-item"><div class="an-icon">⭐</div><div class="an-title">核心购买考量（第5题）</div><div class="an-text">消费者最看重什么？这决定短视频内容的核心卖点。如果安全性排第一，视频脚本就应突出材质/认证信息；如果"达人推荐"占比高，说明种草内容的信任背书很重要。</div></div>
+  </div>
+
+  <!-- 分析小结模板 -->
+  <div class="sec-title">✍️ 分析小结模板（请填写）</div>
+  <div class="report-tmpl">
+    <div class="tmpl-title">📝 儿童益智玩具消费者调查数据小结</div>
+    <div class="tmpl-row"><div class="tmpl-label">有效回收份数</div><textarea id="f_count" class="tmpl-input" placeholder="填写实际收到的有效问卷数量（需≥10份）" rows="1" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">主流购买渠道</div><textarea id="f_channel" class="tmpl-input" placeholder="例如：淘宝/天猫占63%，位居第一；抖音小店/直播间占29%，排名第二" rows="2" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">主流消费价格带</div><textarea id="f_price" class="tmpl-input" placeholder="例如：100-200元区间占比最高（47%），其次是50-100元（31%）" rows="2" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">消费者最看重的因素（前3）</div><textarea id="f_factor" class="tmpl-input" placeholder="例如：①安全性/材质（82%） ②年龄适配（71%） ③教育价值（63%）" rows="2" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">信息来源渠道占比</div><textarea id="f_source" class="tmpl-input" placeholder="抖音短视频/直播占___% / 小红书占___% / 亲友推荐占___% / 电商平台推荐占___%……" rows="2" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">开放题高频词/痛点</div><textarea id="f_opentext" class="tmpl-input" placeholder="第9题填空中，被提及最多的词或问题是：（如"价格偏贵""质量参差""缺乏使用说明"等）" rows="2" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">与抖音指数的对比</div><textarea id="f_compare" class="tmpl-input" placeholder="例如：任务一中巨量算数显示六一前综合指数最高，问卷中X%的受访者表示节日前会购买——两者相互印证；或者：指数数据显示抖音热度高，但问卷中通过抖音了解玩具的仅X%，说明……" rows="3" oninput="save()"></textarea></div>
+    <div class="tmpl-row"><div class="tmpl-label">数据驱动的建议（≥3条）</div><textarea id="f_suggest" class="tmpl-input" placeholder="①根据___数据，建议……&#10;②根据___数据，建议……&#10;③根据___数据，建议……" rows="5" oninput="save()"></textarea></div>
+  </div>
+
+
+  <!-- save bar -->
+  <div id="save-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#F0FDFA;border:1px solid #99F6E4;border-radius:10px;padding:10px 18px;margin-bottom:18px">
+    <span id="save-status" style="font-size:12px;color:#065F46;font-weight:700">📝 填写内容将自动保存在本浏览器中</span>
+    <div style="display:flex;gap:8px">
+      <button onclick="exportData()" style="padding:6px 14px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 复制全部填写内容</button>
+      <button onclick="clearData()" style="padding:6px 14px;background:#fff;color:#EF4444;border:1.5px solid #FECACA;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑️ 清空重填</button>
+    </div>
+  </div>
+
+  <!-- 清单 -->
+  <div class="sec-title">✅ 任务完成清单</div>
+  <div class="checklist">
+    <div class="check-title">🗂️ 逐项确认，全部完成后提交</div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已登录金山文档，成功新建表单并填写好标题和开场白说明</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">按照问卷结构规划，创建了全部9道题（含单选、多选、评分、填空四种题型）</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">第3、5、6、7题的多选选项中已加入"其他（请补充）"</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已完成表单设置：截止时间、每人提交一次、感谢结束语</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">截图1（问卷编辑界面，可见全部9题）已保存到本地</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已发布问卷，将链接/二维码分享给被调查者</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已收到不少于10份有效回答</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已在统计后台查看各题的自动统计图表，并记录关键数据</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">截图2（数据统计概览，含回答总数）已保存到本地</div></div>
+    <div class="check-item" onclick="chk(this)"><div class="check-box"></div><div class="check-text">已填写分析小结模板，包含与抖音指数的对比内容和3条以上建议</div></div>
+    <div class="check-progress"><div class="check-bar" id="check-bar" style="width:0%"></div></div>
+    <div class="check-stat" id="check-stat">0 / 10 项完成</div>
+  </div>
+
+  <!-- 提交物 -->
+  <div class="sec-title">📦 任务提交物</div>
+  <div class="deliverable">
+    <div class="deliv-title">🗂️ 需要提交的内容</div>
+    <div class="deliv-grid">
+      <div class="deliv-item"><div class="deliv-item-title">🔗 问卷分享链接（1个）</div>提供金山表单分享链接供老师查看问卷和统计数据（需将链接权限设置为"可查看统计"）</div>
+      <div class="deliv-item"><div class="deliv-item-title">📸 截图文件（2张）</div>截图1：表单编辑界面（含全部9题）<br>截图2：数据统计概览（含回答总数和图表）</div>
+      <div class="deliv-item"><div class="deliv-item-title">📝 分析小结（1份）</div>填写好的模板内容，含数据结论和3条运营建议，需引用数据，字数不少于150字</div>
+      <div class="deliv-item"><div class="deliv-item-title">✅ 回收份数要求</div>不少于<strong>10份</strong>有效回答（截图2中的回答总数需≥10，否则数据参考价值有限）</div>
+    </div>
+  </div>
+
+  <!-- 拓展思考 -->
+  <div class="sec-title">💭 拓展思考</div>
+  <div class="scenario">
+    <div class="scenario-head">
+      <h2>🤔 完成任务后，思考这些问题</h2>
+      <p>与同学讨论，或在课堂上分享你的发现</p>
+    </div>
+    <div class="scenario-body">
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+        <li style="display:flex;gap:10px;font-size:13px;color:var(--ink2)"><span style="font-size:16px">🎯</span><span>你的10份问卷回答，能否代表"全国儿童玩具消费者"？会有哪些<strong>抽样偏差</strong>（如年龄集中、地域集中等）？如何改善？</span></li>
+        <li style="display:flex;gap:10px;font-size:13px;color:var(--ink2)"><span style="font-size:16px">📊</span><span>巨量算数（二手数据）和问卷（一手数据）各有什么优缺点？在实际工作中，什么情况下<strong>问卷比指数更有价值</strong>？什么情况下相反？</span></li>
+        <li style="display:flex;gap:10px;font-size:13px;color:var(--ink2)"><span style="font-size:16px">🔍</span><span>如果问卷中发现"消费者主要通过抖音直播种草"，而任务一的巨量算数搜索指数也很高，你会如何设计<strong>从内容种草到搜索承接</strong>的完整转化链路？</span></li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">M2-U2 · 实训任务二 · 金山表单消费者调查设计与分析 | 24电商6班</div>
+
+<script>
+const TOTAL = 10;
+let count = 0;
+const SK = 'task2_data';
+const FIELD_IDS = ['f_count','f_channel','f_price','f_factor','f_source','f_opentext','f_compare','f_suggest'];
+const FIELD_LABELS = ['有效回收份数','主流购买渠道','主流消费价格带','消费者最看重因素（前3）','信息来源渠道占比','开放题高频词/痛点','与抖音指数的对比','数据驱动的建议（≥3条）'];
+
+function save() {
+  const data = {};
+  FIELD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  data._checkStates = [];
+  document.querySelectorAll('.check-item').forEach((item, i) => {
+    data._checkStates[i] = item.querySelector('.check-box').classList.contains('checked');
+  });
+  localStorage.setItem(SK, JSON.stringify(data));
+  flashSaved();
+}
+
+function load() {
+  const raw = localStorage.getItem(SK);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    FIELD_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id]) el.value = data[id];
+    });
+    if (data._checkStates) {
+      document.querySelectorAll('.check-item').forEach((item, i) => {
+        if (data._checkStates[i]) {
+          item.querySelector('.check-box').classList.add('checked');
+          item.querySelector('.check-box').innerHTML = '✓';
+          item.querySelector('.check-text').classList.add('done');
+          count++;
+        }
+      });
+      updateProgress();
+    }
+    const hasData = FIELD_IDS.some(id => data[id] && data[id].trim());
+    if (hasData) {
+      const st = document.getElementById('save-status');
+      if (st) st.textContent = '✅ 已恢复上次保存的填写内容';
+    }
+  } catch(e) {}
+}
+
+let saveTimer;
+function flashSaved() {
+  clearTimeout(saveTimer);
+  const st = document.getElementById('save-status');
+  if (st) { st.textContent = '✅ 已自动保存'; st.style.color = '#059669'; }
+  saveTimer = setTimeout(() => {
+    if (st) { st.textContent = '📝 填写内容已保存在本浏览器中'; st.style.color = '#065F46'; }
+  }, 2000);
+}
+
+function exportData() {
+  const lines = ['【儿童益智玩具消费者调查数据小结】',''];
+  FIELD_IDS.forEach((id, i) => {
+    const el = document.getElementById(id);
+    lines.push('【' + FIELD_LABELS[i] + '】');
+    lines.push((el && el.value.trim()) ? el.value : '(未填写)');
+    lines.push('');
+  });
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ 填写内容已复制到剪贴板！可粘贴到 Word 或发给老师。');
+  }).catch(() => {
+    prompt('复制以下内容：', text);
+  });
+}
+
+function clearData() {
+  if (!confirm('确定要清空所有填写内容吗？此操作不可恢复。')) return;
+  localStorage.removeItem(SK);
+  FIELD_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  count = 0;
+  document.querySelectorAll('.check-item').forEach(item => {
+    item.querySelector('.check-box').classList.remove('checked');
+    item.querySelector('.check-box').innerHTML = '';
+    item.querySelector('.check-text').classList.remove('done');
+  });
+  updateProgress();
+  const st = document.getElementById('save-status');
+  if (st) st.textContent = '🗑️ 已清空，可以重新填写';
+}
+
+function updateProgress() {
+  document.getElementById('check-bar').style.width = (count / TOTAL * 100) + '%';
+  document.getElementById('check-stat').textContent = count + ' / ' + TOTAL + ' 项完成';
+}
+
+function chk(item) {
+  const box = item.querySelector('.check-box');
+  const txt = item.querySelector('.check-text');
+  const on = box.classList.contains('checked');
+  box.classList.toggle('checked', !on);
+  txt.classList.toggle('done', !on);
+  box.innerHTML = on ? '' : '✓';
+  count = on ? count - 1 : count + 1;
+  updateProgress();
+  save();
+}
+
+function tog(n) {
+  const body = document.getElementById('sb' + n);
+  const toggle = document.getElementById('st' + n);
+  if (!body) return;
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  if (toggle) toggle.classList.toggle('open', !open);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  ['2','3','4','5','6'].forEach(n => {
+    const b = document.getElementById('sb' + n);
+    const t = document.getElementById('st' + n);
+    if (b) b.classList.remove('open');
+    if (t) t.classList.remove('open');
+  });
+  load();
+});
+</script>
+</body>
+</html>
