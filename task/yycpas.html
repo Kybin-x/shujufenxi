@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>参考答案 · 运营与产品数据采集实训</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#059669;--g2:#10B981;--g3:#34D399;
+  --gL:#ECFDF5;--gM:#A7F3D0;--gD:#065F46;
+  --ink:#071A12;--ink2:#134A30;--ink3:#2D7A55;--ink4:#5AAB80;
+  --bg:#F0FDF8;--card:#FFFFFF;--border:#A7F3D0;--border2:#D1FAE5;
+  --amber:#D97706;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --red:#DC2626;--redL:#FEF2F2;
+  --blue:#2563EB;--blueL:#EFF6FF;
+  --violet:#7C3AED;--violetL:#F5F3FF;
+  --r:10px;--shadow:0 2px 12px rgba(5,150,105,.1),0 1px 3px rgba(0,0,0,.05);
+}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;
+  background-image:radial-gradient(ellipse 60% 40% at 80% 0%,rgba(16,185,129,.07),transparent),
+    radial-gradient(ellipse 40% 30% at 10% 100%,rgba(5,150,105,.05),transparent);}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(240,253,248,.97);backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--border);display:flex;align-items:center;padding:0 20px;height:54px;gap:10px;
+  box-shadow:0 2px 10px rgba(5,150,105,.12)}
+.tb-logo{font-size:18px}
+.tb-title{font-size:13px;font-weight:800;color:var(--g);flex:1}
+.tb-teacher{font-size:11px;font-weight:700;color:var(--g3);background:rgba(16,185,129,.12);
+  border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:3px 12px}
+.tb-warn{font-size:11px;color:var(--red);font-weight:700;background:var(--redL);
+  border:1px solid rgba(220,38,38,.2);border-radius:20px;padding:3px 12px}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#D1FAE5 0%,#ECFDF5 50%,#F0FDF8 100%);
+  border-bottom:1.5px solid var(--border);padding:36px 0 30px;position:relative;overflow:hidden}
+.hero-inner{max-width:960px;margin:0 auto;padding:0 24px}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(5,150,105,.1);
+  border:1.5px solid rgba(5,150,105,.3);border-radius:4px;padding:4px 12px;font-size:11px;
+  font-weight:700;color:var(--gD);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.hero-title{font-size:30px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero-title span{color:var(--g)}
+.hero-desc{font-size:13px;color:var(--ink2);line-height:1.8;max-width:640px;margin-bottom:20px}
+.hero-pills{display:flex;gap:10px;flex-wrap:wrap}
+.h-pill{display:flex;align-items:center;gap:6px;background:rgba(5,150,105,.08);
+  border:1px solid rgba(5,150,105,.2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--ink2);font-weight:600}
+.hero-deco{position:absolute;right:-80px;top:-60px;width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(16,185,129,.08),transparent 65%);pointer-events:none}
+
+/* ── MAIN ── */
+.main{max-width:960px;margin:0 auto;padding:28px 20px 80px}
+
+/* ── NAV ── */
+.mod-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;position:sticky;top:54px;z-index:100;
+  background:rgba(240,253,248,.95);backdrop-filter:blur(8px);padding:10px 0;border-bottom:1px solid var(--border2)}
+.mn-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;
+  border:1.5px solid var(--border);background:#fff;color:var(--ink3);transition:all .2s;font-family:inherit}
+.mn-btn:hover,.mn-btn.active{background:var(--g);color:#fff;border-color:var(--g)}
+
+/* ── SECTION ── */
+.module{margin-bottom:32px;scroll-margin-top:110px}
+.mod-title{font-size:18px;font-weight:900;color:var(--gD);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid var(--gM)}
+.mod-title-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--g),var(--g2));
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;
+  flex-shrink:0;box-shadow:0 2px 8px rgba(5,150,105,.3)}
+
+/* ── ANSWER CARD ── */
+.ans-card{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);
+  margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow)}
+.ans-head{background:linear-gradient(135deg,#ECFDF5,#F0FDF8);border-bottom:1px solid var(--border2);
+  padding:12px 18px;display:flex;align-items:flex-start;gap:10px}
+.ans-field-id{display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;
+  background:var(--g);color:#fff;border-radius:4px;font-size:10px;font-weight:900;flex-shrink:0;letter-spacing:.03em}
+.ans-label{font-size:13px;font-weight:800;color:var(--ink);flex:1;line-height:1.5}
+.ans-pts{display:inline-flex;align-items:center;gap:3px;background:var(--amberL);border:1px solid var(--amberM);
+  border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
+.ans-body{padding:14px 18px}
+
+/* answer content */
+.ans-value{background:var(--gL);border-left:3px solid var(--g);border-radius:0 8px 8px 0;
+  padding:10px 14px;margin-bottom:10px;font-size:13px;color:var(--gD);line-height:1.8;font-weight:600}
+.ans-value code{background:rgba(5,150,105,.12);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:12px}
+
+/* calculation steps */
+.calc{background:#F8FFFE;border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin:8px 0}
+.calc-title{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:7px;letter-spacing:.05em;text-transform:uppercase}
+.calc-step{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:var(--ink2);line-height:1.6}
+.calc-step:not(:last-child){border-bottom:1px dashed var(--border2)}
+.calc-n{width:18px;height:18px;border-radius:50%;background:var(--g);color:#fff;font-size:9px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.calc-eq{font-family:monospace;font-size:12.5px;font-weight:700;color:var(--gD)}
+
+/* scoring point */
+.scoring{background:var(--amberL);border:1px solid var(--amberM);border-radius:8px;
+  padding:9px 13px;margin:8px 0;font-size:12px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--redL);border:1px solid rgba(220,38,38,.2);border-radius:8px;
+  padding:9px 13px;margin:8px 0;font-size:12px;color:#7F1D1D;line-height:1.75;display:flex;gap:7px}
+.info-box{background:var(--blueL);border:1px solid rgba(37,99,235,.2);border-radius:8px;
+  padding:9px 13px;margin:8px 0;font-size:12px;color:#1E3A5F;line-height:1.75;display:flex;gap:7px}
+
+/* challenge card */
+.cq-card{background:linear-gradient(135deg,var(--violetL),#F0F4FF);border:1.5px solid rgba(124,58,237,.2);
+  border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
+.cq-head{background:linear-gradient(135deg,#F5F3FF,#EFF6FF);border-bottom:1px solid rgba(124,58,237,.18);
+  padding:13px 18px;display:flex;align-items:center;gap:10px}
+.cq-badge{background:linear-gradient(90deg,#7C3AED,#2563EB);color:#fff;border-radius:6px;
+  padding:3px 10px;font-size:10px;font-weight:700}
+.cq-q-text{font-size:13px;font-weight:800;color:var(--ink);flex:1;line-height:1.5}
+.cq-pts-badge{background:var(--amberL);border:1px solid var(--amberM);border-radius:6px;
+  padding:2px 8px;font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
+.cq-body{padding:14px 18px}
+.cq-ans{background:#F0FDF4;border-left:3px solid #7C3AED;border-radius:0 8px 8px 0;
+  padding:12px 16px;font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:10px}
+.cq-pts-note{background:var(--amberL);border:1px solid var(--amberM);border-radius:8px;
+  padding:9px 13px;margin:8px 0;font-size:12px;color:#78350F;line-height:1.75}
+.cq-pts-note strong{color:var(--amber)}
+
+/* score summary */
+.score-summary{background:linear-gradient(135deg,var(--gL),#F0FDF8);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:22px 24px;margin-bottom:24px;box-shadow:var(--shadow)}
+.ss-title{font-size:16px;font-weight:900;color:var(--gD);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ss-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.ss-item{background:#fff;border:1px solid var(--border2);border-radius:8px;padding:12px;text-align:center}
+.ss-val{font-size:24px;font-weight:900;color:var(--g)}
+.ss-lbl{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:600}
+.ss-total{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;border-radius:8px;
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.ss-total-lbl{font-size:14px;font-weight:700}
+.ss-total-val{font-size:28px;font-weight:900}
+
+/* common errors */
+.errors-section{background:#fff;border:1.5px solid rgba(220,38,38,.15);border-radius:var(--r);
+  padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.err-title{font-size:14px;font-weight:800;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.err-item{display:flex;align-items:flex-start;gap:9px;padding:8px 0;
+  border-bottom:1px solid var(--redL);font-size:12px;color:var(--ink2);line-height:1.7}
+.err-item:last-child{border:none}
+.err-dot{width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;
+  font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* page footer */
+.page-footer{text-align:center;padding:20px;font-size:12px;color:var(--ink4);
+  border-top:1px solid var(--border2);margin-top:10px}
+
+@media(max-width:640px){
+  .ss-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-title{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">📋</div>
+  <div class="tb-title">运营与产品数据采集实训 · 参考答案</div>
+  <span class="tb-teacher">👩‍🏫 教师版</span>
+  <span class="tb-warn">⚠️ 请勿发放给学生</span>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-deco"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">✅ 参考答案 · M2-U4/U5</div>
+    <h1 class="hero-title">运营与产品数据采集实训<br><span>参考答案与评分要点</span></h1>
+    <p class="hero-desc">本页面为教师批改参考，包含所有字段的标准答案、计算过程、评分要点和常见错误提示。基础题满分100分，附加挑战题最多额外加20分。</p>
+    <div class="hero-pills">
+      <span class="h-pill">📦 情景：飞跃日用品旗舰店 · 手机数据线</span>
+      <span class="h-pill">🔢 基础题 100分 + 挑战题 最多+20分</span>
+      <span class="h-pill">⏱️ 建议批改时间：10-15分钟/份</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- 模块导航 -->
+<div class="mod-nav">
+  <button class="mn-btn active" onclick="scrollTo('m1')">① 客户数据</button>
+  <button class="mn-btn" onclick="scrollTo('m2')">② 推广数据</button>
+  <button class="mn-btn" onclick="scrollTo('m3')">③ 销售供应链</button>
+  <button class="mn-btn" onclick="scrollTo('m4')">④ 产品数据</button>
+  <button class="mn-btn" onclick="scrollTo('m5')">⑤ 分析报告</button>
+  <button class="mn-btn" onclick="scrollTo('m6')">⑥ 挑战题</button>
+  <button class="mn-btn" onclick="scrollTo('m7')">📊 评分汇总</button>
+</div>
+
+<!-- ════ 模块一：客户数据 ════ -->
+<div class="module" id="m1">
+  <div class="mod-title"><div class="mod-title-icon">①</div>模块一：客户数据采集（共25分，每项约3分）</div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c1</div>
+      <div class="ans-label">本月成交订单数</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">847（单位：笔/单）</div>
+      <div class="scoring">📍 <span>直接从"客户数据报表"第5行读取，答案唯一。写"847笔""847单"均可；漏写单位不扣分，写错数字扣全分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c2</div>
+      <div class="ans-label">本月成交买家数</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">792（人）</div>
+      <div class="scoring">📍 <span>注意：成交订单数847 ≠ 成交买家数792，两者不同是因为55人重复购买。混淆两个数字是最常见错误。</span></div>
+      <div class="warn-box">⚠️ <span><strong>常见错误：</strong>填成847（混淆了订单数和买家数）→ 扣全分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c3</div>
+      <div class="ans-label">收藏率</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">10.8%</div>
+      <div class="scoring">📍 <span>直接从"收藏数量"行备注列读取，答案唯一。答"10.8%"或"10.80%"均可。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c4</div>
+      <div class="ans-label">访客转化率</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">6.78%</div>
+      <div class="scoring">📍 <span>直接从成交订单行备注读取，答案唯一。也可自行计算：847÷12480≈6.79%（四舍五入差异可接受）。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c5</div>
+      <div class="ans-label">退款率（含判断）</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">4.49%，<strong>偏高</strong>（数据标注已提示）</div>
+      <div class="scoring">📍 <span>数值2分+判断1分。只写数字不做判断扣1分；数值正确且写"偏高"得满分；写"正常"判断错误扣1分。</span></div>
+      <div class="info-box">ℹ️ <span>一般数据线类目正常退款率在2-3%，4.49%确实偏高，表格备注已给出"偏高，需关注"的提示。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c6</div>
+      <div class="ans-label">主力客群年龄（前两大年龄段）</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">18-24岁（41%）、25-30岁（33%）</div>
+      <div class="scoring">📍 <span>两个年龄段各1分+两个占比各0.5分。只写年龄段不写占比可得2分；顺序颠倒不扣分；写三个年龄段也可得满分（不扣分）。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c7</div>
+      <div class="ans-label">销售高峰时段</div>
+      <div class="ans-pts">3分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">20:00-23:00（占46%）</div>
+      <div class="scoring">📍 <span>时段2分+占比1分。只写时段不写占比得2分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head">
+      <div class="ans-field-id">c8</div>
+      <div class="ans-label">复购率（需自行计算）</div>
+      <div class="ans-pts">4分</div>
+    </div>
+    <div class="ans-body">
+      <div class="ans-value">7%（= 6% + 1%，即二次购买6%加三次及以上1%）</div>
+      <div class="calc">
+        <div class="calc-title">📐 计算过程</div>
+        <div class="calc-step"><div class="calc-n">1</div><span>复购率 = 购买两次及以上的买家占比</span></div>
+        <div class="calc-step"><div class="calc-n">2</div><span class="calc-eq">= 二次购买(6%) + 三次及以上(1%) = <strong>7%</strong></span></div>
+      </div>
+      <div class="scoring">📍 <span>计算过程2分+结果2分。只写7%不写过程得2分；写成6%（只算二次）得1分；写成"93%"或"55/792"等错误方式扣全分。</span></div>
+      <div class="warn-box">⚠️ <span><strong>常见错误：</strong>用55÷792≈6.9%（用绝对人数计算，结果相近但方法不准确，可酌情给2分）。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 模块二：推广数据 ════ -->
+<div class="module" id="m2">
+  <div class="mod-title"><div class="mod-title-icon">②</div>模块二：推广数据采集（共20分，每项约3-4分）</div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">p1</div><div class="ans-label">本月推广总花费</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">2,526元</div>
+      <div class="scoring">📍 <span>直接从万相台报表合计行读取。写"2526元""2526"均可。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">p2</div><div class="ans-label">总成交额（推广带动）</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">21,333元</div>
+      <div class="scoring">📍 <span>合计行"成交额"列，注意此处是推广带动的成交额，不是店铺总GMV（42,666元）。</span></div>
+      <div class="warn-box">⚠️ <span><strong>常见错误：</strong>填成42,666（混淆推广成交额与总GMV）→ 扣全分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">p3</div><div class="ans-label">综合ROI（含判断）</div><div class="ans-pts">4分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">8.45，<strong>优秀</strong>（行业参考：&gt;8为优秀）</div>
+      <div class="calc">
+        <div class="calc-title">📐 验证计算</div>
+        <div class="calc-step"><div class="calc-n">1</div><span class="calc-eq">ROI = 成交额 ÷ 花费 = 21,333 ÷ 2,526 ≈ <strong>8.45</strong></span></div>
+        <div class="calc-step"><div class="calc-n">2</div><span>行业参考：&gt;5良好，&gt;8优秀 → 判断：<strong>优秀</strong></span></div>
+      </div>
+      <div class="scoring">📍 <span>数值2分+判断2分。数值可直接读合计行；判断必须写出"优秀/良好/一般"之一，不写判断扣2分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">p4</div><div class="ans-label">ROI最高的计划</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">关键词推广A（ROI 9.67）</div>
+      <div class="scoring">📍 <span>计划名称2分+ROI数值1分。计划名称写"A""关键词推广A""搜索推广A"均可；只写ROI数值不写计划名扣1分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">p5</div><div class="ans-label">总点击率（CTR）</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">1.12%</div>
+      <div class="scoring">📍 <span>直接从合计行读取。也可计算验证：6572÷586600≈1.12%。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">p6</div><div class="ans-label">推广新增收藏数</div><div class="ans-pts">4分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">848（= 284 + 468 + 96）</div>
+      <div class="calc">
+        <div class="calc-title">📐 计算过程</div>
+        <div class="calc-step"><div class="calc-n">1</div><span class="calc-eq">284（A） + 468（B） + 96（C） = <strong>848</strong></span></div>
+      </div>
+      <div class="scoring">📍 <span>计算过程2分+结果2分。只写848不写加法过程得3分；合计行可直接读到合计值848，若学生说"从合计行读取"也给满分。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 模块三：销售与供应链 ════ -->
+<div class="module" id="m3">
+  <div class="mod-title"><div class="mod-title-icon">③</div>模块三：销售与供应链数据（共20分）</div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">s1</div><div class="ans-label">本月GMV</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">42,666元</div>
+      <div class="scoring">📍 <span>从销售交易数据摘要直接读取。注意不要和推广成交额（21,333元）混淆。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">s2</div><div class="ans-label">客单件（需自行计算）</div><div class="ans-pts">4分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">约 1.29 件/单</div>
+      <div class="calc">
+        <div class="calc-title">📐 计算过程</div>
+        <div class="calc-step"><div class="calc-n">1</div><span>公式：客单件 = 成交商品数量 ÷ 订单数</span></div>
+        <div class="calc-step"><div class="calc-n">2</div><span class="calc-eq">= 1,094 ÷ 847 ≈ <strong>1.29</strong>（保留2位小数）</span></div>
+        <div class="calc-step"><div class="calc-n">3</div><span>含义：平均每笔订单购买约1.29根数据线</span></div>
+      </div>
+      <div class="scoring">📍 <span>计算过程2分+结果2分。结果在1.28-1.30范围内均可给满分（四舍五入差异）。只写结果不写过程得2分。</span></div>
+      <div class="warn-box">⚠️ <span><strong>常见错误：</strong>用GMV÷订单数=50.37（这是客单价，不是客单件）→ 扣全分，但可以在评语中指出概念差异。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">s3</div><div class="ans-label">咨询转化率（含判断）</div><div class="ans-pts">4分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">21.6%，<strong>正常</strong>（处于15-25%行业参考范围内）</div>
+      <div class="calc">
+        <div class="calc-title">📐 验证计算</div>
+        <div class="calc-step"><div class="calc-n">1</div><span class="calc-eq">792 ÷ 436 × 100% ≈ <strong>21.6%</strong>（表格已直接给出）</span></div>
+        <div class="calc-step"><div class="calc-n">2</div><span>行业参考15-25%，21.6% → <strong>正常</strong>范围内</span></div>
+      </div>
+      <div class="scoring">📍 <span>数值2分+判断2分。数值直接读取；判断必须写"正常/偏高/偏低"之一，不写判断扣2分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">s4</div><div class="ans-label">库存周转率（含分析）</div><div class="ans-pts">5分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">0.47次/月，<strong>偏低</strong>，说明库存相对积压，资金占用较多</div>
+      <div class="info-box">ℹ️ <span><strong>参考理解：</strong>月周转率0.47意味着当前库存（2340件）需要约2.1个月才能全部售完（1094÷2340≈0.47）。对于快消类日用品，周转率通常应达到1次/月以上。</span></div>
+      <div class="scoring">📍 <span>数值1分+偏低判断2分+分析说明2分。只写数值和"偏低"不做分析得3分；分析需要说明"库存多/积压/资金占用"等关键词才能得满分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">s5</div><div class="ans-label">需重点关注的风险（2个）</div><div class="ans-pts">4分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">
+        ① <strong>次品率偏高（1.2%）</strong>：可能导致买家收到残次品，进而引发退款投诉，与本月退款率上升（4.49%）可能存在直接关联。<br><br>
+        ② <strong>库存周转率偏低（0.47次）</strong>：库存积压占用资金，若销量无法提升则存在滞销风险。
+      </div>
+      <div class="scoring">📍 <span>每个风险2分（问题点1分+影响说明1分）。只写"次品率高""库存周转低"而不说明影响各得1分。若写了其他合理风险点（如退款率上升）可酌情给分。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 模块四：产品数据 ════ -->
+<div class="module" id="m4">
+  <div class="mod-title"><div class="mod-title-icon">④</div>模块四：产品数据采集（共20分）</div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">q1</div><div class="ans-label">商品点击率CTR（含对比）</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">5.8%，<strong>高于行业均值</strong>（行业均值4.2%，高出约38%）</div>
+      <div class="scoring">📍 <span>数值1分+对比判断2分。"高于行业""比行业高""好于行业"等表述均可接受。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">q2</div><div class="ans-label">加购转化率（含对比）</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">16.9%，<strong>高于行业均值</strong>（行业均值12.5%，高出约35%）</div>
+      <div class="scoring">📍 <span>数值1分+对比判断2分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">q3</div><div class="ans-label">毛利率（需计算）</div><div class="ans-pts">6分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">约 46.2%（处于行业正常范围35%-50%内）</div>
+      <div class="calc">
+        <div class="calc-title">📐 计算过程（必须写出）</div>
+        <div class="calc-step"><div class="calc-n">1</div><span>毛利率 = (售价 - 采购成本 - 包装物流) ÷ 售价 × 100%</span></div>
+        <div class="calc-step"><div class="calc-n">2</div><span class="calc-eq">= (39 - 16 - 5) ÷ 39 × 100%</span></div>
+        <div class="calc-step"><div class="calc-n">3</div><span class="calc-eq">= 18 ÷ 39 × 100% ≈ <strong>46.15%</strong>（约46.2%）</span></div>
+        <div class="calc-step"><div class="calc-n">4</div><span>行业参考35%-50% → 处于正常范围</span></div>
+      </div>
+      <div class="scoring">📍 <span>公式正确2分+代入数据2分+计算结果正确2分。结果在46%~46.2%范围均可；写出公式但计算错误得2分；只写结果不写过程得3分。</span></div>
+      <div class="warn-box">⚠️ <span><strong>常见错误：</strong>①公式分母用"采购成本"而非"售价"；②忘记加包装物流成本（5元），得到56.4%；③三项都减后忘×100%。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">q4</div><div class="ans-label">单件净利润（需计算）</div><div class="ans-pts">5分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">约 15.69 元/件</div>
+      <div class="calc">
+        <div class="calc-title">📐 计算过程（必须写出）</div>
+        <div class="calc-step"><div class="calc-n">1</div><span>单件分摊推广费 = 本月推广花费 ÷ 本月销售件数</span></div>
+        <div class="calc-step"><div class="calc-n">2</div><span class="calc-eq">= 2,526 ÷ 1,094 ≈ <strong>2.31</strong> 元/件</span></div>
+        <div class="calc-step"><div class="calc-n">3</div><span>单件净利 = 售价 - 采购成本 - 包装物流 - 单件分摊推广费</span></div>
+        <div class="calc-step"><div class="calc-n">4</div><span class="calc-eq">= 39 - 16 - 5 - 2.31 ≈ <strong>15.69</strong> 元/件</span></div>
+      </div>
+      <div class="scoring">📍 <span>分摊推广费计算2分+净利结果3分。结果在15.5~15.8元范围均可接受（四舍五入）。若分摊推广费不计算、直接减总推广费2526元则扣2分并计算结果视为错误。</span></div>
+      <div class="info-box">ℹ️ <span>注：题目还提到"其他运营费用800元/月"，若学生将其计入（800÷1094≈0.73元/件），则单件净利约为14.96元，此答案也应给满分（思路正确）。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">q5</div><div class="ans-label">产品综合评价</div><div class="ans-pts">3分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">
+        <strong>优势：</strong>CTR（5.8%）和加购率（16.9%）均高于行业均值，说明主图和详情页对消费者吸引力强；毛利率约46%，处于行业正常水平；综合ROI 8.45，推广效率优秀。<br><br>
+        <strong>问题：</strong>退款率4.49%偏高，次品率1.2%需关注；复购率仅7%，属于典型新客拉动型销售，老客粘性不足。
+      </div>
+      <div class="scoring">📍 <span>优势1-2点1.5分+问题1-2点1.5分。必须有具体数据支撑（不能只说"表现好"），各点须对应到具体指标数值。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 模块五：分析报告 ════ -->
+<div class="module" id="m5">
+  <div class="mod-title"><div class="mod-title-icon">⑤</div>运营分析报告（共15分）</div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">a1</div><div class="ans-label">本月运营亮点</div><div class="ans-pts">5分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">
+        ① <strong>推广效率优秀：</strong>综合ROI达8.45，关键词推广A的ROI更高达9.67，推广投入产出比远超行业良好水平（>5），说明付费获客策略精准有效。<br><br>
+        ② <strong>商品竞争力强：</strong>商品CTR 5.8%（行业均4.2%）、加购率16.9%（行业均12.5%），说明主图吸引力和商品描述说服力均高于同类竞品。<br><br>
+        ③ <strong>整体流量增长：</strong>本月访客数12,480人，环比增长29.3%，成交额42,666元，整体规模持续扩大。
+      </div>
+      <div class="scoring">📍 <span>写出2-3个亮点，每点需引用具体数据，共5分。只泛泛说好而无数据引用得2分；每个有数据支撑的亮点得2-3分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">a2</div><div class="ans-label">需关注的问题</div><div class="ans-pts">5分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">
+        ① <strong>退款率偏高且快速上升：</strong>本月退款率4.49%，环比上升72.7%，同期次品率1.2%（标注偏高），两者可能存在因果关系——品控问题导致买家退款增加。<br><br>
+        ② <strong>库存周转率偏低：</strong>月周转率仅0.47次，当前库存2,340件按当前销速约需2个月消化，存在资金占用压力。
+      </div>
+      <div class="scoring">📍 <span>写出2个问题，每个需数据支撑，共5分。只写问题不说数据依据各得2分。</span></div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ans-field-id">a3</div><div class="ans-label">运营改进建议（≥2条）</div><div class="ans-pts">5分</div></div>
+    <div class="ans-body">
+      <div class="ans-value">
+        ① 根据次品率1.2%偏高的问题，<strong>建议加强入库质检环节</strong>，与供应商协商将次品率控制在0.5%以内，预计可降低退款率至正常范围（2-3%），减少售后成本。<br><br>
+        ② 根据库存周转率0.47次/月偏低，<strong>建议在下月适当加大推广力度</strong>（如在ROI最佳的关键词推广A上增加预算），加速库存周转，降低积压风险。<br><br>
+        <em>（附加参考）</em>根据复购率仅7%，建议上线"买二赠一"或"套装搭配"活动，提升客单件的同时激励复购。
+      </div>
+      <div class="scoring">📍 <span>每条建议需"数据依据→具体措施→预期效果"三要素，共5分。每条完整建议2.5分；只有措施无依据各得1.5分；建议需切实可行，不接受"努力提高销量"等空洞表述。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 附加挑战题 ════ -->
+<div class="module" id="m6">
+  <div class="mod-title"><div class="mod-title-icon">⑥</div>附加挑战题（选做，最多+20分）</div>
+
+  <div class="cq-card">
+    <div class="cq-head">
+      <span class="cq-badge">挑战题 1</span>
+      <span class="cq-q-text">退款率上升（4.49%，环比+72.7%）与次品率偏高（1.2%）的关联分析及改进措施</span>
+      <span class="cq-pts-badge">+5分</span>
+    </div>
+    <div class="cq-body">
+      <div class="cq-ans">
+        <strong>关联分析：</strong>退款率与次品率存在<strong>较强因果关联</strong>——次品率1.2%意味着本月约有13件（1094×1.2%）商品存在质量问题，买家收到残次品后大概率申请退款。本月38笔退款订单中，若质量问题导致退款的比例达到30-50%，则可以解释退款率的显著上升（前月退款22笔，本月38笔）。<br><br>
+        <strong>改进措施：</strong><br>
+        ① 要求供应商改善生产品控，提供质量保证书，约定次品率超标的赔偿条款；<br>
+        ② 入库前增加抽检比例（从5%提高到10%），发现批次性质量问题立即停止上架；<br>
+        ③ 在商品页面主动说明质量检测标准，降低买家因预期落差导致的退款；<br>
+        ④ 建立退款原因分类统计（质量/不需要/描述不符），下月重点追踪质量退款占比。
+      </div>
+      <div class="cq-pts-note">
+        <strong>评分要点（5分）：</strong><br>
+        ① 指出因果关系（次品→退款）且有数量估算/逻辑支撑：2分<br>
+        ② 提出2条及以上具体可操作的改进措施：3分<br>
+        ✗ 只说"两者有关联"不解释逻辑：扣2分；措施空泛如"提高质量"不给分
+      </div>
+    </div>
+  </div>
+
+  <div class="cq-card">
+    <div class="cq-head">
+      <span class="cq-badge">挑战题 2</span>
+      <span class="cq-q-text">复购率7%是否正常？分析原因并提出提升策略</span>
+      <span class="cq-pts-badge">+5分</span>
+    </div>
+    <div class="cq-body">
+      <div class="cq-ans">
+        <strong>是否正常：</strong>对于数据线品类，7%的复购率<strong>基本正常，甚至略高于行业平均</strong>。原因是：数据线属于<strong>耐用型低频消费品</strong>，一根好的数据线可以使用1-2年，消费者短期内没有再次购买同款的需求。与食品、护肤品等高频消费品（复购率通常20-40%）相比，数据线7%的复购率并不低。<br><br>
+        <strong>复购率低的可能原因（客观层面）：</strong><br>
+        ① 品类特性：数据线使用周期长，短期内无重复购买需求；<br>
+        ② 店铺上线时间短（仅3个月），老客群体尚未形成；<br>
+        ③ SKU单一：只有一款产品，老客若想买其他规格/接口需另找他店。<br><br>
+        <strong>提升复购策略：</strong>扩充SKU（增加Lightning接口、双头线等），让老客有持续购买理由；或开展"多件套装"组合销售（买3根送1根），一次提高购买量，间接提升LTV（用户生命周期价值）。
+      </div>
+      <div class="cq-pts-note">
+        <strong>评分要点（5分）：</strong><br>
+        ① 正确判断"基本正常"并说明品类耐用品特性：2分<br>
+        ② 分析至少2个原因：2分<br>
+        ③ 提出1个合理策略：1分<br>
+        ✗ 判断"不正常"可酌情给1分（分析有道理则不全扣）
+      </div>
+    </div>
+  </div>
+
+  <div class="cq-card">
+    <div class="cq-head">
+      <span class="cq-badge">挑战题 3</span>
+      <span class="cq-q-text">用「数据说话」写100字以内本月运营简报（亮点→问题→下月重点）</span>
+      <span class="cq-pts-badge">+10分</span>
+    </div>
+    <div class="cq-body">
+      <div class="cq-ans">
+        <strong>【参考范文1（精炼版，约70字）：】</strong><br>
+        本月亮点：推广综合ROI达8.45，关键词计划A高达9.67，付费效率优秀；商品CTR 5.8%高于行业均值38%，产品力强。需关注：退款率4.49%环比上升73%，与次品率1.2%偏高高度相关，品控风险已显现。下月重点：联系供应商收紧质检标准，目标将退款率压回3%以内。<br><br>
+        <strong>【参考范文2（结构版，约85字）：】</strong><br>
+        【亮点】本月综合ROI 8.45（行业优秀线>8），推广投入产出比领先。<br>
+        【问题】退款率4.49%，环比大幅上升72.7%，结合次品率1.2%偏高，判断为品控问题导致，需立即介入。<br>
+        【下月重点】加强入库抽检比例，与供应商约定品质赔偿条款，目标次品率降至0.5%以内。
+      </div>
+      <div class="cq-pts-note">
+        <strong>评分要点（10分）：</strong><br>
+        ① 格式符合（亮点→问题→重点动作三段式）：2分<br>
+        ② 亮点引用至少1个具体指标数值：3分<br>
+        ③ 问题引用至少1个具体指标数值：3分<br>
+        ④ 下月重点动作具体可执行（非泛泛而谈）：2分<br>
+        ✗ 超过100字扣1分；无数据支撑全文扣5分；三个部分缺一扣3分
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 评分汇总 ════ -->
+<div class="module" id="m7">
+  <div class="mod-title"><div class="mod-title-icon">📊</div>评分汇总表</div>
+
+  <div class="score-summary">
+    <div class="ss-title">📋 基础题分值分布</div>
+    <div class="ss-grid">
+      <div class="ss-item"><div class="ss-val">25</div><div class="ss-lbl">模块一<br>客户数据</div></div>
+      <div class="ss-item"><div class="ss-val">20</div><div class="ss-lbl">模块二<br>推广数据</div></div>
+      <div class="ss-item"><div class="ss-val">20</div><div class="ss-lbl">模块三<br>销售供应链</div></div>
+      <div class="ss-item"><div class="ss-val">20</div><div class="ss-lbl">模块四<br>产品数据</div></div>
+    </div>
+    <div class="ss-total">
+      <div>
+        <div class="ss-total-lbl">基础题满分</div>
+        <div style="font-size:12px;opacity:.8;margin-top:3px">分析报告另计15分</div>
+      </div>
+      <div class="ss-total-val">100分</div>
+    </div>
+  </div>
+
+  <div class="ans-card">
+    <div class="ans-head"><div class="ch-ico" style="font-size:16px">📊</div><div class="ans-label">快速批改评分表</div></div>
+    <div class="ans-body" style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr style="background:#ECFDF5">
+          <th style="padding:7px 10px;text-align:left;color:var(--gD);border-bottom:2px solid var(--gM);white-space:nowrap">题号</th>
+          <th style="padding:7px 10px;text-align:left;color:var(--gD);border-bottom:2px solid var(--gM)">考查内容</th>
+          <th style="padding:7px 10px;text-align:center;color:var(--gD);border-bottom:2px solid var(--gM);white-space:nowrap">满分</th>
+          <th style="padding:7px 10px;text-align:left;color:var(--gD);border-bottom:2px solid var(--gM)">关键评分点</th>
+        </tr>
+        <tr style="border-bottom:1px solid #D1FAE5"><td style="padding:6px 10px;color:var(--ink3);font-weight:700">c1-c7</td><td style="padding:6px 10px;color:var(--ink2)">客户数据读取7项</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--g)">21</td><td style="padding:6px 10px;color:var(--ink2)">直接读取，数值正确即满分</td></tr>
+        <tr style="background:#F0FDF4;border-bottom:1px solid #D1FAE5"><td style="padding:6px 10px;color:var(--ink3);font-weight:700">c8</td><td style="padding:6px 10px;color:var(--ink2)">复购率（需计算）</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--g)">4</td><td style="padding:6px 10px;color:var(--ink2)">6%+1%=7%，写过程得满分</td></tr>
+        <tr style="border-bottom:1px solid #D1FAE5"><td style="padding:6px 10px;color:var(--ink3);font-weight:700">p1-p6</td><td style="padding:6px 10px;color:var(--ink2)">推广数据采集6项</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--g)">20</td><td style="padding:6px 10px;color:var(--ink2)">p3须有ROI判断，p6须列加法</td></tr>
+        <tr style="background:#F0FDF4;border-bottom:1px solid #D1FAE5"><td style="padding:6px 10px;color:var(--ink3);font-weight:700">s1-s5</td><td style="padding:6px 10px;color:var(--ink2)">销售供应链5项</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--g)">20</td><td style="padding:6px 10px;color:var(--ink2)">s2客单件需计算；s4需分析原因</td></tr>
+        <tr style="border-bottom:1px solid #D1FAE5"><td style="padding:6px 10px;color:var(--ink3);font-weight:700">q1-q5</td><td style="padding:6px 10px;color:var(--ink2)">产品数据5项</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--g)">20</td><td style="padding:6px 10px;color:var(--ink2)">q3毛利率、q4净利须写计算过程</td></tr>
+        <tr style="background:#F0FDF4;border-bottom:1px solid #D1FAE5"><td style="padding:6px 10px;color:var(--ink3);font-weight:700">a1-a3</td><td style="padding:6px 10px;color:var(--ink2)">运营分析报告</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--g)">15</td><td style="padding:6px 10px;color:var(--ink2)">每条建议须有数据支撑+具体措施</td></tr>
+        <tr style="background:#FEF9C3;border-bottom:1px solid #FDE68A"><td style="padding:6px 10px;color:#92400E;font-weight:700">cq1-3</td><td style="padding:6px 10px;color:#92400E">附加挑战题（选做）</td><td style="padding:6px 10px;text-align:center;font-weight:700;color:var(--amber)">+20</td><td style="padding:6px 10px;color:#92400E">逻辑+数据+可操作性三维评分</td></tr>
+        <tr style="background:#ECFDF5"><td colspan="2" style="padding:8px 10px;font-weight:900;color:var(--gD);font-size:13px">基础题总计</td><td style="padding:8px 10px;text-align:center;font-weight:900;font-size:16px;color:var(--gD)">100</td><td style="padding:8px 10px;color:var(--ink3)">含附加题最高120分</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="errors-section">
+    <div class="err-title">⚠️ 最常见错误汇总（批改时重点关注）</div>
+    <div class="err-item"><div class="err-dot">1</div><span><strong>c1/c2混淆：</strong>将订单数847填入买家数，或将买家数792填入订单数——两者含义不同，必须区分。</span></div>
+    <div class="err-item"><div class="err-dot">2</div><span><strong>p2/s1混淆：</strong>将推广成交额（21,333元）和店铺总GMV（42,666元）填反——推广成交额仅是付费广告带来的部分，不是全店销售额。</span></div>
+    <div class="err-item"><div class="err-dot">3</div><span><strong>s2计算错误：</strong>用GMV÷订单数得50.37，这是客单价而非客单件，概念混淆；正确公式是商品数量÷订单数。</span></div>
+    <div class="err-item"><div class="err-dot">4</div><span><strong>q3毛利率公式错误：</strong>分母用采购成本（16）或成本合计（21）而非售价（39），导致毛利率偏大；或漏减包装物流费5元。</span></div>
+    <div class="err-item"><div class="err-dot">5</div><span><strong>q4净利计算忽略推广费：</strong>直接用售价-采购-包装=18元，未扣除单件分摊推广费，虚高净利约2.31元。</span></div>
+    <div class="err-item"><div class="err-dot">6</div><span><strong>a3建议空洞：</strong>只写"提高产品质量""加强推广"等无数据依据、无具体措施的建议，不应得满分。</span></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="page-footer">运营与产品数据采集实训 · 参考答案 · 仅供教师使用</div>
+
+<script>
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+  document.querySelectorAll('.mn-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+// highlight active section on scroll
+const sections = ['m1','m2','m3','m4','m5','m6','m7'];
+const btns = document.querySelectorAll('.mn-btn');
+window.addEventListener('scroll', () => {
+  let cur = 0;
+  sections.forEach((id,i) => {
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top < 130) cur = i;
+  });
+  btns.forEach((b,i)=>b.classList.toggle('active', i===cur));
+});
+</script>
+</body>
+</html>
