@@ -9,27 +9,27 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --teal:#0D9488;--teal2:#14B8A6;--tealL:#F0FDFA;--tealM:#99F6E4;--tealD:#0F766E;
-  --amber:#F59E0B;--amberL:#FFFBEB;--amberM:#FDE68A;
-  --green:#10B981;--greenL:#ECFDF5;--greenM:#6EE7B7;
-  --red:#EF4444;--redL:#FEF2F2;
-  --ink:#111827;--ink2:#374151;--ink3:#6B7280;--ink4:#9CA3AF;
-  --bg:#F8FAFB;--card:#FFFFFF;--border:#E5E7EB;
-  --r:12px;--shadow:0 1px 3px rgba(0,0,0,.07),0 6px 20px rgba(0,0,0,.06);
+  --amber:#D97706;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --green:#16A34A;--greenL:#F0FDF4;--greenM:#86EFAC;
+  --red:#DC2626;--redL:#FEF2F2;
+  --ink:#082520;--ink2:#134E4A;--ink3:#2D7A72;--ink4:#5AADA4;
+  --bg:#F0FDFA;--card:#FFFFFF;--border:#CCFBF1;
+  --r:12px;--shadow:0 2px 12px rgba(13,148,136,.1),0 1px 3px rgba(0,0,0,.05);
 }
-body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65;background-image:radial-gradient(ellipse 60% 40% at 80% 0%,rgba(13,148,136,.07),transparent),radial-gradient(ellipse 40% 30% at 10% 100%,rgba(20,184,166,.05),transparent)}
 
 /* HEADER */
-.page-header{background:linear-gradient(135deg,#134E4A 0%,#0D9488 55%,#14B8A6 100%);color:#fff;overflow:hidden;position:relative}
-.header-inner{max-width:960px;margin:0 auto;padding:38px 24px 34px;position:relative;z-index:1}
-.header-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:18px;letter-spacing:.04em}
-.header-title{font-size:30px;font-weight:900;margin-bottom:10px;line-height:1.2}
-.header-title em{font-style:normal;color:var(--tealM)}
-.header-sub{font-size:14px;color:rgba(255,255,255,.75);max-width:600px;line-height:1.8}
+.page-header{background:linear-gradient(135deg,#CCFBF1 0%,#E0FAF7 45%,#F0FDFA 100%);color:var(--ink);overflow:hidden;position:relative;border-bottom:1.5px solid #CCFBF1}
+.header-inner{max-width:960px;margin:0 auto;padding:32px 24px 28px;position:relative;z-index:1}
+.header-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(13,148,136,.12);border:1px solid rgba(13,148,136,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:18px;letter-spacing:.04em;color:var(--tealD)}
+.header-title{font-size:30px;font-weight:900;margin-bottom:10px;line-height:1.2;color:var(--ink)}
+.header-title em{font-style:normal;color:var(--tealD);background:linear-gradient(90deg,#0D9488,#14B8A6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-sub{font-size:14px;color:var(--ink2);max-width:600px;line-height:1.8}
 .header-meta{display:flex;gap:18px;margin-top:20px;flex-wrap:wrap}
-.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,.8)}
-.deco{position:absolute;border-radius:50%;pointer-events:none}
-.deco1{right:-70px;top:-70px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%)}
-.deco2{left:-50px;bottom:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.04),transparent 70%)}
+.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(13,148,136,.08);border:1px solid rgba(13,148,136,.2);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--ink2);font-weight:600}
+.deco{position:absolute;border-radius:50%;pointer-events:none;opacity:.5}
+.deco1{right:-70px;top:-70px;width:280px;height:280px;background:radial-gradient(circle,rgba(13,148,136,.12),transparent 70%)}
+.deco2{left:-50px;bottom:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(20,184,166,.1),transparent 70%)}
 
 /* LAYOUT */
 .main{max-width:960px;margin:0 auto;padding:30px 20px 70px}
@@ -40,9 +40,9 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 
 /* SCENARIO */
 .scenario{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
-.scenario-head{background:linear-gradient(135deg,#134E4A,var(--teal));color:#fff;padding:18px 24px}
-.scenario-head h2{font-size:15px;font-weight:900;margin-bottom:4px}
-.scenario-head p{font-size:12px;opacity:.75;line-height:1.6}
+.scenario-head{background:linear-gradient(135deg,#CCFBF1,#E0FAF7);color:var(--ink);padding:18px 24px;border-bottom:1px solid #CCFBF1}
+.scenario-head h2{font-size:15px;font-weight:900;margin-bottom:4px;color:var(--ink)}
+.scenario-head p{font-size:12px;color:var(--ink3);line-height:1.6;margin-top:3px}
 .scenario-body{padding:20px 24px}
 .scenario-text{font-size:13px;color:var(--ink2);line-height:2;margin-bottom:14px}
 .scenario-text em{font-style:normal;font-weight:700;color:var(--tealD)}
@@ -59,7 +59,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 /* KNOWLEDGE */
 .knowledge-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
 .know-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-.know-head{background:linear-gradient(135deg,var(--tealD),var(--teal));color:#fff;padding:12px 16px;font-size:13px;font-weight:800}
+.know-head{background:linear-gradient(135deg,#CCFBF1,#99F6E4);color:var(--tealD);padding:12px 16px;font-size:13px;font-weight:800;border-bottom:1px solid #CCFBF1}
 .know-body{padding:14px 16px;font-size:12px;color:var(--ink2);line-height:1.85}
 .know-body li{margin-left:16px;margin-bottom:4px}
 
@@ -67,7 +67,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .structure-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:24px}
 .struct-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #F3F4F6}
 .struct-row:last-child{border:none}
-.struct-no{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.struct-no{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-shadow:0 2px 6px rgba(13,148,136,.25)}
 .struct-body{flex:1}
 .struct-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:3px}
 .struct-note{font-size:11px;color:var(--ink3);line-height:1.6}
@@ -82,7 +82,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .step-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
 .step-header{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .18s}
 .step-header:hover{background:#F9FFFE}
-.step-num{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--tealD),var(--teal2));color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-num{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(13,148,136,.25)}
 .step-info{flex:1}
 .step-name{font-size:14px;font-weight:800;color:var(--ink)}
 .step-desc{font-size:11px;color:var(--ink3);margin-top:2px}
@@ -105,7 +105,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 /* QUESTION TYPE CARDS */
 .qtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .qtype-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
-.qtype-head{padding:9px 14px;display:flex;align-items:center;gap:8px;background:var(--tealL);border-bottom:1px solid #CCFBF1}
+.qtype-head{padding:9px 14px;display:flex;align-items:center;gap:8px;background:#E0FAF7;border-bottom:1px solid #CCFBF1}
 .qt-badge{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
 .qt-badge.radio{background:#7C3AED}
 .qt-badge.check{background:#0EA5E9}
@@ -122,7 +122,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .an-text{font-size:12px;color:var(--ink2);line-height:1.75}
 
 /* REPORT TEMPLATE */
-.report-tmpl{background:var(--card);border:1.5px solid var(--teal2);border-radius:var(--r);padding:20px 24px;margin-bottom:24px}
+.report-tmpl{background:#fff;border:1.5px solid rgba(13,148,136,.25);border-radius:var(--r);padding:20px 24px;margin-bottom:24px;box-shadow:var(--shadow)}
 .tmpl-title{font-size:14px;font-weight:800;color:var(--teal);margin-bottom:14px}
 .tmpl-row{display:grid;grid-template-columns:148px 1fr;gap:10px;margin-bottom:9px;align-items:start}
 .tmpl-label{font-size:12px;font-weight:700;color:var(--ink3);padding:8px 0;line-height:1.5}
@@ -145,11 +145,11 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .check-stat{font-size:11px;color:var(--ink3);margin-top:6px;text-align:right;font-weight:600}
 
 /* DELIVERABLE */
-.deliverable{background:linear-gradient(135deg,#134E4A,var(--teal));color:#fff;border-radius:var(--r);padding:22px 24px;margin-bottom:24px}
-.deliv-title{font-size:15px;font-weight:800;margin-bottom:14px;color:var(--tealM)}
+.deliverable{background:linear-gradient(135deg,#CCFBF1,#E0FAF7);border:1.5px solid #CCFBF1;border-radius:var(--r);padding:22px 24px;margin-bottom:24px;box-shadow:var(--shadow)}
+.deliv-title{font-size:15px;font-weight:800;margin-bottom:14px;color:var(--tealD)}
 .deliv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.deliv-item{background:rgba(255,255,255,.1);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid rgba(255,255,255,.15)}
-.deliv-item-title{font-weight:800;margin-bottom:5px;color:var(--tealM);font-size:13px}
+.deliv-item{background:#fff;border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid #CCFBF1;color:var(--ink2)}
+.deliv-item-title{font-weight:800;margin-bottom:5px;color:var(--tealD);font-size:13px}
 
 /* FOOTER */
 .page-footer{text-align:center;padding:20px;font-size:12px;color:var(--ink4);border-top:1px solid var(--border);margin-top:10px}
@@ -159,15 +159,42 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
   .header-title{font-size:23px}
   .tmpl-row{grid-template-columns:1fr}
 }
+
+/* ═══ STICKY TOPBAR ═══ */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(240,253,250,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid #CCFBF1;display:flex;align-items:center;padding:0 20px;height:56px;gap:10px;box-shadow:0 2px 10px rgba(13,148,136,.1)}
+.tb-logo{font-size:18px;flex-shrink:0}
+.tb-title{font-size:13px;font-weight:800;color:var(--teal);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-save{font-size:11px;color:var(--ink3);white-space:nowrap;transition:color .3s}
+.tb-save.ok{color:var(--green)}
+.tb-div{width:1px;height:22px;background:#CCFBF1;flex-shrink:0}
+.stu-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.stu-item{display:flex;align-items:center;gap:4px}
+.stu-lbl{font-size:11px;font-weight:700;color:var(--ink3);white-space:nowrap}
+.stu-inp{background:#fff;border:1.5px solid #CCFBF1;border-radius:6px;padding:4px 8px;font-size:12px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+.stu-inp:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+.stu-inp::placeholder{color:var(--ink4);font-size:11px}
+.stu-inp.w-sm{width:78px}
+.stu-inp.w-md{width:96px}
 </style>
 </head>
 <body>
 
+<div class="topbar">
+  <div class="tb-logo">📋</div>
+  <div class="tb-title">金山表单消费者调查实训</div>
+  <span class="tb-save" id="tb-save">— 未保存 —</span>
+  <div class="tb-div"></div>
+  <div class="stu-wrap">
+    <div class="stu-item"><span class="stu-lbl">班级</span><input class="stu-inp w-md" id="stu_class" placeholder="请输入班级" oninput="save()"></div>
+    <div class="stu-item"><span class="stu-lbl">姓名</span><input class="stu-inp w-md" id="stu_name" placeholder="请输入姓名" oninput="save()"></div>
+    <div class="stu-item"><span class="stu-lbl">学号</span><input class="stu-inp w-sm" id="stu_id" placeholder="学号" oninput="save()"></div>
+  </div>
+</div>
 <div class="page-header">
   <div class="deco deco1"></div>
   <div class="deco deco2"></div>
   <div class="header-inner">
-    <div class="header-badge">📋 M2-U2 · 实训任务二</div>
+    <div class="header-badge">📋 实训任务二</div>
     <h1 class="header-title">用<em>金山表单</em>采集消费者数据<br>——在线问卷设计与发布实训</h1>
     <div class="header-sub">承接实训任务一（巨量算数抖音指数分析），以儿童益智玩具消费者调研为背景，完整走一遍「设计问卷 → 题型选择 → 发布分享 → 数据读取 → 提炼结论」全流程，亲身体验问卷这一一手数据采集方法。</div>
     <div class="header-meta">
@@ -458,7 +485,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 
 
   <!-- save bar -->
-  <div id="save-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#F0FDFA;border:1px solid #99F6E4;border-radius:10px;padding:10px 18px;margin-bottom:18px">
+  <div id="save-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#E0FAF7;border:1.5px solid #CCFBF1;border-radius:10px;padding:10px 18px;margin-bottom:18px">
     <span id="save-status" style="font-size:12px;color:#065F46;font-weight:700">📝 填写内容将自动保存在本浏览器中</span>
     <div style="display:flex;gap:8px">
       <button onclick="exportData()" style="padding:6px 14px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 复制全部填写内容</button>
@@ -514,7 +541,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 
 </div>
 
-<div class="page-footer"> 实训任务二 · 金山表单消费者调查设计与分析 </div>
+<div class="page-footer">金山表单消费者调查实训</div>
 
 <script>
 const TOTAL = 10;
@@ -525,6 +552,9 @@ const FIELD_LABELS = ['有效回收份数','主流购买渠道','主流消费价
 
 function save() {
   const data = {};
+  ['stu_class','stu_name','stu_id'].forEach(id => {
+    const el = document.getElementById(id); if (el) data[id] = el.value;
+  });
   FIELD_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) data[id] = el.value;
@@ -546,6 +576,9 @@ function load() {
       const el = document.getElementById(id);
       if (el && data[id]) el.value = data[id];
     });
+    ['stu_class','stu_name','stu_id'].forEach(id => {
+      const el = document.getElementById(id); if (el && data[id]) el.value = data[id];
+    });
     if (data._checkStates) {
       document.querySelectorAll('.check-item').forEach((item, i) => {
         if (data._checkStates[i]) {
@@ -561,6 +594,8 @@ function load() {
     if (hasData) {
       const st = document.getElementById('save-status');
       if (st) st.textContent = '✅ 已恢复上次保存的填写内容';
+      const tb = document.getElementById('tb-save');
+      if (tb) { tb.textContent = '✅ 已恢复'; tb.className = 'tb-save ok'; }
     }
   } catch(e) {}
 }
@@ -569,14 +604,20 @@ let saveTimer;
 function flashSaved() {
   clearTimeout(saveTimer);
   const st = document.getElementById('save-status');
+  const tb = document.getElementById('tb-save');
   if (st) { st.textContent = '✅ 已自动保存'; st.style.color = '#059669'; }
+  if (tb) { tb.textContent = '✅ 已保存'; tb.className = 'tb-save ok'; }
   saveTimer = setTimeout(() => {
     if (st) { st.textContent = '📝 填写内容已保存在本浏览器中'; st.style.color = '#065F46'; }
-  }, 2000);
+    if (tb) { tb.textContent = '实时保存中'; tb.className = 'tb-save'; }
+  }, 2500);
 }
 
 function exportData() {
-  const lines = ['【儿童益智玩具消费者调查数据小结】',''];
+  const cls = document.getElementById('stu_class'), nm = document.getElementById('stu_name'), sid = document.getElementById('stu_id');
+  const lines = ['【M2-U2 实训任务二 · 金山表单消费者调查】',
+    '班级：'+(cls?cls.value||'未填写':'未填写')+'  姓名：'+(nm?nm.value||'未填写':'未填写')+'  学号：'+(sid?sid.value||'未填写':'未填写'),
+    ''];
   FIELD_IDS.forEach((id, i) => {
     const el = document.getElementById(id);
     lines.push('【' + FIELD_LABELS[i] + '】');
