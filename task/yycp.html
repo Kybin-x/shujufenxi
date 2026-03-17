@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>实训任务 · M2-U4/U5 运营与产品数据采集</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#0284C7;--g2:#0891B2;--g3:#0D9488;
+  --bg:#F0F9FF;--bg2:#E0F2FE;--bg3:#CFFAFE;
+  --card:#FFFFFF;--card2:#F0FBFF;
+  --border:rgba(2,132,199,.2);--border2:rgba(8,145,178,.14);
+  --ink:#0C1A27;--ink2:#1A3A52;--ink3:#2D6A8F;--ink4:#5A96B8;
+  --amber:#D97706;--amberL:rgba(217,119,6,.1);
+  --green:#16A34A;--greenL:rgba(22,163,74,.1);
+  --red:#DC2626;--redL:rgba(220,38,38,.08);
+  --violet:#7C3AED;--violetL:rgba(124,58,237,.08);
+  --r:10px;
+  --shadow:0 2px 12px rgba(2,132,199,.1),0 1px 3px rgba(0,0,0,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 90% 10%,rgba(2,132,199,.07),transparent),
+    radial-gradient(ellipse 50% 40% at 10% 90%,rgba(8,145,178,.05),transparent),
+    radial-gradient(ellipse 30% 30% at 50% 50%,rgba(13,148,136,.04),transparent),
+    repeating-linear-gradient(0deg,transparent,transparent 48px,rgba(2,132,199,.04) 48px,rgba(2,132,199,.04) 49px),
+    repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(2,132,199,.04) 48px,rgba(2,132,199,.04) 49px);
+}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(240,249,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;height:58px;gap:10px;box-shadow:0 2px 8px rgba(2,132,199,.1)}
+.tb-logo{font-size:18px}
+.tb-title{font-size:13px;font-weight:800;color:var(--g);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-badge{display:none}
+#save-indicator{font-size:11px;color:var(--ink3);transition:color .3s;white-space:nowrap}
+#save-indicator.saved{color:var(--green)}
+.stu-fields{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.stu-field{display:flex;align-items:center;gap:4px}
+.stu-label{font-size:11px;font-weight:700;color:var(--ink3);white-space:nowrap}
+.stu-input{background:#fff;border:1.5px solid var(--border);border-radius:6px;padding:4px 9px;font-size:12px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .2s;width:80px}
+.stu-input.w-name{width:100px}
+.stu-input:focus{border-color:var(--g);background:#EFF6FF}
+.stu-input::placeholder{color:var(--ink4);font-size:11px}
+.stu-divider{width:1px;height:22px;background:var(--border);flex-shrink:0}
+
+/* HERO */
+.hero{padding:50px 0 42px;position:relative;overflow:hidden}
+.hero-inner{max-width:980px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+.hero-kicker{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--g);border-radius:4px;padding:4px 13px;font-size:11px;font-weight:700;color:var(--g);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.hero-title{font-size:34px;font-weight:900;line-height:1.2;margin-bottom:14px}
+.hero-title .hl{background:linear-gradient(90deg,var(--g),var(--g2),var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:14px;color:var(--ink2);line-height:1.85;max-width:640px;margin-bottom:26px}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+.hstat-val{font-size:22px;font-weight:900;color:var(--g)}
+.hstat-lbl{font-size:11px;color:var(--ink3);font-weight:600;margin-top:3px}
+.hero-orb{position:absolute;right:-100px;top:-80px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(2,132,199,.06),transparent 65%);pointer-events:none}
+
+/* MAIN */
+.main{max-width:980px;margin:0 auto;padding:0 20px 80px}
+
+/* SEC */
+.sec{margin:32px 0 12px;display:flex;align-items:center;gap:10px}
+.sec-num{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(2,132,199,.25)}
+.sec-label{font-size:13px;font-weight:700;color:var(--g);letter-spacing:.08em;text-transform:uppercase}
+
+/* CARD */
+.card{background:#fff;border:1.5px solid rgba(2,132,199,.16);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
+.card-h{background:linear-gradient(135deg,#E0F2FE,#ECFEFF);border-bottom:1px solid rgba(2,132,199,.12);padding:14px 20px;display:flex;align-items:flex-start;gap:10px}
+.ch-ico{font-size:22px;flex-shrink:0}
+.ch-ttl{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px}
+.ch-sub{font-size:11px;color:var(--ink3);line-height:1.55}
+.card-b{padding:18px 20px}
+
+/* SCENARIO */
+.scenario{background:#F0FDFF;border:1px solid rgba(8,145,178,.2);border-radius:var(--r);padding:18px 22px;margin-bottom:18px}
+.sc-head{font-size:13px;font-weight:800;color:var(--g2);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.sc-body{font-size:13px;color:var(--ink2);line-height:1.9}
+.sc-body em{font-style:normal;font-weight:700;color:var(--ink)}
+.sc-hl{background:rgba(2,132,199,.07);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:10px 14px;margin-top:12px;font-size:12px;color:var(--g);line-height:1.75;font-weight:600}
+
+/* MOCK DATA TABLE */
+.mock-wrap{background:#F0FBFF;border:1.5px solid rgba(2,132,199,.18);border-radius:var(--r);padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 6px rgba(2,132,199,.06)}
+.mock-title{font-size:12px;font-weight:800;color:var(--g3);margin-bottom:10px;display:flex;align-items:center;gap:6px;letter-spacing:.04em}
+.mock-badge{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--g3)}
+.dtable{width:100%;border-collapse:collapse;font-size:12px;margin:0}
+.dtable th{background:#BAE6FD;color:#0C4A6E;padding:7px 10px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.03em;white-space:nowrap}
+.dtable td{padding:7px 10px;border-bottom:1px solid #E0F2FE;color:var(--ink2);line-height:1.5;vertical-align:top}
+.dtable tr:last-child td{border:none}
+.dtable tr:nth-child(even) td{background:#F0F9FF}
+.dtable td strong{color:var(--ink)}
+.dtable td .up{color:#4ADE80;font-weight:700}
+.dtable td .down{color:#F87171;font-weight:700}
+.dtable td .mid{color:var(--amber);font-weight:700}
+.dtable td .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700}
+.tag-high{background:rgba(248,113,113,.15);color:#F87171}
+.tag-med{background:rgba(245,158,11,.15);color:var(--amber)}
+.tag-low{background:rgba(34,197,94,.15);color:#4ADE80}
+
+/* EXTRACT FORM */
+.xform{background:#fff;border:1.5px solid rgba(2,132,199,.16);border-radius:var(--r);padding:16px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.xf-title{font-size:12.5px;font-weight:800;color:var(--g);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.xf-row{display:grid;grid-template-columns:160px 1fr;gap:10px;margin-bottom:8px;align-items:center}
+.xf-label{font-size:11.5px;font-weight:700;color:var(--ink3);line-height:1.5}
+.xf-label span{display:block;font-size:10px;color:var(--ink4);font-weight:400;margin-top:2px}
+.ifield{background:#fff;border:1.5px solid rgba(2,132,199,.2);border-radius:6px;padding:7px 10px;font-size:12.5px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;box-shadow:inset 0 1px 3px rgba(0,0,0,.04)}
+.ifield:focus{border-color:var(--g);background:#EFF6FF;box-shadow:0 0 0 3px rgba(2,132,199,.1)}
+.ifield::placeholder{color:var(--ink4);font-style:italic;font-size:11.5px}
+textarea.ifield{resize:vertical;min-height:36px;line-height:1.65}
+
+/* ANALYSIS */
+.aform{background:#fff;border:1.5px solid rgba(2,132,199,.16);border-radius:var(--r);padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.af-title{font-size:13px;font-weight:800;color:var(--g2);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.af-row{display:grid;grid-template-columns:140px 1fr;gap:10px;margin-bottom:9px;align-items:start}
+.af-label{font-size:11.5px;font-weight:700;color:var(--ink3);padding:8px 0;line-height:1.5}
+.af-input{background:#fff;border:1.5px solid rgba(2,132,199,.2);border-radius:7px;padding:9px 12px;font-size:12.5px;color:var(--ink);width:100%;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;line-height:1.7;box-shadow:inset 0 1px 3px rgba(0,0,0,.04)}
+.af-input:focus{border-color:var(--g);background:#EFF6FF;box-shadow:0 0 0 3px rgba(2,132,199,.1)}
+.af-input::placeholder{color:var(--ink4);font-style:italic;font-size:11.5px}
+
+/* INFO TIPS */
+.tip{background:#FFFBEB;border:1px solid rgba(217,119,6,.25);border-radius:7px;padding:9px 13px;margin:9px 0;font-size:12px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.info{background:#E0F2FE;border:1px solid rgba(2,132,199,.25);border-radius:7px;padding:9px 13px;margin:9px 0;font-size:12px;color:#0C4A6E;line-height:1.75;display:flex;gap:7px}
+.good{background:#F0FDF4;border:1px solid rgba(22,163,74,.2);border-radius:7px;padding:9px 13px;margin:9px 0;font-size:12px;color:#14532D;line-height:1.75;display:flex;gap:7px}
+
+/* CHECKLIST */
+.checklist{background:#fff;border:1.5px solid rgba(2,132,199,.16);border-radius:var(--r);padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.cl-title{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(2,132,199,.06);cursor:pointer}
+.cl-item:last-child{border:none}
+.cl-item:hover{background:#EFF6FF;margin:0 -4px;padding:8px 4px}
+.cl-box{width:19px;height:19px;border:1.5px solid #93C5DA;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all .2s;margin-top:1px}
+.cl-box.on{background:var(--green);border-color:var(--green)}
+.cl-text{font-size:12.5px;color:#1A3A52;line-height:1.6;flex:1}
+.cl-text.done{color:var(--ink4);text-decoration:line-through}
+.prog-bar{height:6px;background:rgba(255,255,255,.07);border-radius:10px;margin-top:12px;overflow:hidden}
+.prog-fill{height:6px;background:linear-gradient(90deg,var(--g),var(--g3));border-radius:10px;transition:width .4s}
+.prog-stat{font-size:11px;color:var(--ink3);margin-top:5px;text-align:right;font-weight:600}
+
+/* ACTION BAR */
+.action-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#E0F2FE;border:1.5px solid rgba(2,132,199,.2);border-radius:10px;padding:12px 18px;margin-bottom:18px}
+.btn{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .18s}
+.btn-export{background:var(--g);color:#fff}
+.btn-export:hover{background:var(--g2)}
+.btn-clear{background:transparent;color:#F87171;border:1px solid rgba(248,113,113,.3)}
+
+/* CHALLENGE */
+.challenge{background:linear-gradient(135deg,#F5F3FF,#EFF6FF);border:1.5px solid rgba(124,58,237,.25);border-radius:var(--r);padding:20px 22px;margin-top:28px;margin-bottom:14px;box-shadow:0 2px 12px rgba(124,58,237,.07)}
+.cz-title{font-size:16px;font-weight:900;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.cz-badge{background:linear-gradient(90deg,#8B5CF6,#3B82F6);color:#fff;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.cz-desc{font-size:12px;color:var(--ink3);margin-bottom:16px;line-height:1.7}
+.cq{background:#fff;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(124,58,237,.06)}
+.cq-num{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#C4B5FD;margin-bottom:7px}
+.cq-q{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.65}
+.cq-pts{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#A78BFA;margin-left:6px}
+.cq-input{background:#FAFBFF;border:1.5px solid rgba(124,58,237,.2);border-radius:7px;padding:9px 12px;font-size:12.5px;color:var(--ink);width:100%;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;line-height:1.7;min-height:60px}
+.cq-input:focus{border-color:#7C3AED;background:#F5F3FF;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.cq-input::placeholder{color:var(--ink4);font-style:italic;font-size:12px}
+
+/* SCORE */
+.score-table{width:100%;border-collapse:collapse;font-size:12px}
+.score-table th{background:#BAE6FD;color:#0C4A6E;padding:7px 10px;text-align:left;font-weight:700;font-size:11px}
+.score-table td{padding:7px 10px;border-bottom:1px solid #E0F2FE;color:var(--ink2);line-height:1.55}
+.score-table tr:last-child td{border:none}
+.pts{font-weight:800;color:var(--amber)}
+
+@media(max-width:640px){
+  .hero-title{font-size:24px}
+  .xf-row,.af-row{grid-template-columns:1fr}
+  .hero-stats{gap:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo">⚙️</div>
+  <div class="tb-title">M2-U4/U5 实训任务 · 运营与产品数据采集</div>
+  <span id="save-indicator">— 未保存 —</span>
+  <div class="stu-divider"></div>
+  <div class="stu-fields">
+    <div class="stu-field"><span class="stu-label">班级</span><input class="stu-input" id="stu_class" placeholder="班级简称" oninput="save()"></div>
+    <div class="stu-field"><span class="stu-label">姓名</span><input class="stu-input w-name" id="stu_name" placeholder="输入姓名" oninput="save()"></div>
+    <div class="stu-field"><span class="stu-label">学号</span><input class="stu-input" id="stu_id" placeholder="2位学号" oninput="save()"></div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-inner">
+    <div class="hero-kicker">⚙️ M2-U4/U5 · 综合实训</div>
+    <h1 class="hero-title">读取虚拟店铺数据<br><span class="hl">完成运营与产品数据采集</span></h1>
+    <p class="hero-desc">飞跃日用品旗舰店已运营3个月，系统中积累了一批真实运营数据。你作为数据分析专员，需要从各模块数据中提取关键指标，完成规范的数据采集记录，为下一步运营决策提供依据。</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val">40′</div><div class="hstat-lbl">建议用时</div></div>
+      <div class="hstat"><div class="hstat-val">4</div><div class="hstat-lbl">数据模块</div></div>
+      <div class="hstat"><div class="hstat-val">内嵌</div><div class="hstat-lbl">虚拟数据</div></div>
+      <div class="hstat"><div class="hstat-val">100+</div><div class="hstat-lbl">基础+附加满分</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- 任务说明 -->
+<div class="sec"><div class="sec-num">①</div><div class="sec-label">任务背景与说明</div></div>
+<div class="scenario">
+  <div class="sc-head">💼 角色设定</div>
+  <div class="sc-body">
+    你是飞跃日用品旗舰店的<em>运营数据分析专员</em>。店铺已运营3个月，主营商品为<em>手机数据线（Type-C 1米编织款，售价39元）</em>。<br><br>
+    由于你暂时没有后台账号权限，运营主管把本月的各类数据报表截图/数据表整理好发给了你，让你<em>从中提取关键指标</em>，填写标准采集记录表，并给出2条运营建议。
+  </div>
+  <div class="sc-hl">
+    📌 本任务所有数据均为<strong>模拟数据</strong>，已内嵌在任务书中。你的工作是：仔细阅读数据 → 找到对应指标 → 填入采集记录 → 分析并给出结论。
+  </div>
+</div>
+
+<!-- ════ 模块一：客户数据 ════ -->
+<div class="sec"><div class="sec-num">②</div><div class="sec-label">模块一：客户数据采集</div></div>
+<div class="mock-wrap">
+  <div class="mock-title">📊 店铺访客与买家数据报表（本月汇总）<span class="mock-badge">虚拟数据 · 请从中提取</span></div>
+  <div style="overflow-x:auto">
+  <table class="dtable">
+    <tr><th>指标</th><th>本月数值</th><th>上月数值</th><th>环比变化</th><th>备注</th></tr>
+    <tr><td>店铺访客数（UV）</td><td><strong>12,480</strong></td><td>9,650</td><td><span class="up">↑29.3%</span></td><td>付费推广带来约60%</td></tr>
+    <tr><td>商品页浏览量（PV）</td><td><strong>28,640</strong></td><td>21,200</td><td><span class="up">↑35.1%</span></td><td>人均浏览2.3页</td></tr>
+    <tr><td>收藏数量</td><td><strong>1,352</strong></td><td>980</td><td><span class="up">↑38.0%</span></td><td>收藏率10.8%</td></tr>
+    <tr><td>加购数量</td><td><strong>2,108</strong></td><td>1,760</td><td><span class="up">↑19.8%</span></td><td>加购率16.9%</td></tr>
+    <tr><td>成交订单数</td><td><strong>847</strong></td><td>620</td><td><span class="up">↑36.6%</span></td><td>转化率6.78%</td></tr>
+    <tr><td>成交买家数</td><td><strong>792</strong></td><td>585</td><td><span class="up">↑35.4%</span></td><td>55人重复购买</td></tr>
+    <tr><td>退款订单数</td><td><strong>38</strong></td><td>22</td><td><span class="down">↑72.7%</span></td><td>退款率4.49%，偏高</td></tr>
+  </table>
+  </div>
+  <div style="margin-top:12px;overflow-x:auto">
+  <table class="dtable">
+    <tr><th>买家画像维度</th><th>占比TOP1</th><th>占比TOP2</th><th>占比TOP3</th></tr>
+    <tr><td>性别分布</td><td>男性 58%</td><td>女性 42%</td><td>—</td></tr>
+    <tr><td>年龄分布</td><td>18-24岁 <strong>41%</strong></td><td>25-30岁 <strong>33%</strong></td><td>31-35岁 14%</td></tr>
+    <tr><td>地域分布</td><td>广东 22%</td><td>浙江 14%</td><td>上海 11%</td></tr>
+    <tr><td>购买时间段</td><td>20:00-23:00 <strong>46%</strong></td><td>12:00-14:00 28%</td><td>其他时段 26%</td></tr>
+    <tr><td>购买次数</td><td>首次购买 93%</td><td>二次复购 6%</td><td>三次及以上 1%</td></tr>
+  </table>
+  </div>
+</div>
+<div class="xform">
+  <div class="xf-title">📝 客户数据采集记录 · 从上方报表提取填写</div>
+  <div class="xf-row"><div class="xf-label">本月成交订单数<span>从第一个表格提取</span></div><input class="ifield" id="c1" placeholder="填写数值"></div>
+  <div class="xf-row"><div class="xf-label">本月成交买家数<span>注意区分订单数</span></div><input class="ifield" id="c2" placeholder="填写数值"></div>
+  <div class="xf-row"><div class="xf-label">收藏率<span>从备注列提取</span></div><input class="ifield" id="c3" placeholder="填写百分比"></div>
+  <div class="xf-row"><div class="xf-label">访客转化率<span>即访客→成交的比率</span></div><input class="ifield" id="c4" placeholder="填写百分比"></div>
+  <div class="xf-row"><div class="xf-label">退款率<span>是否处于正常范围？</span></div><input class="ifield" id="c5" placeholder="填写百分比+判断（偏高/正常/偏低）"></div>
+  <div class="xf-row"><div class="xf-label">主力客群年龄<span>填前两大年龄段</span></div><input class="ifield" id="c6" placeholder="如：18-24岁(41%)、25-30岁(33%)"></div>
+  <div class="xf-row"><div class="xf-label">销售高峰时段<span>从购买时间段提取</span></div><input class="ifield" id="c7" placeholder="填写时间段和占比"></div>
+  <div class="xf-row"><div class="xf-label">复购率<span>用"二次购买+三次及以上"计算</span></div><input class="ifield" id="c8" placeholder="计算并填写结果%"></div>
+</div>
+<div class="tip"><span>💡</span><span>复购率 = 购买两次及以上买家占比，从买家画像"购买次数"行计算：6%+1% = 7%。注意区分「成交买家数」和「成交订单数」——一个买家可能下多个订单。</span></div>
+
+<!-- ════ 模块二：推广数据 ════ -->
+<div class="sec"><div class="sec-num">③</div><div class="sec-label">模块二：推广数据采集</div></div>
+<div class="mock-wrap">
+  <div class="mock-title">📣 万相台无界版推广报表（本月汇总）<span class="mock-badge">虚拟数据</span></div>
+  <div style="overflow-x:auto">
+  <table class="dtable">
+    <tr><th>推广计划</th><th>曝光量</th><th>点击量</th><th>点击率</th><th>花费(元)</th><th>成交笔数</th><th>成交额(元)</th><th>ROI</th><th>新增收藏</th></tr>
+    <tr><td>关键词推广A<br><small style="color:var(--ink4)">「数据线快充」</small></td><td>186,400</td><td>2,796</td><td><strong>1.50%</strong></td><td>1,258</td><td>312</td><td>12,168</td><td><span class="up">9.67</span></td><td>284</td></tr>
+    <tr><td>精准人群推广B<br><small style="color:var(--ink4)">3C买家人群</small></td><td>342,000</td><td>3,078</td><td><strong>0.90%</strong></td><td>923</td><td>187</td><td>7,293</td><td><span class="mid">7.90</span></td><td>468</td></tr>
+    <tr><td>货品运营C<br><small style="color:var(--ink4)">上新快·冷启动</small></td><td>58,200</td><td>698</td><td><strong>1.20%</strong></td><td>345</td><td>48</td><td>1,872</td><td><span class="down">5.42</span></td><td>96</td></tr>
+    <tr><td><strong>合计</strong></td><td><strong>586,600</strong></td><td><strong>6,572</strong></td><td><strong>1.12%</strong></td><td><strong>2,526</strong></td><td><strong>547</strong></td><td><strong>21,333</strong></td><td><span class="up"><strong>8.45</strong></span></td><td><strong>848</strong></td></tr>
+  </table>
+  </div>
+</div>
+<div class="xform">
+  <div class="xf-title">📝 推广数据采集记录</div>
+  <div class="xf-row"><div class="xf-label">本月推广总花费<span>合计行</span></div><input class="ifield" id="p1" placeholder="填写金额(元)"></div>
+  <div class="xf-row"><div class="xf-label">总成交额<span>推广带动的合计</span></div><input class="ifield" id="p2" placeholder="填写金额(元)"></div>
+  <div class="xf-row"><div class="xf-label">综合ROI<span>ROI=成交额÷花费</span></div><input class="ifield" id="p3" placeholder="填写数值并判断：好/一般/差"></div>
+  <div class="xf-row"><div class="xf-label">ROI最高的计划<span>哪个计划效率最高？</span></div><input class="ifield" id="p4" placeholder="计划名称 + ROI数值"></div>
+  <div class="xf-row"><div class="xf-label">总点击率（CTR）<span>合计行</span></div><input class="ifield" id="p5" placeholder="填写百分比"></div>
+  <div class="xf-row"><div class="xf-label">推广新增收藏数<span>三个计划合计</span></div><input class="ifield" id="p6" placeholder="填写数值"></div>
+</div>
+<div class="info"><span>ℹ️</span><span>ROI行业参考：数据线类目 ROI &gt; 5 为良好，&gt; 8 为优秀。本次综合ROI为8.45，处于优秀水平。其中关键词推广A（ROI 9.67）效率最高，说明搜索意图强的买家转化效果更好。</span></div>
+
+<!-- ════ 模块三：销售与供应链数据 ════ -->
+<div class="sec"><div class="sec-num">④</div><div class="sec-label">模块三：销售与供应链数据采集</div></div>
+<div class="mock-wrap">
+  <div class="mock-title">💰 销售交易数据摘要（本月）<span class="mock-badge">虚拟数据</span></div>
+  <div style="overflow-x:auto">
+  <table class="dtable">
+    <tr><th>指标</th><th>本月数值</th><th>说明</th></tr>
+    <tr><td>成交订单量</td><td><strong>847</strong></td><td>含多件订单</td></tr>
+    <tr><td>成交商品数量</td><td><strong>1,094</strong></td><td>部分客户一单多件</td></tr>
+    <tr><td>成交金额（GMV）</td><td><strong>42,666元</strong></td><td>单价39元×数量</td></tr>
+    <tr><td>客单价</td><td><strong>50.37元</strong></td><td>=GMV÷订单数</td></tr>
+    <tr><td>首次响应时长</td><td><strong>平均2.3分钟</strong></td><td>达标（标准≤3分钟）</td></tr>
+    <tr><td>咨询人数</td><td><strong>436人</strong></td><td>—</td></tr>
+    <tr><td>咨询转化率</td><td><strong>21.6%</strong></td><td>=成交买家/咨询人数</td></tr>
+  </table>
+  </div>
+  <div style="margin-top:12px;overflow-x:auto">
+  <table class="dtable">
+    <tr><th>供应链指标</th><th>数值</th><th>状态</th></tr>
+    <tr><td>当前可用库存（件）</td><td><strong>2,340</strong></td><td><span class="tag tag-high">充足</span></td></tr>
+    <tr><td>本月销售数量（件）</td><td><strong>1,094</strong></td><td>—</td></tr>
+    <tr><td>库存周转率（月）</td><td><strong>0.47次</strong></td><td><span class="tag tag-med">偏低</span></td></tr>
+    <tr><td>补货采购周期</td><td><strong>7天</strong></td><td><span class="tag tag-high">正常</span></td></tr>
+    <tr><td>发货时效</td><td><strong>平均18小时</strong></td><td><span class="tag tag-high">良好</span></td></tr>
+    <tr><td>次品率</td><td><strong>1.2%</strong></td><td><span class="tag tag-med">偏高，需关注</span></td></tr>
+  </table>
+  </div>
+</div>
+<div class="xform">
+  <div class="xf-title">📝 销售与供应链数据采集记录</div>
+  <div class="xf-row"><div class="xf-label">本月GMV<span>成交总金额</span></div><input class="ifield" id="s1" placeholder="填写金额"></div>
+  <div class="xf-row"><div class="xf-label">客单件<span>=成交商品数÷订单数，自行计算</span></div><input class="ifield" id="s2" placeholder="计算结果保留2位小数"></div>
+  <div class="xf-row"><div class="xf-label">咨询转化率<span>是否达标？行业参考15-25%</span></div><input class="ifield" id="s3" placeholder="数值+判断（高/正常/低）"></div>
+  <div class="xf-row"><div class="xf-label">库存周转率<span>偏低说明什么？</span></div><input class="ifield" id="s4" placeholder="数值+简单分析"></div>
+  <div class="xf-row"><div class="xf-label">需重点关注的风险<span>从供应链数据找2个问题点</span></div><textarea class="ifield" id="s5" rows="2" placeholder="如：次品率偏高(1.2%)，可能影响退款率……"></textarea></div>
+</div>
+<div class="tip"><span>💡</span><span>客单件 = 成交商品数量 ÷ 订单数 = 1094 ÷ 847 ≈ 1.29，说明平均每个订单购买1.29件，有小部分客户会多买几根备用。</span></div>
+
+<!-- ════ 模块四：产品指数数据 ════ -->
+<div class="sec"><div class="sec-num">⑤</div><div class="sec-label">模块四：产品指数数据采集</div></div>
+<div class="mock-wrap">
+  <div class="mock-title">📦 产品数据指数摘要（近30天）<span class="mock-badge">虚拟数据</span></div>
+  <div style="overflow-x:auto">
+  <table class="dtable">
+    <tr><th>数据维度</th><th>本品（飞跃数据线）</th><th>行业均值</th><th>对比</th></tr>
+    <tr><td>抖音综合指数（「数据线」）</td><td>参考行业：<strong>14,820</strong></td><td>—</td><td>综合声量大，内容竞争激烈</td></tr>
+    <tr><td>抖音搜索指数（「手机充电线」）</td><td>参考行业：<strong>9,460</strong></td><td>—</td><td>搜索意图强，有成交空间</td></tr>
+    <tr><td>商品点击率（CTR）</td><td><strong>5.8%</strong></td><td>4.2%</td><td><span class="up">高于行业 ↑38%</span></td></tr>
+    <tr><td>加购转化率</td><td><strong>16.9%</strong></td><td>12.5%</td><td><span class="up">高于行业 ↑35%</span></td></tr>
+    <tr><td>毛利率（估算）</td><td>需计算</td><td>35%~50%</td><td>需结合成本数据</td></tr>
+    <tr><td>成本费用利润率</td><td>需计算</td><td>—</td><td>需结合推广费用数据</td></tr>
+  </table>
+  </div>
+  <div style="margin-top:12px;background:rgba(2,132,199,.04);border-radius:8px;padding:12px 14px">
+    <div style="font-size:11.5px;font-weight:700;color:var(--g3);margin-bottom:8px">📐 盈利能力计算所需数据（本月）</div>
+    <div style="font-size:12px;color:var(--ink2);line-height:2">
+      售价：39元 / 件 &nbsp;|&nbsp; 采购成本：16元 / 件 &nbsp;|&nbsp; 包装+物流：5元 / 件<br>
+      本月推广花费：2,526元 &nbsp;|&nbsp; 本月销售件数：1,094件 &nbsp;|&nbsp; 本月GMV：42,666元<br>
+      其他运营费用（摊销）：800元 / 月
+    </div>
+  </div>
+</div>
+<div class="xform">
+  <div class="xf-title">📝 产品数据采集记录（含盈利能力计算）</div>
+  <div class="xf-row"><div class="xf-label">商品点击率CTR<span>对比行业：高/低？</span></div><input class="ifield" id="q1" placeholder="数值+对比判断"></div>
+  <div class="xf-row"><div class="xf-label">加购转化率<span>对比行业均值12.5%</span></div><input class="ifield" id="q2" placeholder="数值+对比判断"></div>
+  <div class="xf-row"><div class="xf-label">毛利率<span>公式：(售价-采购成本-包装物流)÷售价×100%</span></div><input class="ifield" id="q3" placeholder="列出计算过程和结果"></div>
+  <div class="xf-row"><div class="xf-label">单件盈利(元)<span>售价 - 采购 - 包装物流 - 单件分摊推广费</span></div><input class="ifield" id="q4" placeholder="列出计算过程和结果"></div>
+  <div class="xf-row"><div class="xf-label">产品综合评价<span>结合以上4个模块数据，整体判断</span></div><textarea class="ifield" id="q5" rows="2" placeholder="该产品整体表现如何？最突出的优势和需改进的问题各是什么？"></textarea></div>
+</div>
+<div class="good"><span>✅</span><span>毛利率计算：(39 - 16 - 5) ÷ 39 × 100% = 18 ÷ 39 ≈ 46.2%，处于行业正常范围。单件分摊推广费 = 2526 ÷ 1094 ≈ 2.31元，单件净利润 ≈ 39 - 16 - 5 - 2.31 ≈ 15.69元。</span></div>
+
+<!-- ════ 分析报告 ════ -->
+<div class="sec"><div class="sec-num">⑥</div><div class="sec-label">运营分析报告（请填写）</div></div>
+<div class="aform">
+  <div class="af-title">📝 飞跃数据线本月运营数据分析摘要</div>
+  <div class="af-row"><div class="af-label">本月运营亮点</div><textarea class="af-input" id="a1" rows="2" placeholder="从4个模块数据中找出2-3个最突出的好指标，说明它反映了什么"></textarea></div>
+  <div class="af-row"><div class="af-label">需关注的问题</div><textarea class="af-input" id="a2" rows="2" placeholder="从数据中找出2个需要改进的指标，分析可能原因"></textarea></div>
+  <div class="af-row"><div class="af-label">运营改进建议</div><textarea class="af-input" id="a3" rows="4" placeholder="给出2条具体的运营改进建议（需引用数据支撑）&#10;建议1：根据___数据，建议……&#10;建议2：根据___数据，建议……"></textarea></div>
+</div>
+
+<!-- 清单 -->
+<div class="sec"><div class="sec-num">⑦</div><div class="sec-label">任务完成清单</div></div>
+<div class="action-bar">
+  <span id="save-status" style="font-size:12px;color:var(--ink3)">📝 填写内容自动保存</span>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-export" onclick="exportAll()">📋 复制全部内容</button>
+    <button class="btn btn-clear" onclick="clearAll()">🗑️ 清空重填</button>
+  </div>
+</div>
+<div class="checklist">
+  <div class="cl-title">逐项确认，全部打勾后提交</div>
+  <div class="cl-item" onclick="chk(this)"><div class="cl-box"></div><div class="cl-text">客户数据模块：8项采集记录均已填写，复购率已自行计算</div></div>
+  <div class="cl-item" onclick="chk(this)"><div class="cl-box"></div><div class="cl-text">推广数据模块：6项采集记录已填写，ROI判断结论已给出</div></div>
+  <div class="cl-item" onclick="chk(this)"><div class="cl-box"></div><div class="cl-text">销售供应链模块：客单件已自行计算，5项记录完整</div></div>
+  <div class="cl-item" onclick="chk(this)"><div class="cl-box"></div><div class="cl-text">产品数据模块：毛利率和单件净利润已计算，结果正确</div></div>
+  <div class="cl-item" onclick="chk(this)"><div class="cl-box"></div><div class="cl-text">运营分析报告已填写完毕，建议含数据引用</div></div>
+  <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div class="prog-stat" id="prog-stat">0 / 5 完成</div>
+</div>
+
+<!-- 附加挑战区 -->
+<div class="challenge">
+  <div class="cz-title">⚡ 附加挑战区 <span class="cz-badge">选做 · 额外加分</span></div>
+  <div class="cz-desc">以下题目需要综合多模块数据进行深度分析，难度较高，完成可获额外加分。</div>
+
+  <div class="cq">
+    <div class="cq-num">挑战题 1 <span class="cq-pts">+5分</span></div>
+    <div class="cq-q">本月退款率4.49%，环比上升72.7%，同时次品率1.2%（标注"偏高，需关注"）。请分析：退款率上升与次品率偏高之间可能存在什么关联？如果你是运营专员，会采取哪些具体措施来降低退款率？</div>
+    <textarea class="cq-input" id="cq1" placeholder="关联分析：……&#10;改进措施：①……②……③……"></textarea>
+  </div>
+
+  <div class="cq">
+    <div class="cq-num">挑战题 2 <span class="cq-pts">+5分</span></div>
+    <div class="cq-q">复购率仅7%，而本月新客占93%。对于一个客单价39元的日用品类，这个复购率正常吗？请结合数据线这个品类的消费特性，分析复购率低的可能原因，并提出1个提升复购率的具体策略。</div>
+    <textarea class="cq-input" id="cq2" placeholder="是否正常：……原因分析：……提升策略：……"></textarea>
+  </div>
+
+  <div class="cq">
+    <div class="cq-num">挑战题 3 <span class="cq-pts">+10分</span></div>
+    <div class="cq-q">综合本任务4个模块的全部数据，用「数据说话」的方式给老板写一份100字以内的「本月运营简报」，格式要求：先说最好的1个指标，再说最需要改进的1个问题，最后给1个下月重点动作。</div>
+    <textarea class="cq-input" id="cq3" rows="5" placeholder="本月运营简报：&#10;【亮点】……&#10;【问题】……&#10;【下月重点】……&#10;（100字以内）"></textarea>
+  </div>
+</div>
+
+<!-- 评分 -->
+<div class="sec"><div class="sec-num">⑧</div><div class="sec-label">评分标准</div></div>
+<div class="card">
+  <div class="card-b">
+    <table class="score-table">
+      <tr><th>评分项</th><th>标准</th><th>分值</th></tr>
+      <tr><td>客户数据采集</td><td>8项完整，复购率自行计算正确</td><td class="pts">25分</td></tr>
+      <tr><td>推广数据采集</td><td>6项完整，ROI判断合理</td><td class="pts">20分</td></tr>
+      <tr><td>销售供应链采集</td><td>客单件计算正确，问题点识别准确</td><td class="pts">20分</td></tr>
+      <tr><td>产品数据采集</td><td>毛利率、单件净利润计算正确</td><td class="pts">20分</td></tr>
+      <tr><td>运营分析报告</td><td>亮点和问题有依据，建议含数据</td><td class="pts">15分</td></tr>
+      <tr><td colspan="2" style="color:#A78BFA;font-weight:700">挑战题附加分（选做）</td><td class="pts" style="color:#A78BFA">最多+20分</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const SK = 'm2u45_task';
+const STU_IDS = ['stu_class','stu_name','stu_id'];
+const ALL_IDS = ['c1','c2','c3','c4','c5','c6','c7','c8',
+  'p1','p2','p3','p4','p5','p6',
+  's1','s2','s3','s4','s5',
+  'q1','q2','q3','q4','q5',
+  'a1','a2','a3','cq1','cq2','cq3',...STU_IDS];
+let checks=0;const TOTAL=5;
+
+function save(){
+  const d={};
+  ALL_IDS.forEach(id=>{const el=document.getElementById(id);if(el)d[id]=el.value;});
+  d._checks=[];
+  document.querySelectorAll('.cl-item').forEach((it,i)=>d._checks[i]=it.querySelector('.cl-box').classList.contains('on'));
+  localStorage.setItem(SK,JSON.stringify(d));
+  const si=document.getElementById('save-indicator'),ss=document.getElementById('save-status');
+  if(si){si.textContent='✅ 已保存';si.className='saved';}
+  if(ss)ss.textContent='✅ 已自动保存';
+  clearTimeout(save._t);save._t=setTimeout(()=>{if(si){si.textContent='— 实时保存 —';si.className='';}if(ss)ss.textContent='📝 填写内容自动保存';},2500);
+}
+
+function load(){
+  const raw=localStorage.getItem(SK);if(!raw)return;
+  try{
+    const d=JSON.parse(raw);
+    ALL_IDS.forEach(id=>{const el=document.getElementById(id);if(el&&d[id])el.value=d[id];});
+    if(d._checks){
+      document.querySelectorAll('.cl-item').forEach((it,i)=>{
+        if(d._checks[i]){it.querySelector('.cl-box').classList.add('on');it.querySelector('.cl-box').innerHTML='✓';it.querySelector('.cl-text').classList.add('done');checks++;}
+      });
+      updateProg();
+    }
+    if(Object.values(d).some(v=>typeof v==='string'&&v.trim())){
+      const si=document.getElementById('save-indicator');
+      if(si){si.textContent='✅ 已恢复';si.className='saved';}
+    }
+  }catch(e){}
+}
+
+function updateProg(){
+  document.getElementById('prog').style.width=(checks/TOTAL*100)+'%';
+  document.getElementById('prog-stat').textContent=checks+' / '+TOTAL+' 完成';
+}
+
+function chk(item){
+  const box=item.querySelector('.cl-box'),txt=item.querySelector('.cl-text');
+  const on=box.classList.contains('on');
+  box.classList.toggle('on',!on);box.innerHTML=on?'':'✓';txt.classList.toggle('done',!on);
+  checks=on?checks-1:checks+1;updateProg();save();
+}
+
+function exportAll(){
+  const cls=document.getElementById('stu_class'),nm=document.getElementById('stu_name'),sid=document.getElementById('stu_id');
+  const lines=['【M2-U4/U5 运营与产品数据采集实训 · 提交内容】',
+    '班级：'+(cls?cls.value||'未填写':'未填写')+'　姓名：'+(nm?nm.value||'未填写':'未填写')+'　学号：'+(sid?sid.value||'未填写':'未填写'),
+    ''];
+  const sections=[
+    ['客户数据采集',['c1:成交订单数','c2:成交买家数','c3:收藏率','c4:访客转化率','c5:退款率','c6:主力客群','c7:高峰时段','c8:复购率']],
+    ['推广数据采集',['p1:推广总花费','p2:总成交额','p3:综合ROI','p4:ROI最高计划','p5:总CTR','p6:推广收藏数']],
+    ['销售供应链采集',['s1:本月GMV','s2:客单件','s3:咨询转化率','s4:库存周转率','s5:风险问题']],
+    ['产品数据采集',['q1:商品CTR','q2:加购转化率','q3:毛利率','q4:单件净利','q5:综合评价']],
+    ['运营分析报告',['a1:运营亮点','a2:关注问题','a3:改进建议']],
+    ['附加挑战',['cq1:挑战题1','cq2:挑战题2','cq3:挑战题3']],
+  ];
+  sections.forEach(([title,fields])=>{
+    lines.push('═ '+title+' ═');
+    fields.forEach(f=>{
+      const [id,lbl]=f.split(':');
+      const el=document.getElementById(id);
+      if(el&&el.value.trim())lines.push('['+lbl+']
+'+el.value);
+    });
+    lines.push('');
+  });
+  const text=lines.join('
+');
+  navigator.clipboard.writeText(text).then(()=>alert('✅ 已复制到剪贴板！')).catch(()=>prompt('复制以下内容：',text));
+}
+
+function clearAll(){
+  if(!confirm('确定清空所有填写内容？'))return;
+  localStorage.removeItem(SK);
+  ALL_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  checks=0;
+  document.querySelectorAll('.cl-item').forEach(it=>{it.querySelector('.cl-box').classList.remove('on');it.querySelector('.cl-box').innerHTML='';it.querySelector('.cl-text').classList.remove('done');});
+  updateProg();
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  ALL_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',save);});
+  load();
+});
+</script>
+</body>
+</html>
