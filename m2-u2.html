@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -443,9 +442,9 @@ body{font-family:"PingFang SC","Noto Sans SC",-apple-system,sans-serif;backgroun
           <div class="quiz-q">4. 京东商智覆盖哪五大渠道的数据？</div>
           <div class="quiz-opts">
             <button class="qopt" onclick="ansQ('q2d',0,0,'✅ 正确！京东商智覆盖PC、APP、微信、手机QQ、移动网页端五大渠道的数据。')">A. PC、APP、微信、手机QQ、移动网页端</button>
-            <button class="qopt" onclick="ansQ('q2d',1,0,'淘宝、天猫、拼多多是不同平台，不属于京东商智的数据渠道。')">B. 淘宝、天猫、拼多多、京东、抖音</button>
-            <button class="qopt" onclick="ansQ('q2d',2,0,'微博、微信、抖音、快手、小红书是社交媒体，不是京东商智的渠道。')">C. 微博、微信、抖音、快手、小红书</button>
-            <button class="qopt" onclick="ansQ('q2d',3,0,'流量、交易、商品、客户、服务是数据维度，不是渠道名称。')">D. 流量、交易、商品、客户、服务</button>
+            <button class="qopt" onclick="ansQ('q2d',1,0,'❌ 淘宝、天猫、拼多多是不同的电商平台，不是京东商智所覆盖的渠道。京东商智覆盖的是京东自身的PC、APP、微信、手机QQ、移动网页端五大渠道。')">B. 淘宝、天猫、拼多多、京东、抖音</button>
+            <button class="qopt" onclick="ansQ('q2d',2,0,'❌ 微博、微信、抖音、快手、小红书是社交内容平台，不是京东商智的数据渠道。')">C. 微博、微信、抖音、快手、小红书</button>
+            <button class="qopt" onclick="ansQ('q2d',3,0,'❌ 流量、交易、商品、客户、服务是数据的分析维度/模块，不是渠道名称。')">D. 流量、交易、商品、客户、服务</button>
           </div>
           <div class="quiz-fb" id="q2d-fb"></div>
         </div>
@@ -638,12 +637,17 @@ function dropChip(event,zone){
 }
 
 function checkSort(){
+  if(Object.keys(placed).length===0){
+    showToast('⚠️ 请先把工具拖入分类区再提交');
+    return;
+  }
   let correct=0;
   SORT_ITEMS.forEach(item=>{
     if(placed[item.name]===item.zone) correct++;
   });
   const total=SORT_ITEMS.length;
   const fb=document.getElementById('sortFb');
+  fb.style.display='block';
   if(correct===total){
     fb.textContent='🎉 全部正确！官方工具和第三方工具区分得很准确！+20 XP';
     fb.className='sort-fb ok'; addXP(20);
