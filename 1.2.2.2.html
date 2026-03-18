@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电商数据分析指标闯关游戏</title>
+<style>
+  /* ===== 全局样式 ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #FF6B9D;
+    --secondary: #C44DFF;
+    --accent: #FFD93D;
+    --success: #6BCB77;
+    --danger: #FF4D4D;
+    --info: #4ECDC4;
+    --bg: #FFF5FB;
+    --card: #FFFFFF;
+    --text: #333;
+    --shadow: 0 8px 32px rgba(196,77,255,0.15);
+  }
+
+  body {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    background: linear-gradient(135deg, #FFF0F8 0%, #F0F0FF 50%, #F0FFF8 100%);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* 星星背景动画 */
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .star {
+    position: absolute; border-radius: 50%;
+    animation: twinkle 3s infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(1); }
+    100% { opacity: 0.8; transform: scale(1.3); }
+  }
+
+  /* ===== 页面容器 ===== */
+  .page {
+    display: none; min-height: 100vh;
+    position: relative; z-index: 1;
+    padding: 20px;
+    animation: fadeIn 0.5s ease;
+  }
+  .page.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== 卡片 ===== */
+  .card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+    width: 100%; max-width: 800px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--info));
+  }
+
+  /* ===== 按钮 ===== */
+  .btn {
+    padding: 14px 36px;
+    border: none; border-radius: 50px;
+    font-size: 18px; font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+  }
+  .btn-success {
+    background: linear-gradient(135deg, var(--success), #4ECDC4);
+    color: white;
+  }
+  .btn-accent {
+    background: linear-gradient(135deg, var(--accent), #FF9A3C);
+    color: white;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ===== 输入框 ===== */
+  .input-group { margin: 16px 0; }
+  .input-group label { display: block; font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #666; }
+  .input-group input {
+    width: 100%; padding: 14px 20px;
+    border: 2px solid #E0E0E0; border-radius: 16px;
+    font-size: 18px; outline: none;
+    transition: border-color 0.3s;
+  }
+  .input-group input:focus { border-color: var(--primary); }
+
+  /* ===== 进度条 ===== */
+  .progress-bar {
+    width: 100%; height: 12px;
+    background: #F0F0F0; border-radius: 6px;
+    overflow: hidden; margin: 12px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== 计时器 ===== */
+  .timer {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #FF6B9D22, #C44DFF22);
+    border: 2px solid var(--primary);
+    border-radius: 50px; padding: 8px 20px;
+    font-size: 20px; font-weight: bold; color: var(--primary);
+  }
+  .timer.warning { border-color: var(--danger); color: var(--danger); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+  /* ===== 分数显示 ===== */
+  .score-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--accent), #FF9A3C);
+    border-radius: 50px; padding: 8px 20px;
+    font-size: 18px; font-weight: bold; color: white;
+  }
+
+  /* ===== 关卡标题 ===== */
+  .level-header {
+    text-align: center; margin-bottom: 24px;
+  }
+  .level-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white; border-radius: 50px;
+    padding: 6px 20px; font-size: 14px; font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .level-title { font-size: 28px; font-weight: bold; color: var(--text); }
+  .level-desc { font-size: 15px; color: #888; margin-top: 6px; }
+
+  /* ===== 反馈动画 ===== */
+  .feedback {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white; border-radius: 24px;
+    padding: 24px 48px; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    z-index: 1000; font-size: 32px; font-weight: bold;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .feedback.show { transform: translate(-50%, -50%) scale(1); }
+  .feedback.correct { border: 4px solid var(--success); color: var(--success); }
+  .feedback.wrong { border: 4px solid var(--danger); color: var(--danger); }
+
+  /* ===== 登录页 ===== */
+  #page-login .hero {
+    text-align: center; margin-bottom: 32px;
+  }
+  .hero-emoji { font-size: 80px; animation: bounce 2s infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  .hero-title {
+    font-size: 36px; font-weight: bold;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 12px 0;
+  }
+  .hero-sub { font-size: 16px; color: #888; }
+
+  /* ===== 关卡地图 ===== */
+  .level-map {
+    display: flex; justify-content: center; align-items: center;
+    gap: 0; flex-wrap: wrap; margin: 24px 0;
+  }
+  .level-node {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative;
+  }
+  .level-circle {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: bold;
+    border: 3px solid #E0E0E0;
+    background: #F5F5F5; color: #999;
+    transition: all 0.3s;
+  }
+  .level-circle.done {
+    background: linear-gradient(135deg, var(--success), #4ECDC4);
+    border-color: var(--success); color: white;
+  }
+  .level-circle.current {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-color: var(--primary); color: white;
+    animation: pulse 1.5s infinite;
+  }
+  .level-name { font-size: 12px; color: #888; margin-top: 6px; text-align: center; max-width: 70px; }
+  .level-connector {
+    width: 40px; height: 3px;
+    background: #E0E0E0; margin-bottom: 20px;
+  }
+  .level-connector.done { background: var(--success); }
+
+  /* ===== 关卡1：拖拽归类 ===== */
+  .drag-area {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    min-height: 80px; padding: 16px;
+    background: #F8F8FF; border-radius: 16px;
+    border: 2px dashed #D0D0FF;
+    margin-bottom: 20px;
+  }
+  .drag-item {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #FF6B9D22, #C44DFF22);
+    border: 2px solid var(--primary);
+    border-radius: 50px; font-size: 14px; font-weight: bold;
+    cursor: grab; user-select: none;
+    transition: all 0.2s;
+    color: var(--secondary);
+  }
+  .drag-item:hover { transform: scale(1.05); background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+
+  .drop-zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .drop-zone {
+    min-height: 120px; padding: 16px;
+    border-radius: 16px; border: 3px dashed;
+    transition: all 0.3s;
+  }
+  .drop-zone.over { transform: scale(1.02); }
+  .drop-zone-title {
+    font-size: 14px; font-weight: bold;
+    margin-bottom: 10px; text-align: center;
+    padding: 6px 12px; border-radius: 50px;
+    display: inline-block;
+  }
+  .drop-zone[data-cat="market"] { border-color: #FF6B9D; background: #FFF0F5; }
+  .drop-zone[data-cat="market"] .drop-zone-title { background: #FF6B9D; color: white; }
+  .drop-zone[data-cat="customer"] { border-color: #4ECDC4; background: #F0FFFD; }
+  .drop-zone[data-cat="customer"] .drop-zone-title { background: #4ECDC4; color: white; }
+  .drop-zone[data-cat="promote"] { border-color: #C44DFF; background: #F8F0FF; }
+  .drop-zone[data-cat="promote"] .drop-zone-title { background: #C44DFF; color: white; }
+  .drop-zone[data-cat="sales"] { border-color: #FFD93D; background: #FFFBF0; }
+  .drop-zone[data-cat="sales"] .drop-zone-title { background: #FFD93D; color: #333; }
+  .drop-zone[data-cat="supply"] { border-color: #6BCB77; background: #F0FFF2; }
+  .drop-zone[data-cat="supply"] .drop-zone-title { background: #6BCB77; color: white; }
+
+  .dropped-item {
+    display: inline-block; padding: 6px 12px;
+    border-radius: 50px; font-size: 13px; font-weight: bold;
+    margin: 4px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dropped-item:hover { transform: scale(1.05); }
+  .dropped-item.correct-item { background: var(--success); color: white; }
+  .dropped-item.wrong-item { background: var(--danger); color: white; }
+
+  /* ===== 关卡2：翻牌配对 ===== */
+  .flip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .flip-card {
+    height: 90px; perspective: 1000px; cursor: pointer;
+  }
+  .flip-card-inner {
+    width: 100%; height: 100%;
+    position: relative; transform-style: preserve-3d;
+    transition: transform 0.5s;
+  }
+  .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card.matched .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 8px; font-size: 13px;
+  }
+  .flip-card-front {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white; font-size: 28px;
+  }
+  .flip-card-back {
+    background: white; border: 2px solid #E0E0E0;
+    transform: rotateY(180deg); font-weight: bold; color: var(--text);
+  }
+  .flip-card.matched .flip-card-back {
+    background: linear-gradient(135deg, #6BCB7722, #4ECDC422);
+    border-color: var(--success); color: var(--success);
+  }
+  .flip-card.wrong-flash .flip-card-back {
+    background: #FF4D4D22; border-color: var(--danger);
+    animation: shake 0.4s;
+  }
+  @keyframes shake {
+    0%,100% { transform: rotateY(180deg) translateX(0); }
+    25% { transform: rotateY(180deg) translateX(-5px); }
+    75% { transform: rotateY(180deg) translateX(5px); }
+  }
+
+  /* ===== 关卡3：公式计算 ===== */
+  .calc-question {
+    background: linear-gradient(135deg, #FFF0F8, #F0F0FF);
+    border-radius: 16px; padding: 24px;
+    margin-bottom: 20px; border-left: 6px solid var(--primary);
+  }
+  .calc-question h3 { font-size: 18px; color: var(--secondary); margin-bottom: 12px; }
+  .calc-data { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .data-chip {
+    background: white; border: 2px solid var(--info);
+    border-radius: 50px; padding: 6px 16px;
+    font-size: 14px; font-weight: bold; color: var(--info);
+  }
+  .calc-formula {
+    font-size: 16px; color: #666; margin-bottom: 16px;
+    background: white; padding: 12px 16px; border-radius: 12px;
+    border: 1px dashed #CCC;
+  }
+  .calc-input-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .calc-input {
+    flex: 1; padding: 12px 16px;
+    border: 2px solid #E0E0E0; border-radius: 12px;
+    font-size: 18px; outline: none;
+    transition: border-color 0.3s;
+  }
+  .calc-input:focus { border-color: var(--primary); }
+  .calc-unit { font-size: 16px; color: #888; white-space: nowrap; }
+
+  /* ===== 关卡4：问答 ===== */
+  .quiz-question {
+    font-size: 20px; font-weight: bold;
+    margin-bottom: 20px; line-height: 1.6;
+    color: var(--text);
+  }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .quiz-option {
+    padding: 16px 20px;
+    background: white; border: 2px solid #E0E0E0;
+    border-radius: 16px; font-size: 15px;
+    cursor: pointer; transition: all 0.3s;
+    text-align: left; display: flex; align-items: center; gap: 10px;
+  }
+  .quiz-option:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #FF6B9D11, #C44DFF11);
+    transform: translateY(-2px);
+  }
+  .quiz-option.correct { background: linear-gradient(135deg, #6BCB7722, #4ECDC422); border-color: var(--success); color: var(--success); font-weight: bold; }
+  .quiz-option.wrong { background: #FF4D4D11; border-color: var(--danger); color: var(--danger); }
+  .quiz-option:disabled { cursor: not-allowed; }
+  .option-label {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #F0F0F0; display: flex; align-items: center;
+    justify-content: center; font-weight: bold; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .quiz-option.correct .option-label { background: var(--success); color: white; }
+  .quiz-option.wrong .option-label { background: var(--danger); color: white; }
+
+  /* ===== 关卡结算 ===== */
+  .level-result {
+    text-align: center; padding: 20px;
+  }
+  .result-emoji { font-size: 80px; animation: bounce 1s infinite; }
+  .result-title { font-size: 28px; font-weight: bold; margin: 12px 0; }
+  .result-score { font-size: 64px; font-weight: bold; color: var(--primary); }
+  .result-rank {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), #FF9A3C);
+    color: white; border-radius: 50px;
+    padding: 8px 24px; font-size: 20px; font-weight: bold;
+    margin: 12px 0;
+  }
+  .result-detail { font-size: 15px; color: #888; margin: 8px 0; }
+
+  /* ===== 最终结算 ===== */
+  .final-card {
+    text-align: center; max-width: 600px;
+  }
+  .final-emoji { font-size: 100px; animation: bounce 1.5s infinite; }
+  .final-title {
+    font-size: 32px; font-weight: bold;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 16px 0;
+  }
+  .final-score {
+    font-size: 80px; font-weight: bold;
+    background: linear-gradient(135deg, var(--accent), #FF9A3C);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .final-rank {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white; border-radius: 50px;
+    padding: 12px 32px; font-size: 24px; font-weight: bold;
+    margin: 16px 0; box-shadow: 0 8px 24px rgba(196,77,255,0.3);
+  }
+  .final-message {
+    font-size: 18px; line-height: 1.8; color: #555;
+    background: linear-gradient(135deg, #FFF0F8, #F0F0FF);
+    border-radius: 16px; padding: 20px; margin: 16px 0;
+  }
+  .score-breakdown {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin: 20px 0;
+  }
+  .score-item {
+    background: white; border-radius: 16px; padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .score-item-emoji { font-size: 28px; }
+  .score-item-name { font-size: 12px; color: #888; margin: 4px 0; }
+  .score-item-score { font-size: 22px; font-weight: bold; color: var(--primary); }
+  .score-item-rank { font-size: 11px; color: var(--secondary); font-weight: bold; }
+
+  /* ===== 顶部状态栏 ===== */
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; max-width: 800px; margin-bottom: 16px;
+    flex-wrap: wrap; gap: 10px;
+  }
+
+  /* ===== 提示文字 ===== */
+  .hint {
+    background: linear-gradient(135deg, #FFD93D22, #FF9A3C22);
+    border: 1px solid var(--accent); border-radius: 12px;
+    padding: 10px 16px; font-size: 14px; color: #666;
+    margin-bottom: 16px;
+  }
+  .hint::before { content: '💡 '; }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 600px) {
+    .flip-grid { grid-template-columns: repeat(3, 1fr); }
+    .quiz-options { grid-template-columns: 1fr; }
+    .score-breakdown { grid-template-columns: repeat(2, 1fr); }
+    .drop-zones { grid-template-columns: 1fr 1fr; }
+    .level-map { gap: 0; }
+    .level-connector { width: 20px; }
+  }
+
+  /* 烟花效果 */
+  .confetti {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 999;
+  }
+  .confetti-piece {
+    position: absolute; width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 星星背景 -->
+<div class="stars" id="stars"></div>
+
+<!-- 反馈弹窗 -->
+<div class="feedback" id="feedback"></div>
+
+<!-- 烟花容器 -->
+<div class="confetti" id="confetti"></div>
+
+<!-- ===== 登录页 ===== -->
+<div class="page active" id="page-login">
+  <div class="card" style="max-width:480px; text-align:center;">
+    <div class="hero">
+      <div class="hero-emoji">🚀</div>
+      <div class="hero-title">电商数据分析<br>指标闯关大冒险</div>
+      <div class="hero-sub">4关挑战 · 积分排名 · 专属称号</div>
+    </div>
+    <div class="input-group">
+      <label>📋 学号</label>
+      <input type="text" id="input-id" placeholder="请输入你的学号" maxlength="20">
+    </div>
+    <div class="input-group">
+      <label>👤 姓名</label>
+      <input type="text" id="input-name" placeholder="请输入你的姓名" maxlength="10">
+    </div>
+    <br>
+    <button class="btn btn-primary" onclick="startGame()" style="width:100%; font-size:20px; padding:18px;">
+      🎮 开始冒险！
+    </button>
+    <div style="margin-top:20px; display:flex; justify-content:center; gap:20px; font-size:13px; color:#AAA;">
+      <span>🏆 关卡1：指标归类</span>
+      <span>🃏 关卡2：翻牌配对</span>
+      <span>🧮 关卡3：公式计算</span>
+      <span>⚡ 关卡4：极速问答</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 关卡地图页 ===== -->
+<div class="page" id="page-map">
+  <div class="card" style="max-width:600px; text-align:center;">
+    <div id="map-greeting" style="font-size:22px; font-weight:bold; margin-bottom:8px;"></div>
+    <div style="font-size:15px; color:#888; margin-bottom:24px;">选择你的下一关挑战吧！</div>
+    <div class="level-map" id="level-map"></div>
+    <div style="margin-top:20px;">
+      <div style="font-size:16px; color:#888; margin-bottom:12px;">当前总分</div>
+      <div style="font-size:48px; font-weight:bold; color:var(--primary);" id="map-total-score">0</div>
+    </div>
+    <br>
+    <button class="btn btn-primary" id="map-next-btn" onclick="goToCurrentLevel()" style="width:100%;">
+      🎯 进入当前关卡
+    </button>
+  </div>
+</div>
+
+<!-- ===== 关卡1：指标归类 ===== -->
+<div class="page" id="page-level1">
+  <div class="top-bar">
+    <div class="timer" id="timer1">⏱️ <span id="time1">60</span>s</div>
+    <div class="score-badge">⭐ <span id="score1">0</span> 分</div>
+  </div>
+  <div class="card">
+    <div class="level-header">
+      <div class="level-badge">关卡 1 / 4</div>
+      <div class="level-title">🏷️ 指标大归类</div>
+      <div class="level-desc">把下方指标拖拽到正确的类别框中</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress1" style="width:0%"></div></div>
+   <div class="hint">拖动指标卡片到对应的类别框中，全部正确后自动进入下一关！</div>
+    <div class="drag-area" id="drag-area1"></div>
+    <div class="drop-zones" id="drop-zones1"></div>
+  </div>
+</div>
+
+<!-- ===== 关卡1结算 ===== -->
+<div class="page" id="page-result1">
+  <div class="card">
+    <div class="level-result">
+      <div class="result-emoji" id="result-emoji1">🎉</div>
+      <div class="result-title">关卡1完成！</div>
+      <div class="result-score"><span id="result-score1">0</span> 分</div>
+      <div class="result-rank" id="result-rank1">初级分析师</div>
+      <div class="result-detail">用时：<span id="result-time1">0</span>秒 | 准确率：<span id="result-accuracy1">0</span>%</div>
+      <div class="result-detail" id="result-message1" style="margin-top:16px; font-size:16px; color:#666;"></div>
+      <br><br>
+      <button class="btn btn-success" onclick="goToMap()" style="width:100%; font-size:20px;">
+        继续挑战 →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 关卡2：翻牌配对 ===== -->
+<div class="page" id="page-level2">
+  <div class="top-bar">
+    <div class="timer" id="timer2">⏱️ <span id="time2">90</span>s</div>
+    <div class="score-badge">⭐ <span id="score2">0</span> 分</div>
+  </div>
+  <div class="card">
+    <div class="level-header">
+      <div class="level-badge">关卡 2 / 4</div>
+      <div class="level-title">🃏 记忆翻翻牌</div>
+      <div class="level-desc">找出指标名称与定义的配对</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress2" style="width:0%"></div></div>
+    <div class="hint">点击卡片翻开，找到指标与定义的配对，全部配对成功即可过关！</div>
+    <div style="text-align:center; margin-bottom:12px; font-size:14px; color:#888;">
+      已配对：<span id="matched-count">0</span> / 8
+    </div>
+    <div class="flip-grid" id="flip-grid"></div>
+  </div>
+</div>
+
+<!-- ===== 关卡2结算 ===== -->
+<div class="page" id="page-result2">
+  <div class="card">
+    <div class="level-result">
+      <div class="result-emoji" id="result-emoji2">🎊</div>
+      <div class="result-title">关卡2完成！</div>
+      <div class="result-score"><span id="result-score2">0</span> 分</div>
+      <div class="result-rank" id="result-rank2">中级分析师</div>
+      <div class="result-detail">用时：<span id="result-time2">0</span>秒 | 翻牌次数：<span id="result-flips2">0</span>次</div>
+      <div class="result-detail" id="result-message2" style="margin-top:16px; font-size:16px; color:#666;"></div>
+      <br><br>
+      <button class="btn btn-success" onclick="goToMap()" style="width:100%; font-size:20px;">
+        继续挑战 →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 关卡3：公式计算 ===== -->
+<div class="page" id="page-level3">
+  <div class="top-bar">
+    <div class="timer" id="timer3">⏱️ <span id="time3">120</span>s</div>
+    <div class="score-badge">⭐ <span id="score3">0</span> 分</div>
+  </div>
+  <div class="card">
+    <div class="level-header">
+      <div class="level-badge">关卡 3 / 4</div>
+      <div class="level-title">🧮 公式大挑战</div>
+      <div class="level-desc">根据给定数据计算指标结果</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress3" style="width:0%"></div></div>
+    <div class="hint">根据题目给出的数据和公式，计算出正确答案并填入输入框！</div>
+    <div id="calc-questions"></div>
+    <br>
+    <button class="btn btn-primary" onclick="submitCalc()" style="width:100%; font-size:18px;">
+      ✅ 提交答案
+    </button>
+  </div>
+</div>
+
+<!-- ===== 关卡3结算 ===== -->
+<div class="page" id="page-result3">
+  <div class="card">
+    <div class="level-result">
+      <div class="result-emoji" id="result-emoji3">🏆</div>
+      <div class="result-title">关卡3完成！</div>
+      <div class="result-score"><span id="result-score3">0</span> 分</div>
+      <div class="result-rank" id="result-rank3">高级分析师</div>
+      <div class="result-detail">用时：<span id="result-time3">0</span>秒 | 准确率：<span id="result-accuracy3">0</span>%</div>
+      <div class="result-detail" id="result-message3" style="margin-top:16px; font-size:16px; color:#666;"></div>
+      <br><br>
+      <button class="btn btn-success" onclick="goToMap()" style="width:100%; font-size:20px;">
+        继续挑战 →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 关卡4：极速问答 ===== -->
+<div class="page" id="page-level4">
+  <div class="top-bar">
+    <div class="timer" id="timer4">⏱️ <span id="time4">90</span>s</div>
+    <div class="score-badge">⭐ <span id="score4">0</span> 分</div>
+  </div>
+  <div class="card">
+    <div class="level-header">
+      <div class="level-badge">关卡 4 / 4</div>
+      <div class="level-title">⚡ 极速问答</div>
+      <div class="level-desc">10道题目，挑战你的反应速度！</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress4" style="width:0%"></div></div>
+    <div class="hint">选择正确答案，答对得分，答错不扣分！</div>
+    <div style="text-align:center; margin-bottom:16px; font-size:16px; color:#888;">
+      题目 <span id="quiz-current">1</span> / 10
+    </div>
+    <div class="quiz-question" id="quiz-question"></div>
+    <div class="quiz-options" id="quiz-options"></div>
+  </div>
+</div>
+
+<!-- ===== 关卡4结算 ===== -->
+<div class="page" id="page-result4">
+  <div class="card">
+    <div class="level-result">
+      <div class="result-emoji" id="result-emoji4">🌟</div>
+      <div class="result-title">关卡4完成！</div>
+      <div class="result-score"><span id="result-score4">0</span> 分</div>
+      <div class="result-rank" id="result-rank4">专家分析师</div>
+      <div class="result-detail">用时：<span id="result-time4">0</span>秒 | 正确率：<span id="result-accuracy4">0</span>%</div>
+      <div class="result-detail" id="result-message4" style="margin-top:16px; font-size:16px; color:#666;"></div>
+      <br><br>
+      <button class="btn btn-accent" onclick="showFinal()" style="width:100%; font-size:20px;">
+        🎊 查看最终成绩
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 最终结算页 ===== -->
+<div class="page" id="page-final">
+  <div class="card final-card">
+    <div class="final-emoji">🏅</div>
+    <div class="final-title">恭喜通关！</div>
+    <div class="final-score" id="final-total-score">0</div>
+    <div style="font-size:14px; color:#AAA; margin-top:-8px;">总分</div>
+    <div class="final-rank" id="final-rank">数据分析大师</div>
+    <div class="final-message" id="final-message"></div>
+    <div class="score-breakdown" id="score-breakdown"></div>
+    <br>
+    <button class="btn btn-primary" onclick="restart()" style="width:100%; font-size:18px;">🔄 再来一次
+    </button>
+  </div>
+</div>
+
+<script>
+// ===== 全局变量 =====
+let playerName = '';
+let playerId = '';
+let currentLevel = 1;
+let levelScores = [0, 0, 0, 0];
+let levelTimes = [0, 0, 0, 0];
+let levelData = [{}, {}, {}, {}];
+
+// ===== 初始化星星背景 =====
+function initStars() {
+  const stars = document.getElementById('stars');
+  const colors = ['#FF6B9D', '#C44DFF', '#FFD93D', '#6BCB77', '#4ECDC4'];
+  for (let i = 0; i < 30; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.width = star.style.height = (Math.random() * 4 + 2) + 'px';
+    star.style.background = colors[Math.floor(Math.random() * colors.length)];
+    star.style.animationDelay = Math.random() * 3 + 's';
+    stars.appendChild(star);
+  }
+}
+initStars();
+
+// ===== 页面切换 =====
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+}
+
+// ===== 反馈提示 =====
+function showFeedback(text, isCorrect) {
+  const fb = document.getElementById('feedback');
+  fb.textContent = text;
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.classList.add('show');
+  setTimeout(() => fb.classList.remove('show'), 1000);
+}
+
+// ===== 烟花效果 =====
+function launchConfetti() {
+  const confetti = document.getElementById('confetti');
+  const colors = ['#FF6B9D', '#C44DFF', '#FFD93D', '#6BCB77', '#4ECDC4'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    confetti.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ===== 开始游戏 =====
+function startGame() {
+  const id = document.getElementById('input-id').value.trim();
+  const name = document.getElementById('input-name').value.trim();
+  if (!id || !name) {
+    alert('请输入学号和姓名！');
+    return;
+  }
+  playerId = id;
+  playerName = name;
+  currentLevel = 1;
+  levelScores = [0, 0, 0, 0];
+  levelTimes = [0, 0, 0, 0];
+  goToMap();
+}
+
+// ===== 关卡地图 =====
+function goToMap() {
+  document.getElementById('map-greeting').textContent = `${playerName}，加油！`;
+  document.getElementById('map-total-score').textContent = levelScores.reduce((a,b)=>a+b, 0);
+  
+  const map = document.getElementById('level-map');
+  map.innerHTML = '';
+  const levels = ['🏷️', '🃏', '🧮', '⚡'];
+  const names = ['指标归类', '翻牌配对', '公式计算', '极速问答'];
+  
+  for (let i = 0; i < 4; i++) {
+    const node = document.createElement('div');
+    node.className = 'level-node';
+    
+    const circle = document.createElement('div');
+    circle.className = 'level-circle';
+    if (i < currentLevel - 1) circle.classList.add('done');
+    if (i === currentLevel - 1) circle.classList.add('current');
+    circle.textContent = levels[i];
+    const name = document.createElement('div');
+    name.className = 'level-name';
+    name.textContent = names[i];
+    
+    node.appendChild(circle);
+    node.appendChild(name);
+    map.appendChild(node);
+    if (i < 3) {
+      const conn = document.createElement('div');
+      conn.className = 'level-connector';
+      if (i < currentLevel - 1) conn.classList.add('done');
+      map.appendChild(conn);
+    }
+  }
+  
+  const btn = document.getElementById('map-next-btn');
+  if (currentLevel > 4) {
+    btn.textContent = '🎊 查看最终成绩';
+    btn.onclick = showFinal;
+  } else {
+    btn.textContent = `🎯 进入关卡${currentLevel}`;
+    btn.onclick = goToCurrentLevel;
+  }
+  
+  showPage('page-map');
+}
+
+function goToCurrentLevel() {
+  if (currentLevel === 1) startLevel1();
+  else if (currentLevel === 2) startLevel2();
+  else if (currentLevel === 3) startLevel3();
+  else if (currentLevel === 4) startLevel4();
+}
+
+// ===== 关卡1：指标归类 =====
+const level1Data = {
+  items: [
+    {name:'行业销售额', cat:'market'},
+    {name:'市场占有率', cat:'market'},
+    {name:'活跃客户数', cat:'customer'},
+    {name:'重复购买率', cat:'customer'},
+    {name:'访客数UV', cat:'promote'},
+    {name:'成交转化率', cat:'promote'},
+    {name:'客单价', cat:'sales'},
+    {name:'销售毛利率', cat:'sales'},
+    {name:'库存周转率', cat:'supply'},
+    {name:'SKU', cat:'supply'},
+    {name:'竞争对手客单价', cat:'market'},
+    {name:'回购率', cat:'customer'},
+    {name:'跳失率', cat:'promote'},
+    {name:'投资回报率ROI', cat:'sales'},
+    {name:'售罄率', cat:'supply'}
+  ],
+  categories: [
+    {id:'market', name:'市场类'},
+    {id:'customer', name:'客户类'},
+    {id:'promote', name:'推广类'},
+    {id:'sales', name:'销售类'},
+    {id:'supply', name:'产品&供应链'}
+  ]
+};
+
+let level1Timer, level1StartTime, level1Mistakes = 0;
+
+function startLevel1() {
+  showPage('page-level1');
+  level1StartTime = Date.now();
+  level1Mistakes = 0;
+  
+  // 打乱顺序
+  const shuffled = [...level1Data.items].sort(() => Math.random() - 0.5);
+  
+  const dragArea = document.getElementById('drag-area1');
+  dragArea.innerHTML = '';
+  shuffled.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'drag-item';
+    div.textContent = item.name;
+    div.draggable = true;
+    div.dataset.cat = item.cat;
+    div.dataset.idx = idx;
+    
+    div.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text', e.target.dataset.idx);
+      e.target.classList.add('dragging');
+    });
+    div.addEventListener('dragend', e => {
+      e.target.classList.remove('dragging');
+    });
+    
+    dragArea.appendChild(div);
+  });
+  
+  const dropZones = document.getElementById('drop-zones1');
+  dropZones.innerHTML = '';
+  level1Data.categories.forEach(cat => {
+    const zone = document.createElement('div');
+    zone.className = 'drop-zone';
+    zone.dataset.cat = cat.id;
+    zone.innerHTML = `<div class="drop-zone-title">${cat.name}</div>`;
+    
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('over');
+    });
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('over');
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('over');
+      const idx = e.dataTransfer.getData('text');
+      const item = shuffled[idx];
+      const dragItem = dragArea.querySelector(`[data-idx="${idx}"]`);
+      
+      if (dragItem) {
+        dragItem.remove();const dropped = document.createElement('div');
+        dropped.className = 'dropped-item';
+        dropped.textContent = item.name;
+        dropped.dataset.cat = item.cat;
+        dropped.dataset.correctCat = item.cat;
+        dropped.onclick = () => {
+          dropped.remove();
+          dragArea.appendChild(dragItem);
+          updateLevel1Progress();
+        };
+        zone.appendChild(dropped);
+        updateLevel1Progress();
+      }
+    });
+    
+    dropZones.appendChild(zone);
+  });
+  
+  // 计时器
+  let timeLeft = 60;
+  document.getElementById('time1').textContent = timeLeft;
+  level1Timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('time1').textContent = timeLeft;
+    const timer = document.getElementById('timer1');
+    if (timeLeft <= 10) timer.classList.add('warning');
+    else timer.classList.remove('warning');
+    if (timeLeft <= 0) {
+      clearInterval(level1Timer);
+      checkLevel1();
+    }
+  }, 1000);
+}
+
+function updateLevel1Progress() {
+  const dragArea = document.getElementById('drag-area1');
+  const total = level1Data.items.length;
+  const remaining = dragArea.querySelectorAll('.drag-item').length;
+  const progress = ((total - remaining) / total) * 100;
+  document.getElementById('progress1').style.width = progress + '%';
+  
+  if (remaining === 0) {
+    clearInterval(level1Timer);
+    setTimeout(checkLevel1, 500);
+  }
+}
+
+function checkLevel1() {
+  const zones = document.querySelectorAll('#drop-zones1 .drop-zone');
+  let correct = 0, total = 0;
+  
+  zones.forEach(zone => {
+    const items = zone.querySelectorAll('.dropped-item');
+    items.forEach(item => {
+      total++;
+      const isCorrect = item.dataset.cat === zone.dataset.cat;
+      if (isCorrect) {
+        correct++;
+        item.classList.add('correct-item');
+      } else {
+        item.classList.add('wrong-item');
+        level1Mistakes++;
+      }
+    });
+  });
+  
+  setTimeout(() => finishLevel1(correct, total), 1500);
+}
+
+function finishLevel1(correct, total) {
+  const timeUsed = Math.floor((Date.now() - level1StartTime) / 1000);
+  const accuracy = Math.round((correct / total) * 100);
+  
+  // 计分：基础分 + 时间奖励 - 错误惩罚
+  let score = correct * 10;
+  if (timeUsed < 30) score += 50;
+  else if (timeUsed < 45) score += 30;
+  score -= level1Mistakes * 5;
+  score = Math.max(0, score);
+  
+  levelScores[0] = score;
+  levelTimes[0] = timeUsed;
+  levelData[0] = {correct, total, accuracy, mistakes: level1Mistakes};
+  
+  document.getElementById('result-score1').textContent = score;
+  document.getElementById('result-time1').textContent = timeUsed;
+  document.getElementById('result-accuracy1').textContent = accuracy;
+  
+  let rank, emoji, message;
+  if (score >= 140) {
+    rank = '🏆 归类大师';
+    emoji = '🎉';
+    message = `${playerName}，你太厉害了！对指标分类了如指掌！`;
+  } else if (score >= 100) {
+    rank = '⭐ 归类高手';
+    emoji = '😊';
+    message = `${playerName}，表现不错！继续保持！`;
+  } else {
+    rank = '📚 归类新手';
+    emoji = '💪';
+    message = `${playerName}，加油！多练习就能掌握！`;
+  }
+  
+  document.getElementById('result-rank1').textContent = rank;
+  document.getElementById('result-emoji1').textContent = emoji;
+  document.getElementById('result-message1').textContent = message;
+  document.getElementById('score1').textContent = score;
+  
+  currentLevel = 2;
+  showPage('page-result1');
+  if (score >= 100) launchConfetti();
+}
+
+// ===== 关卡2：翻牌配对 =====
+const level2Data = [
+  {name:'客单价', def:'成交总金额÷成交客户总数'},
+  {name:'跳失率', def:'入站后只浏览一页就离开的比例'},
+  {name:'库存周转率', def:'360÷库存周转天数'},
+  {name:'市场占有率', def:'企业销售额÷行业销售额×100%'},
+  {name:'成交转化率', def:'完成付款客户数÷商品总访问数×100%'},
+  {name:'重复购买率', def:'两次及以上购买客户数÷购买客户总数'},
+  {name:'销售毛利率', def:'销售毛利÷销售额×100%'},
+  {name:'活跃客户比率', def:'活跃客户数÷客户总数'}
+];
+
+let level2Timer, level2StartTime, level2FlipCount = 0;
+let flippedCards = [], matchedCount = 0;
+
+function startLevel2() {
+  showPage('page-level2');
+  level2StartTime = Date.now();
+  level2FlipCount = 0;
+  matchedCount = 0;
+  flippedCards = [];
+  
+  // 生成卡片对
+  const cards = [];
+  level2Data.forEach((item, idx) => {
+    cards.push({id: idx, type: 'name', content: item.name});
+    cards.push({id: idx, type: 'def', content: item.def});
+  });
+  cards.sort(() => Math.random() - 0.5);
+  
+  const grid = document.getElementById('flip-grid');
+  grid.innerHTML = '';
+  cards.forEach((card, idx) => {
+    const div = document.createElement('div');
+    div.className = 'flip-card';
+    div.dataset.id = card.id;
+    div.dataset.type = card.type;
+    div.dataset.idx = idx;
+    div.innerHTML = `
+      <div class="flip-card-inner">
+        <div class="flip-card-front">🎴</div>
+        <div class="flip-card-back">${card.content}</div>
+      </div>
+    `;
+    div.onclick = () => flipCard(div);
+    grid.appendChild(div);
+  });
+  
+  document.getElementById('matched-count').textContent = '0';
+  
+  let timeLeft = 90;
+  document.getElementById('time2').textContent = timeLeft;
+  level2Timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('time2').textContent = timeLeft;
+    const timer = document.getElementById('timer2');
+    if (timeLeft <= 15) timer.classList.add('warning');
+    else timer.classList.remove('warning');
+    if (timeLeft <= 0) {
+      clearInterval(level2Timer);
+      finishLevel2();
+    }
+  }, 1000);
+}
+
+function flipCard(card) {
+  if (card.classList.contains('flipped') || card.classList.contains('matched') || flippedCards.length >= 2) return;
+  
+  card.classList.add('flipped');
+  flippedCards.push(card);
+  level2FlipCount++;
+  
+  if (flippedCards.length === 2) {
+    const [card1, card2] = flippedCards;
+    if (card1.dataset.id === card2.dataset.id && card1.dataset.type !== card2.dataset.type) {
+      // 配对成功
+      setTimeout(() => {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matchedCount++;
+        document.getElementById('matched-count').textContent = matchedCount;
+        const progress = (matchedCount / 8) * 100;
+        document.getElementById('progress2').style.width = progress + '%';
+        showFeedback('✅ 配对成功！', true);
+        flippedCards = [];
+        
+        if (matchedCount === 8) {
+          clearInterval(level2Timer);
+          setTimeout(finishLevel2, 800);
+        }
+      }, 600);
+    } else {
+      // 配对失败
+      setTimeout(() => {
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        card1.classList.add('wrong-flash');
+        card2.classList.add('wrong-flash');
+        showFeedback('❌ 不匹配', false);
+        setTimeout(() => {
+          card1.classList.remove('wrong-flash');
+          card2.classList.remove('wrong-flash');
+        }, 400);
+        flippedCards = [];
+      }, 800);
+    }
+  }
+}
+
+function finishLevel2() {
+  const timeUsed = Math.floor((Date.now() - level2StartTime) / 1000);
+  // 计分：配对数×15 + 时间奖励 - 翻牌惩罚
+  let score = matchedCount * 15;
+  if (timeUsed < 40) score += 60;
+  else if (timeUsed < 60) score += 40;
+  const extraFlips = Math.max(0, level2FlipCount - 16);
+  score -= extraFlips * 2;
+  score = Math.max(0, score);
+  
+  levelScores[1] = score;
+  levelTimes[1] = timeUsed;
+  levelData[1] = {matched: matchedCount, flips: level2FlipCount};
+  
+  document.getElementById('result-score2').textContent = score;
+  document.getElementById('result-time2').textContent = timeUsed;
+  document.getElementById('result-flips2').textContent = level2FlipCount;
+  
+  let rank, emoji, message;
+  if (score >= 150) {
+    rank = '🧠 记忆大师';
+    emoji = '🎊';
+    message = `${playerName}，你的记忆力超强！`;
+  } else if (score >= 100) {
+    rank = '🌟 记忆高手';
+    emoji = '😄';
+    message = `${playerName}，记忆力不错哦！`;
+  } else {
+    rank = '🎯 记忆学徒';
+    emoji = '💪';
+    message = `${playerName}，多练习记忆力会更好！`;
+  }
+  
+  document.getElementById('result-rank2').textContent = rank;
+  document.getElementById('result-emoji2').textContent = emoji;
+  document.getElementById('result-message2').textContent = message;
+  document.getElementById('score2').textContent = score;
+  
+  currentLevel = 3;
+  showPage('page-result2');
+  if (score >= 120) launchConfetti();
+}
+
+// ===== 关卡3：公式计算 =====
+const level3Questions = [
+  {
+    title: '计算销售额',
+    data: ['访客数 = 2000', '成交转化率 = 8%', '客单价 = 150元'],
+    formula: '销售额 = 访客数 × 成交转化率 × 客单价',
+    answer: 24000,
+    unit: '元'
+  },
+  {
+    title: '计算市场占有率',
+    data: ['企业销售额 = 500万元', '行业销售额 = 2000万元'],
+    formula: '市场占有率 = 企业销售额 ÷ 行业销售额 × 100%',
+    answer: 25,
+    unit: '%'
+  },
+  {
+    title: '计算销售毛利率',
+    data: ['销售收入 = 10000元', '销售成本 = 6000元'],
+    formula: '销售毛利率 = (销售收入 - 销售成本) ÷ 销售收入 × 100%',
+    answer: 40
+    unit: '%'
+  },
+  {
+    title: '计算客单价',
+    data: ['成交总金额 = 36000元', '成交客户总数 = 240人'],
+    formula: '客单价 = 成交总金额 ÷ 成交客户总数',
+    answer: 150,
+    unit: '元'
+  },
+  {
+    title: '计算库存周转率',
+    data: ['库存周转天数 = 45天'],
+    formula: '库存周转率 = 360 ÷ 库存周转天数',
+    answer: 8,
+    unit: '次'
+  }
+];
+
+let level3Timer, level3StartTime;
+
+function startLevel3() {
+  showPage('page-level3');
+  level3StartTime = Date.now();
+  
+  const container = document.getElementById('calc-questions');
+  container.innerHTML = '';
+  
+  level3Questions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'calc-question';
+    div.innerHTML = `
+      <h3>${idx + 1}. ${q.title}</h3>
+      <div class="calc-data">
+        ${q.data.map(d => `<div class="data-chip">${d}</div>`).join('')}
+      </div>
+      <div class="calc-formula">📐 ${q.formula}</div>
+      <div class="calc-input-row">
+        <input type="number" class="calc-input" id="calc-input-${idx}" placeholder="请输入答案">
+        <div class="calc-unit">${q.unit}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  
+  let timeLeft = 120;
+  document.getElementById('time3').textContent = timeLeft;
+  level3Timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('time3').textContent = timeLeft;
+    const timer = document.getElementById('timer3');
+    if (timeLeft <= 20) timer.classList.add('warning');
+    else timer.classList.remove('warning');
+    if (timeLeft <= 0) {
+      clearInterval(level3Timer);
+      submitCalc();
+    }
+  }, 1000);
+}
+
+function submitCalc() {
+  clearInterval(level3Timer);
+  
+  let correct = 0;
+  level3Questions.forEach((q, idx) => {
+    const input = document.getElementById(`calc-input-${idx}`);
+    const userAnswer = parseFloat(input.value);
+    if (Math.abs(userAnswer - q.answer) < 0.01) {
+      correct++;
+      input.style.borderColor = 'var(--success)';
+      input.style.background = '#6BCB7722';
+    } else {
+      input.style.borderColor = 'var(--danger)';
+      input.style.background = '#FF4D4D22';
+    }input.disabled = true;
+  });
+  
+  setTimeout(() => finishLevel3(correct), 1500);
+}
+
+function finishLevel3(correct) {
+  const timeUsed = Math.floor((Date.now() - level3StartTime) / 1000);
+  const accuracy = Math.round((correct / level3Questions.length) * 100);
+  
+  let score = correct * 20;
+  if (timeUsed < 60) score += 60;
+  else if (timeUsed < 90) score += 40;
+  score = Math.max(0, score);
+  
+  levelScores[2] = score;
+  levelTimes[2] = timeUsed;
+  levelData[2] = {correct, total: level3Questions.length, accuracy};
+  
+  document.getElementById('result-score3').textContent = score;
+  document.getElementById('result-time3').textContent = timeUsed;
+  document.getElementById('result-accuracy3').textContent = accuracy;
+  
+  let rank, emoji, message;
+  if (score >= 140) {
+    rank = '🧮 计算大师';
+    emoji = '🏆';
+    message = `${playerName}，你的计算能力太强了！`;
+  } else if (score >= 100) {
+    rank = '📊 计算高手';
+    emoji = '😊';
+    message = `${playerName}，计算能力很不错！`;
+  } else {
+    rank = '📝 计算学徒';
+    emoji = '💪';
+    message = `${playerName}，多练习公式会更熟练！`;
+  }
+  
+  document.getElementById('result-rank3').textContent = rank;
+  document.getElementById('result-emoji3').textContent = emoji;
+  document.getElementById('result-message3').textContent = message;
+  document.getElementById('score3').textContent = score;
+  
+  currentLevel = 4;
+  showPage('page-result3');
+  if (score >= 120) launchConfetti();
+}
+
+// ===== 关卡4：极速问答 =====
+const level4Questions = [
+  {
+    q: '「企业市场占有率」的计算公式是？',
+    options: ['企业销售量÷行业销售量×100%', '企业销售额÷行业销售额×100%', '(本期销售额-上期销售额)÷上期销售额×100%', '企业利润÷行业总利润×100%'],
+    answer: 1
+  },
+  {
+    q: '以下哪个公式用于计算「销售额」？',
+    options: ['访客数×点击率×客单价', '订单数×客单价×退货率', '访客数×成交转化率×客单价', '浏览量×下单转化率×件单价'],
+    answer: 2
+  },
+  {
+    q: '跳失率是指以下哪种情况？',
+    options: ['客户购买后申请退货的比率', '广告被展现后没有被点击的比率', '访客入站后只浏览一个页面就离开的次数占入站次数的比例', '客户加购后没有下单的比率'],
+    answer: 2
+  },
+  {
+    q: 'SKU与SPU的区别，以下描述正确的是？',
+    options: ['SKU是标准化产品单元，SPU是库存量单元', 'SKU是库存量单元(如具体颜色/规格)，SPU是标准化产品单元(如某款商品)', 'SKU和SPU是同一个概念，没有区别', 'SPU用于计量库存，SKU用于描述产品特性'],
+    answer: 1
+  },
+  {
+    q: '库存周转率越高说明什么？',
+    options: ['企业库存积压越严重', '资金流动效率越高，库存管理越好', '产品退货量越多', '供应链成本越高'],
+    answer: 1
+  },
+  {
+    q: '以下哪个属于「客户类指标」？',
+    options: ['展现量', '重复购买率', '客单价', '库存周转率'],
+    answer: 1
+  },
+  {
+    q: '「成交转化率」的正确计算公式是？',
+    options: ['下单人数÷访客数×100%', '完成付款客户数÷商品总访问数×100%', '加购人数÷浏览量×100%', '成交金额÷广告费用×100%'],
+    answer: 1
+  },
+  {
+    q: '以下哪个指标属于「市场类指标」？',
+    options: ['活跃客户数', '跳失率', '竞争对手客单价', '订单转化率'],
+    answer: 2
+  },
+  {
+    q: '「销售毛利率」的计算公式是？',
+    options: ['销售利润÷销售额×100%', '销售毛利÷销售额×100%', '销售额÷销售成本×100%', '(销售额-广告费)÷销售额×100%'],
+    answer: 1
+  },
+  {
+    q: 'UV和PV的区别，以下说法正确的是？',
+    options: ['UV是浏览量，PV是访客数', 'UV是访客数(独立客户)，PV是浏览量(页面访问次数)', 'UV和PV是同一个概念', 'UV只统计新访客，PV统计所有访客'],
+    answer: 1
+  }
+];
+
+let level4Timer, level4StartTime, level4CurrentQ = 0, level4Correct = 0;
+
+function startLevel4() {
+  showPage('page-level4');
+  level4StartTime = Date.now();
+  level4CurrentQ = 0;
+  level4Correct = 0;
+  
+  showQuestion4();
+  
+  let timeLeft = 90;
+  document.getElementById('time4').textContent = timeLeft;
+  level4Timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('time4').textContent = timeLeft;
+    const timer = document.getElementById('timer4');
+    if (timeLeft <= 15) timer.classList.add('warning');
+    else timer.classList.remove('warning');
+    if (timeLeft <= 0) {
+      clearInterval(level4Timer);
+      finishLevel4();
+    }
+  }, 1000);
+}
+
+function showQuestion4() {
+  if (level4CurrentQ >= level4Questions.length) {
+    clearInterval(level4Timer);
+    finishLevel4();
+    return;
+  }
+  
+  const q = level4Questions[level4CurrentQ];
+  document.getElementById('quiz-current').textContent = level4CurrentQ + 1;
+  document.getElementById('quiz-question').textContent = q.q;
+  
+  const progress = ((level4CurrentQ + 1) / level4Questions.length) * 100;
+  document.getElementById('progress4').style.width = progress + '%';
+  
+  const optionsDiv = document.getElementById('quiz-options');
+  optionsDiv.innerHTML = '';
+  const labels = ['A', 'B', 'C', 'D'];
+  
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.innerHTML = `<div class="option-label">${labels[idx]}</div><div>${opt}</div>`;
+    btn.onclick = () => selectAnswer4(idx, btn);
+    optionsDiv.appendChild(btn);
+  });
+}
+
+function selectAnswer4(idx, btn) {
+  const q = level4Questions[level4CurrentQ];
+  const allBtns = document.querySelectorAll('#quiz-options .quiz-option');
+  allBtns.forEach(b => b.disabled = true);
+  
+  if (idx === q.answer) {
+    btn.classList.add('correct');
+    level4Correct++;
+    showFeedback('✅ 正确！', true);
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.answer].classList.add('correct');
+    showFeedback('❌ 错误', false);
+  }
+  
+  setTimeout(() => {
+    level4CurrentQ++;
+    showQuestion4();
+  }, 1500);
+}
+
+function finishLevel4() {
+  const timeUsed = Math.floor((Date.now() - level4StartTime) / 1000);
+  const accuracy = Math.round((level4Correct / level4Questions.length) * 100);
+  
+  let score = level4Correct * 10;
+  if (timeUsed < 45) score += 50;
+  else if (timeUsed < 70) score += 30;
+  score = Math.max(0, score);
+  
+  levelScores[3] = score;
+  levelTimes[3] = timeUsed;
+  levelData[3] = {correct: level4Correct, total: level4Questions.length, accuracy};
+  
+  document.getElementById('result-score4').textContent = score;
+  document.getElementById('result-time4').textContent = timeUsed;
+  document.getElementById('result-accuracy4').textContent = accuracy;
+  
+  let rank, emoji, message;
+  if (score >= 130) {
+    rank = '⚡ 问答之王';
+    emoji = '🌟';
+    message = `${playerName}，你的反应速度和准确度都超强！`;
+  } else if (score >= 90) {
+    rank = '🎯 问答高手';
+    emoji = '😄';
+    message = `${playerName}，表现优秀，继续保持！`;
+  } else {
+    rank = '📚 问答新星';
+    emoji = '💪';
+    message = `${playerName}，加油！多复习知识点！`;
+  }
+  
+  document.getElementById('result-rank4').textContent = rank;
+  document.getElementById('result-emoji4').textContent = emoji;
+  document.getElementById('result-message4').textContent = message;
+  document.getElementById('score4').textContent = score;
+  
+  currentLevel = 5;
+  showPage('page-result4');
+  if (score >= 100) launchConfetti();
+}
+
+// ===== 最终结算 =====
+function showFinal() {
+  const totalScore = levelScores.reduce((a, b) => a + b, 0);
+  const totalTime = levelTimes.reduce((a, b) => a + b, 0);
+  
+  document.getElementById('final-total-score').textContent = totalScore;
+  let rank, emoji, message;
+  if (totalScore >= 500) {
+    rank = '🏆 数据分析大师';
+    emoji = '🎉';
+    message = `恭喜${playerName}（学号：${playerId}）！你已经完全掌握了电商数据分析指标，对各类指标的归类、定义和计算都了如指掌！你具备了成为优秀数据分析师的潜质，继续保持这份热情和专注，未来一定能在电商领域大放异彩！🌟`;
+  } else if (totalScore >= 400) {
+    rank = '⭐ 数据分析专家';
+    emoji = '😊';
+    message = `太棒了${playerName}（学号：${playerId}）！你对电商数据分析指标有很好的理解和掌握，各个关卡都表现出色！继续深入学习和实践，你会成为更优秀的数据分析师！💪`;
+  } else if (totalScore >= 300) {
+    rank = '📊 数据分析能手';
+    emoji = '🙂';
+    message = `不错哦${playerName}（学号：${playerId}）！你已经掌握了大部分电商数据分析指标的知识，继续加强练习，特别是公式计算和指标归类，你会进步更快！加油！🚀`;
+  } else {
+    rank = '📚 数据分析学徒';
+    emoji = '💪';
+    message = `${playerName}（学号：${playerId}），你已经迈出了学习电商数据分析的第一步！建议多复习各类指标的定义和计算公式，多做练习，相信你一定能掌握这些知识！继续努力！✨`;
+  }
+  
+  document.getElementById('final-rank').textContent = rank;
+  document.getElementById('final-message').textContent = message;
+  
+  const breakdown = document.getElementById('score-breakdown');
+  breakdown.innerHTML = '';
+  const levelNames = ['🏷️ 指标归类', '🃏 翻牌配对', '🧮 公式计算', '⚡ 极速问答'];
+  const levelEmojis = ['🏷️', '🃏', '🧮', '⚡'];
+  
+  levelScores.forEach((score, idx) => {
+    let levelRank = '';
+    if (score >= 130) levelRank = 'S级';
+    else if (score >= 100) levelRank = 'A级';
+    else if (score >= 70) levelRank = 'B级';
+    else levelRank = 'C级';
+    
+    const div = document.createElement('div');
+    div.className = 'score-item';
+    div.innerHTML = `
+      <div class="score-item-emoji">${levelEmojis[idx]}</div>
+      <div class="score-item-name">${levelNames[idx]}</div>
+      <div class="score-item-score">${score}分</div>
+      <div class="score-item-rank">${levelRank}</div>
+    `;
+    breakdown.appendChild(div);
+  });
+  showPage('page-final');
+  launchConfetti();
+}
+
+function restart() {
+  location.reload();
+}
+</script>
+
+</body>
+</html>
