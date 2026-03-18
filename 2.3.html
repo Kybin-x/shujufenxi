@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块二·单元三至五 市场·运营·产品数据采集</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/learning.css">
+<style>
+  :root {
+    --c1:  #7C3AED;
+    --c1l: #F5F3FF;
+    --c1d: #6D28D9;
+    --c2:  #8B5CF6;
+    --c3:  #C4B5FD;
+    --primary:   #7C3AED;
+    --secondary: #8B5CF6;
+    --accent:    #C4B5FD;
+    --bg:        #FFF9F0;
+    --text:      #2c3e50;
+    --muted:     #7f8c9a;
+    --card:      #FFFFFF;
+    --r:         16px;
+  }
+  /* 单元标签色 */
+  .unit-tag-a { background:#EDE9FE; color:#6D28D9; border:1px solid #C4B5FD; }
+  .unit-tag-b { background:#DBEAFE; color:#1D4ED8; border:1px solid #93C5FD; }
+  .unit-tag-c { background:#D1FAE5; color:#065F46; border:1px solid #6EE7B7; }
+  .unit-tag { display:inline-block; padding:2px 10px; border-radius:6px; font-size:12px; font-weight:700; margin-bottom:10px; }
+  /* 指标网格 */
+  .idx-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin:12px 0; }
+  .idx-box { border-radius:12px; padding:12px 14px; font-size:13px; font-weight:700; text-align:center; }
+  /* 方法对比 */
+  .method-compare { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+  @media(max-width:580px){ .method-compare { grid-template-columns:1fr; } }
+  .mc-box { border-radius:14px; padding:18px; }
+  .mc-title { font-size:14px; font-weight:900; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .mc-item { font-size:13px; color:#555; line-height:1.75; padding:4px 0; border-bottom:1px solid rgba(0,0,0,.06); }
+  .mc-item:last-child { border-bottom:none; }
+  /* 步骤时间线样式复用 .tl .tl-i .tl-d .tl-b */
+  /* 推广指标分类卡 */
+  .prom-cats { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin:12px 0; }
+  .prom-cat { border-radius:12px; padding:12px; text-align:center; }
+  .prom-cat-title { font-size:12px; font-weight:900; margin-bottom:6px; }
+  .prom-cat-items { font-size:11px; color:#555; line-height:1.7; }
+  /* 公式卡 */
+  .formula-box { background:linear-gradient(135deg,#F5F3FF,#EDE9FE); border:2px solid #A78BFA; border-radius:14px; padding:16px 20px; margin:10px 0; }
+  .formula-name { font-size:13px; font-weight:700; color:#6D28D9; margin-bottom:6px; }
+  .formula-eq { font-size:15px; font-weight:900; color:#2c3e50; font-family:monospace; }
+  .formula-note { font-size:12px; color:#666; margin-top:5px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">📚 模块二 · 单元三至五</div>
+  <h1>市场 · 运营 · 产品数据采集</h1>
+  <h2>行业数据 · 竞争数据 · 运营四大板块 · 产品能力分析</h2>
+  <div class="hero-tags">
+    <span class="hero-tag">⏱ 预计60分钟</span>
+    <span class="hero-tag">📡 单元三：市场数据</span>
+    <span class="hero-tag">⚙️ 单元四：运营数据</span>
+    <span class="hero-tag">📦 单元五：产品数据</span>
+    <span class="hero-tag">✅ 5道测试题</span>
+  </div>
+  <div class="flow-banner">
+    <div class="fb-step">📡 市场数据</div><div class="fb-arr">→</div>
+    <div class="fb-step">⚙️ 运营数据</div><div class="fb-arr">→</div>
+    <div class="fb-step">📦 产品数据</div><div class="fb-arr">→</div>
+    <div class="fb-step">📊 数据决策</div>
+  </div>
+</header>
+
+<nav class="sticky-nav">
+  <a class="nav-item active" href="#sec-market">📡 市场数据</a>
+  <a class="nav-item" href="#sec-compete">🥊 竞争数据</a>
+  <a class="nav-item" href="#sec-ops">⚙️ 运营数据</a>
+  <a class="nav-item" href="#sec-product">📦 产品数据</a>
+  <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+  <a class="nav-item" href="#sec-quiz">✅ 测试</a>
+</nav>
+
+<div class="container">
+
+<!-- ═══ 单元三：市场数据 ═══ -->
+<section id="sec-market" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff;">📡</div>
+    <div>
+      <div class="sec-title txt-c1">单元三 · 一、行业数据采集</div>
+      <div class="sec-sub">行业发展 · 市场需求 · 目标客户 三类数据</div>
+    </div>
+  </div>
+
+  <div class="lc" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);">
+    <div class="lc-tag">🎯 单元引入</div>
+    <h4>采集数据之前，先搞清楚「市场大环境」！</h4>
+    <p>行业在增长还是萎缩？用户在搜什么？目标客户是哪些人？——这些<strong>市场数据</strong>是所有运营决策的外部依据，是数据采集工作的起点。</p>
+  </div>
+
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-a">单元三 · 行业发展数据</span>
+    <h3 class="txt-c1" style="margin-bottom:14px;">（一）行业发展数据采集</h3>
+    <div class="tb-wrap">
+      <table>
+        <tr><th style="width:100px;">项目</th><th>内容</th></tr>
+        <tr><td><strong>涉及指标</strong></td><td>行业总销售额、增长率等</td></tr>
+        <tr><td><strong>数据来源</strong></td><td>国家统计局、行业协会、数据公司</td></tr>
+        <tr><td><strong>数据形式</strong></td><td>行业统计数据、行业调查报告</td></tr>
+      </table>
+    </div>
+    <div class="hl amber" style="margin-top:12px;">
+      <div class="hi">🌰</div>
+      <div class="hb"><strong>示例</strong><p>2015-2019年中国服装电商市场规模从4306.4亿元增长至10133.7亿元（预估），增长率保持在18%-23%之间。（数据来源：艾媒咨询）</p></div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-a">单元三 · 市场需求数据</span>
+    <h3 class="txt-c1" style="margin-bottom:14px;">（二）市场需求数据采集</h3>
+    <div class="g2">
+      <div style="border-radius:14px;padding:16px;background:#F5F3FF;border:2px solid #A78BFA;">
+        <div style="font-size:14px;font-weight:700;color:#6D28D9;margin-bottom:8px;">📊 涉及指标</div>
+        <div class="idx-grid">
+          <div class="idx-box" style="background:#EDE9FE;color:#6D28D9;">需求量变化</div>
+          <div class="idx-box" style="background:#EDE9FE;color:#6D28D9;">品牌偏好</div>
+        </div>
+      </div>
+      <div style="border-radius:14px;padding:16px;background:#FFF7ED;border:2px solid #FB923C;">
+        <div style="font-size:14px;font-weight:700;color:#C2410C;margin-bottom:8px;">🔧 采集方法</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;">通过搜索指数的<strong>变化趋势分析</strong>，把握用户需求变化和品牌偏好。</p>
+        <p style="font-size:12px;color:#888;margin-top:6px;">工具：行业调查报告、用户搜索指数（百度指数等）</p>
+      </div>
+    </div>
+    <div class="hl amber" style="margin-top:12px;">
+      <div class="hi">🌰</div>
+      <div class="hb"><strong>示例</strong><p>通过百度指数对比「苹果手机」「小米手机」「华为手机」「魅族手机」等关键词的搜索趋势，判断各品牌热度变化。</p></div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-a">单元三 · 目标客户数据</span>
+    <h3 class="txt-c1" style="margin-bottom:14px;">（三）目标客户数据采集</h3>
+    <div class="tb-wrap">
+      <table>
+        <tr><th>数据维度</th><th>说明</th></tr>
+        <tr><td><strong style="color:#7C3AED;">🗺️ 地域分布</strong></td><td>目标客户所在省份/城市排名（如广东、山东、江苏等）</td></tr>
+        <tr><td><strong style="color:#7C3AED;">👥 性别占比</strong></td><td>男女比例</td></tr>
+        <tr><td><strong style="color:#7C3AED;">📅 年龄结构</strong></td><td>各年龄段占比（≤19 / 20~29 / 30~39 等）</td></tr>
+        <tr><td><strong style="color:#7C3AED;">💼 职业领域</strong></td><td>公司职员、个体经营者、公务员等职业分布</td></tr>
+      </table>
+    </div>
+    <div class="hl purple" style="margin-top:12px;">
+      <div class="hi">🛠️</div>
+      <div class="hb"><strong>采集工具</strong><p>行业调查报告、<strong>百度指数 / 阿里指数</strong>等指数工具，可直接提供用户画像的地域、年龄、性别、职业分布数据。</p></div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：通过百度指数对比多个手机品牌的搜索热度趋势，属于哪类市场数据采集？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq0','行业发展数据采集关注的是行业总销售额和增长率，不是品牌搜索趋势对比。')">行业发展数据采集</button>
+      <button class="mo" onclick="mq(this,false,'mq0','目标客户数据采集关注的是客户的地域、年龄、职业等画像信息，不是品牌对比。')">目标客户数据采集</button>
+      <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！通过搜索指数变化趋势把握用户需求变化和品牌偏好，属于市场需求数据采集。')">市场需求数据采集</button>
+    </div>
+    <div id="mq0" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ═══ 竞争数据 ═══ -->
+<section id="sec-compete" class="sec-block reveal">
+  <div class="sec-hd bc2">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;">🥊</div>
+    <div>
+      <div class="sec-title" style="color:#DC2626;">单元三 · 二、竞争数据采集</div>
+      <div class="sec-sub">采集竞争对手的商品、价格、活动、评价、推广数据</div>
+    </div>
+  </div>
+
+  <div class="lc" style="background:linear-gradient(135deg,#EF4444,#DC2626);">
+    <div class="lc-tag">🥊 核心意义</div>
+    <h4>知己知彼，才能百战不殆！</h4>
+    <p>竞争数据是对电商业务中存在<strong>竞争关系</strong>的商家、品牌、产品各项运营数据的总称。帮助决策者了解竞争对手的发展势头，为<strong>企业战略制定和调整</strong>提供数据支持。</p>
+  </div>
+
+  <div class="card reveal">
+    <span class="unit-tag" style="background:#FEE2E2;color:#C2410C;border-color:#FCA5A5;">竞争数据采集内容</span>
+    <h3 style="color:#DC2626;margin-bottom:14px;">竞争数据采集的三大维度</h3>
+    <div class="tb-wrap">
+      <table>
+        <tr><th>维度</th><th>具体指标</th></tr>
+        <tr>
+          <td><strong style="color:#7C3AED;">📦 商品维度</strong></td>
+          <td>商品结构、商品构成、畅销商品、商品销量、交易额</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#D97706;">💰 价格与活动</strong></td>
+          <td>销售价格、客单价、活动信息、活动内容、活动周期</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#065F46;">⭐ 评价与推广</strong></td>
+          <td>商品评价、服务政策、店铺流量、推广渠道、搜索排名</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="unit-tag" style="background:#FEE2E2;color:#C2410C;border-color:#FCA5A5;">竞争数据采集方法</span>
+    <h3 style="color:#DC2626;margin-bottom:14px;">两种采集方法对比</h3>
+    <div class="method-compare">
+      <div class="mc-box" style="background:#FEF3C7;border:2px solid #F59E0B;">
+        <div class="mc-title" style="color:#D97706;">🔧 工具采集<span style="font-size:11px;background:#FEE2E2;color:#C2410C;padding:2px 8px;border-radius:10px;">存在局限性</span></div>
+        <div class="mc-item"><strong>升业绩</strong>：采集淘宝/天猫竞品数据，但平台规则变化可能导致历史数据无法采集</div>
+        <div class="mc-item"><strong>店侦探</strong>：采集淘宝/天猫竞品数据，但营销活动内容等<strong>无法自动采集</strong></div>
+      </div>
+      <div class="mc-box" style="background:#D1FAE5;border:2px solid #10B981;">
+        <div class="mc-title" style="color:#065F46;">✅ 人工监控<span style="font-size:11px;background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:10px;">最有效</span></div>
+        <div class="mc-item">制作<strong>竞争对手数据采集表</strong></div>
+        <div class="mc-item">记录：店铺名称、热销产品、成交量、售价、评价特色、评价缺陷、促销方式</div>
+        <div class="mc-item">进行<strong>持续性</strong>数据监控，不受平台规则限制</div>
+      </div>
+    </div>
+    <div class="hl red" style="margin-top:12px;">
+      <div class="hi">💡</div>
+      <div class="hb"><strong>结论</strong><p>工具采集效率高但存在局限；人工监控更全面但耗时。实际工作中通常<strong>两者结合</strong>——工具辅助批量采集，人工补充工具无法获取的数据。</p></div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：竞争数据采集中，「最有效」的方法是？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq1','店侦探等工具存在局限性，营销活动内容等无法自动采集，且受平台规则影响，不是最有效的方法。')">使用店侦探工具</button>
+      <button class="mo" onclick="mq(this,true,'mq1','✅ 正确！人工监控——制作竞争对手数据采集表进行持续监控，是最有效的竞争数据采集方法，可弥补工具采集的局限性。')">人工监控采集表</button>
+      <button class="mo" onclick="mq(this,false,'mq1','向竞争对手直接索取数据既不现实也不合法，不是有效方法。')">向竞争对手索取</button>
+    </div>
+    <div id="mq1" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ═══ 单元四：运营数据 ═══ -->
+<section id="sec-ops" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;">⚙️</div>
+    <div>
+      <div class="sec-title" style="color:#1D4ED8;">单元四 · 运营数据采集</div>
+      <div class="sec-sub">客户数据 · 推广数据 · 销售数据 · 供应链数据</div>
+    </div>
+  </div>
+
+  <div class="lc" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);">
+    <div class="lc-tag">⚙️ 单元引入</div>
+    <h4>运营数据是店铺「内部健康」的体检报告！</h4>
+    <p>运营数据覆盖<strong>四大板块</strong>：客户行为与画像、推广效果监控、销售交易与服务、供应链的采购库存物流——这些数据共同支撑日常运营决策。</p>
+  </div>
+
+  <!-- 四大板块总览 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-b">单元四 · 四大板块总览</span>
+    <h3 style="color:#1D4ED8;margin-bottom:14px;">运营数据四大板块</h3>
+    <div class="g4">
+      <div style="border-radius:14px;padding:16px;background:#F5F3FF;border:2px solid #A78BFA;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">👥</div>
+        <div style="font-weight:700;color:#6D28D9;margin-bottom:5px;">客户数据</div>
+        <div style="font-size:12px;color:#777;">行为数据 + 画像数据</div>
+      </div>
+      <div style="border-radius:14px;padding:16px;background:#EFF6FF;border:2px solid #93C5FD;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">📢</div>
+        <div style="font-weight:700;color:#1D4ED8;margin-bottom:5px;">推广数据</div>
+        <div style="font-size:12px;color:#777;">20项推广效果指标</div>
+      </div>
+      <div style="border-radius:14px;padding:16px;background:#FFF7ED;border:2px solid #FB923C;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">💰</div>
+        <div style="font-weight:700;color:#C2410C;margin-bottom:5px;">销售数据</div>
+        <div style="font-size:12px;color:#777;">交易数据 + 服务数据</div>
+      </div>
+      <div style="border-radius:14px;padding:16px;background:#D1FAE5;border:2px solid #10B981;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🏭</div>
+        <div style="font-weight:700;color:#065F46;margin-bottom:5px;">供应链数据</div>
+        <div style="font-size:12px;color:#777;">采购 + 库存 + 物流</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 客户数据 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-b">一、客户数据采集</span>
+    <h3 style="color:#1D4ED8;margin-bottom:14px;">客户行为数据 vs 客户画像数据</h3>
+    <div class="g2">
+      <div style="border-radius:14px;padding:18px;background:#F5F3FF;border:2px solid #A78BFA;">
+        <div style="font-size:14px;font-weight:900;color:#6D28D9;margin-bottom:10px;">🛒 客户行为数据</div>
+        <p style="font-size:13px;color:#555;margin-bottom:10px;">客户的商品<strong>消费记录</strong>数据</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="background:#EDE9FE;color:#6D28D9;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">商品名称/数量</span>
+          <span style="background:#EDE9FE;color:#6D28D9;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">购买次数/时间</span>
+          <span style="background:#EDE9FE;color:#6D28D9;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">支付金额</span>
+          <span style="background:#EDE9FE;color:#6D28D9;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">浏览量/收藏量</span>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:#888;">🛠️ 采集工具：百度统计、友盟、生意参谋【品类360】</div>
+      </div>
+      <div style="border-radius:14px;padding:18px;background:#EFF6FF;border:2px solid #93C5FD;">
+        <div style="font-size:14px;font-weight:900;color:#1D4ED8;margin-bottom:10px;">🎭 客户画像数据</div>
+        <p style="font-size:13px;color:#555;margin-bottom:10px;">能<strong>反映或影响</strong>客户行为的属性信息</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">性别/年龄</span>
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">地址/位置偏好</span>
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">品牌偏好</span>
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">购物时间偏好</span>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:#888;">🛠️ 采集工具：网站/店铺后台注册信息、百度指数</div>
+      </div>
+    </div>
+    <div class="hl blue" style="margin-top:14px;">
+      <div class="hi">📍</div>
+      <div class="hb"><strong>生意参谋【品类360】能采集什么？</strong><p>行为数据：商品访客数、浏览量、加购人数/件数、支付买家数等；<br>画像数据：搜索人群/访问人群/支付人群的新老占比、年龄、性别、兴趣分布。</p></div>
+    </div>
+  </div>
+
+  <!-- 推广数据 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-b">二、推广数据采集</span>
+    <h3 style="color:#1D4ED8;margin-bottom:14px;">推广效果 20 项指标</h3>
+    <div class="hl amber" style="margin-bottom:14px;">
+      <div class="hi">⚡</div>
+      <div class="hb"><strong>两类推广侧重点</strong><p>直通车/淘宝客 → <strong>产品销售</strong>（直接转化）；免费试用/智钻 → <strong>品牌影响力</strong>（增强认可度，间接提升销量）</p></div>
+    </div>
+    <div class="prom-cats">
+      <div class="prom-cat" style="background:#FEF3C7;border:1px solid #FCD34D;">
+        <div class="prom-cat-title" style="color:#D97706;">📡 曝光类（1项）</div>
+        <div class="prom-cat-items">展现量</div>
+      </div>
+      <div class="prom-cat" style="background:#DBEAFE;border:1px solid #93C5FD;">
+        <div class="prom-cat-title" style="color:#1D4ED8;">👆 点击类（4项）</div>
+        <div class="prom-cat-items">点击量<br>点击率<br>点击转化率<br>平均点击花费</div>
+      </div>
+      <div class="prom-cat" style="background:#FEE2E2;border:1px solid #FCA5A5;">
+        <div class="prom-cat-title" style="color:#C2410C;">💸 费用类（3项）</div>
+        <div class="prom-cat-items">花费<br>平均点击花费<br>投入产出比</div>
+      </div>
+      <div class="prom-cat" style="background:#D1FAE5;border:1px solid #6EE7B7;">
+        <div class="prom-cat-title" style="color:#065F46;">✅ 成交类（6项）</div>
+        <div class="prom-cat-items">直接/间接成交金额<br>直接/间接成交笔数<br>总成交金额/笔数</div>
+      </div>
+      <div class="prom-cat" style="background:#EDE9FE;border:1px solid #C4B5FD;">
+        <div class="prom-cat-title" style="color:#6D28D9;">❤️ 收藏类（3项）</div>
+        <div class="prom-cat-items">收藏宝贝数<br>收藏店铺数<br>总收藏数</div>
+      </div>
+      <div class="prom-cat" style="background:#F0FDF4;border:1px solid #86EFAC;">
+        <div class="prom-cat-title" style="color:#166534;">🛒 购物车（3项）</div>
+        <div class="prom-cat-items">直接购物车数<br>间接购物车数<br>总购物车数</div>
+      </div>
+    </div>
+    <div class="hl purple" style="margin-top:12px;">
+      <div class="hi">📋</div>
+      <div class="hb"><strong>采集方式</strong><p>①推广渠道自有报表（如直通车首页实时数据+报表，最多19项指标）；②第三方监控工具（百度统计/友盟，适用于独立站点的邮件营销、SEO等）</p></div>
+    </div>
+  </div>
+
+  <!-- 销售数据 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-b">三、销售数据采集</span>
+    <h3 style="color:#1D4ED8;margin-bottom:14px;">交易数据 + 服务数据</h3>
+    <div class="g2">
+      <div style="border-radius:14px;padding:16px;background:#FFF7ED;border:2px solid #FB923C;">
+        <div style="font-size:14px;font-weight:900;color:#C2410C;margin-bottom:8px;">📦 交易数据</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <span style="background:#FEE2E2;color:#C2410C;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">订单量</span>
+          <span style="background:#FEE2E2;color:#C2410C;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">成交量</span>
+          <span style="background:#FEE2E2;color:#C2410C;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">销售额</span>
+        </div>
+        <div style="font-size:12px;color:#888;">📍 采集路径：网店后台 → 交易管理 → 已卖出宝贝，可按时间段和交易状态筛选</div>
+      </div>
+      <div style="border-radius:14px;padding:16px;background:#EFF6FF;border:2px solid #93C5FD;">
+        <div style="font-size:14px;font-weight:900;color:#1D4ED8;margin-bottom:8px;">🎧 服务数据</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">响应时长</span>
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">咨询客户数</span>
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;">询单转化率</span>
+        </div>
+        <div style="font-size:12px;color:#888;">📍 采集工具：生意参谋【服务】版块（服务洞察/售前服务），或客服每日工作报表</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 供应链数据 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-b">四、供应链数据采集</span>
+    <h3 style="color:#1D4ED8;margin-bottom:14px;">采购数据 · 库存数据 · 物流数据</h3>
+    <div class="tb-wrap">
+      <table>
+        <tr><th>板块</th><th>核心指标</th><th>采集方式</th></tr>
+        <tr>
+          <td><strong style="color:#7C3AED;">📋 采购数据</strong></td>
+          <td>供应商、产品规格、采购数量、采购单价、生产周期、坏损率、退货率（共9项）</td>
+          <td>采购合同、财务/采购记录、实地走访</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#1D4ED8;">📦 库存数据</strong></td>
+          <td>产品库存数、发货量、库存周转率、残次库存比</td>
+          <td>对商品出入库数据进行监控记录</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#065F46;">🚚 物流数据</strong></td>
+          <td>物流时效、物流异常量、物流服务满意度</td>
+          <td>客服记录客户反馈、物流公司查询系统</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：「直通车」「淘宝客」的推广侧重点是？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,true,'mq2','✅ 正确！直通车/淘宝客侧重产品销售（直接转化）；免费试用/智钻侧重品牌影响力（增强认可度）。')">产品销售（直接转化）</button>
+      <button class="mo" onclick="mq(this,false,'mq2','品牌影响力是免费试用和智钻的侧重点，不是直通车和淘宝客的主要方向。')">品牌影响力（认可度）</button>
+      <button class="mo" onclick="mq(this,false,'mq2','用户口碑属于评价体系，不是推广方式的侧重点。')">用户口碑（评价积累）</button>
+    </div>
+    <div id="mq2" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ═══ 单元五：产品数据 ═══ -->
+<section id="sec-product" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#10B981,#065F46);color:#fff;">📦</div>
+    <div>
+      <div class="sec-title" style="color:#065F46;">单元五 · 产品数据采集</div>
+      <div class="sec-sub">产品行业数据（搜索指数+交易指数）+ 产品能力数据（获客+盈利）</div>
+    </div>
+  </div>
+
+  <div class="lc" style="background:linear-gradient(135deg,#10B981,#065F46);">
+    <div class="lc-tag">📦 单元引入</div>
+    <h4>产品是电商的核心，产品数据是选品决策的关键！</h4>
+    <p>产品数据采集分两大维度：了解<strong>外部市场</strong>（产品行业数据）和评估<strong>内部能力</strong>（产品能力数据）。两者结合，才能做出精准的选品和运营决策。</p>
+  </div>
+
+  <!-- 产品行业数据 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-c">单元五 · 产品行业数据</span>
+    <h3 style="color:#065F46;margin-bottom:14px;">一、产品行业数据采集（了解市场需求变化）</h3>
+    <div class="g2">
+      <!-- 搜索指数 -->
+      <div style="border-radius:16px;padding:20px;background:#D1FAE5;border:2px solid #10B981;">
+        <div style="font-size:16px;font-weight:900;color:#065F46;margin-bottom:10px;">🔍 产品搜索指数</div>
+        <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:4px;">定义</div>
+          <div style="font-size:13px;color:#555;line-height:1.7;">用户搜索相关产品关键词<strong>热度的数据化体现</strong>，从侧面反映用户对产品的<strong>关注度和兴趣度</strong>。</div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:6px;">三大分析价值</div>
+          <div style="font-size:12px;color:#555;line-height:1.8;">
+            ① <strong>关注度变化</strong>：分析关键词搜索指数涨跌<br>
+            ② <strong>客户群特征</strong>：分析关注关键词的用户画像<br>
+            ③ <strong>需求与喜好</strong>：多关键词对比分析用户偏好
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:10px 12px;">
+          <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:5px;">🛠️ 采集工具 & 方法</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">
+            <span style="background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:700;">百度指数</span>
+            <span style="background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:700;">360趋势</span>
+            <span style="background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:700;">搜狗指数</span>
+          </div>
+          <div style="font-size:12px;color:#888;">⚠️ 建议使用<strong>多组关键词</strong>，提高数据精准度</div>
+        </div>
+      </div>
+      <!-- 交易指数 -->
+      <div style="border-radius:16px;padding:20px;background:#CCFBF1;border:2px solid #0D9488;">
+        <div style="font-size:16px;font-weight:900;color:#0F766E;margin-bottom:10px;">📈 产品交易指数</div>
+        <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:#0F766E;margin-bottom:4px;">定义</div>
+          <div style="font-size:13px;color:#555;line-height:1.7;">产品在平台<strong>交易热度</strong>的体现，是衡量产品<strong>受欢迎程度</strong>的重要指标。</div>
+          <div style="margin-top:6px;background:#D1FAE5;border-radius:6px;padding:6px 10px;font-size:12px;color:#065F46;font-weight:700;">交易指数越高 → 该产品越受消费者欢迎</div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:12px;">
+          <div style="font-size:12px;font-weight:700;color:#0F766E;margin-bottom:6px;">🛠️ 采集工具：生意参谋【市场】板块</div>
+          <div style="font-size:12px;color:#555;line-height:1.8;">
+            <strong>商品排行</strong>：排名、类目、所属店铺、交易指数、增长幅度、支付转化指数<br>
+            <strong>店铺排行</strong>：排名、店铺、交易指数、增长幅度、支付转化指数
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 产品能力数据 -->
+  <div class="card reveal">
+    <span class="unit-tag unit-tag-c">单元五 · 产品能力数据</span>
+    <h3 style="color:#065F46;margin-bottom:14px;">二、产品能力数据采集</h3>
+    <div class="g2" style="margin-bottom:16px;">
+      <!-- 获客能力 -->
+      <div style="border-radius:16px;padding:18px;background:#F0FDF4;border:2px solid #86EFAC;">
+        <div style="font-size:15px;font-weight:900;color:#166534;margin-bottom:8px;">🧲 产品获客能力</div>
+        <p style="font-size:13px;color:#555;margin-bottom:12px;">对产品为店铺或平台<strong>获取新客户</strong>能力的衡量。</p>
+        <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:6px;">📊 5项采集指标</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;color:#555;display:flex;justify-content:space-between;"><span>👁️ <strong>关注量</strong></span><span style="color:#888;">产品被关注次数</span></div>
+          <div style="background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;color:#555;display:flex;justify-content:space-between;"><span>❤️ <strong>收藏量</strong></span><span style="color:#888;">产品被收藏次数</span></div>
+          <div style="background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;color:#555;display:flex;justify-content:space-between;"><span>✅ <strong>注册量</strong></span><span style="color:#888;">引发的新用户注册数</span></div>
+          <div style="background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;color:#555;display:flex;justify-content:space-between;"><span>👆 <strong>新客点击量</strong></span><span style="color:#888;">新客户点击次数</span></div>
+          <div style="background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;color:#555;display:flex;justify-content:space-between;"><span>🔄 <strong>重复购买率</strong></span><span style="color:#888;">老客户复购比率</span></div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:#888;">📍 采集：进入推广平台后台 → 获取推广报表 → 选择相应指标</div>
+      </div>
+      <!-- 盈利能力 -->
+      <div style="border-radius:16px;padding:18px;background:#FFF7ED;border:2px solid #FB923C;">
+        <div style="font-size:15px;font-weight:900;color:#C2410C;margin-bottom:8px;">💰 产品盈利能力</div>
+        <p style="font-size:13px;color:#555;margin-bottom:10px;">对产品为店铺<strong>销售或利润贡献能力</strong>的衡量。</p>
+        <div class="hl amber" style="margin-bottom:12px;padding:8px 12px;">
+          <div class="hi" style="font-size:16px;">⚠️</div>
+          <div class="hb"><strong style="font-size:12px;">无法直接获取，需通过公式计算！</strong></div>
+        </div>
+        <div class="formula-box">
+          <div class="formula-name">客单件</div>
+          <div class="formula-eq">= 商品销售数量 ÷ 订单数</div>
+          <div class="formula-note">每位成交客户平均购买的商品数量</div>
+        </div>
+        <div class="formula-box">
+          <div class="formula-name">毛利率</div>
+          <div class="formula-eq">=(销售收入-销售成本)÷销售收入×100%</div>
+          <div class="formula-note">需采集：销售收入、采购价、物流费、包装费</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 三步采集法 -->
+    <h4 style="color:#065F46;margin-bottom:12px;">📋 盈利能力数据采集三步法</h4>
+    <div class="tl">
+      <div class="tl-i"><div class="tl-d" style="background:#10B981;">1</div><div class="tl-b"><strong>分析拆解数据采集指标</strong><p>根据公式（如毛利率公式）拆解出需要采集的基础数据指标：销售收入、采购成本、物流费用、包装费用等。</p></div></div>
+      <div class="tl-i"><div class="tl-d" style="background:#0D9488;">2</div><div class="tl-b"><strong>确定数据采集渠道</strong><p>①站点后台/第三方工具（销售额、销售量、订单数）；②企业内部系统/ERP（采购成本、推广费用、物流费用）</p></div></div>
+      <div class="tl-i"><div class="tl-d" style="background:#065F46;">3</div><div class="tl-b"><strong>执行数据采集 & 计算结果</strong><p>通过不同渠道完成采集，数据清洗后代入公式计算出最终盈利指标。</p></div></div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：产品盈利能力数据（毛利率、客单件等）的核心特点是？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq3','生意参谋无法直接提供毛利率等盈利能力数据，需要自己采集基础数据后计算。')">可从生意参谋一键导出</button>
+      <button class="mo" onclick="mq(this,true,'mq3','✅ 正确！产品盈利能力数据一般无法直接获取，需先采集销售额、成本等基础数据，再通过公式计算。')">无法直接获取，需公式计算</button>
+      <button class="mo" onclick="mq(this,false,'mq3','任何规模的电商都需要关注产品盈利能力，不是大型企业专属。')">只有大型企业才需采集</button>
+    </div>
+    <div id="mq3" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ═══ 知识导图 ═══ -->
+<section id="sec-map" class="sec-block reveal">
+  <div class="sec-hd">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;">🗺️</div>
+    <div>
+      <div class="sec-title txt-c1">单元三至五 · 知识导图</div>
+      <div class="sec-sub">市场数据 · 运营数据 · 产品数据 全局总览</div>
+    </div>
+  </div>
+  <div class="card" style="padding:20px;overflow-x:auto;">
+    <svg viewBox="0 0 1000 580" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:750px;">
+      <defs>
+        <filter id="sh6"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity=".12"/></filter>
+        <linearGradient id="gm" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#7C3AED"/>
+          <stop offset="100%" style="stop-color:#6D28D9"/>
+        </linearGradient>
+      </defs>
+      <!-- 中心 -->
+      <rect x="340" y="250" width="240" height="60" rx="30" fill="url(#gm)" filter="url(#sh6)"/>
+      <text x="460" y="274" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">市场·运营·产品数据采集</text>
+      <text x="460" y="293" text-anchor="middle" fill="rgba(255,255,255,.75)" font-size="11" font-family="Noto Sans SC,sans-serif">模块二 · 单元三至五</text>
+
+      <!-- 左枝：单元三 市场数据 -->
+      <line x1="340" y1="268" x2="175" y2="175" stroke="#7C3AED" stroke-width="2" stroke-dasharray="6,3"/>
+      <rect x="30" y="140" width="290" height="70" rx="14" fill="#F5F3FF" stroke="#7C3AED" stroke-width="2" filter="url(#sh6)"/>
+      <text x="175" y="168" text-anchor="middle" fill="#6D28D9" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">单元三 · 市场数据采集</text>
+      <text x="175" y="188" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">行业发展 · 市场需求 · 目标客户 · 竞争数据</text>
+
+      <!-- 行业子节点 -->
+      <line x1="90" y1="140" x2="65" y2="88" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="5" y="50" width="175" height="42" rx="10" fill="#EDE9FE" stroke="#A78BFA" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="92" y="68" text-anchor="middle" fill="#6D28D9" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">📡 行业+需求+客户</text>
+      <text x="92" y="83" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">指数工具·统计局·报告</text>
+
+      <!-- 竞争子节点 -->
+      <line x1="265" y1="140" x2="280" y2="88" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="185" y="50" width="190" height="42" rx="10" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="280" y="68" text-anchor="middle" fill="#C2410C" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">🥊 竞争数据</text>
+      <text x="280" y="83" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">人工监控（最有效）</text>
+
+      <!-- 右枝：单元四 运营数据 -->
+      <line x1="580" y1="268" x2="740" y2="175" stroke="#1D4ED8" stroke-width="2" stroke-dasharray="6,3"/>
+      <rect x="630" y="140" width="340" height="70" rx="14" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="2" filter="url(#sh6)"/>
+      <text x="800" y="168" text-anchor="middle" fill="#1D4ED8" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">单元四 · 运营数据采集</text>
+      <text x="800" y="188" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">客户 · 推广（20项）· 销售 · 供应链</text>
+
+      <!-- 运营子节点 -->
+      <line x1="685" y1="140" x2="650" y2="88" stroke="#1D4ED8" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="545" y="50" width="215" height="42" rx="10" fill="#DBEAFE" stroke="#93C5FD" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="652" y="68" text-anchor="middle" fill="#1D4ED8" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">👥 客户+销售+推广</text>
+      <text x="652" y="83" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">生意参谋·后台·报表</text>
+
+      <line x1="910" y1="140" x2="930" y2="88" stroke="#065F46" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="820" y="50" width="175" height="42" rx="10" fill="#D1FAE5" stroke="#6EE7B7" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="907" y="68" text-anchor="middle" fill="#065F46" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">🏭 供应链数据</text>
+      <text x="907" y="83" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">采购·库存·物流</text>
+
+      <!-- 下方：单元五产品数据 -->
+      <line x1="460" y1="310" x2="460" y2="395" stroke="#10B981" stroke-width="2" stroke-dasharray="6,3"/>
+      <rect x="300" y="395" width="320" height="70" rx="14" fill="#D1FAE5" stroke="#10B981" stroke-width="2" filter="url(#sh6)"/>
+      <text x="460" y="423" text-anchor="middle" fill="#065F46" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">单元五 · 产品数据采集</text>
+      <text x="460" y="443" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">行业数据（搜索+交易指数） · 能力数据（获客+盈利）</text>
+
+      <!-- 产品子节点 -->
+      <line x1="360" y1="465" x2="250" y2="510" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="130" y="495" width="235" height="42" rx="10" fill="#D1FAE5" stroke="#6EE7B7" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="247" y="513" text-anchor="middle" fill="#065F46" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">🔍 搜索指数（百度指数）</text>
+      <text x="247" y="528" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">多关键词·时间段·地域筛选</text>
+
+      <line x1="460" y1="465" x2="460" y2="510" stroke="#0D9488" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="355" y="495" width="210" height="42" rx="10" fill="#CCFBF1" stroke="#5EEAD4" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="460" y="513" text-anchor="middle" fill="#0F766E" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">📈 交易指数（生意参谋）</text>
+      <text x="460" y="528" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">商品排行·店铺排行</text>
+
+      <line x1="560" y1="465" x2="680" y2="510" stroke="#D97706" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="580" y="495" width="210" height="42" rx="10" fill="#FEF3C7" stroke="#FCD34D" stroke-width="1.5" filter="url(#sh6)"/>
+      <text x="685" y="513" text-anchor="middle" fill="#D97706" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">💰 盈利能力（公式计算）</text>
+      <text x="685" y="528" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">客单件·毛利率·三步法</text>
+    </svg>
+  </div>
+  <div class="hl purple" style="margin-top:14px;">
+    <div class="hi">🧠</div>
+    <div class="hb"><strong>一句话记住三个单元</strong><p>单元三看<strong>市场</strong>（行业+竞争）；单元四看<strong>自己</strong>（客户+推广+销售+供应链）；单元五看<strong>产品</strong>（市场热度+盈利能力）。三者从外到内层层递进！</p></div>
+  </div>
+</section>
+
+<!-- ═══ 综合测试 ═══ -->
+<section id="sec-quiz" class="sec-block reveal">
+  <div class="qhd">
+    <span style="font-size:32px;">✅</span>
+    <div><h2 style="font-size:20px;">综合知识测试</h2><p style="font-size:13px;opacity:.85;margin-top:2px;">5道题，覆盖单元三至五核心考点！</p></div>
+  </div>
+  <div class="qbody">
+
+    <div class="qi" id="qz1">
+      <div class="qq"><span class="qnum">1</span>行业发展数据采集主要涉及哪两个核心指标？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">A</div><div>用户搜索量和品牌偏好</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',true)"><div class="ok2">B</div><div>行业总销售额和增长率</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">C</div><div>商品销量和交易额</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">D</div><div>订单数量和客单价</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+      <div id="qz1-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz2">
+      <div class="qq"><span class="qnum">2</span>竞争数据采集中，「最有效」的方法是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">A</div><div>使用升业绩工具自动批量采集</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">B</div><div>使用店侦探工具定期抓取数据</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',true)"><div class="ok2">C</div><div>人工监控——制作竞争对手数据采集表进行持续监控</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">D</div><div>直接联系竞争对手获取数据报告</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+      <div id="qz2-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz3">
+      <div class="qq"><span class="qnum">3</span>以下哪项属于「客户画像数据」而非「客户行为数据」？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">A</div><div>购买次数和支付金额</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">B</div><div>浏览量和收藏量</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',true)"><div class="ok2">C</div><div>性别、年龄和品牌偏好</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">D</div><div>商品名称和购买时间</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+      <div id="qz3-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz4">
+      <div class="qq"><span class="qnum">4</span>「客单件」的计算公式是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">A</div><div>客单件 = 销售额 ÷ 订单数</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',true)"><div class="ok2">B</div><div>客单件 = 商品销售数量 ÷ 订单数</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">C</div><div>客单件 = 订单数 ÷ 访客数</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">D</div><div>客单件 = 成交金额 ÷ 访客数</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+      <div id="qz4-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz5">
+      <div class="qq"><span class="qnum">5</span>采集产品搜索指数时，以下哪种做法是正确的？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">A</div><div>只使用一个核心关键词，保证数据纯净</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',true)"><div class="ok2">B</div><div>建议使用多组关键词进行查询，以提高数据精准度</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">C</div><div>搜索指数数据可以从生意参谋直接导出</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">D</div><div>只需查看最近一周的数据即可判断趋势</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+      <div id="qz5-fb" class="qfb"></div>
+    </div>
+
+    <div id="qz-score" class="score-box">
+      <div class="sc-emoji" id="sc-emoji">🎉</div>
+      <div class="sc-num" id="sc-num">0/5</div>
+      <div class="sc-msg" id="sc-msg"></div>
+      <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer style="background:#3B0764;color:rgba(255,255,255,.55);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+  <p>📚 <span style="color:#C4B5FD;">商务数据分析</span> · 模块二 · 单元三至五 市场·运营·产品数据采集</p>
+  <p style="margin-top:6px;">中职电子商务专业 · 从市场看全局，从产品看细节 🚀</p>
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/learning.js"></script>
+<script>
+window.QUIZ_DATA = {
+  qz1:{exp:'行业发展数据采集涉及的核心指标是行业总销售额和增长率，数据来源包括国家统计局、行业协会、数据公司，形式为行业统计数据和调查报告。'},
+  qz2:{exp:'人工监控是最有效的竞争数据采集方法，通过制作竞争对手数据采集表（记录店铺名称、热销产品、成交量、售价、评价、促销方式等）进行持续监控，能弥补工具采集的局限性。'},
+  qz3:{exp:'客户画像数据是指与购买行为相关、能反映或影响客户行为的信息，如性别、年龄、地址、品牌偏好等属性特征。购买次数、支付金额、浏览量、商品名称等属于客户行为数据（消费记录）。'},
+  qz4:{exp:'客单件 = 商品销售数量 ÷ 订单数，衡量每位成交客户平均购买的商品数量（件数）。注意区分客单价 = 销售额 ÷ 订单数（金额维度），客单件强调数量维度。'},
+  qz5:{exp:'课程明确指出「建议使用多组关键词进行数据查询和采集，以提高数据精准度」。产品搜索指数的采集工具是百度指数、360趋势、搜狗指数等，不是生意参谋。'}
+};
+</script>
+</body>
+</html>
