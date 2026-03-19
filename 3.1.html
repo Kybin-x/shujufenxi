@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>模块三·单元一 数据分类与处理认识</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/learning.css">
+<style>
+:root{
+  --c1:#F59E0B;--c1l:#FFFBEB;--c1d:#D97706;--c2:#FBBF24;--c3:#FDE68A;
+  --primary:#F59E0B;--secondary:#FBBF24;--accent:#FDE68A;
+  --bg:#FFFDF5;--text:#1c1917;--muted:#78716c;--card:#fff;--r:16px;
+}
+/* ── 本页专属组件 ── */
+.peek{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-left:4px solid #F59E0B;border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;}
+.peek-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.peek-body strong{display:block;font-size:13px;color:#92400E;margin-bottom:4px;}
+.peek-body p{font-size:13px;color:#78350F;margin:0;line-height:1.7;}
+.boss{background:linear-gradient(135deg,#1c1917,#292524);border-radius:16px;padding:20px 22px;margin:14px 0;position:relative;overflow:hidden;}
+.boss::before{content:'💼';position:absolute;right:16px;top:12px;font-size:40px;opacity:.15;}
+.boss-label{font-size:11px;font-weight:700;color:#F59E0B;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase;}
+.boss-say{font-size:15px;color:#FDE68A;font-weight:700;line-height:1.6;margin-bottom:10px;}
+.boss-task{font-size:13px;color:#D6D3D1;line-height:1.7;}
+.boss-task strong{color:#FCD34D;}
+.err-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+@media(max-width:580px){.err-box{grid-template-columns:1fr;}}
+.err-wrong{background:#FEF2F2;border:2px solid #FCA5A5;border-radius:12px;padding:14px;}
+.err-right{background:#F0FDF4;border:2px solid #86EFAC;border-radius:12px;padding:14px;}
+.err-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-bottom:8px;display:inline-block;}
+.err-wrong .err-tag{background:#FEE2E2;color:#DC2626;}
+.err-right .err-tag{background:#DCFCE7;color:#16A34A;}
+.err-content{font-size:13px;line-height:1.7;color:#374151;}
+.rhyme{background:linear-gradient(135deg,#F59E0B,#D97706);border-radius:14px;padding:16px 20px;margin:14px 0;text-align:center;}
+.rhyme-title{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:8px;letter-spacing:.1em;}
+.rhyme-text{font-size:18px;font-weight:900;color:#fff;line-height:1.8;font-family:'ZCOOL KuaiLe',cursive;}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:16px;background:#FFFBEB;border-radius:14px;border:2px solid #FDE68A;margin:14px 0;}
+.chain-step{background:#F59E0B;color:#fff;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;text-align:center;min-width:70px;}
+.chain-arr{color:#D97706;font-size:18px;font-weight:700;}
+.chain-note{font-size:11px;color:#92400E;text-align:center;margin-top:3px;}
+.chain-item{display:flex;flex-direction:column;align-items:center;}
+.method-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:14px 0;}
+.method-card{border-radius:14px;padding:16px;border:2px solid transparent;cursor:default;transition:transform .2s;}
+.method-card:hover{transform:translateY(-2px);}
+.mc-num{font-size:28px;font-weight:900;opacity:.2;float:right;line-height:1;}
+.mc-icon{font-size:24px;margin-bottom:8px;}
+.mc-name{font-size:14px;font-weight:900;margin-bottom:5px;}
+.mc-def{font-size:12px;line-height:1.65;color:#555;}
+.principle-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+.pl-item{display:flex;gap:14px;align-items:flex-start;background:#FFFBEB;border-radius:12px;padding:14px 16px;border-left:4px solid #F59E0B;}
+.pl-dot{width:32px;height:32px;border-radius:50%;background:#F59E0B;color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pl-body strong{font-size:14px;color:#92400E;display:block;margin-bottom:3px;}
+.pl-body p{font-size:12px;color:#78350F;margin:0;line-height:1.65;}
+/* quiz复用 */
+.qhd{background:linear-gradient(135deg,#F59E0B,#D97706);border-radius:20px 20px 0 0;padding:24px 28px;display:flex;gap:14px;align-items:center;color:#fff;}
+.qhd h2{font-size:20px;font-weight:800;margin:0;}
+.qbody{background:#FFFBEB;border:2px solid #FDE68A;border-top:none;border-radius:0 0 20px 20px;padding:24px;}
+.qi{background:#fff;border-radius:14px;padding:20px;margin-bottom:18px;border:1px solid #FDE68A;}
+.qq{font-size:15px;font-weight:600;color:#1c1917;margin-bottom:14px;display:flex;gap:10px;}
+.qnum{background:#F59E0B;color:#fff;border-radius:8px;padding:2px 10px;font-size:13px;font-weight:800;flex-shrink:0;}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.qopt{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;border:2px solid #FDE68A;cursor:pointer;transition:all .2s;font-size:14px;}
+.qopt:hover{border-color:#F59E0B;background:#FFFBEB;}
+.qopt.selected{border-color:#F59E0B;background:#FFFBEB;}
+.qopt.correct{background:#d1fae5;border-color:#059669;}
+.qopt.wrong{background:#fee2e2;border-color:#dc2626;}
+.ok2{background:#F59E0B;color:#fff;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.qsub{background:#F59E0B;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.qsub:hover{background:#D97706;}
+.qsub:disabled{opacity:.4;cursor:not-allowed;}
+.qfb{font-size:13px;padding:10px 14px;border-radius:10px;margin-top:10px;display:none;line-height:1.65;}
+.qfb.show{display:block;}
+.qfb.ok{background:#d1fae5;color:#065f46;}
+.qfb.no{background:#fee2e2;color:#991b1b;}
+.score-box{text-align:center;padding:32px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border-radius:16px;display:none;}
+.score-box.show{display:block;}
+.big-sc{font-size:56px;font-weight:900;}
+.sc-lbl{font-size:16px;margin-top:4px;opacity:.85;}
+.sc-msg{font-size:18px;margin-top:8px;}
+.sc-retry{margin-top:18px;background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.6);border-radius:12px;padding:10px 24px;font-size:15px;cursor:pointer;font-family:inherit;}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">📚 模块三 · 单元一</div>
+  <h1>数据分类与处理认识</h1>
+  <h2>作用 · 原则 · 方法 — 为什么要处理数据？怎么处理？</h2>
+  <div class="hero-tags">
+    <span class="hero-tag">⏱ 预计35分钟</span>
+    <span class="hero-tag">🎯 3大作用</span>
+    <span class="hero-tag">⚖️ 5大原则</span>
+    <span class="hero-tag">🛠️ 5种方法概览</span>
+    <span class="hero-tag">✅ 5道测试题</span>
+  </div>
+  <div class="hero-nodes">
+    <div class="hn">😱 脏数据危机</div><div class="hn-arr">→</div>
+    <div class="hn">🎯 3大作用</div><div class="hn-arr">→</div>
+    <div class="hn">⚖️ 5大原则</div><div class="hn-arr">→</div>
+    <div class="hn">🛠️ 5种方法</div><div class="hn-arr">→</div>
+    <div class="hn">🔗 处理链路</div>
+  </div>
+</header>
+<nav class="sticky-nav">
+  <a class="nav-item active" href="#sec-intro">😱 引入案例</a>
+  <a class="nav-item" href="#sec-role">🎯 3大作用</a>
+  <a class="nav-item" href="#sec-principle">⚖️ 5大原则</a>
+  <a class="nav-item" href="#sec-method">🛠️ 5种方法</a>
+  <a class="nav-item" href="#sec-chain">🔗 处理链路</a>
+  <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+  <a class="nav-item" href="#sec-quiz">✅ 测试题</a>
+</nav>
+<div class="container">
+
+<!-- ══ 引入 ══ -->
+<section id="sec-intro" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">😱</div>
+    <div><div class="sec-title txt-c1">真实案例：脏数据导致的决策失误</div>
+    <div class="sec-sub">先看一个反面教材，理解数据处理的重要性</div></div>
+  </div>
+  <div class="boss">
+    <div class="boss-label">📍 飞跃跨境 · 运营复盘会议</div>
+    <div class="boss-say">「上个月我们直通车花了8万，为什么报表显示转化率高达35%，但实际销售额才12万？！」</div>
+    <div class="boss-task">数据分析同学小王打开Excel一查，发现：支付买家数那列有<strong>大量重复记录</strong>、部分退款订单<strong>没有剔除</strong>、还有几行<strong>测试数据</strong>混在里面……<br>结果：转化率被严重高估，整个推广策略全部基于<strong>错误数据</strong>制定！</div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：这一单元学什么？</strong><p>数据采集完之后，原始数据往往是「脏的」——有重复、有缺失、有格式乱、有逻辑错误。本单元解决：<strong>为什么要处理数据？处理要遵循哪些原则？有哪几种处理方法？</strong></p></div></div>
+    <div class="err-box">
+      <div class="err-wrong">
+        <span class="err-tag">❌ 不处理直接用</span>
+        <div class="err-content">重复数据 → 销量虚高<br>缺失数据 → 统计不准<br>格式混乱 → 函数报错<br>逻辑错误 → 判断失误<br><strong style="color:#DC2626">→ 错误决策，损失真金白银</strong></div>
+      </div>
+      <div class="err-right">
+        <span class="err-tag">✅ 处理后再分析</span>
+        <div class="err-content">清洗重复 → 数据干净<br>补充缺失 → 记录完整<br>统一格式 → 函数正常<br>纠正逻辑 → 分析准确<br><strong style="color:#16A34A">→ 可靠决策，运营有据可依</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 3大作用 ══ -->
+<section id="sec-role" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🎯</div>
+    <div><div class="sec-title txt-c1">一、数据分类与处理的3大作用</div>
+    <div class="sec-sub">在整个数据分析中起「承上启下」的作用</div></div>
+  </div>
+
+  <div class="boss">
+    <div class="boss-label">💼 应用场景导入</div>
+    <div class="boss-say">「老板让你分析上个月各流量来源的销售情况，你打开数据一看……」</div>
+    <div class="boss-task">发现：数据有<strong>100多行</strong>，流量来源写法不统一（"直通车"/"直通车 "/"直  通  车"），日期有中文有斜杠，部分支付金额为空……<br>你需要先把数据「整理好」，才能开始分析。这个整理过程，就是<strong>数据分类与处理</strong>。</div>
+  </div>
+
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：3大作用</strong><p>① 让数据能「说清楚现状」② 让数据「质量更高、格式统一」③ 让数据「呈现出规律」</p></div></div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
+      <div style="border-radius:14px;padding:18px 20px;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid #FDE68A;">
+        <div style="font-size:16px;font-weight:900;color:#D97706;margin-bottom:8px;">作用① 集中、系统地反映客观实际</div>
+        <p style="font-size:13px;color:#78350F;line-height:1.75;margin:0;">电商运营中，每一次点击、每一笔成交都会产生数据。通过分类与处理，这些零散数据变得<strong>清晰、可监控</strong>，帮助我们随时了解店铺当前状态，跟踪运营目标的完成情况。<br><span style="color:#D97706">📍 举例：把"各渠道访客数"整理成汇总表，一眼看出哪个渠道带来的流量最多</span></p>
+      </div>
+      <div style="border-radius:14px;padding:18px 20px;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid #FDE68A;">
+        <div style="font-size:16px;font-weight:900;color:#D97706;margin-bottom:8px;">作用② 确保数据内容完善、格式统一</div>
+        <p style="font-size:13px;color:#78350F;line-height:1.75;margin:0;">通过<strong>清洗和加工、关联和聚合</strong>，确保数据内容完整、准确、有效，格式统一规范，形成适合分析的数据类型。<br>高质量数据 → 精准有效的决策<br><span style="color:#D97706">📍 举例：把日期格式全部统一为"2024/1/1"，DATEDIF函数才能正常计算</span></p>
+      </div>
+      <div style="border-radius:14px;padding:18px 20px;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid #FDE68A;">
+        <div style="font-size:16px;font-weight:900;color:#D97706;margin-bottom:8px;">作用③ 发现规律，实现深度挖掘</div>
+        <p style="font-size:13px;color:#78350F;line-height:1.75;margin:0;">原始数据本身是杂乱的，只有经过分类与处理才能呈现出规律。<strong>处理的维度越多 → 分析范围越广 → 有用信息越丰富</strong>。<br><span style="color:#D97706">📍 举例：把订单按"省份×品类×月份"三维分类，发现"广东省3月份耳机销量"突然翻倍，从而挖掘出营销机会</span></p>
+      </div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">看清现状靠整理，质量统一是基础<br>维度越多规律现，处理到位分析准</div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：数据分类与处理在数据分析中起什么作用？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq0','数据分类与处理是在数据采集之后、数据分析之前，起「承上启下」的作用，不是数据分析的最终环节。')">数据分析的最终环节</button>
+      <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！数据分类与处理在整个数据分析中起「承上启下」的作用，是实现数据驱动决策的有效凭证。')">承上启下，影响分析价值</button>
+      <button class="mo" onclick="mq(this,false,'mq0','数据采集是获取数据的过程，数据分类与处理是对采集到的数据进行加工整理，两者是不同的环节。')">与数据采集完全相同</button>
+    </div>
+    <div id="mq0" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 5大原则 ══ -->
+<section id="sec-principle" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">⚖️</div>
+    <div><div class="sec-title txt-c1">二、数据分类与处理的5大原则</div>
+    <div class="sec-sub">处理数据时必须遵守的"规矩"</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：5大原则</strong><p>客观性（用数据说话）· 完整性（不残缺）· 针对性（选合适方法）· 严谨性（细心不出错）· 便捷性（结果好用）</p></div></div>
+    <div class="principle-list">
+      <div class="pl-item"><div class="pl-dot">1</div><div class="pl-body"><strong>客观性 — 用数据说话，不加主观判断</strong><p>结果应准确、可靠、客观，如实反映企业运营现状。不能因为「感觉销售应该不错」就修改数据，要让数字自己说话。<br>📍 反例：某月销售额下滑，人为删掉退款订单让数据"好看"→ 违反客观性</p></div></div>
+      <div class="pl-item"><div class="pl-dot">2</div><div class="pl-body"><strong>完整性 — 数据要完整，不能残缺</strong><p>数据是具有相当体量、相互关联的数据库集成，包括字段值域、类型和有效规则的约束。缺少关键字段会导致分析结论不全面。<br>📍 举例：订单数据必须包含日期、商品、金额、状态等所有字段，缺一不可</p></div></div>
+      <div class="pl-item"><div class="pl-dot">3</div><div class="pl-body"><strong>针对性 — 根据数据类型选合适的方法</strong><p>紧贴数据处理方案要求，针对不同类型数据选择合适方法，使结果符合实际需求。不同问题用不同工具解决。<br>📍 举例：日期格式不统一→用「分列」功能；重复数据→用「删除重复项」；不能乱用方法</p></div></div>
+      <div class="pl-item"><div class="pl-dot">4</div><div class="pl-body"><strong>严谨性 — 细心！数据处理最容易出错</strong><p>数据分类与处理最占时间和精力，因数据庞大繁琐而出错概率较大。一个小错误可能影响整个分析结论。<br>📍 举例：删除重复项时没有正确选择判断重复的列，把有效数据也删掉了</p></div></div>
+      <div class="pl-item"><div class="pl-dot">5</div><div class="pl-body"><strong>便捷性 — 处理结果要便于观察和调用</strong><p>结果应便于观察、对比、分析，能简单快速调用，易于发现规律。数据整理得再"干净"，如果不好用也白费。<br>📍 举例：数据透视表比手动汇总更便捷，可以快速切换维度</p></div></div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">客观真实莫造假，完整字段不缺少<br>针对症状选方法，严谨细心别马虎<br>便捷好用才算数</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 5种方法 ══ -->
+<section id="sec-method" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🛠️</div>
+    <div><div class="sec-title txt-c1">三、数据分类与处理的5种方法</div>
+    <div class="sec-sub">五种方法各有分工，共同构成完整的数据处理体系</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：5种方法是什么？</strong><p>分类统计（归类）· 数据清洗（去脏）· 数据转化（变格式）· 数据排序（排顺序）· 数据计算（做运算）</p></div></div>
+    <div class="method-grid">
+      <div class="method-card" style="background:#EFF6FF;border-color:#93C5FD;">
+        <span class="mc-num" style="color:#3B82F6">01</span>
+        <div class="mc-icon">📊</div>
+        <div class="mc-name" style="color:#1D4ED8">分类统计</div>
+        <div class="mc-def">根据统计目的将原始数据<strong>分门别类</strong>进行统计归类。<br>工具：分类汇总、透视表、函数</div>
+      </div>
+      <div class="method-card" style="background:#F0FDF4;border-color:#86EFAC;">
+        <span class="mc-num" style="color:#10B981">02</span>
+        <div class="mc-icon">🧹</div>
+        <div class="mc-name" style="color:#065F46">数据清洗</div>
+        <div class="mc-def">筛选删除多余/重复数据，补充缺失，纠正或剔除<strong>错误数据</strong></div>
+      </div>
+      <div class="method-card" style="background:#FFF7ED;border-color:#FED7AA;">
+        <span class="mc-num" style="color:#F97316">03</span>
+        <div class="mc-icon">🔄</div>
+        <div class="mc-name" style="color:#C2410C">数据转化</div>
+        <div class="mc-def">对数据的<strong>格式或结构</strong>进行转换。如行列互换、文本提炼、类型转换</div>
+      </div>
+      <div class="method-card" style="background:#F5F3FF;border-color:#C4B5FD;">
+        <span class="mc-num" style="color:#7C3AED">04</span>
+        <div class="mc-icon">🔢</div>
+        <div class="mc-name" style="color:#6D28D9">数据排序</div>
+        <div class="mc-def">按照一定的规则将数据<strong>排列</strong>。可简单排序、高级排序、自定义排序</div>
+      </div>
+      <div class="method-card" style="background:#FFF1F2;border-color:#FCA5A5;">
+        <span class="mc-num" style="color:#EF4444">05</span>
+        <div class="mc-icon">🔢</div>
+        <div class="mc-name" style="color:#DC2626">数据计算</div>
+        <div class="mc-def">对数据表中的数据<strong>有目的地</strong>进行加减乘除等计算，得出分析所需指标</div>
+      </div>
+    </div>
+    <div class="hl amber"><div class="hi">💡</div><div class="hb"><strong>5种方法之间的关系</strong><p>这5种方法不是孤立的，在实际工作中往往<strong>配合使用</strong>：先清洗脏数据 → 再转化格式 → 然后排序 → 最后统计和计算。下面的「处理链路」图展示了完整流程。</p></div></div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：把"2024年1月1日"统一修改为"2024/1/1"格式，属于哪种数据处理方法？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq1','数据清洗是处理缺失值、重复数据、逻辑错误等问题，不包括格式转换。')">数据清洗</button>
+      <button class="mo" onclick="mq(this,true,'mq1','✅ 正确！数据转化是对数据的格式或结构进行转换，统一日期格式就是典型的数据转化操作。')">数据转化</button>
+      <button class="mo" onclick="mq(this,false,'mq1','分类统计是对数据进行归类汇总，不是修改格式。')">分类统计</button>
+    </div>
+    <div id="mq1" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 处理链路 ══ -->
+<section id="sec-chain" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🔗</div>
+    <div><div class="sec-title txt-c1">四、完整数据处理链路</div>
+    <div class="sec-sub">从数据采集到数据计算的完整流程</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：处理流程是什么？</strong><p>数据从采集到最终能用于决策，需要经过完整的处理链路。每个环节缺失都会影响最终结果质量。</p></div></div>
+    <div class="chain">
+      <div class="chain-item"><div class="chain-step" style="background:#6B7280">📡 数据采集</div><div class="chain-note">模块二内容</div></div>
+      <div class="chain-arr">→</div>
+      <div class="chain-item"><div class="chain-step" style="background:#10B981">🧹 数据清洗</div><div class="chain-note">去除脏数据</div></div>
+      <div class="chain-arr">→</div>
+      <div class="chain-item"><div class="chain-step" style="background:#F97316">🔄 数据转化</div><div class="chain-note">统一格式结构</div></div>
+      <div class="chain-arr">→</div>
+      <div class="chain-item"><div class="chain-step" style="background:#8B5CF6">🔢 数据排序</div><div class="chain-note">有序排列</div></div>
+      <div class="chain-arr">→</div>
+      <div class="chain-item"><div class="chain-step" style="background:#3B82F6">📊 分类统计</div><div class="chain-note">汇总归类</div></div>
+      <div class="chain-arr">→</div>
+      <div class="chain-item"><div class="chain-step" style="background:#EF4444">🔢 数据计算</div><div class="chain-note">指标计算</div></div>
+      <div class="chain-arr">→</div>
+      <div class="chain-item"><div class="chain-step" style="background:#F59E0B">📈 数据分析</div><div class="chain-note">产出结论</div></div>
+    </div>
+    <div class="hl amber" style="margin-top:14px;"><div class="hi">⚠️</div><div class="hb"><strong>注意：顺序很重要！</strong><p>必须先清洗、再转化、再排序，最后才能统计和计算。如果顺序搞错（比如先统计再清洗），脏数据会直接污染统计结果，前功尽弃！</p></div></div>
+    <div class="rhyme" style="margin-top:14px;">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">采集来的先洗刷，格式转好再排序<br>分类统计做计算，层层处理出结论</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 知识导图 ══ -->
+<section id="sec-map" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🗺️</div>
+    <div><div class="sec-title txt-c1">单元一 · 知识导图</div></div>
+  </div>
+  <div class="card" style="overflow-x:auto;">
+    <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;">
+      <defs><filter id="sh"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity=".12"/></filter>
+      <linearGradient id="gAmber" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#F59E0B"/><stop offset="100%" style="stop-color:#D97706"/></linearGradient></defs>
+      <rect x="330" y="180" width="200" height="56" rx="28" fill="url(#gAmber)" filter="url(#sh)"/>
+      <text x="430" y="203" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">数据分类与处理认识</text>
+      <text x="430" y="224" text-anchor="middle" fill="rgba(255,255,255,.75)" font-size="10" font-family="Noto Sans SC,sans-serif">单元一 · 模块三</text>
+      <!-- 3大作用 -->
+      <line x1="330" y1="208" x2="185" y2="120" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="60" y="88" width="240" height="64" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2" filter="url(#sh)"/>
+      <text x="180" y="114" text-anchor="middle" fill="#D97706" font-size="12" font-weight="bold" font-family="Noto Sans SC,sans-serif">🎯 3大作用</text>
+      <text x="180" y="132" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">反映现状 · 统一质量 · 发现规律</text>
+      <!-- 5大原则 -->
+      <line x1="330" y1="208" x2="185" y2="298" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="60" y="268" width="240" height="64" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2" filter="url(#sh)"/>
+      <text x="180" y="294" text-anchor="middle" fill="#D97706" font-size="12" font-weight="bold" font-family="Noto Sans SC,sans-serif">⚖️ 5大原则</text>
+      <text x="180" y="312" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">客观·完整·针对·严谨·便捷</text>
+      <!-- 5种方法 -->
+      <line x1="530" y1="208" x2="670" y2="120" stroke="#3B82F6" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="595" y="88" width="250" height="64" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2" filter="url(#sh)"/>
+      <text x="720" y="114" text-anchor="middle" fill="#1D4ED8" font-size="12" font-weight="bold" font-family="Noto Sans SC,sans-serif">🛠️ 5种方法</text>
+      <text x="720" y="132" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">统计·清洗·转化·排序·计算</text>
+      <!-- 处理链路 -->
+      <line x1="530" y1="208" x2="670" y2="298" stroke="#10B981" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="595" y="268" width="250" height="64" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="2" filter="url(#sh)"/>
+      <text x="720" y="294" text-anchor="middle" fill="#065F46" font-size="12" font-weight="bold" font-family="Noto Sans SC,sans-serif">🔗 完整处理链路</text>
+      <text x="720" y="312" text-anchor="middle" fill="#555" font-size="10" font-family="Noto Sans SC,sans-serif">采集→清洗→转化→排序→统计→计算</text>
+      <!-- 承上启下 -->
+      <line x1="430" y1="236" x2="430" y2="370" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="300" y="358" width="260" height="44" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" filter="url(#sh)"/>
+      <text x="430" y="377" text-anchor="middle" fill="#D97706" font-size="12" font-weight="bold" font-family="Noto Sans SC,sans-serif">承上启下 · 影响分析输出价值</text>
+      <text x="430" y="394" text-anchor="middle" fill="#78350F" font-size="10" font-family="Noto Sans SC,sans-serif">数据驱动决策的有效凭证</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ══ 综合测试 ══ -->
+<section id="sec-quiz" class="sec-block reveal">
+  <div class="qhd"><span style="font-size:28px">✅</span><div><h2>单元一 综合测试</h2><p style="font-size:13px;opacity:.85;margin-top:2px">5道题，覆盖作用·原则·方法全部考点</p></div></div>
+  <div class="qbody">
+    <div class="qi" id="qz1">
+      <div class="qq"><span class="qnum">1</span>数据分类与处理在整个数据分析流程中的定位是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">A</div><div>数据分析的第一步，即数据采集</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',true)"><div class="ok2">B</div><div>承上启下，连接数据采集与数据分析，影响分析输出价值</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">C</div><div>数据分析的最后一步，输出报表</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">D</div><div>与数据采集相同，没有区别</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+      <div id="qz1-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz2">
+      <div class="qq"><span class="qnum">2</span>以下哪种行为违反了数据处理的「客观性」原则？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">A</div><div>将日期格式统一为同一格式</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">B</div><div>删除重复的订单记录</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',true)"><div class="ok2">C</div><div>因为本月业绩不好，删除部分退款订单让数据"好看"</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">D</div><div>补充缺失的客户联系方式</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+      <div id="qz2-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz3">
+      <div class="qq"><span class="qnum">3</span>5种数据处理方法中，「将数据按照金额从高到低排列」属于哪种方法？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">A</div><div>分类统计</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">B</div><div>数据清洗</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',true)"><div class="ok2">C</div><div>数据排序</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">D</div><div>数据计算</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+      <div id="qz3-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz4">
+      <div class="qq"><span class="qnum">4</span>关于「处理维度越多，分析越深入」的理解，以下哪项正确？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">A</div><div>维度越多，处理越麻烦，不推荐多维度处理</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',true)"><div class="ok2">B</div><div>分类与处理的维度越多，分析范围越广，能挖掘出更多有价值信息</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">C</div><div>维度越多，数据量越小，分析反而不准</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">D</div><div>维度多少对分析结果没有影响</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+      <div id="qz4-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz5">
+      <div class="qq"><span class="qnum">5</span>在数据处理流程中，正确的顺序应该是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">A</div><div>先分类统计，再清洗脏数据，最后计算</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">B</div><div>先数据计算，再数据清洗，最后分类统计</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',true)"><div class="ok2">C</div><div>先清洗脏数据，再转化格式，排序后再统计计算</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">D</div><div>顺序不重要，哪种方便先做哪种</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+      <div id="qz5-fb" class="qfb"></div>
+    </div>
+    <div id="qz-score" class="score-box">
+      <div style="font-size:56px" id="sc-emoji">🎉</div>
+      <div class="big-sc" id="sc-num">0/5</div>
+      <div class="sc-msg" id="sc-msg"></div>
+      <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer style="background:#1c1917;color:rgba(255,255,255,.5);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+  <p>📚 <span style="color:#FCD34D">商务数据分析</span> · 模块三·单元一 数据分类与处理认识</p>
+  <p style="margin-top:6px">中职电子商务专业 · 好的数据处理是好分析的起点 🚀</p>
+</footer>
+<script src="js/common.js"></script>
+<script src="js/learning.js"></script>
+<script>
+window.QUIZ_DATA={
+  qz1:{exp:'数据分类与处理在整个数据分析中起「承上启下」的作用：承接数据采集（上），为数据分析提供高质量数据（下），是实现数据驱动决策的有效凭证。'},
+  qz2:{exp:'客观性原则要求结果准确、可靠、客观，如实反映企业运营现状。人为删除退款数据让数据"好看"是典型的违反客观性行为，会导致基于错误数据的错误决策。'},
+  qz3:{exp:'数据排序是按照一定规则将数据排列，金额从高到低排列（降序）是典型的数据排序操作。分类统计是归类汇总；数据清洗是处理脏数据；数据计算是做运算。'},
+  qz4:{exp:'数据分类与处理的作用之三：分类与处理的维度越多，分析范围越广，能挖掘出的有用信息越丰富。多维度处理虽然工作量大，但能带来更深入的分析洞察。'},
+  qz5:{exp:'正确的数据处理顺序：先清洗脏数据（去掉重复、缺失、错误）→ 再转化格式（统一格式）→ 排序 → 分类统计 → 计算。如果先统计再清洗，脏数据会直接污染结果。'}
+};
+</script>
+</body>
+</html>
