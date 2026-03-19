@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>模块三·单元三 数据处理</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/learning.css">
+<style>
+:root{--c1:#059669;--c1l:#ECFDF5;--c1d:#047857;--c2:#10B981;--c3:#6EE7B7;
+  --primary:#059669;--secondary:#10B981;--accent:#6EE7B7;
+  --bg:#F0FDF4;--text:#0f1a12;--muted:#6B7280;--card:#fff;--r:16px;}
+.peek{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border-left:4px solid #059669;border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;}
+.peek-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.peek-body strong{display:block;font-size:13px;color:#065F46;margin-bottom:4px;}
+.peek-body p{font-size:13px;color:#064E3B;margin:0;line-height:1.7;}
+.boss{background:linear-gradient(135deg,#0f1a12,#1a2e1e);border-radius:16px;padding:20px 22px;margin:14px 0;position:relative;overflow:hidden;}
+.boss::before{content:'💼';position:absolute;right:16px;top:12px;font-size:40px;opacity:.15;}
+.boss-label{font-size:11px;font-weight:700;color:#34D399;letter-spacing:.08em;margin-bottom:8px;}
+.boss-say{font-size:15px;color:#A7F3D0;font-weight:700;line-height:1.6;margin-bottom:10px;}
+.boss-task{font-size:13px;color:#6EE7B7;line-height:1.7;}
+.boss-task strong{color:#D1FAE5;}
+.rhyme{background:linear-gradient(135deg,#059669,#047857);border-radius:14px;padding:16px 20px;margin:14px 0;text-align:center;}
+.rhyme-title{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:8px;letter-spacing:.1em;}
+.rhyme-text{font-size:18px;font-weight:900;color:#fff;line-height:1.8;font-family:'ZCOOL KuaiLe',cursive;}
+.err-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+@media(max-width:580px){.err-box{grid-template-columns:1fr;}}
+.err-wrong{background:#FEF2F2;border:2px solid #FCA5A5;border-radius:12px;padding:14px;}
+.err-right{background:#F0FDF4;border:2px solid #86EFAC;border-radius:12px;padding:14px;}
+.err-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-bottom:8px;display:inline-block;}
+.err-wrong .err-tag{background:#FEE2E2;color:#DC2626;}
+.err-right .err-tag{background:#DCFCE7;color:#16A34A;}
+.err-content{font-size:13px;line-height:1.7;color:#374151;}
+.steps{display:flex;flex-direction:column;gap:0;margin:14px 0;position:relative;}
+.steps::before{content:'';position:absolute;left:18px;top:0;bottom:0;width:2px;background:#D1FAE5;}
+.step-item{display:flex;gap:16px;align-items:flex-start;padding:12px 0;position:relative;}
+.step-num{width:36px;height:36px;background:#059669;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;z-index:1;}
+.step-body{flex:1;background:#ECFDF5;border-radius:12px;padding:12px 16px;}
+.step-body strong{display:block;font-size:13px;color:#047857;margin-bottom:4px;}
+.step-path{font-size:12px;color:#374151;line-height:1.7;background:#fff;border-radius:8px;padding:8px 12px;margin-top:6px;border:1px solid #D1FAE5;font-family:monospace;}
+.step-note{font-size:12px;color:#6B7280;margin-top:5px;}
+.dirty-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:560px){.dirty-compare{grid-template-columns:1fr;}}
+.dc-before{background:#FFFBEB;border:2px solid #FCD34D;border-radius:14px;padding:16px;}
+.dc-after{background:#F0FDF4;border:2px solid #86EFAC;border-radius:14px;padding:16px;}
+.dc-title{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.dc-row{font-size:12px;color:#374151;padding:5px 8px;border-radius:6px;margin-bottom:4px;font-family:monospace;}
+.dc-row.bad{background:#FEE2E2;color:#DC2626;}
+.dc-row.good{background:#DCFCE7;color:#065F46;}
+.dc-row.normal{background:#F9FAFB;}
+.wash-type{border-radius:14px;overflow:hidden;margin-bottom:14px;border:2px solid #D1FAE5;}
+.wt-head{background:#ECFDF5;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.wt-name{font-size:14px;font-weight:700;color:#065F46;}
+.wt-badge{font-size:11px;background:#059669;color:#fff;padding:2px 8px;border-radius:5px;}
+.wt-body{padding:16px;display:none;}
+.wash-type.open .wt-body{display:block;}
+.wash-type.open .wt-head{background:#059669;}
+.wash-type.open .wt-name{color:#fff;}
+.wash-type.open .wt-badge{background:rgba(255,255,255,.25);}
+.fn-card{border-radius:14px;border:2px solid #D1FAE5;background:#fff;overflow:hidden;cursor:pointer;transition:all .25s;margin-bottom:10px;}
+.fn-card:hover{border-color:#059669;transform:translateY(-2px);}
+.fn-head{background:#ECFDF5;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
+.fn-name{font-size:15px;font-weight:900;color:#065F46;font-family:monospace;}
+.fn-type{font-size:11px;color:#6B7280;background:#D1FAE5;padding:2px 7px;border-radius:5px;}
+.fn-prev{padding:10px 16px;font-size:12px;color:#6B7280;}
+.fn-detail{display:none;padding:12px 16px;border-top:1px solid #D1FAE5;}
+.fn-card.open .fn-detail{display:block;}
+.fn-card.open .fn-head{background:#059669;}
+.fn-card.open .fn-name{color:#fff;}
+.fn-format{font-size:12px;font-family:monospace;background:#0f1a12;color:#6EE7B7;padding:8px 12px;border-radius:8px;margin-bottom:8px;word-break:break-all;}
+.fn-eg{font-size:12px;background:#ECFDF5;border-radius:8px;padding:8px 12px;color:#065F46;}
+.qhd{background:linear-gradient(135deg,#059669,#047857);border-radius:20px 20px 0 0;padding:24px 28px;display:flex;gap:14px;align-items:center;color:#fff;}
+.qhd h2{font-size:20px;font-weight:800;margin:0;}
+.qbody{background:#ECFDF5;border:2px solid #D1FAE5;border-top:none;border-radius:0 0 20px 20px;padding:24px;}
+.qi{background:#fff;border-radius:14px;padding:20px;margin-bottom:18px;border:1px solid #D1FAE5;}
+.qq{font-size:15px;font-weight:600;color:#0f1a12;margin-bottom:14px;display:flex;gap:10px;}
+.qnum{background:#059669;color:#fff;border-radius:8px;padding:2px 10px;font-size:13px;font-weight:800;flex-shrink:0;}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.qopt{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;border:2px solid #D1FAE5;cursor:pointer;transition:all .2s;font-size:14px;}
+.qopt:hover{border-color:#059669;background:#ECFDF5;}
+.qopt.selected{border-color:#059669;background:#ECFDF5;}
+.qopt.correct{background:#d1fae5;border-color:#059669;}
+.qopt.wrong{background:#fee2e2;border-color:#dc2626;}
+.ok2{background:#059669;color:#fff;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.qsub{background:#059669;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.qsub:hover{background:#047857;} .qsub:disabled{opacity:.4;cursor:not-allowed;}
+.qfb{font-size:13px;padding:10px 14px;border-radius:10px;margin-top:10px;display:none;line-height:1.65;}
+.qfb.show{display:block;} .qfb.ok{background:#d1fae5;color:#065f46;} .qfb.no{background:#fee2e2;color:#991b1b;}
+.score-box{text-align:center;padding:32px;background:linear-gradient(135deg,#059669,#047857);color:#fff;border-radius:16px;display:none;}
+.score-box.show{display:block;} .big-sc{font-size:56px;font-weight:900;} .sc-msg{font-size:18px;margin-top:8px;}
+.sc-retry{margin-top:18px;background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.6);border-radius:12px;padding:10px 24px;font-size:15px;cursor:pointer;font-family:inherit;}
+</style>
+</head>
+<body>
+<header class="hero" style="--c1:#059669;--c1d:#047857;">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">📚 模块三 · 单元三</div>
+  <h1>数据处理</h1>
+  <h2>数据清洗 · 数据转化 · 数据排序 — 让脏数据变干净！</h2>
+  <div class="hero-tags">
+    <span class="hero-tag">⏱ 预计65分钟</span>
+    <span class="hero-tag">🧹 5类清洗方法</span>
+    <span class="hero-tag">✂️ LEFT/MID/RIGHT</span>
+    <span class="hero-tag">🔢 3种排序方式</span>
+    <span class="hero-tag">✅ 5道测试题</span>
+  </div>
+  <div class="hero-nodes">
+    <div class="hn">🧹 数据清洗</div><div class="hn-arr">→</div>
+    <div class="hn">🔄 数据转化</div><div class="hn-arr">→</div>
+    <div class="hn">🔢 数据排序</div><div class="hn-arr">→</div>
+    <div class="hn">✅ 处理完成</div>
+  </div>
+</header>
+<nav class="sticky-nav">
+  <a class="nav-item active" href="#sec-clean">🧹 数据清洗</a>
+  <a class="nav-item" href="#sec-iferror">🛠️ IFERROR</a>
+  <a class="nav-item" href="#sec-transform">🔄 数据转化</a>
+  <a class="nav-item" href="#sec-textfunc">✂️ 文本函数</a>
+  <a class="nav-item" href="#sec-sort">🔢 数据排序</a>
+  <a class="nav-item" href="#sec-quiz">✅ 测试题</a>
+</nav>
+<div class="container">
+
+<!-- ══ 数据清洗 ══ -->
+<section id="sec-clean" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🧹</div>
+    <div><div class="sec-title txt-c1">一、数据清洗 — 5类脏数据处理</div>
+    <div class="sec-sub">将脏数据表变成干净可用的数据表</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="boss">
+      <div class="boss-label">💼 应用场景导入</div>
+      <div class="boss-say">「你收到了一份从平台导出的订单数据，打开一看……」</div>
+      <div class="boss-task">有<strong>空白的客户姓名</strong>、日期格式写着"2024年1月3日"和"Jan 3, 2024"<strong>两种格式混用</strong>、有几条明显<strong>数量超限购</strong>的异常订单、还有两条完全相同的<strong>重复订单</strong>、以及一条<strong>TEST测试账号</strong>的订单……这些都要先处理掉才能分析！</div>
+    </div>
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：数据清洗的5类问题</strong><p>① 缺失值 ② 格式/内容问题 ③ 逻辑错误 ④ 重复数据 ⑤ 无价值数据</p></div></div>
+    <!-- 5类清洗可展开 -->
+    <div class="wash-type open" id="w1">
+      <div class="wt-head" onclick="toggleWash('w1')"><span class="wt-name">① 缺失值清洗 — 有空格怎么办？</span><span class="wt-badge">必掌握</span></div>
+      <div class="wt-body">
+        <div class="dirty-compare">
+          <div class="dc-before"><div class="dc-title" style="color:#D97706">⚠️ 清洗前（脏数据）</div>
+            <div class="dc-row bad">C011 | （空白） | 2024/1/8 | ¥399</div>
+            <div class="dc-row normal">C012 | 刘婷婷 | 2024/1/8 | ¥1199</div>
+            <div class="dc-row bad">C020 | 邓慧 | （空白） | ¥1299</div>
+          </div>
+          <div class="dc-after"><div class="dc-title" style="color:#065F46">✅ 清洗后</div>
+            <div class="dc-row good">C011 | 待补充 | 2024/1/8 | ¥399</div>
+            <div class="dc-row good">C012 | 刘婷婷 | 2024/1/8 | ¥1199</div>
+            <div class="dc-row good">C020 | 邓慧 | 已删除/标注 | ¥1299</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#374151;margin:8px 0;"><strong>三种处理方式：</strong>① 数据补齐（知道正确值就补）② 删除记录（整行没有分析价值就删）③ 不处理（暂时无法获取，保留空值）</p>
+        <div class="steps">
+          <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">1</div><div class="step-body"><strong>定位所有空值</strong><div class="step-path">选中数据区域 → 开始 → 编辑 → 查找和选择 → 定位条件 → 选「空值」→ 确定<br>（所有空白单元格会被同时选中，高亮显示）</div></div></div>
+          <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">2</div><div class="step-body"><strong>批量填充</strong><div class="step-path">直接输入补充内容 → 按 Ctrl+Enter（批量填充所有选中的空格）</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="wash-type" id="w2">
+      <div class="wt-head" onclick="toggleWash('w2')"><span class="wt-name">② 格式内容清洗 — 格式乱了怎么统一？</span><span class="wt-badge">必掌握</span></div>
+      <div class="wt-body">
+        <div class="dirty-compare">
+          <div class="dc-before"><div class="dc-title" style="color:#D97706">⚠️ 清洗前（格式混乱）</div>
+            <div class="dc-row bad">2024年1月9日（中文格式）</div>
+            <div class="dc-row bad">Jan 10, 2024（英文格式）</div>
+            <div class="dc-row bad">138 1234 5678（电话含空格）</div>
+            <div class="dc-row bad">=H12/E12 → 结果显示#DIV/0!</div>
+          </div>
+          <div class="dc-after"><div class="dc-title" style="color:#065F46">✅ 清洗后</div>
+            <div class="dc-row good">2024/1/9（统一格式）</div>
+            <div class="dc-row good">2024/1/10（统一格式）</div>
+            <div class="dc-row good">13812345678（空格已删除）</div>
+            <div class="dc-row good">=IFERROR(H12/E12,"/")→显示"/"</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#374151;font-weight:700;margin:10px 0 6px;">📋 日期格式统一操作：</p>
+        <div class="step-path" style="margin-bottom:10px;">选中日期列 → 右键 → 设置单元格格式 → 数字 → 日期 → 选择统一格式（如 2024/1/1）→ 确定</div>
+        <p style="font-size:13px;color:#374151;font-weight:700;margin:6px 0;">📋 去除空格操作：</p>
+        <div class="step-path">开始 → 编辑 → 查找和选择 → 替换<br>查找内容：输入一个空格 → 替换为：不输入（空白）→ 全部替换</div>
+      </div>
+    </div>
+    <div class="wash-type" id="w3">
+      <div class="wt-head" onclick="toggleWash('w3')"><span class="wt-name">③ 逻辑错误清洗 — 数据不合理怎么发现？</span><span class="wt-badge">必掌握</span></div>
+      <div class="wt-body">
+        <div class="dirty-compare">
+          <div class="dc-before"><div class="dc-title" style="color:#D97706">⚠️ 逻辑错误示例</div>
+            <div class="dc-row bad">数量：5件（限购2件）</div>
+            <div class="dc-row bad">支付金额：-129元（负数？）</div>
+            <div class="dc-row bad">收货日期早于下单日期</div>
+            <div class="dc-row bad">数量：0件（什么都没买？）</div>
+          </div>
+          <div class="dc-after"><div class="dc-title" style="color:#065F46">✅ 用条件格式标注</div>
+            <div class="dc-row good">数量>2 → 标红提醒</div>
+            <div class="dc-row good">支付金额<0 → 标红提醒</div>
+            <div class="dc-row good">收货<下单 → 标红提醒</div>
+            <div class="dc-row good">人工核查后处理</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#374151;font-weight:700;margin:10px 0 6px;">📋 条件格式标注错误数据：</p>
+        <div class="step-path">开始 → 样式 → 条件格式 → 突出显示单元格规则<br>• 数量>1（限购）：选「大于」→ 填入 1 → 设置红色填充<br>• 金额<0：选「小于」→ 填入 0 → 设置红色填充<br>• 收货早于下单：选「其他规则」→ 使用公式：=M2&lt;J2</div>
+      </div>
+    </div>
+    <div class="wash-type" id="w4">
+      <div class="wt-head" onclick="toggleWash('w4')"><span class="wt-name">④ 重复数据清洗 — 一键删重复</span><span class="wt-badge">必掌握</span></div>
+      <div class="wt-body">
+        <div class="dirty-compare">
+          <div class="dc-before"><div class="dc-title" style="color:#D97706">⚠️ 重复数据示例</div>
+            <div class="dc-row normal">FY001 | 张小明 | P001 | ¥299</div>
+            <div class="dc-row bad">FY001 | 张小明 | P001 | ¥299（完全重复！）</div>
+            <div class="dc-row normal">FY009 | 吴雪 | P009 | ¥1299</div>
+            <div class="dc-row bad">FY009 | 吴雪 | P009 | ¥1299（重复！）</div>
+          </div>
+          <div class="dc-after"><div class="dc-title" style="color:#065F46">✅ 删除后</div>
+            <div class="dc-row good">FY001 | 张小明 | P001 | ¥299</div>
+            <div class="dc-row good">FY009 | 吴雪 | P009 | ¥1299</div>
+            <div class="dc-row good">（重复行已删除，保留唯一值）</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">1</div><div class="step-body"><strong>打开删除重复项</strong><div class="step-path">选中数据区域 → 数据 → 数据工具 → 删除重复项</div></div></div>
+          <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">2</div><div class="step-body"><strong>选择判断重复的列（很重要！）</strong><div class="step-path">勾选"订单编号"（只看订单号相同才算重复）<br>⚠️ 如果同时勾选所有列，只有每一列都相同才算重复，要根据实际情况判断</div></div></div>
+          <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">3</div><div class="step-body"><strong>确认结果</strong><div class="step-path">点击确定 → Excel显示：删除了X个重复值，保留了X个唯一值</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="wash-type" id="w5">
+      <div class="wt-head" onclick="toggleWash('w5')"><span class="wt-name">⑤ 无价值数据清洗 — 要不要删？</span><span class="wt-badge">了解</span></div>
+      <div class="wt-body">
+        <div class="dirty-compare">
+          <div class="dc-before"><div class="dc-title" style="color:#D97706">⚠️ 无价值数据示例</div>
+            <div class="dc-row bad">TEST000001 | 测试账号 | 测试商品 | ¥0.01</div>
+            <div class="dc-row bad">（这是开发测试时产生的，对分析无意义）</div>
+          </div>
+          <div class="dc-after"><div class="dc-title" style="color:#065F46">✅ 处理建议</div>
+            <div class="dc-row good">先备份整张表（另存一份）</div>
+            <div class="dc-row good">再删除无价值字段/记录</div>
+            <div class="dc-row good">通常不建议直接删除！</div>
+          </div>
+        </div>
+        <div class="hl" style="background:#FEF3C7;border-color:#FCD34D;"><div class="hi">⚠️</div><div class="hb"><strong style="font-size:13px">重要提醒：不建议直接删！</strong><p style="font-size:12px">删除前务必备份。今天"没用"的数据，可能明天就需要用到。建议另存备份后再删除，或者用颜色标注而非直接删除。</p></div></div>
+      </div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">缺失补充或删除，格式统一空格清<br>逻辑错误条件标，重复数据一键删<br>无价值数据先备份再动手</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：删除重复数据时，应该如何选择「判断重复的列」？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq0','全选所有列时，只有每一列都完全相同才算重复，可能会漏掉部分重复订单（如备注不同但订单号相同的情况）。')">勾选所有列，全部相同才算重复</button>
+      <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！应该根据业务逻辑选择合适的判断列。通常只需勾选「订单编号」，同一订单号就算重复；勾选所有列要求每列都相同才算重复，可能漏掉重复项。')">根据业务逻辑选择，如只勾选「订单编号」</button>
+      <button class="mo" onclick="mq(this,false,'mq0','不选任何列无法执行删除重复操作，Excel需要至少一列来判断重复标准。')">不选任何列，让Excel自动判断</button>
+    </div>
+    <div id="mq0" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ IFERROR ══ -->
+<section id="sec-iferror" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🛠️</div>
+    <div><div class="sec-title txt-c1">专项讲解：IFERROR 错误处理函数</div>
+    <div class="sec-sub">让表格里的#DIV/0! #VALUE! #N/A 等丑陋错误值消失</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：IFERROR做什么？</strong><p>如果公式正常就显示计算结果；如果公式出错就显示你指定的内容（如"-"或"数据缺失"），让表格更干净。</p></div></div>
+    <div style="background:#0f1a12;border-radius:14px;padding:16px 20px;margin:14px 0;font-family:monospace;">
+      <div style="color:#6B7280;font-size:12px;margin-bottom:8px;">// IFERROR 格式</div>
+      <div style="font-size:15px;color:#6EE7B7;">=IFERROR(<span style="color:#FCD34D">原来的公式</span>, <span style="color:#86EFAC">出错时显示的内容</span>)</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin:14px 0;">
+      <div style="background:#FEF2F2;border-radius:12px;padding:14px;border-left:4px solid #DC2626;">
+        <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:8px;">❌ 不用IFERROR的问题</div>
+        <div style="font-family:monospace;font-size:13px;background:#fff;padding:8px 12px;border-radius:6px;color:#374151;">=H12/E12 → 当E12=0时，显示 <strong style="color:#DC2626">#DIV/0!</strong></div>
+        <p style="font-size:12px;color:#6B7280;margin:6px 0 0;">整张表出现红色错误值，报告难看，函数也无法继续计算</p>
+      </div>
+      <div style="background:#F0FDF4;border-radius:12px;padding:14px;border-left:4px solid #059669;">
+        <div style="font-size:13px;font-weight:700;color:#065F46;margin-bottom:8px;">✅ 用IFERROR包裹后</div>
+        <div style="font-family:monospace;font-size:13px;background:#fff;padding:8px 12px;border-radius:6px;color:#374151;">=IFERROR(H12/E12, "/") → 出错时显示 <strong style="color:#059669">"/"</strong></div>
+        <p style="font-size:12px;color:#6B7280;margin:6px 0 0;">表格干净，用"/"或"数据缺失"等友好文字替代错误值</p>
+      </div>
+    </div>
+    <div style="background:#ECFDF5;border-radius:14px;padding:16px;margin:10px 0;">
+      <div style="font-size:14px;font-weight:700;color:#065F46;margin-bottom:10px;">📍 3个常见应用场景</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:13px;padding:8px 12px;background:#fff;border-radius:8px;">场景①：除法公式防止除以零错误<br><code style="color:#059669">=IFERROR(支付买家数/访客数, 0)</code></div>
+        <div style="font-size:13px;padding:8px 12px;background:#fff;border-radius:8px;">场景②：VLOOKUP找不到时防止#N/A<br><code style="color:#059669">=IFERROR(VLOOKUP(H4,$A$4:$E$18,2,0), "商品不存在")</code></div>
+        <div style="font-size:13px;padding:8px 12px;background:#fff;border-radius:8px;">场景③：数据类型不匹配时防止#VALUE!<br><code style="color:#059669">=IFERROR(LEFT(A1,5), "格式异常")</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 数据转化 ══ -->
+<section id="sec-transform" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🔄</div>
+    <div><div class="sec-title txt-c1">二、数据转化</div>
+    <div class="sec-sub">行列互换 · 类型转换 · 文本提炼</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：数据转化做什么？</strong><p>对数据的格式或结构进行转换，是数据处理的前期准备。让数据从「不好用」的格式变成「好用」的格式。</p></div></div>
+
+    <h4 style="color:#047857;margin:14px 0 8px;">转化①：数据表行列互换（转置）</h4>
+    <div class="boss">
+      <div class="boss-label">💼 场景</div>
+      <div class="boss-say">「这张表的行太多了，我想把行和列对换，让数据横向展示。」</div>
+    </div>
+    <div class="err-box">
+      <div class="err-wrong"><span class="err-tag">方法一：粘贴转置</span>
+        <div class="err-content">选中数据 → Ctrl+C → 点击目标单元格 → 开始 → 粘贴 → 转置</div></div>
+      <div class="err-right"><span class="err-tag" style="background:#DCFCE7;color:#065F46;">方法二：快捷键</span>
+        <div class="err-content">复制后按 Ctrl+Alt+V → 弹出「选择性粘贴」→ 勾选「转置」→ 确定</div></div>
+    </div>
+
+    <h4 style="color:#047857;margin:14px 0 8px;">转化②：数值与文本类型互换（解决科学计数法）</h4>
+    <div class="dirty-compare">
+      <div class="dc-before"><div class="dc-title" style="color:#D97706">⚠️ 问题场景</div>
+        <div class="dc-row bad">订单号显示为科学计数法：5.7E+17</div>
+        <div class="dc-row bad">文本型数字无法用SUM计算</div>
+      </div>
+      <div class="dc-after"><div class="dc-title" style="color:#065F46">✅ 解决方法：分列</div>
+        <div class="dc-row good">数据 → 分列 → 下一步→下一步</div>
+        <div class="dc-row good">列数据格式选「文本」→完成（解决科学计数）</div>
+        <div class="dc-row good">或选「常规」→完成（文本转数值）</div>
+      </div>
+    </div>
+    <div class="hl" style="background:#FEF3C7;border-color:#FCD34D;margin-top:10px;"><div class="hi">💡</div><div class="hb"><strong style="font-size:13px">分列法的妙用</strong><p style="font-size:12px">不仅可以转换类型，还可以把"20240101"这样的文本转成真正的日期格式！第3步选「日期」→「YMD」→完成</p></div></div>
+  </div>
+</section>
+
+<!-- ══ 文本函数 ══ -->
+<section id="sec-textfunc" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">✂️</div>
+    <div><div class="sec-title txt-c1">文本函数：LEFT / MID / RIGHT</div>
+    <div class="sec-sub">从混合数据中提炼出有用信息</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="boss">
+      <div class="boss-label">💼 应用场景导入</div>
+      <div class="boss-say">「客户信息全挤在一个单元格里：姓名+手机号+订单号，怎么把它们分开？」</div>
+      <div class="boss-task">原始数据：<strong>wen小文15191842599569834882682982536</strong><br>需要分别提取：客户姓名 / 联系电话 / 订单号，分别放到不同列</div>
+    </div>
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：三个文本函数的区别</strong><p>LEFT=从左边截取 · MID=从中间截取 · RIGHT=从右边截取</p></div></div>
+    <div class="fn-card open" onclick="toggleFn(this)">
+      <div class="fn-head"><span class="fn-name">LEFT</span><span class="fn-type">从左截取</span></div>
+      <div class="fn-prev">从文本左侧提取指定个数的字符</div>
+      <div class="fn-detail">
+        <div class="fn-format">=LEFT(text, num_chars)</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">text：要提取的原始文本（单元格）</div>
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">num_chars：从左边数，要提取几个字符</div>
+        </div>
+        <div class="fn-eg">📍 电商场景：<br>原始：A1="wen小文15191842599..." (客户名"wen小文"占5个字符)<br>=LEFT(A1, 5) → 结果：wen小文<br>📍 提取商品分类前缀：<br>=LEFT(B2, 2) → 从"数码配件-耳机"中提取"数码"</div>
+      </div>
+    </div>
+    <div class="fn-card" onclick="toggleFn(this)">
+      <div class="fn-head"><span class="fn-name">MID</span><span class="fn-type">从中间截取</span></div>
+      <div class="fn-prev">从文本中间指定位置提取指定个数字符</div>
+      <div class="fn-detail">
+        <div class="fn-format">=MID(text, start_num, num_chars)</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">text：原始文本</div>
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">start_num：从第几个字符开始提取</div>
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">num_chars：提取几个字符</div>
+        </div>
+        <div class="fn-eg">📍 电商场景（续上例）：<br>前5个字符是姓名，第6到16位是手机号（11位）<br>=MID(A1, 6, 11) → 结果：15191842599<br>📍 提取订单日期（如订单号"20240601001"第1到8位是日期）：<br>=MID(B2, 1, 8) → 结果：20240601</div>
+      </div>
+    </div>
+    <div class="fn-card" onclick="toggleFn(this)">
+      <div class="fn-head"><span class="fn-name">RIGHT</span><span class="fn-type">从右截取</span></div>
+      <div class="fn-prev">从文本右侧提取指定个数的字符</div>
+      <div class="fn-detail">
+        <div class="fn-format">=RIGHT(text, num_chars)</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">text：原始文本</div>
+          <div style="font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #059669;">num_chars：从右边数，要提取几个字符</div>
+        </div>
+        <div class="fn-eg">📍 电商场景（续上例）：<br>订单号固定18位，在混合字符串的最后18位<br>=RIGHT(A1, 18) → 结果：569834882682982536<br>📍 提取快递单号后8位：<br>=RIGHT(C2, 8) → 从"SF1234567890"中取最后8位</div>
+      </div>
+    </div>
+    <div style="background:#ECFDF5;border-radius:14px;padding:16px;margin:14px 0;">
+      <div style="font-size:14px;font-weight:700;color:#065F46;margin-bottom:10px;">🧪 综合案例完整公式</div>
+      <p style="font-size:13px;color:#374151;margin-bottom:8px;">原始数据A1："wen小文15191842599569834882682982536"</p>
+      <div style="display:flex;flex-direction:column;gap:6px;font-family:monospace;font-size:13px;">
+        <div style="background:#fff;padding:8px 12px;border-radius:8px;border-left:3px solid #059669;"><span style="color:#6B7280">// B列：提取客户姓名（前5个字符）</span><br><span style="color:#065F46">=LEFT(A1, 5)</span></div>
+        <div style="background:#fff;padding:8px 12px;border-radius:8px;border-left:3px solid #059669;"><span style="color:#6B7280">// C列：提取手机号（第6位开始，11个字符）</span><br><span style="color:#065F46">=MID(A1, 6, 11)</span></div>
+        <div style="background:#fff;padding:8px 12px;border-radius:8px;border-left:3px solid #059669;"><span style="color:#6B7280">// D列：提取订单号（最后18位）</span><br><span style="color:#065F46">=RIGHT(A1, 18)</span></div>
+      </div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">LEFT从左MID中间，RIGHT从右来截取<br>参数一个是位置，另一个是字符数</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：要从"13812345678"中提取中间5位（34567），应该用哪个函数和参数？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq1','LEFT从左边截取，=LEFT("13812345678",5)会得到"13812"，不是中间5位。')">LEFT(A1, 5)</button>
+      <button class="mo" onclick="mq(this,true,'mq1','✅ 正确！MID(A1, 4, 5)表示：从第4个字符开始，提取5个字符。"13812345678"第4位是"1"，取5位得到"12345"。如果要取"34567"应该是MID(A1,4,5)实际上"34567"在第4-8位，即MID(A1,4,5)=34567 ✓')">MID(A1, 4, 5)</button>
+      <button class="mo" onclick="mq(this,false,'mq1','RIGHT从右边截取，=RIGHT("13812345678",5)会得到"45678"，不是中间5位。')">RIGHT(A1, 5)</button>
+    </div>
+    <div id="mq1" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 数据排序 ══ -->
+<section id="sec-sort" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🔢</div>
+    <div><div class="sec-title txt-c1">三、数据排序 — 3种排序方式</div>
+    <div class="sec-sub">简单排序 · 高级排序 · 自定义排序 + 重要避坑！</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：3种排序方式</strong><p>简单排序=单列快速排 · 高级排序=多列排（主+次关键字）· 自定义排序=按照你规定的顺序排</p></div></div>
+    <h4 style="color:#047857;margin:14px 0 8px;">① 简单排序（单列快速排）</h4>
+    <div class="steps">
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">1</div><div class="step-body"><strong>选中要排序的列</strong><div class="step-path">点击「支付金额」列中的任意单元格</div></div></div>
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">2</div><div class="step-body"><strong>点击升序或降序</strong><div class="step-path">数据 → 排序和筛选 → 点击「降序」（金额从高到低）</div></div></div>
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">⚠️</div><div class="step-body">
+        <strong style="color:#DC2626">关键！弹出排序提醒时必须选「扩展选定区域」！</strong>
+        <div class="err-box" style="margin-top:8px;">
+          <div class="err-wrong"><span class="err-tag">❌ 「以当前选定区域排序」</span><div class="err-content">只有选中的列被重新排序，其他列保持原位！导致<strong>数据错位</strong>！客户A的金额跑到客户B那行去了！</div></div>
+          <div class="err-right"><span class="err-tag">✅ 「扩展选定区域」</span><div class="err-content">整行数据一起排序，每行的数据保持完整对应关系，不会错位</div></div>
+        </div>
+      </div></div>
+    </div>
+    <h4 style="color:#047857;margin:14px 0 8px;">② 高级排序（多列多条件）</h4>
+    <div class="boss">
+      <div class="boss-label">💼 场景</div>
+      <div class="boss-say">「先按访客数降序，访客数相同的再按支付金额降序」</div>
+    </div>
+    <div class="steps">
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">1</div><div class="step-body"><strong>打开排序对话框</strong><div class="step-path">数据 → 排序</div></div></div>
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">2</div><div class="step-body"><strong>设置主要关键字</strong><div class="step-path">主要关键字：选「访客数」→ 顺序：降序</div></div></div>
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">3</div><div class="step-body"><strong>添加次要关键字</strong><div class="step-path">点击「添加条件」→ 次要关键字选「支付金额」→ 降序 → 确定</div></div></div>
+    </div>
+    <h4 style="color:#047857;margin:14px 0 8px;">③ 自定义排序（按自定规则排）</h4>
+    <div class="boss">
+      <div class="boss-label">💼 场景</div>
+      <div class="boss-say">「我想按流量来源的重要性排序：付费流量→自主访问→淘内免费→淘外网站→其他，而不是按字母顺序」</div>
+    </div>
+    <div class="steps">
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">1</div><div class="step-body"><strong>创建自定义序列</strong><div class="step-path">文件 → 选项 → 高级 → 常规 → 编辑自定义列表 → 输入：付费流量,自主访问,淘内免费,淘外网站,其他来源 → 添加 → 确定</div></div></div>
+      <div class="step-item"><div class="step-num" style="width:28px;height:28px;font-size:12px;">2</div><div class="step-body"><strong>排序时选择自定义序列</strong><div class="step-path">数据 → 排序 → 主要关键字「流量来源」→ 次序选「自定义序列」→ 选已定义好的序列 → 确定</div></div></div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">排序三类要记牢：简单高级自定义<br>弹出提示必扩展，否则数据会错位</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：排序时弹出提示窗口，应该选哪个选项？为什么？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq2','「以当前选定区域排序」只对选中列排序，其他列不动，会导致数据错位——A行的名称跑到B行的金额旁边，非常危险！')">以当前选定区域排序（只动选中列）</button>
+      <button class="mo" onclick="mq(this,true,'mq2','✅ 正确！必须选「扩展选定区域」，这样排序时整行数据一起移动，每行的所有字段保持对应关系，不会出现数据错位。')">扩展选定区域（整行一起移动）</button>
+    </div>
+    <div id="mq2" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 综合测试 ══ -->
+<section id="sec-quiz" class="sec-block reveal">
+  <div class="qhd"><span style="font-size:28px">✅</span><div><h2>单元三 综合测试</h2><p style="font-size:13px;opacity:.85;margin-top:2px">5道题，覆盖清洗·转化·排序全部考点</p></div></div>
+  <div class="qbody">
+    <div class="qi" id="qz1"><div class="qq"><span class="qnum">1</span>以下哪种属于「格式内容清洗」问题？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">A</div><div>客户姓名列有空白</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',true)"><div class="ok2">B</div><div>日期格式混用"2024年1月"和"Jan 2024"两种格式</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">C</div><div>同一订单号出现两次</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">D</div><div>购买数量超过限购数量</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+      <div id="qz1-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz2"><div class="qq"><span class="qnum">2</span>原始数据A1="张三丰18066668888SF1234567890"，用哪个公式提取手机号？（姓名3个字，手机11位，后面是快递单号）</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">A</div><div>=LEFT(A1, 11)</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',true)"><div class="ok2">B</div><div>=MID(A1, 4, 11)</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">C</div><div>=RIGHT(A1, 11)</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">D</div><div>=LEFT(A1, 3)</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+      <div id="qz2-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz3"><div class="qq"><span class="qnum">3</span>使用IFERROR的主要目的是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">A</div><div>提高公式的计算速度</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">B</div><div>让公式结果更精确</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',true)"><div class="ok2">C</div><div>当公式出错时，显示指定内容而非丑陋的错误值</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">D</div><div>自动修复公式中的错误</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+      <div id="qz3-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz4"><div class="qq"><span class="qnum">4</span>对数字格式的订单号（如显示为科学计数法5.7E+17），正确的转化方法是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">A</div><div>直接输入订单号重新录入</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',true)"><div class="ok2">B</div><div>数据→分列→第3步选「文本」格式→完成</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">C</div><div>设置单元格格式为「数值」</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">D</div><div>用IFERROR函数包裹</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+      <div id="qz4-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz5"><div class="qq"><span class="qnum">5</span>无价值数据（如测试账号的订单）的处理原则是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">A</div><div>发现就立即删除，干净利落</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">B</div><div>保留所有数据，一律不删</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',true)"><div class="ok2">C</div><div>先备份整张表，再考虑删除，通常不建议直接删除</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">D</div><div>直接用条件格式标红就行，不用处理</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+      <div id="qz5-fb" class="qfb"></div>
+    </div>
+    <div id="qz-score" class="score-box"><div style="font-size:56px" id="sc-emoji">🎉</div><div class="big-sc" id="sc-num">0/5</div><div class="sc-msg" id="sc-msg"></div><button class="sc-retry" onclick="location.reload()">🔄 重新测试</button></div>
+  </div>
+</section>
+</div>
+<footer style="background:#0f1a12;color:rgba(255,255,255,.5);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+  <p>📚 <span style="color:#6EE7B7">商务数据分析</span> · 模块三·单元三 数据处理</p>
+</footer>
+<script src="js/common.js"></script>
+<script src="js/learning.js"></script>
+<script>
+function toggleFn(card){card.classList.toggle('open');}
+function toggleWash(id){document.getElementById(id).classList.toggle('open');}
+window.QUIZ_DATA={
+  qz1:{exp:'格式内容清洗处理格式不统一（日期格式混用）和内容含空格等问题。缺失值（空白姓名）是缺失值清洗；重复订单号是重复数据清洗；购买超限购是逻辑错误清洗。'},
+  qz2:{exp:'数据为"张三丰18066668888SF..."，姓名3字，手机号从第4位开始，共11位。所以=MID(A1,4,11)：从第4位开始取11个字符=18066668888。LEFT(A1,11)会取前11位包含姓名；RIGHT(A1,11)会取最后11位即快递单号末尾。'},
+  qz3:{exp:'IFERROR的作用：当内部公式正常时返回计算结果；当公式出错（#DIV/0! #N/A #VALUE!等）时，显示指定的替代内容（如"-"或"数据缺失"）。它不会修复错误，只是让错误显示更友好。'},
+  qz4:{exp:'订单号显示为科学计数法，说明被存储为数值格式。解决方法：数据→分列→前两步默认设置→第三步「列数据格式」选「文本」→完成。转成文本后，前面会出现小绿三角，订单号会完整显示。'},
+  qz5:{exp:'无价值数据的处理原则：通常不建议直接删除，建议先备份后再处理。今天"没用"的数据，以后可能需要用到。正确做法是先另存备份一份原始数据，再对工作副本进行删除操作。'}
+};
+</script>
+</body>
+</html>
