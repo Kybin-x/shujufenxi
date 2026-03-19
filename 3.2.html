@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>模块三·单元二 分类统计</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/learning.css">
+<style>
+:root{
+  --c1:#2563EB;--c1l:#EFF6FF;--c1d:#1D4ED8;--c2:#3B82F6;--c3:#93C5FD;
+  --primary:#2563EB;--secondary:#3B82F6;--accent:#93C5FD;
+  --bg:#F0F9FF;--text:#0f172a;--muted:#64748b;--card:#fff;--r:16px;
+}
+.peek{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-left:4px solid #2563EB;border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;}
+.peek-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.peek-body strong{display:block;font-size:13px;color:#1E40AF;margin-bottom:4px;}
+.peek-body p{font-size:13px;color:#1E3A8A;margin:0;line-height:1.7;}
+.boss{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;padding:20px 22px;margin:14px 0;position:relative;overflow:hidden;}
+.boss::before{content:'💼';position:absolute;right:16px;top:12px;font-size:40px;opacity:.15;}
+.boss-label{font-size:11px;font-weight:700;color:#60A5FA;letter-spacing:.08em;margin-bottom:8px;}
+.boss-say{font-size:15px;color:#BFDBFE;font-weight:700;line-height:1.6;margin-bottom:10px;}
+.boss-task{font-size:13px;color:#94A3B8;line-height:1.7;}
+.boss-task strong{color:#93C5FD;}
+.rhyme{background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:14px;padding:16px 20px;margin:14px 0;text-align:center;}
+.rhyme-title{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:8px;letter-spacing:.1em;}
+.rhyme-text{font-size:18px;font-weight:900;color:#fff;line-height:1.8;font-family:'ZCOOL KuaiLe',cursive;}
+.err-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+@media(max-width:580px){.err-box{grid-template-columns:1fr;}}
+.err-wrong{background:#FEF2F2;border:2px solid #FCA5A5;border-radius:12px;padding:14px;}
+.err-right{background:#F0FDF4;border:2px solid #86EFAC;border-radius:12px;padding:14px;}
+.err-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-bottom:8px;display:inline-block;}
+.err-wrong .err-tag{background:#FEE2E2;color:#DC2626;}
+.err-right .err-tag{background:#DCFCE7;color:#16A34A;}
+.err-content{font-size:13px;line-height:1.7;color:#374151;}
+/* 决策流程图 */
+.decision{background:#F8FAFC;border:2px solid #CBD5E1;border-radius:16px;padding:20px;margin:14px 0;}
+.decision h4{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:16px;text-align:center;}
+.d-flow{display:flex;flex-direction:column;gap:10px;}
+.d-row{display:flex;align-items:center;gap:10px;}
+.d-q{background:#fff;border:2px solid #CBD5E1;border-radius:10px;padding:10px 14px;font-size:13px;color:#374151;flex:1;font-weight:600;}
+.d-arr{color:#2563EB;font-size:18px;font-weight:700;flex-shrink:0;}
+.d-ans{border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;flex-shrink:0;text-align:center;min-width:120px;}
+/* 步骤卡片 */
+.steps{display:flex;flex-direction:column;gap:0;margin:14px 0;position:relative;}
+.steps::before{content:'';position:absolute;left:18px;top:0;bottom:0;width:2px;background:#DBEAFE;}
+.step-item{display:flex;gap:16px;align-items:flex-start;padding:14px 0;position:relative;}
+.step-num{width:36px;height:36px;background:#2563EB;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;z-index:1;position:relative;}
+.step-body{flex:1;background:#EFF6FF;border-radius:12px;padding:14px 16px;}
+.step-body strong{display:block;font-size:13px;color:#1D4ED8;margin-bottom:4px;}
+.step-path{font-size:12px;color:#374151;line-height:1.7;background:#fff;border-radius:8px;padding:8px 12px;margin-top:6px;border:1px solid #DBEAFE;font-family:monospace;}
+.step-note{font-size:12px;color:#64748b;margin-top:5px;}
+/* 函数交互卡片 */
+.fn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:14px 0;}
+.fn-card{border-radius:14px;border:2px solid #DBEAFE;background:#fff;overflow:hidden;cursor:pointer;transition:all .25s;}
+.fn-card:hover{border-color:#2563EB;transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.12);}
+.fn-head{background:#EFF6FF;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
+.fn-name{font-size:15px;font-weight:900;color:#1D4ED8;font-family:monospace;}
+.fn-type{font-size:11px;color:#64748b;background:#DBEAFE;padding:2px 7px;border-radius:5px;}
+.fn-prev{padding:10px 16px;font-size:12px;color:#64748b;}
+.fn-detail{display:none;padding:12px 16px;border-top:1px solid #DBEAFE;}
+.fn-card.open .fn-detail{display:block;}
+.fn-card.open .fn-head{background:#2563EB;}
+.fn-card.open .fn-name{color:#fff;}
+.fn-format{font-size:12px;font-family:monospace;background:#0f172a;color:#93C5FD;padding:8px 12px;border-radius:8px;margin-bottom:8px;word-break:break-all;}
+.fn-params{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.fn-param{font-size:12px;color:#374151;padding:4px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #2563EB;}
+.fn-eg{font-size:12px;background:#F0FDF4;border-radius:8px;padding:8px 12px;color:#065F46;}
+/* VLOOKUP特殊样式 */
+.vl-param{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.vl-p{border-radius:12px;padding:12px 14px;border-left:4px solid transparent;}
+.vl-p strong{font-size:13px;display:block;margin-bottom:3px;}
+.vl-p p{font-size:12px;margin:0;line-height:1.6;color:#555;}
+/* 透视表区域图示 */
+.pt-zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+.pt-zone{border-radius:12px;padding:14px;text-align:center;}
+.pt-icon{font-size:28px;margin-bottom:6px;}
+.pt-name{font-size:14px;font-weight:900;margin-bottom:4px;}
+.pt-desc{font-size:12px;color:#555;line-height:1.6;}
+.pt-eg{font-size:11px;margin-top:6px;font-style:italic;}
+/* quiz */
+.qhd{background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:20px 20px 0 0;padding:24px 28px;display:flex;gap:14px;align-items:center;color:#fff;}
+.qhd h2{font-size:20px;font-weight:800;margin:0;}
+.qbody{background:#EFF6FF;border:2px solid #DBEAFE;border-top:none;border-radius:0 0 20px 20px;padding:24px;}
+.qi{background:#fff;border-radius:14px;padding:20px;margin-bottom:18px;border:1px solid #DBEAFE;}
+.qq{font-size:15px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;gap:10px;}
+.qnum{background:#2563EB;color:#fff;border-radius:8px;padding:2px 10px;font-size:13px;font-weight:800;flex-shrink:0;}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.qopt{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;border:2px solid #DBEAFE;cursor:pointer;transition:all .2s;font-size:14px;}
+.qopt:hover{border-color:#2563EB;background:#EFF6FF;}
+.qopt.selected{border-color:#2563EB;background:#EFF6FF;}
+.qopt.correct{background:#d1fae5;border-color:#059669;}
+.qopt.wrong{background:#fee2e2;border-color:#dc2626;}
+.ok2{background:#2563EB;color:#fff;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.qsub{background:#2563EB;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.qsub:hover{background:#1D4ED8;}
+.qsub:disabled{opacity:.4;cursor:not-allowed;}
+.qfb{font-size:13px;padding:10px 14px;border-radius:10px;margin-top:10px;display:none;line-height:1.65;}
+.qfb.show{display:block;}
+.qfb.ok{background:#d1fae5;color:#065f46;}
+.qfb.no{background:#fee2e2;color:#991b1b;}
+.score-box{text-align:center;padding:32px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border-radius:16px;display:none;}
+.score-box.show{display:block;}
+.big-sc{font-size:56px;font-weight:900;}
+.sc-lbl{font-size:16px;margin-top:4px;opacity:.85;}
+.sc-msg{font-size:18px;margin-top:8px;}
+.sc-retry{margin-top:18px;background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.6);border-radius:12px;padding:10px 24px;font-size:15px;cursor:pointer;font-family:inherit;}
+</style>
+</head>
+<body>
+<header class="hero" style="--c1:#2563EB;--c1d:#1D4ED8;">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">📚 模块三 · 单元二</div>
+  <h1>分类统计</h1>
+  <h2>分类汇总 · 合并计算 · 函数 · 数据透视表 — 四种方法怎么选？</h2>
+  <div class="hero-tags">
+    <span class="hero-tag">⏱ 预计75分钟</span>
+    <span class="hero-tag">📊 4种统计方法</span>
+    <span class="hero-tag">🔍 VLOOKUP重点讲</span>
+    <span class="hero-tag">🔄 数据透视表</span>
+    <span class="hero-tag">✅ 5道测试题</span>
+  </div>
+  <div class="hero-nodes">
+    <div class="hn">🧭 选哪种方法</div><div class="hn-arr">→</div>
+    <div class="hn">📋 分类汇总</div><div class="hn-arr">→</div>
+    <div class="hn">📐 合并计算</div><div class="hn-arr">→</div>
+    <div class="hn">🔢 函数</div><div class="hn-arr">→</div>
+    <div class="hn">🔄 透视表</div>
+  </div>
+</header>
+<nav class="sticky-nav">
+  <a class="nav-item active" href="#sec-decide">🧭 如何选方法</a>
+  <a class="nav-item" href="#sec-subtotal">📋 分类汇总</a>
+  <a class="nav-item" href="#sec-merge">📐 合并计算</a>
+  <a class="nav-item" href="#sec-func">🔢 函数大全</a>
+  <a class="nav-item" href="#sec-vlookup">🔍 VLOOKUP</a>
+  <a class="nav-item" href="#sec-pivot">🔄 数据透视表</a>
+  <a class="nav-item" href="#sec-quiz">✅ 测试题</a>
+</nav>
+<div class="container">
+
+<!-- ══ 决策图 ══ -->
+<section id="sec-decide" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🧭</div>
+    <div><div class="sec-title txt-c1">先搞清楚：这四种方法什么时候用哪个？</div>
+    <div class="sec-sub">选对方法，事半功倍；用错方法，白费功夫</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：4种方法的核心区别</strong><p>分类汇总=快速按列分组汇总 · 合并计算=多表合并 · 函数=精确条件计算 · 数据透视表=灵活多维分析</p></div></div>
+    <div class="decision">
+      <h4>📌 方法选用决策指南——看需求选方法</h4>
+      <div class="d-flow">
+        <div class="d-row">
+          <div class="d-q">🤔 我想快速对某一列分组，统计每组的合计/平均值，数据在一张表里</div>
+          <div class="d-arr">→</div>
+          <div class="d-ans" style="background:#DBEAFE;color:#1D4ED8;border:2px solid #93C5FD;">📋 分类汇总</div>
+        </div>
+        <div class="d-row">
+          <div class="d-q">🤔 我有多张结构相同的表（如每月一张），想合并成一张汇总表</div>
+          <div class="d-arr">→</div>
+          <div class="d-ans" style="background:#FEF3C7;color:#D97706;border:2px solid #FCD34D;">📐 合并计算</div>
+        </div>
+        <div class="d-row">
+          <div class="d-q">🤔 我只需要某个特定条件的汇总值（如"付费流量"的总销售额）</div>
+          <div class="d-arr">→</div>
+          <div class="d-ans" style="background:#D1FAE5;color:#065F46;border:2px solid #6EE7B7;">🔢 SUMIF函数</div>
+        </div>
+        <div class="d-row">
+          <div class="d-q">🤔 我想根据订单号/商品编号，去另一张表查对应信息</div>
+          <div class="d-arr">→</div>
+          <div class="d-ans" style="background:#FEE2E2;color:#DC2626;border:2px solid #FCA5A5;">🔍 VLOOKUP</div>
+        </div>
+        <div class="d-row">
+          <div class="d-q">🤔 我想灵活切换分析维度，随时拖拽字段看不同维度的汇总</div>
+          <div class="d-arr">→</div>
+          <div class="d-ans" style="background:#F5F3FF;color:#6D28D9;border:2px solid #C4B5FD;">🔄 数据透视表</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 分类汇总 ══ -->
+<section id="sec-subtotal" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">📋</div>
+    <div><div class="sec-title txt-c1">方法一：分类汇总</div>
+    <div class="sec-sub">核心口诀：先排序，后汇总！顺序不能反！</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="boss">
+      <div class="boss-label">💼 应用场景导入</div>
+      <div class="boss-say">「把2024年的流量数据，按流量来源分类，统计每种来源的访客数和支付金额合计。」</div>
+      <div class="boss-task">你需要把120行数据，按"直通车/淘内免费/自主访问"等来源分组汇总。<strong>分类汇总功能</strong>可以一键完成，但必须<strong>先排序</strong>！</div>
+    </div>
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：分类汇总做什么？</strong><p>对特定类别下的特定数据进行汇总（求和/计数/平均值等），生成分组小计和总计，可折叠/展开查看明细。</p></div></div>
+    <div class="hl amber" style="--c1:#F59E0B;--c1l:#FFFBEB;background:#FFFBEB;border-color:#FDE68A;"><div class="hi">⚠️</div><div class="hb"><strong>重要！必须先排序再汇总</strong><p>如果不先排序直接汇总，Excel会把每行都当成独立组，产生大量无意义的小计行！</p></div></div>
+    <h4 style="color:#1D4ED8;margin:14px 0 8px;">📋 操作步骤</h4>
+    <div class="steps">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>先对汇总字段排序</strong>
+          <div class="step-path">选中「流量来源」列中任意单元格 → 数据 → 排序和筛选 → 升序（或降序）<br>⚠️ 弹出提醒时选「扩展选定区域」，确保整行一起排序！</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>打开分类汇总功能</strong>
+          <div class="step-path">数据 → 分级显示 → 分类汇总</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>设置三个关键参数</strong>
+          <div class="step-path">分类字段：选「流量来源」（按哪列分组）<br>汇总方式：选「求和」（想要什么计算）<br>汇总项：勾选「访客数」「支付金额」（对哪些列汇总）</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>查看结果，使用左侧分级按钮</strong>
+          <div class="step-path">左侧出现 1 2 3 按钮：点1=只看总计，点2=看各组小计，点3=看全部明细</div>
+          <div class="step-note">💡 点击小减号「-」可折叠某组明细</div>
+        </div>
+      </div>
+    </div>
+    <div class="err-box">
+      <div class="err-wrong">
+        <span class="err-tag">❌ 常见错误</span>
+        <div class="err-content"><strong>没排序直接汇总</strong><br>结果：每行都有一个小计，100行数据产生100个"汇总行"，乱成一锅粥！</div>
+      </div>
+      <div class="err-right">
+        <span class="err-tag">✅ 正确做法</span>
+        <div class="err-content"><strong>先按流量来源排序</strong><br>结果：相同来源的行聚在一起，汇总后每种来源只有1个小计行，清晰整洁</div>
+      </div>
+    </div>
+    <div style="background:#F0F9FF;border-radius:14px;padding:16px;margin-top:14px;">
+      <div style="font-size:14px;font-weight:700;color:#1D4ED8;margin-bottom:10px;">📌 嵌套分类汇总（进阶）</div>
+      <p style="font-size:13px;color:#374151;line-height:1.7;margin:0;">需要对<strong>多个字段</strong>同时汇总？在已完成第一次分类汇总后，继续执行分类汇总（取消勾选「替换当前分类汇总」）即可创建嵌套效果。<br>例：先按「流量来源」汇总，再按「来源明细」嵌套汇总</p>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">分类汇总三步走：先排序来再汇总<br>字段方式和汇总项，三个设置不能少</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：做分类汇总前，最关键的第一步是什么？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq0','选中数据区域是正确操作，但最关键的「第一步」是先对汇总字段排序，否则结果会非常混乱。')">选中整个数据区域</button>
+      <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！分类汇总核心口诀：先排序，后汇总！必须先对汇总字段排序，让相同类别的数据排列在一起，分类汇总才有意义。')">先对汇总字段排序</button>
+      <button class="mo" onclick="mq(this,false,'mq0','设置汇总项是分类汇总对话框里的步骤，但不是第一步，第一步是排序。')">设置汇总项和汇总方式</button>
+    </div>
+    <div id="mq0" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 合并计算 ══ -->
+<section id="sec-merge" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">📐</div>
+    <div><div class="sec-title txt-c1">方法二：合并计算</div>
+    <div class="sec-sub">多张分散的表，合并成一张汇总表</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="boss">
+      <div class="boss-label">💼 应用场景导入</div>
+      <div class="boss-say">「每个月的流量数据分别存在不同的Sheet里（Sheet1=1月，Sheet2=2月…），现在要汇总上半年合计。」</div>
+      <div class="boss-task">6张表结构相同，但数据分散。用<strong>合并计算</strong>可以把多张表的同类数据按项目匹配，自动合并汇总！</div>
+    </div>
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：合并计算做什么？</strong><p>将多个分散的数据区域，按「首行标签」和「最左列标签」匹配，对同类数据进行汇总计算。</p></div></div>
+    <h4 style="color:#1D4ED8;margin:14px 0 8px;">📋 操作步骤</h4>
+    <div class="steps">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>选定结果存放位置</strong><div class="step-path">点击目标区域左上角的空白单元格（存放汇总结果的起始位置）</div></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>打开合并计算</strong><div class="step-path">数据 → 数据工具 → 合并计算</div></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>选择函数和引用位置</strong><div class="step-path">函数：选「求和」<br>引用位置：选中第一张表的数据区域 → 点击「添加」<br>重复以上操作，添加所有表格的数据区域</div></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>勾选标签位置</strong><div class="step-path">✅ 勾选「首行」和「最左列」→ 点击「确定」<br>⚠️ 这两个必须勾！否则合并结果没有标题行和分类列</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 函数大全 ══ -->
+<section id="sec-func" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🔢</div>
+    <div><div class="sec-title txt-c1">方法三：常用函数大全</div>
+    <div class="sec-sub">点击函数卡片展开详情 · 含格式+参数+电商案例</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：函数是什么？</strong><p>函数是Excel预先定义好的特殊公式，由「函数名称 + ( + 参数 + )」构成，帮你快速完成各种计算，不用手动一行一行相加。</p></div></div>
+    <div class="fn-grid">
+      <!-- SUM -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">SUM</span><span class="fn-type">求和</span></div>
+        <div class="fn-prev">返回所有参数的总和</div>
+        <div class="fn-detail">
+          <div class="fn-format">=SUM(number1, number2, …)</div>
+          <div class="fn-params">
+            <div class="fn-param">number1：第一个加数（单元格或区域）</div>
+            <div class="fn-param">number2…：更多加数（可省略）</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=SUM(E2:E121) → 统计全年所有记录的支付金额总计<br>=SUM(E2,F2) → 将两个单元格的值相加</div>
+        </div>
+      </div>
+      <!-- SUMIF -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">SUMIF</span><span class="fn-type">条件求和</span></div>
+        <div class="fn-prev">满足单个条件时才求和</div>
+        <div class="fn-detail">
+          <div class="fn-format">=SUMIF(range, criteria, sum_range)</div>
+          <div class="fn-params">
+            <div class="fn-param">range：用来判断条件的那一列（如流量来源列）</div>
+            <div class="fn-param">criteria：条件值（如"付费流量"）</div>
+            <div class="fn-param">sum_range：实际要相加的列（如支付金额列）</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=SUMIF(B2:B121,"付费流量",H2:H121)<br>→ 只统计来源是「付费流量」的支付金额合计</div>
+        </div>
+      </div>
+      <!-- SUMIFS -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">SUMIFS</span><span class="fn-type">多条件求和</span></div>
+        <div class="fn-prev">同时满足多个条件才求和（比SUMIF更强）</div>
+        <div class="fn-detail">
+          <div class="fn-format">=SUMIFS(sum_range, range1, criteria1, range2, criteria2, …)</div>
+          <div class="fn-params">
+            <div class="fn-param">sum_range：要相加的列</div>
+            <div class="fn-param">range1, criteria1：第一个条件区域和条件</div>
+            <div class="fn-param">range2, criteria2：第二个条件区域和条件（可继续添加）</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=SUMIFS(H2:H121, B2:B121,"付费流量", A2:A121,"2024/6/1")<br>→ 统计「2024年6月」AND「付费流量」的支付金额合计</div>
+          <div class="hl" style="margin-top:8px;background:#FEF3C7;border-color:#FCD34D;padding:8px 12px;"><div class="hi" style="font-size:14px;">💡</div><div class="hb" style="font-size:12px;">SUMIFS和SUMIF的区别：<br>SUMIF只能设1个条件；SUMIFS可以设多个条件，更实用！</div></div>
+        </div>
+      </div>
+      <!-- AVERAGE -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">AVERAGE</span><span class="fn-type">平均值</span></div>
+        <div class="fn-prev">计算所有参数的算术平均值</div>
+        <div class="fn-detail">
+          <div class="fn-format">=AVERAGE(number1, number2, …)</div>
+          <div class="fn-params">
+            <div class="fn-param">number1：第一个数值或区域</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=AVERAGE(I2:I121) → 计算所有访问记录的平均停留时长<br>=AVERAGE(H2:H13) → 计算全年12个月的月均销售额</div>
+        </div>
+      </div>
+      <!-- COUNT -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">COUNT</span><span class="fn-type">计数</span></div>
+        <div class="fn-prev">统计包含数字的单元格个数</div>
+        <div class="fn-detail">
+          <div class="fn-format">=COUNT(value1, value2, …)</div>
+          <div class="fn-params">
+            <div class="fn-param">value1：要计数的区域</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=COUNT(G2:G121) → 统计支付买家数列中有多少条有效记录（非空数字）</div>
+          <div class="hl" style="margin-top:8px;background:#FEF3C7;border-color:#FCD34D;padding:8px 12px;"><div class="hi" style="font-size:14px;">⚠️</div><div class="hb" style="font-size:12px;">COUNT只计数字！文本格式的数字不计入。如需计数包含文本，用COUNTA函数。</div></div>
+        </div>
+      </div>
+      <!-- COUNTIF -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">COUNTIF</span><span class="fn-type">条件计数</span></div>
+        <div class="fn-prev">满足单个条件的单元格数量</div>
+        <div class="fn-detail">
+          <div class="fn-format">=COUNTIF(range, criteria)</div>
+          <div class="fn-params">
+            <div class="fn-param">range：要判断的区域</div>
+            <div class="fn-param">criteria：条件（文本要加引号，数字可直接写）</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=COUNTIF(B2:B121,"付费流量") → 统计付费流量来源的记录条数<br>=COUNTIF(H2:H121,">1000") → 统计支付金额超过1000元的记录条数</div>
+        </div>
+      </div>
+      <!-- COUNTIFS -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">COUNTIFS</span><span class="fn-type">多条件计数</span></div>
+        <div class="fn-prev">同时满足多个条件的单元格数量</div>
+        <div class="fn-detail">
+          <div class="fn-format">=COUNTIFS(range1, criteria1, range2, criteria2, …)</div>
+          <div class="fn-params">
+            <div class="fn-param">range1, criteria1：第一个条件区域和条件</div>
+            <div class="fn-param">range2, criteria2：第二个条件（可继续添加）</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>=COUNTIFS(B2:B121,"付费流量",H2:H121,">500")<br>→ 统计「付费流量」中支付金额超过500元的记录数</div>
+        </div>
+      </div>
+      <!-- MAX/MIN -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">MAX / MIN</span><span class="fn-type">最值</span></div>
+        <div class="fn-prev">返回区域中的最大值或最小值</div>
+        <div class="fn-detail">
+          <div class="fn-format">=MAX(number1, …) / =MIN(number1, …)</div>
+          <div class="fn-eg">📍 电商场景：<br>=MAX(H2:H121) → 找出支付金额最高的那条记录的金额<br>=MIN(I2:I121) → 找出访问者停留时间最短的记录</div>
+        </div>
+      </div>
+      <!-- IFERROR -->
+      <div class="fn-card" onclick="toggleFn(this)">
+        <div class="fn-head"><span class="fn-name">IFERROR</span><span class="fn-type">错误处理</span></div>
+        <div class="fn-prev">公式出错时显示指定内容，而非#DIV/0!等错误</div>
+        <div class="fn-detail">
+          <div class="fn-format">=IFERROR(value, value_if_error)</div>
+          <div class="fn-params">
+            <div class="fn-param">value：原来的公式</div>
+            <div class="fn-param">value_if_error：出错时显示的内容（如"/"或"数据缺失"）</div>
+          </div>
+          <div class="fn-eg">📍 电商场景：<br>原公式：=H2/E2（支付金额÷访客数）<br>如果E2=0会报#DIV/0!错误<br>改为：=IFERROR(H2/E2,"-") → 出错时显示"-"而非错误值</div>
+          <div class="hl" style="margin-top:8px;background:#FEF3C7;border-color:#FCD34D;padding:8px 12px;"><div class="hi" style="font-size:14px;">💡</div><div class="hb" style="font-size:12px;">IFERROR通常包在其他函数外层，专门用来处理可能出现的错误，让表格看起来更干净。VLOOKUP找不到时也会用它处理#N/A！</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">SUM求和AVERAGE均，COUNT计数MAX最大<br>IF加条件更精准，SUMIFS多条件更强大<br>IFERROR处理错误显示</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：统计「2024年6月」且「付费流量」的支付金额，应该用哪个函数？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq1','SUMIF只能设置一个条件，这里需要同时满足「月份=6月」AND「来源=付费流量」两个条件，SUMIF不够用。')">SUMIF</button>
+      <button class="mo" onclick="mq(this,true,'mq1','✅ 正确！需要同时满足两个条件（月份+来源），用SUMIFS多条件求和：=SUMIFS(金额列, 月份列,"2024/6/1", 来源列,"付费流量")')">SUMIFS</button>
+      <button class="mo" onclick="mq(this,false,'mq1','COUNTIFS是计数函数，统计满足条件的行数，不是求金额的总和。')">COUNTIFS</button>
+    </div>
+    <div id="mq1" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ VLOOKUP ══ -->
+<section id="sec-vlookup" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon" style="background:linear-gradient(135deg,#DC2626,#B91C1C);color:#fff">🔍</div>
+    <div><div class="sec-title" style="color:#DC2626">重点函数：VLOOKUP — 跨表查找神器</div>
+    <div class="sec-sub">难点！4个参数逐一拆解 · 多场景演示 · 常见错误避坑</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="boss">
+      <div class="boss-label">💼 应用场景导入</div>
+      <div class="boss-say">「订单表里只有商品编号，但我需要知道每个订单的商品名称和单价，商品信息在另一张表里，怎么办？」</div>
+      <div class="boss-task">手动一个一个对照太慢，有100+条订单。<strong>VLOOKUP函数</strong>可以根据一个「关键值」（商品编号），自动去另一张表查找对应的信息！就像查字典——知道关键字，就能找到对应的解释。</div>
+    </div>
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：VLOOKUP做什么？</strong><p>根据你给的「查找值」，在「数据表」的第一列里找到匹配行，然后返回该行第N列的值。类比：查字典（关键字→找到词条→看释义）。</p></div></div>
+    <div style="background:#0f172a;border-radius:14px;padding:16px 20px;margin:14px 0;font-family:monospace;">
+      <div style="color:#64748B;font-size:12px;margin-bottom:8px;">// VLOOKUP 格式</div>
+      <div style="font-size:15px;color:#93C5FD;">=VLOOKUP(<span style="color:#FCD34D">查找值</span>, <span style="color:#86EFAC">数据表</span>, <span style="color:#FB923C">列序数</span>, <span style="color:#F9A8D4">匹配方式</span>)</div>
+    </div>
+    <div class="vl-param">
+      <div class="vl-p" style="background:#FEF9C3;border-left-color:#EAB308;">
+        <strong style="color:#854D0E">参数① 查找值（你要找什么）</strong>
+        <p>你拿来查找的关键值，通常是「订单号」「商品编号」「客户ID」等唯一标识。<br>📍 例子：A列是商品编号"P001"，就用A2作为查找值</p>
+      </div>
+      <div class="vl-p" style="background:#F0FDF4;border-left-color:#16A34A;">
+        <strong style="color:#166534">参数② 数据表（去哪里找）</strong>
+        <p>要查找的数据源区域，<strong>第一列必须是用来匹配的列</strong>（如商品编号）。通常用绝对引用$锁定，防止拖拽时区域偏移。<br>📍 例子：商品信息表 $A$4:$E$18（包含商品编号到库存量的所有列）</p>
+      </div>
+      <div class="vl-p" style="background:#FFF7ED;border-left-color:#F97316;">
+        <strong style="color:#9A3412">参数③ 列序数（要返回第几列）</strong>
+        <p>在「数据表」中，你想要返回第几列的值？<strong>从数据表的第1列开始数</strong>，不是从整张Excel表的A列数！<br>📍 例子：数据表A~E共5列，商品名称在第2列 → 列序数=2</p>
+      </div>
+      <div class="vl-p" style="background:#FDF2F8;border-left-color:#A21CAF;">
+        <strong style="color:#701A75">参数④ 匹配方式（精确还是模糊）</strong>
+        <p><strong>0（或FALSE）= 精确匹配</strong>：必须完全相同才算找到，<strong>90%的情况都用0</strong><br>1（或TRUE）= 模糊匹配：找最接近的值，用于区间划分（如成绩等级判断）</p>
+      </div>
+    </div>
+    <div style="background:#EFF6FF;border-radius:14px;padding:16px;margin:14px 0;">
+      <div style="font-size:14px;font-weight:700;color:#1D4ED8;margin-bottom:10px;">🛠️ 实际操作案例</div>
+      <p style="font-size:13px;color:#374151;margin-bottom:8px;">已知：H列=商品编号（如P003），商品信息表在A4:E18</p>
+      <div style="background:#0f172a;border-radius:10px;padding:12px 16px;font-family:monospace;font-size:13px;margin-bottom:8px;">
+        <span style="color:#6EE7B7">// 查找商品名称（第2列）</span><br>
+        <span style="color:#93C5FD">=IFERROR(VLOOKUP(H4,$A$4:$E$18,2,0),"商品不存在")</span><br><br>
+        <span style="color:#6EE7B7">// 查找单价（第4列）</span><br>
+        <span style="color:#93C5FD">=IFERROR(VLOOKUP(H4,$A$4:$E$18,4,0),"商品不存在")</span>
+      </div>
+      <p style="font-size:12px;color:#64748b;">💡 外面套一层IFERROR：如果商品编号不存在，显示"商品不存在"而不是#N/A错误值</p>
+    </div>
+    <div style="margin:14px 0;">
+      <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:10px;">⚠️ VLOOKUP 4大常见错误</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#FEF2F2;border-radius:10px;padding:12px 14px;border-left:4px solid #DC2626;"><strong style="color:#DC2626;font-size:13px;">错误①：数据表第一列不是查找列</strong><div style="font-size:12px;color:#374151;margin-top:4px;">VLOOKUP只能在数据表「第一列」里查找，如果你选的区域第一列不是商品编号，永远找不到！<br>✅ 解决：调整数据表范围，让商品编号列在最左边</div></div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:12px 14px;border-left:4px solid #DC2626;"><strong style="color:#DC2626;font-size:13px;">错误②：没用绝对引用$，公式下拉后区域偏移</strong><div style="font-size:12px;color:#374151;margin-top:4px;">写 A4:E18（相对引用），下拉填充后变成 A5:E19，数据表错位！<br>✅ 解决：写成 $A$4:$E$18（加$锁定），按F4键可快速切换</div></div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:12px 14px;border-left:4px solid #DC2626;"><strong style="color:#DC2626;font-size:13px;">错误③：返回#N/A错误（查找值不存在）</strong><div style="font-size:12px;color:#374151;margin-top:4px;">商品编号P099在数据表里不存在，返回#N/A。<br>✅ 解决：套IFERROR处理：=IFERROR(VLOOKUP(...),"未找到")</div></div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:12px 14px;border-left:4px solid #DC2626;"><strong style="color:#DC2626;font-size:13px;">错误④：第4参数忘了写0，默认模糊匹配</strong><div style="font-size:12px;color:#374151;margin-top:4px;">不写第4个参数，Excel默认模糊匹配，可能返回错误结果！<br>✅ 解决：养成习惯，最后一个参数固定写0（精确匹配）</div></div>
+      </div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">VLOOKUP四个宝：查找值、数据表、第几列、精确零<br>数据表锁定加美元，IFERROR包外处理错</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：VLOOKUP的第4个参数应该填什么，才能实现精确匹配？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq2','1或TRUE是模糊匹配，VLOOKUP会找最接近的值，在商品查找场景中通常不是我们想要的。')">1（TRUE）</button>
+      <button class="mo" onclick="mq(this,true,'mq2','✅ 正确！第4个参数填0（或FALSE）表示精确匹配，只有完全相同才算找到，这是日常工作中最常用的方式。')">0（FALSE）</button>
+      <button class="mo" onclick="mq(this,false,'mq2','第4个参数可以省略，但省略时默认值是1（模糊匹配），会导致错误结果，所以建议明确写出0。')">可以省略不写</button>
+    </div>
+    <div id="mq2" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 数据透视表 ══ -->
+<section id="sec-pivot" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff">🔄</div>
+    <div><div class="sec-title txt-c1">方法四：数据透视表</div>
+    <div class="sec-sub">最强大的汇总分析工具 — 拖拽字段，秒出报表</div></div>
+  </div>
+  <div class="card reveal">
+    <div class="boss">
+      <div class="boss-label">💼 应用场景导入</div>
+      <div class="boss-say">「我想看：按月份×流量来源的销售额汇总；再看：按来源明细的平均停留时长；等一下，再加个日期筛选器，看某个月的数据……」</div>
+      <div class="boss-task">需求一直变？用分类汇总的话每次都要重新设置。而<strong>数据透视表</strong>可以随时拖拽字段，一张源数据产生无数角度的分析报表，<strong>改变分析维度不用重新做</strong>！</div>
+    </div>
+    <div class="peek"><div class="peek-icon">👁️</div><div class="peek-body"><strong>先看一眼：透视表的核心优势</strong><p>① 可动态改变布局 ② 可任意组合字段 ③ 修改布置时自动重新计算 ④ 支持筛选、排序、分组</p></div></div>
+    <h4 style="color:#1D4ED8;margin:14px 0 8px;">📌 透视表的4大区域（先搞清楚才能用好）</h4>
+    <div class="pt-zones">
+      <div class="pt-zone" style="background:#FEF3C7;border:2px solid #FCD34D;">
+        <div class="pt-icon">🔽</div>
+        <div class="pt-name" style="color:#D97706">筛选器</div>
+        <div class="pt-desc">放在透视表「上方」，用于筛选整张表。就像漏斗——选某个值后，整张表只显示该值的数据。</div>
+        <div class="pt-eg" style="color:#D97706">📍 放：统计日期 → 可以选某个月的数据</div>
+      </div>
+      <div class="pt-zone" style="background:#EFF6FF;border:2px solid #93C5FD;">
+        <div class="pt-icon">↕️</div>
+        <div class="pt-name" style="color:#1D4ED8">行区域</div>
+        <div class="pt-desc">透视表的「左边列」，展示分类维度。分类项目多的字段放这里，表格不会太宽。</div>
+        <div class="pt-eg" style="color:#1D4ED8">📍 放：流量来源、来源明细 → 左边按来源分行</div>
+      </div>
+      <div class="pt-zone" style="background:#F0FDF4;border:2px solid #86EFAC;">
+        <div class="pt-icon">↔️</div>
+        <div class="pt-name" style="color:#065F46">列区域</div>
+        <div class="pt-desc">透视表的「顶部行」，展示对比维度。适合放分类项较少的字段（否则表格太宽）。</div>
+        <div class="pt-eg" style="color:#065F46">📍 通常留空，或放「季度」等少分类字段</div>
+      </div>
+      <div class="pt-zone" style="background:#FDF2F8;border:2px solid #F0ABFC;">
+        <div class="pt-icon">📊</div>
+        <div class="pt-name" style="color:#A21CAF">值区域</div>
+        <div class="pt-desc">透视表中间的「数字区域」，放需要计算的指标。默认求和，但可以改为平均值、计数等。</div>
+        <div class="pt-eg" style="color:#A21CAF">📍 放：访客数(求和)、支付金额(求和)、停留时长(平均值)</div>
+      </div>
+    </div>
+    <h4 style="color:#1D4ED8;margin:14px 0 8px;">📋 操作步骤</h4>
+    <div class="steps">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>选中数据源</strong><div class="step-path">点击数据区域任意单元格 → 插入 → 数据透视表 → 选择「新工作表」→ 确定</div></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>拖拽字段到4个区域</strong><div class="step-path">右侧字段列表：<br>将「统计日期」拖到【筛选器】<br>将「流量来源」「来源明细」拖到【行】<br>将「访客数」「支付买家数」「支付金额」拖到【值】<br>将「人均停留时长」拖到【值】</div></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>修改值字段的汇总方式</strong><div class="step-path">⚠️ 重要！「人均停留时长」不能求和，要改为平均值！<br>点击值区域「求和项:人均停留时长」下拉箭头 → 值字段设置 → 计算类型改为「平均值」→ 确定</div><div class="step-note">💡 其他可选：计数、最大值、最小值、乘积等</div></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>使用筛选器查看某月数据</strong><div class="step-path">点击透视表顶部「统计日期」的下拉箭头 → 选择需要的月份 → 确定<br>整张透视表自动刷新，只显示该月数据</div></div></div>
+    </div>
+    <div style="margin:14px 0;">
+      <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:10px;">⚠️ 透视表 3大避坑提示</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#FEF2F2;border-radius:10px;padding:10px 14px;border-left:4px solid #DC2626;font-size:13px;"><strong>❌ 忘记修改汇总方式</strong>：「人均停留时长」求和毫无意义（把所有人的停留时长加起来？），必须改为「平均值」！</div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:10px 14px;border-left:4px solid #DC2626;font-size:13px;"><strong>❌ 分类项太多放到列区域</strong>：「流量来源」有5种来源，放列区域会让表格横向很宽，建议放行区域。</div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:10px 14px;border-left:4px solid #DC2626;font-size:13px;"><strong>❌ 源数据更新后忘记刷新</strong>：透视表不会自动同步，需要右键点击透视表 → 「刷新」才能更新数据。</div>
+      </div>
+    </div>
+    <div class="rhyme">
+      <div class="rhyme-title">🧠 记忆口诀</div>
+      <div class="rhyme-text">透视表有四个家：筛选器行列和值<br>筛选过滤行分组，值里记得改汇总</div>
+    </div>
+  </div>
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：在数据透视表中，「人均停留时长」字段应该放在哪个区域，并且汇总方式应该选什么？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq3','停留时长是需要计算的数值指标，应放在值区域，不应放行区域（行区域放分类维度字段）。')">行区域，求和</button>
+      <button class="mo" onclick="mq(this,false,'mq3','放在值区域是正确的，但汇总方式不能选求和——把所有访客的停留时长加起来没有意义，应该选平均值。')">值区域，求和</button>
+      <button class="mo" onclick="mq(this,true,'mq3','✅ 正确！人均停留时长应放在值区域，但汇总方式必须改为「平均值」，才能得到有意义的平均停留时间数据。')">值区域，平均值</button>
+    </div>
+    <div id="mq3" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 综合测试 ══ -->
+<section id="sec-quiz" class="sec-block reveal">
+  <div class="qhd"><span style="font-size:28px">✅</span><div><h2>单元二 综合测试</h2><p style="font-size:13px;opacity:.85;margin-top:2px">5道题，覆盖4种方法+VLOOKUP+透视表全部考点</p></div></div>
+  <div class="qbody">
+    <div class="qi" id="qz1">
+      <div class="qq"><span class="qnum">1</span>做分类汇总时，以下操作顺序正确的是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">A</div><div>直接选数据区域 → 设置汇总方式 → 选汇总项 → 点确定</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',true)"><div class="ok2">B</div><div>先对汇总字段排序 → 打开分类汇总 → 设置分类字段/汇总方式/汇总项</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">C</div><div>先做分类汇总，汇总完后再对结果排序</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">D</div><div>分类汇总不需要排序，Excel会自动处理</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+      <div id="qz1-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz2">
+      <div class="qq"><span class="qnum">2</span>以下VLOOKUP公式：=VLOOKUP(H4,$A$4:$E$18,4,0)，参数「4」代表什么？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">A</div><div>在整张Excel表的第4列（D列）查找</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">B</div><div>查找第4行的数据</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',true)"><div class="ok2">C</div><div>返回数据表（$A$4:$E$18）中第4列的值</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">D</div><div>精确匹配，等同于参数0</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+      <div id="qz2-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz3">
+      <div class="qq"><span class="qnum">3</span>在数据透视表的「值区域」中，「支付金额」字段的汇总方式应该选？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz3',true)"><div class="ok2">A</div><div>求和（统计各分组的总销售额）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">B</div><div>计数（统计有多少条记录）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">C</div><div>平均值（计算每条记录的平均金额）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">D</div><div>最大值（找出最大的金额）</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+      <div id="qz3-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz4">
+      <div class="qq"><span class="qnum">4</span>想把「每个月的数据分别在不同Sheet」的6个工作表合并成一张汇总表，最合适的方法是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">A</div><div>分类汇总（每个Sheet分别做，最后复制粘贴）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',true)"><div class="ok2">B</div><div>合并计算（数据→数据工具→合并计算，添加6个引用位置）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">C</div><div>VLOOKUP（逐一查找每个表的数据）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">D</div><div>数据透视表（直接选多个Sheet的数据）</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+      <div id="qz4-fb" class="qfb"></div>
+    </div>
+    <div class="qi" id="qz5">
+      <div class="qq"><span class="qnum">5</span>VLOOKUP返回#N/A错误，最可能的原因是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">A</div><div>公式语法写错了</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',true)"><div class="ok2">B</div><div>查找值在数据表中不存在（没有匹配到）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">C</div><div>列序数超出了数据表的列数</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">D</div><div>数据表没有加绝对引用$</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+      <div id="qz5-fb" class="qfb"></div>
+    </div>
+    <div id="qz-score" class="score-box">
+      <div style="font-size:56px" id="sc-emoji">🎉</div>
+      <div class="big-sc" id="sc-num">0/5</div>
+      <div class="sc-msg" id="sc-msg"></div>
+      <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer style="background:#0f172a;color:rgba(255,255,255,.5);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+  <p>📚 <span style="color:#93C5FD">商务数据分析</span> · 模块三·单元二 分类统计</p>
+</footer>
+<script src="js/common.js"></script>
+<script src="js/learning.js"></script>
+<script>
+function toggleFn(card){card.classList.toggle('open');}
+window.QUIZ_DATA={
+  qz1:{exp:'分类汇总核心口诀：先排序，后汇总！必须先对汇总字段（如流量来源）排序，让相同类别聚在一起，才能正确分组汇总。直接汇总会导致每行都有小计，结果混乱。'},
+  qz2:{exp:'VLOOKUP第3个参数「列序数」是指在数据表（$A$4:$E$18）中，从第1列开始数的第几列。数据表A~E共5列，A=1(商品编号)、B=2(名称)、C=3(类目)、D=4(单价)、E=5(库存)，所以4代表返回单价。'},
+  qz3:{exp:'支付金额放在值区域，汇总方式选「求和」，可以统计各流量来源的总销售额。如果选「计数」则统计条数；选「平均值」则是每条记录的平均金额。根据分析目的选择合适的汇总方式。'},
+  qz4:{exp:'合并计算专门用于将多个分散的数据区域（可以是不同Sheet）按项目匹配后汇总。操作：数据→数据工具→合并计算→依次添加6个引用位置→勾选首行和最左列→确定。'},
+  qz5:{exp:'VLOOKUP返回#N/A（Not Available）错误，最常见原因是：查找值在数据表第一列中不存在，没有找到匹配项。解决方法：用IFERROR包裹：=IFERROR(VLOOKUP(...),"未找到")，让结果显示友好文字而非错误值。'}
+};
+</script>
+</body>
+</html>
