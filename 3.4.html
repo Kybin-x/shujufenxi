@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块三·单元四 数据计算</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/learning.css">
+<style>
+:root{
+  --c1:#8B5CF6;--c1l:#F5F3FF;--c1d:#6D28D9;--c2:#A78BFA;--c3:#C4B5FD;
+  --primary:#8B5CF6;--secondary:#A78BFA;--accent:#C4B5FD;
+  --bg:#FDFBFF;--text:#2c3e50;--muted:#7f8c9a;--card:#FFFFFF;--r:16px;
+}
+.peek{background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border:2px solid #C4B5FD;border-radius:14px;padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;}
+.peek-icon{font-size:24px;flex-shrink:0;}
+.peek-title{font-size:11px;font-weight:900;color:#6D28D9;letter-spacing:2px;margin-bottom:3px;}
+.peek-text{font-size:14px;color:#1A1A2E;line-height:1.6;font-weight:500;}
+.scene-box{background:linear-gradient(135deg,#8B5CF6,#6D28D9);border-radius:16px;padding:20px 22px;color:#fff;margin-bottom:18px;}
+.scene-tag{font-size:11px;background:rgba(255,255,255,.25);padding:2px 10px;border-radius:10px;display:inline-block;margin-bottom:8px;font-weight:700;letter-spacing:1px;}
+.scene-boss{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.6;}
+.scene-ans{font-size:13px;opacity:.9;line-height:1.7;}
+.mnemonic{background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border:2px dashed #8B5CF6;border-radius:14px;padding:16px 20px;margin:14px 0;text-align:center;}
+.mn-title{font-size:12px;font-weight:900;color:#6D28D9;margin-bottom:8px;letter-spacing:2px;}
+.mn-text{font-size:16px;font-weight:900;color:#1A1A2E;line-height:1.8;letter-spacing:1px;}
+.mn-note{font-size:12px;color:#6D28D9;margin-top:6px;}
+.err-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+@media(max-width:580px){.err-compare{grid-template-columns:1fr;}}
+.err-box.wrong{background:#FEF2F2;border:2px solid #FCA5A5;border-radius:12px;padding:14px 16px;}
+.err-box.right{background:#D1FAE5;border:2px solid #6EE7B7;border-radius:12px;padding:14px 16px;}
+.err-label{font-size:11px;font-weight:900;letter-spacing:1px;margin-bottom:8px;}
+.err-label.w{color:#C2410C;}.err-label.r{color:#065F46;}
+.err-content{font-size:13px;line-height:1.7;color:#374151;}
+.steps-card{background:var(--c1l);border:2px solid var(--c3);border-radius:16px;padding:20px;margin:14px 0;}
+.step-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+.step-item:last-child{margin-bottom:0;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--c1);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;margin-top:1px;}
+.step-body{flex:1;}.step-title{font-size:14px;font-weight:700;color:var(--c1d);margin-bottom:3px;}
+.step-desc{font-size:13px;color:#555;line-height:1.65;}
+/* 公式卡 */
+.formula-hero{background:linear-gradient(135deg,#6D28D9,#4C1D95);border-radius:20px;padding:24px 28px;margin:14px 0;text-align:center;color:#fff;}
+.fh-label{font-size:12px;font-weight:700;letter-spacing:2px;opacity:.75;margin-bottom:10px;}
+.fh-formula{font-size:20px;font-weight:900;line-height:1.6;font-family:'Noto Sans SC',sans-serif;}
+.fh-note{font-size:12px;opacity:.75;margin-top:8px;}
+.formula-card{background:#F5F3FF;border:2px solid #A78BFA;border-radius:14px;padding:16px 20px;margin:10px 0;}
+.fc-name{font-size:12px;font-weight:900;color:#6D28D9;margin-bottom:6px;}
+.fc-eq{font-size:15px;font-weight:900;color:#2c3e50;font-family:monospace;margin-bottom:6px;}
+.fc-note{font-size:12px;color:#666;line-height:1.6;}
+.fc-eg{font-size:12px;background:#EDE9FE;padding:6px 10px;border-radius:8px;margin-top:8px;color:#4C1D95;font-style:italic;}
+/* DATEDIF code 参数表格 */
+.code-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0;}
+.cg-item{border-radius:10px;padding:12px;text-align:center;}
+.cg-code{font-size:16px;font-weight:900;font-family:monospace;margin-bottom:4px;}
+.cg-desc{font-size:11px;color:#555;line-height:1.5;}
+/* 加权演示表格 */
+.weight-demo{overflow-x:auto;margin:14px 0;}
+.weight-demo table{width:100%;border-collapse:collapse;font-size:13px;}
+.weight-demo th{background:#6D28D9;color:#fff;padding:8px 12px;text-align:center;}
+.weight-demo td{padding:8px 12px;border-bottom:1px solid #EDE9FE;text-align:center;}
+.weight-demo tr:nth-child(even) td{background:#F5F3FF;}
+.weight-demo .highlight td{background:#EDE9FE;font-weight:700;}
+/* 计算类型卡片 */
+.calc-types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0;}
+@media(max-width:640px){.calc-types{grid-template-columns:1fr;}}
+.ct-box{border-radius:14px;padding:16px;text-align:center;}
+.ct-icon{font-size:30px;margin-bottom:8px;}
+.ct-name{font-size:14px;font-weight:900;margin-bottom:5px;}
+.ct-desc{font-size:12px;line-height:1.6;color:#555;}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">📚 模块三 · 单元四</div>
+  <h1>数据计算</h1>
+  <h2>常规计算 · 日期计算 · 加权计算 — 用公式让数据"开口说话"！</h2>
+  <div class="hero-tags">
+    <span class="hero-tag">⏱ 预计50分钟</span>
+    <span class="hero-tag">🔢 常规计算</span>
+    <span class="hero-tag">📅 日期计算</span>
+    <span class="hero-tag">⚖️ 加权计算</span>
+    <span class="hero-tag">✅ 5道测试</span>
+  </div>
+  <div class="flow-banner">
+    <div class="fb-step">基础数据</div><div class="fb-arr">→</div>
+    <div class="fb-step" style="background:#8B5CF6;color:#fff;font-weight:900;">🔢 公式计算</div><div class="fb-arr">→</div>
+    <div class="fb-step">运营指标</div><div class="fb-arr">→</div>
+    <div class="fb-step">经营决策</div>
+  </div>
+</header>
+
+<nav class="sticky-nav">
+  <a class="nav-item active" href="#sec-overview">📋 三类计算</a>
+  <a class="nav-item" href="#sec-regular">🔢 常规计算</a>
+  <a class="nav-item" href="#sec-date">📅 日期计算</a>
+  <a class="nav-item" href="#sec-weight">⚖️ 加权计算</a>
+  <a class="nav-item" href="#sec-map">🗺️ 知识导图</a>
+  <a class="nav-item" href="#sec-quiz">✅ 测试</a>
+</nav>
+
+<div class="container">
+
+<!-- ══ 三类计算总览 ══ -->
+<section id="sec-overview" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff;">📋</div>
+    <div>
+      <div class="sec-title txt-c1">零、先看这里：三类计算是干什么的？</div>
+      <div class="sec-sub">搞清楚「每类计算解决什么问题」，比记公式更重要！</div>
+    </div>
+  </div>
+
+  <div class="peek">
+    <div class="peek-icon">👁️</div>
+    <div><div class="peek-title">先看一眼</div>
+    <div class="peek-text">单元四的数据计算分三类。每类解决不同场景的问题：<strong>常规计算</strong>算销售额等指标，<strong>日期计算</strong>算时间间隔，<strong>加权计算</strong>算综合评分。弄清楚用哪类，公式自然就会选。</div></div>
+  </div>
+
+  <div class="card reveal">
+    <div class="calc-types">
+      <div class="ct-box" style="background:#EDE9FE;border:2px solid #A78BFA;">
+        <div class="ct-icon">🔢</div>
+        <div class="ct-name" style="color:#6D28D9;">常规计算</div>
+        <div class="ct-desc">加减乘除 + Excel函数<br>计算销售额、转化率、客单价等核心指标</div>
+        <div style="margin-top:8px;font-size:11px;background:#F5F3FF;border-radius:6px;padding:4px 8px;color:#6D28D9;">销售额 = 流量 × 转化率 × 客单价</div>
+      </div>
+      <div class="ct-box" style="background:#DBEAFE;border:2px solid #93C5FD;">
+        <div class="ct-icon">📅</div>
+        <div class="ct-name" style="color:#1D4ED8;">日期计算</div>
+        <div class="ct-desc">两个日期之间的间隔<br>计算会员活跃天数、评价超时天数等</div>
+        <div style="margin-top:8px;font-size:11px;background:#EFF6FF;border-radius:6px;padding:4px 8px;color:#1D4ED8;">DATEDIF · DAYS360</div>
+      </div>
+      <div class="ct-box" style="background:#D1FAE5;border:2px solid #6EE7B7;">
+        <div class="ct-icon">⚖️</div>
+        <div class="ct-name" style="color:#065F46;">加权计算</div>
+        <div class="ct-desc">不同指标乘以各自权重求和<br>评估推广渠道、商品综合排名等</div>
+        <div style="margin-top:8px;font-size:11px;background:#ECFDF5;border-radius:6px;padding:4px 8px;color:#065F46;">SUMPRODUCT 函数</div>
+      </div>
+    </div>
+
+    <div class="tb-wrap" style="margin-top:14px;">
+      <table>
+        <tr><th>场景问题</th><th>用哪类计算</th><th>用哪个函数/公式</th></tr>
+        <tr><td>算出各月总销售额、转化率、客单价</td><td>常规计算</td><td>公式 / SUM / AVERAGE</td></tr>
+        <tr><td>算出会员从注册到今天活跃了多少个月</td><td>日期计算</td><td>DATEDIF(date1, date2, "M")</td></tr>
+        <tr><td>距离促销活动结束还有几天</td><td>日期计算</td><td>DAYS360(TODAY(), 结束日期)</td></tr>
+        <tr><td>对推广渠道按5个指标综合打分排名</td><td>加权计算</td><td>SUMPRODUCT</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 一、常规计算 ══ -->
+<section id="sec-regular" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff;">🔢</div>
+    <div>
+      <div class="sec-title txt-c1">一、常规计算</div>
+      <div class="sec-sub">公式计算 + 函数计算 · 覆盖绝大多数电商运营指标</div>
+    </div>
+  </div>
+
+  <div class="scene-box">
+    <div class="scene-tag">💼 应用场景导入</div>
+    <div class="scene-boss">老板说："上个月访客数38900、支付买家数1751、支付金额154300元，帮我算一下转化率和客单价，顺便看看离目标完成率差多少。"</div>
+    <div class="scene-ans">这三个指标都是用基础数据算出来的，直接在Excel里写公式就能搞定！而且这三个指标连在一起就是电商最核心的公式：<strong>销售额 = 流量 × 转化率 × 客单价</strong>。</div>
+  </div>
+
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div>
+    <div><div class="peek-title">先看一眼</div>
+    <div class="peek-text">常规计算包括两种：<strong>公式计算</strong>（直接用 = A1*B1 这样写）和<strong>函数计算</strong>（用 SUM、AVERAGE 等内置函数）。同一个问题两种方法都可以，函数通常更简洁。</div></div></div>
+
+    <!-- 电商核心公式 -->
+    <div class="formula-hero">
+      <div class="fh-label">⭐ 电商最核心的计算公式</div>
+      <div class="fh-formula">销售额 = 访客数 × 支付转化率 × 客单价</div>
+      <div class="fh-note">这三个维度分别对应：引流能力（访客数）· 转化能力（转化率）· 定价能力（客单价）<br>提升任意一个，销售额都会增长！</div>
+    </div>
+
+    <h3 class="txt-c1" style="margin:18px 0 14px;">📊 核心指标计算公式（对照练习文件操作）</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="formula-card">
+        <div class="fc-name">支付转化率</div>
+        <div class="fc-eq">= 支付买家数 ÷ 访客数 × 100%</div>
+        <div class="fc-note">衡量流量转化为购买的效率，越高越好</div>
+        <div class="fc-eg">🌰 1751 ÷ 38900 × 100% ≈ 4.5%<br>Excel：=IFERROR(D2/B2*100, 0)</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">客单价</div>
+        <div class="fc-eq">= 支付金额 ÷ 支付买家数</div>
+        <div class="fc-note">每笔订单的平均成交金额</div>
+        <div class="fc-eg">🌰 154300 ÷ 1751 ≈ 88.1元<br>Excel：=IFERROR(E2/D2, 0)</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">目标完成率</div>
+        <div class="fc-eq">= 实际销售额 ÷ 目标销售额 × 100%</div>
+        <div class="fc-note">衡量实际完成情况与目标的差距</div>
+        <div class="fc-eg">🌰 154300 ÷ 150000 × 100% ≈ 102.9%<br>Excel：=IFERROR(E2/I2*100, 0)</div>
+      </div>
+      <div class="formula-card">
+        <div class="fc-name">毛利率</div>
+        <div class="fc-eq">= (销售收入 - 销售成本) ÷ 销售收入 × 100%</div>
+        <div class="fc-note">商品毛利润占销售额的百分比</div>
+        <div class="fc-eg">🌰 销售额10万，成本6万：(10-6)÷10=40%<br>Excel：=IFERROR((E2-F2)/E2*100, 0)</div>
+      </div>
+    </div>
+
+    <h3 class="txt-c1" style="margin:18px 0 12px;">🔄 两种计算方式对比</h3>
+    <div class="err-compare">
+      <div class="err-box" style="background:#EDE9FE;border:2px solid #A78BFA;border-radius:12px;padding:14px;">
+        <div class="err-label" style="color:#6D28D9;">📝 公式计算（直接写运算式）</div>
+        <div class="err-content">
+          <code>=B2+C2+D2</code>（直接相加）<br>
+          <code>=B2*C2</code>（相乘）<br><br>
+          <strong>优点：</strong>直观，看得见每一步<br>
+          <strong>缺点：</strong>数据多时很繁琐
+        </div>
+      </div>
+      <div class="err-box" style="background:#D1FAE5;border:2px solid #6EE7B7;border-radius:12px;padding:14px;">
+        <div class="err-label r">✅ 函数计算（用内置函数）</div>
+        <div class="err-content">
+          <code>=SUM(B2:D2)</code>（区域求和）<br>
+          <code>=SUMIF(A:A,"付费流量",H:H)</code>（条件求和）<br><br>
+          <strong>优点：</strong>简洁，范围大时更方便<br>
+          <strong>推荐：</strong>大多数情况优先用函数
+        </div>
+      </div>
+    </div>
+
+    <div class="hl purple" style="margin-top:4px;">
+      <div class="hi">⚠️</div>
+      <div class="hb"><strong>必须加IFERROR！</strong>
+      <p>计算转化率、客单价时，如果访客数或买家数为0，公式会报 #DIV/0! 错误。养成习惯：所有除法公式都套上 <code>IFERROR(..., 0)</code>，出错时显示0而不是报错。</p></div>
+    </div>
+
+    <div class="mnemonic">
+      <div class="mn-title">🧠 核心公式口诀</div>
+      <div class="mn-text">销售额 = 流量 × 转化率 × 客单价</div>
+      <div class="mn-note">转化率 = 支付买家 ÷ 访客数 | 客单价 = 支付金额 ÷ 支付买家数 | 别忘了套IFERROR！</div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：某月访客数50000，支付买家数2000，支付金额180000元。客单价是多少？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq0','3.6是用支付金额÷访客数，不是÷支付买家数，这算的是每个访客贡献的金额，不是客单价。')">3.6元（180000÷50000）</button>
+      <button class="mo" onclick="mq(this,true,'mq0','✅ 正确！客单价 = 支付金额 ÷ 支付买家数 = 180000 ÷ 2000 = 90元。是每笔成交订单的平均金额，不是每个访客的平均贡献。')">90元（180000÷2000）</button>
+      <button class="mo" onclick="mq(this,false,'mq0','4%是转化率（2000÷50000），不是客单价。')">4%（2000÷50000）</button>
+    </div>
+    <div id="mq0" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 二、日期计算 ══ -->
+<section id="sec-date" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff;">📅</div>
+    <div>
+      <div class="sec-title txt-c1">二、日期计算</div>
+      <div class="sec-sub">DATEDIF 计算日期差 · DAYS360 按360天制计算</div>
+    </div>
+  </div>
+
+  <div class="scene-box">
+    <div class="scene-tag">💼 应用场景导入</div>
+    <div class="scene-boss">老板说："统计一下我们的老会员，从第一次购买到现在分别过了多少个月？确认收货超过10天还没评价的客户，发短信催一下！"</div>
+    <div class="scene-ans">两个任务：第一个算"间隔多少个月"→ DATEDIF；第二个算"距评价截止还剩几天"→ DAYS360 + TODAY()。</div>
+  </div>
+
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div>
+    <div><div class="peek-title">先看一眼</div>
+    <div class="peek-text">日期在Excel里本质上是数字，可以参与计算。<strong>DATEDIF</strong> 专门算两个日期之差（年/月/天），<strong>DAYS360</strong> 按一年360天算日期差（财务/促销场景常用）。</div></div></div>
+
+    <!-- DATEDIF -->
+    <h3 class="txt-c1" style="margin-bottom:14px;">① DATEDIF — 计算两日期之差</h3>
+    <div style="background:#EDE9FE;border:2px solid #A78BFA;border-radius:14px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:#6D28D9;margin-bottom:8px;">📝 格式</div>
+      <div style="font-size:16px;font-weight:900;color:#4C1D95;font-family:monospace;text-align:center;padding:10px;background:#fff;border-radius:10px;margin-bottom:10px;">
+        =DATEDIF(date1, date2, "code")
+      </div>
+      <div class="tb-wrap" style="margin:0;">
+        <table>
+          <tr><th>参数</th><th>说明</th><th>注意</th></tr>
+          <tr><td>date1</td><td>开始日期（较小的日期）</td><td rowspan="2" style="color:#EF4444;font-weight:700;">⚠️ date2必须大于date1，否则返回 #NUM! 错误</td></tr>
+          <tr><td>date2</td><td>结束日期（较大的日期）</td></tr>
+          <tr><td>"code"</td><td>返回什么类型的差值</td><td>见下方code参数说明</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h4 class="txt-c1" style="margin-bottom:10px;">🔑 code 参数 6 种（全部要掌握）</h4>
+    <div class="code-grid">
+      <div class="cg-item" style="background:#EDE9FE;border:2px solid #A78BFA;">
+        <div class="cg-code" style="color:#6D28D9;">"Y"</div>
+        <div class="cg-desc">两日期之间<br><strong>完整年数</strong><br>（不足1年不算）</div>
+      </div>
+      <div class="cg-item" style="background:#DBEAFE;border:2px solid #93C5FD;">
+        <div class="cg-code" style="color:#1D4ED8;">"M"</div>
+        <div class="cg-desc">两日期之间<br><strong>总月数</strong><br>（最常用）</div>
+      </div>
+      <div class="cg-item" style="background:#D1FAE5;border:2px solid #6EE7B7;">
+        <div class="cg-code" style="color:#065F46;">"D"</div>
+        <div class="cg-desc">两日期之间<br><strong>总天数</strong></div>
+      </div>
+      <div class="cg-item" style="background:#FEF3C7;border:2px solid #FCD34D;">
+        <div class="cg-code" style="color:#D97706;">"YM"</div>
+        <div class="cg-desc">忽略年份差，只算<br><strong>一年内的月数差</strong></div>
+      </div>
+      <div class="cg-item" style="background:#FCE7F3;border:2px solid #F9A8D4;">
+        <div class="cg-code" style="color:#BE185D;">"YD"</div>
+        <div class="cg-desc">忽略年份差，只算<br><strong>一年内的天数差</strong></div>
+      </div>
+      <div class="cg-item" style="background:#FEE2E2;border:2px solid #FCA5A5;">
+        <div class="cg-code" style="color:#C2410C;">"MD"</div>
+        <div class="cg-desc">忽略年月差，只算<br><strong>一月内的天数差</strong></div>
+      </div>
+    </div>
+
+    <div class="hl purple" style="margin:14px 0;">
+      <div class="hi">🌰</div>
+      <div class="hb"><strong>实战案例：会员活跃度分析</strong>
+      <p>会员张先生kay：首次下单 2016/3/18，最近下单 2024/10/1<br>
+      间隔月数：<code>=DATEDIF(C2, D2, "M")</code> → <strong>102个月</strong><br>
+      间隔年数：<code>=DATEDIF(C2, D2, "Y")</code> → <strong>8年</strong><br>
+      间隔天数：<code>=DATEDIF(C2, D2, "D")</code> → <strong>3120天</strong>（老客户！）</p></div>
+    </div>
+
+    <!-- DAYS360 -->
+    <h3 class="txt-c1" style="margin:20px 0 14px;">② DAYS360 — 按360天制计算日期差</h3>
+    <div style="background:#EDE9FE;border:2px solid #A78BFA;border-radius:14px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:#6D28D9;margin-bottom:8px;">📝 格式</div>
+      <div style="font-size:16px;font-weight:900;color:#4C1D95;font-family:monospace;text-align:center;padding:10px;background:#fff;border-radius:10px;margin-bottom:10px;">
+        =DAYS360(start_date, end_date)
+      </div>
+      <div style="font-size:13px;color:#555;line-height:1.7;">
+        按<strong>每月30天、一年360天</strong>计算两个日期之间相差的天数。<br>
+        如果 start_date > end_date，返回<strong>负数</strong>（常用于判断是否超时）。
+      </div>
+    </div>
+
+    <div class="hl amber">
+      <div class="hi">🌰</div>
+      <div class="hb"><strong>实战案例：催评超时提醒</strong>
+      <p>客户确认收货后10天内需评价，超时要发短信提醒。<br>
+      公式：<code>=DAYS360(TODAY(), 评价截止日期)</code><br>
+      结果为<strong>正数</strong>→ 还未到截止日，不需要提醒<br>
+      结果为<strong>负数</strong>→ 已超过截止日，需要发短信催评！<br><br>
+      TODAY() 函数：自动读取今天的日期，每天打开文件都会自动更新。</p></div>
+    </div>
+
+    <div class="err-compare" style="margin-top:12px;">
+      <div class="err-box wrong">
+        <div class="err-label w">❌ 常见错误：date2 < date1</div>
+        <div class="err-content">
+          <code>=DATEDIF(D2, C2, "M")</code><br>（把较大的结束日期放在了date1位置）<br><br>
+          结果：<span style="color:#EF4444;font-weight:700;">#NUM!</span> 报错
+        </div>
+      </div>
+      <div class="err-box right">
+        <div class="err-label r">✅ 正确：date1 < date2</div>
+        <div class="err-content">
+          <code>=DATEDIF(C2, D2, "M")</code><br>（开始日期在前，结束日期在后）<br><br>
+          结果：正常返回间隔月数
+        </div>
+      </div>
+    </div>
+
+    <div class="mnemonic">
+      <div class="mn-title">🧠 日期函数口诀</div>
+      <div class="mn-text">DATEDIF算差值 · 小在前大在后 · TODAY抓今天</div>
+      <div class="mn-note">DATEDIF(开始,结束,code) | DAYS360配TODAY()算超时 | 结果负数=已超时</div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：用DATEDIF计算会员从2018/6/1到2024/6/1之间过了多少年，公式应该是？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq1','date2必须在date1之后，把2024放前面是错误的，会返回#NUM!错误。')">=DATEDIF("2024/6/1","2018/6/1","Y")</button>
+      <button class="mo" onclick="mq(this,true,'mq1','✅ 正确！DATEDIF第1个参数是开始日期（较小），第2个参数是结束日期（较大），第3个参数"Y"表示返回完整年数。结果为6年。')">=DATEDIF("2018/6/1","2024/6/1","Y")</button>
+      <button class="mo" onclick="mq(this,false,'mq1','"M"返回的是总月数（72个月），不是年数。要返回年数需要用"Y"。')">=DATEDIF("2018/6/1","2024/6/1","M")</button>
+    </div>
+    <div id="mq1" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 三、加权计算 ══ -->
+<section id="sec-weight" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff;">⚖️</div>
+    <div>
+      <div class="sec-title txt-c1">三、加权计算（SUMPRODUCT）</div>
+      <div class="sec-sub">指标×权重求和 · 综合评分 · 推广渠道排名</div>
+    </div>
+  </div>
+
+  <div class="scene-box">
+    <div class="scene-tag">💼 应用场景导入</div>
+    <div class="scene-boss">老板说："直通车、淘宝客、智钻等8个渠道，从转化效果、流量质量、成本控制等5个维度打分，帮我算出各渠道的综合得分，看看哪个渠道最值得加大投入！"</div>
+    <div class="scene-ans">5个指标的重要性不同（转化效果比品牌曝光更重要），要分配不同权重，再加权求和。→ 这就是加权计算！用SUMPRODUCT函数，一个公式搞定！</div>
+  </div>
+
+  <div class="card reveal">
+    <div class="peek"><div class="peek-icon">👁️</div>
+    <div><div class="peek-title">先看一眼</div>
+    <div class="peek-text">加权计算 = 每个指标得分 × 对应权重，然后把所有乘积加起来。简单说就是"重要的指标多算一点"。SUMPRODUCT一次性完成所有乘积的求和，比手动写公式简洁得多。</div></div></div>
+
+    <h3 class="txt-c1" style="margin-bottom:14px;">🔢 SUMPRODUCT 函数详解</h3>
+    <div style="background:#EDE9FE;border:2px solid #A78BFA;border-radius:14px;padding:18px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:#6D28D9;margin-bottom:8px;">📝 格式</div>
+      <div style="font-size:16px;font-weight:900;color:#4C1D95;font-family:monospace;text-align:center;padding:10px;background:#fff;border-radius:10px;margin-bottom:10px;">
+        =SUMPRODUCT(array1, array2, ...)
+      </div>
+      <div style="font-size:13px;color:#555;line-height:1.7;">
+        将两个数组（区域）对应位置的数值<strong>一一相乘</strong>，然后把所有乘积<strong>相加</strong>，返回最终结果。<br>
+        简单理解：= array1[1]×array2[1] + array1[2]×array2[2] + ...
+      </div>
+    </div>
+
+    <h3 class="txt-c1" style="margin-bottom:12px;">📊 完整案例演示（对照练习文件操作）</h3>
+
+    <div class="hl purple" style="margin-bottom:14px;">
+      <div class="hi">⚙️</div>
+      <div class="hb"><strong>数据说明</strong>
+      <p>8个推广渠道，5个评价指标（转化效果30%、流量质量25%、成本控制20%、品牌曝光15%、用户留存10%），每项满分10分。计算各渠道综合得分并排名。</p></div>
+    </div>
+
+    <div class="weight-demo">
+      <table>
+        <tr>
+          <th>推广渠道</th>
+          <th>指标一<br><span style="font-weight:400;font-size:11px;">转化效果 30%</span></th>
+          <th>指标二<br><span style="font-weight:400;font-size:11px;">流量质量 25%</span></th>
+          <th>指标三<br><span style="font-weight:400;font-size:11px;">成本控制 20%</span></th>
+          <th>指标四<br><span style="font-weight:400;font-size:11px;">品牌曝光 15%</span></th>
+          <th>指标五<br><span style="font-weight:400;font-size:11px;">用户留存 10%</span></th>
+          <th style="background:#4C1D95;">综合得分</th>
+        </tr>
+        <tr><td style="font-weight:700;">A. 直通车</td><td>8</td><td>7</td><td>6</td><td>3</td><td>5</td><td style="background:#F5F3FF;font-weight:700;color:#6D28D9;">8×30%+7×25%+6×20%+3×15%+5×10% = <strong>6.30</strong></td></tr>
+        <tr><td style="font-weight:700;">B. 淘宝客</td><td>6</td><td>5</td><td>9</td><td>4</td><td>7</td><td style="background:#F5F3FF;font-weight:700;color:#6D28D9;">6×30%+5×25%+9×20%+4×15%+7×10% = <strong>6.30</strong></td></tr>
+        <tr class="highlight"><td style="font-weight:700;">E. 直播带货</td><td>9</td><td>7</td><td>4</td><td>8</td><td>6</td><td style="background:#EDE9FE;font-weight:900;color:#6D28D9;">9×30%+7×25%+4×20%+8×15%+6×10% = <strong>7.05 🏆</strong></td></tr>
+      </table>
+    </div>
+
+    <h3 class="txt-c1" style="margin:18px 0 12px;">🔄 两种计算方式对比（结果完全相同！）</h3>
+    <div class="err-compare">
+      <div class="err-box" style="background:#FEF3C7;border:2px solid #FCD34D;border-radius:12px;padding:14px;">
+        <div class="err-label" style="color:#D97706;">📝 手动公式法（繁琐）</div>
+        <div class="err-content">
+          <code style="font-size:12px;">=B2*B$3+C2*C$3+D2*D$3+E2*E$3+F2*F$3</code><br><br>
+          5个指标要写5个乘法，维度越多越麻烦。<br>
+          优点：每步看得见，易于理解
+        </div>
+      </div>
+      <div class="err-box right">
+        <div class="err-label r">✅ SUMPRODUCT法（简洁高效）</div>
+        <div class="err-content">
+          <code style="font-size:12px;">=SUMPRODUCT(B2:F2, B$3:F$3)</code><br><br>
+          一个公式，无论多少维度都是这样写。<br>
+          <strong>推荐！维度越多，优势越明显</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps-card" style="margin-top:14px;">
+      <div class="step-item">
+        <div class="step-num">💡</div>
+        <div class="step-body">
+          <div class="step-title">绝对引用（$）的重要性</div>
+          <div class="step-desc">权重所在行用 <code>$</code> 锁定，如 <code>B$3:F$3</code>，表示行号3不变。这样向下拖动填充柄时，权重行不会跟着变化，各渠道都正确引用同一行权重。</div>
+          <div class="err-compare" style="margin-top:8px;">
+            <div class="err-box wrong">
+              <div class="err-label w">❌ 不加$（拖公式时权重行跑偏）</div>
+              <div class="err-content"><code>=SUMPRODUCT(B2:F2, B3:F3)</code><br>向下拖到第3行变成<br><code>=SUMPRODUCT(B3:F3, B4:F4)</code><br>权重行错了！</div>
+            </div>
+            <div class="err-box right">
+              <div class="err-label r">✅ 加$（权重行始终锁定）</div>
+              <div class="err-content"><code>=SUMPRODUCT(B2:F2, B$3:F$3)</code><br>向下拖到第3行变成<br><code>=SUMPRODUCT(B3:F3, B$3:F$3)</code><br>权重行锁定在第3行，正确！</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mnemonic">
+      <div class="mn-title">🧠 SUMPRODUCT记忆口诀</div>
+      <div class="mn-text">数组对应乘，乘积再求和；权重行加$，向下拖不乱</div>
+      <div class="mn-note">格式：=SUMPRODUCT(得分区域, 权重区域) | 权重行必须加$绝对引用！</div>
+    </div>
+  </div>
+
+  <div class="mq reveal">
+    <h5>⚡ 即时测验：SUMPRODUCT公式中，权重行用 B$3:F$3（加了$）的目的是什么？</h5>
+    <div class="mo-wrap">
+      <button class="mo" onclick="mq(this,false,'mq2','$不是用来防止数据被修改的，而是控制公式拖动时的引用行为。')">防止权重数据被意外修改</button>
+      <button class="mo" onclick="mq(this,true,'mq2','✅ 正确！$是绝对引用符号，锁定第3行。当公式向下拖动填充时，得分区域行号自动变化（B2→B3→B4...），但权重始终引用第3行（B$3不变）。不加$的话，拖到第二行时权重会变成B4行，引用错误，结果全错。')">向下拖填充时，权重行始终固定在第3行不跑偏</button>
+      <button class="mo" onclick="mq(this,false,'mq2','$不是让权重参与排序用的，而是控制公式拖拽时的行引用。')">让权重数据自动参与排序</button>
+    </div>
+    <div id="mq2" class="mfb"></div>
+  </div>
+</section>
+
+<!-- ══ 知识导图 ══ -->
+<section id="sec-map" class="sec-block reveal">
+  <div class="sec-hd bc1">
+    <div class="sec-icon bg-c1" style="color:#fff;">🗺️</div>
+    <div><div class="sec-title txt-c1">单元四 知识导图</div>
+    <div class="sec-sub">数据计算三大类型 · 全局一览</div></div>
+  </div>
+  <div class="card" style="overflow-x:auto;padding:20px;">
+    <svg viewBox="0 0 960 460" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;">
+      <defs>
+        <filter id="sh4"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity=".1"/></filter>
+        <linearGradient id="gd" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#8B5CF6"/><stop offset="100%" style="stop-color:#6D28D9"/>
+        </linearGradient>
+      </defs>
+      <!-- 中心 -->
+      <rect x="320" y="195" width="260" height="60" rx="30" fill="url(#gd)" filter="url(#sh4)"/>
+      <text x="450" y="220" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">数据计算（单元四）</text>
+      <text x="450" y="240" text-anchor="middle" fill="rgba(255,255,255,.8)" font-size="11" font-family="Noto Sans SC,sans-serif">常规 · 日期 · 加权</text>
+
+      <!-- 左：常规计算 -->
+      <line x1="370" y1="195" x2="200" y2="120" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="6,3"/>
+      <rect x="30" y="85" width="340" height="70" rx="14" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2" filter="url(#sh4)"/>
+      <text x="200" y="113" text-anchor="middle" fill="#6D28D9" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">🔢 一、常规计算</text>
+      <text x="200" y="133" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">销售额=流量×转化率×客单价</text>
+
+      <!-- 上：日期计算 -->
+      <line x1="450" y1="195" x2="450" y2="123" stroke="#3B82F6" stroke-width="2" stroke-dasharray="6,3"/>
+      <rect x="285" y="25" width="330" height="70" rx="14" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2" filter="url(#sh4)"/>
+      <text x="450" y="53" text-anchor="middle" fill="#1D4ED8" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">📅 二、日期计算</text>
+      <text x="450" y="73" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">DATEDIF · DAYS360 · TODAY()</text>
+
+      <!-- 右：加权计算 -->
+      <line x1="530" y1="195" x2="700" y2="120" stroke="#10B981" stroke-width="2" stroke-dasharray="6,3"/>
+      <rect x="590" y="85" width="340" height="70" rx="14" fill="#D1FAE5" stroke="#10B981" stroke-width="2" filter="url(#sh4)"/>
+      <text x="760" y="113" text-anchor="middle" fill="#065F46" font-size="13" font-weight="bold" font-family="Noto Sans SC,sans-serif">⚖️ 三、加权计算</text>
+      <text x="760" y="133" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">SUMPRODUCT · 权重×得分求和</text>
+
+      <!-- 常规计算子节点 -->
+      <line x1="130" y1="155" x2="100" y2="255" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="20" y="243" width="215" height="44" rx="10" fill="#EDE9FE" stroke="#A78BFA" stroke-width="1.5"/>
+      <text x="127" y="262" text-anchor="middle" fill="#6D28D9" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">核心指标公式</text>
+      <text x="127" y="278" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">转化率/客单价/毛利率/完成率</text>
+
+      <line x1="270" y1="155" x2="270" y2="255" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="178" y="243" width="185" height="44" rx="10" fill="#EDE9FE" stroke="#A78BFA" stroke-width="1.5"/>
+      <text x="270" y="262" text-anchor="middle" fill="#6D28D9" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">IFERROR防报错</text>
+      <text x="270" y="278" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">除法必加IFERROR</text>
+
+      <!-- 日期计算子节点 -->
+      <line x1="390" y1="95" x2="340" y2="255" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="248" y="300" width="185" height="50" rx="10" fill="#DBEAFE" stroke="#93C5FD" stroke-width="1.5"/>
+      <text x="340" y="320" text-anchor="middle" fill="#1D4ED8" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">DATEDIF</text>
+      <text x="340" y="338" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">"Y"年/"M"月/"D"天等6种code</text>
+
+      <line x1="510" y1="95" x2="560" y2="255" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="468" y="300" width="185" height="50" rx="10" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1.5"/>
+      <text x="560" y="320" text-anchor="middle" fill="#1D4ED8" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">DAYS360+TODAY()</text>
+      <text x="560" y="338" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">负数=已超时/到期</text>
+
+      <!-- 加权子节点 -->
+      <line x1="700" y1="155" x2="750" y2="255" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="660" y="243" width="185" height="44" rx="10" fill="#D1FAE5" stroke="#6EE7B7" stroke-width="1.5"/>
+      <text x="752" y="262" text-anchor="middle" fill="#065F46" font-size="11" font-weight="bold" font-family="Noto Sans SC,sans-serif">SUMPRODUCT</text>
+      <text x="752" y="278" text-anchor="middle" fill="#777" font-size="10" font-family="Noto Sans SC,sans-serif">权重行必须加$绝对引用</text>
+
+      <!-- 口诀条 -->
+      <rect x="20" y="380" width="920" height="50" rx="14" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
+      <text x="480" y="399" text-anchor="middle" fill="#6D28D9" font-size="12" font-weight="bold" font-family="Noto Sans SC,sans-serif">常规计算：销售额=流量×转化率×客单价 | 除法套IFERROR防报错</text>
+      <text x="480" y="417" text-anchor="middle" fill="#555" font-size="11" font-family="Noto Sans SC,sans-serif">日期：DATEDIF开始在前结束在后 | DAYS360负数=已超时 | 加权：SUMPRODUCT权重加$</text>
+    </svg>
+  </div>
+  <div class="hl purple" style="margin-top:14px;">
+    <div class="hi">🧠</div>
+    <div class="hb"><strong>模块三全局总结</strong>
+    <p>单元一→明白为什么要处理数据；单元二→学会4种分类统计方法；单元三→掌握清洗/转化/排序技能；单元四→用公式计算出各种运营指标。<strong>四个单元串起来，就是完整的数据分析前处理流程！</strong></p></div>
+  </div>
+</section>
+
+<!-- ══ 综合测试 ══ -->
+<section id="sec-quiz" class="sec-block reveal">
+  <div class="qhd">
+    <span style="font-size:32px;">✅</span>
+    <div><h2 style="font-size:20px;">综合知识测试</h2>
+    <p style="font-size:13px;opacity:.85;margin-top:2px;">5道题，涵盖三类计算的核心考点！</p></div>
+  </div>
+  <div class="qbody">
+
+    <div class="qi" id="qz1">
+      <div class="qq"><span class="qnum">1</span>某月访客数60000，支付买家数3000，支付金额270000元。以下计算正确的是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">A</div><div>转化率 = 270000 ÷ 60000 × 100% = 4.5元</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">B</div><div>客单价 = 60000 ÷ 3000 = 20元</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',true)"><div class="ok2">C</div><div>转化率 = 3000 ÷ 60000 × 100% = 5%；客单价 = 270000 ÷ 3000 = 90元</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz1',false)"><div class="ok2">D</div><div>客单价 = 270000 ÷ 60000 = 4.5元</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz1')" disabled>提交答案</button>
+      <div id="qz1-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz2">
+      <div class="qq"><span class="qnum">2</span>计算转化率公式 =D2/B2*100 时，如果某月访客数为0，会出现什么问题？正确的写法是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">A</div><div>会自动显示0，不需要特殊处理</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',true)"><div class="ok2">B</div><div>会出现 #DIV/0! 错误；正确写法：=IFERROR(D2/B2*100, 0)</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">C</div><div>会出现 #N/A 错误；用VLOOKUP解决</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz2',false)"><div class="ok2">D</div><div>会出现 #VALUE! 错误；需要把B2转换成文本</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz2')" disabled>提交答案</button>
+      <div id="qz2-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz3">
+      <div class="qq"><span class="qnum">3</span>用DATEDIF计算会员活跃了多少个完整月份，第3个参数（code）应该填什么？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">A</div><div>"Y"（完整年数）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',true)"><div class="ok2">B</div><div>"M"（两日期之间的总月数）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">C</div><div>"D"（总天数）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz3',false)"><div class="ok2">D</div><div>"YM"（忽略年份的月数差）</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz3')" disabled>提交答案</button>
+      <div id="qz3-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz4">
+      <div class="qq"><span class="qnum">4</span>公式 =DAYS360(TODAY(), H2) 的结果是 -5，表示什么意思？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">A</div><div>H2的日期比今天早5天，公式输入顺序错误</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">B</div><div>距离H2的截止日期还有5天，需要提前提醒</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',true)"><div class="ok2">C</div><div>TODAY()比H2晚5天，即截止日已过去5天，需要催促（已超时）</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz4',false)"><div class="ok2">D</div><div>公式有错误，日期不能为负数</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz4')" disabled>提交答案</button>
+      <div id="qz4-fb" class="qfb"></div>
+    </div>
+
+    <div class="qi" id="qz5">
+      <div class="qq"><span class="qnum">5</span>使用SUMPRODUCT计算加权得分时，公式 =SUMPRODUCT(B2:F2, B$3:F$3) 中对权重行使用 $3 的原因是？</div>
+      <div class="qopts">
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">A</div><div>让第3行的数字在计算时自动变大3倍</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">B</div><div>表示只计算前3个指标的加权得分</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',true)"><div class="ok2">C</div><div>锁定第3行（权重行），向下拖填充公式时，权重始终引用第3行，不会跟着偏移</div></div>
+        <div class="qopt" onclick="selOpt(this,'qz5',false)"><div class="ok2">D</div><div>让计算结果保留3位小数</div></div>
+      </div>
+      <button class="qsub" onclick="submitQ('qz5')" disabled>提交答案</button>
+      <div id="qz5-fb" class="qfb"></div>
+    </div>
+
+    <div id="qz-score" class="score-box">
+      <div class="sc-emoji" id="sc-emoji">🎉</div>
+      <div class="sc-num" id="sc-num">0/5</div>
+      <div class="sc-msg" id="sc-msg"></div>
+      <button class="sc-retry" onclick="location.reload()">🔄 重新测试</button>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer style="background:#2E1065;color:rgba(255,255,255,.55);text-align:center;padding:28px;font-size:13px;margin-top:50px;">
+  <p>📚 <span style="color:#C4B5FD;">商务数据分析</span> · 模块三 · 单元四 数据计算</p>
+  <p style="margin-top:6px;">中职电子商务专业 · 公式让数据开口说话，计算让决策有据可依 🔢</p>
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/learning.js"></script>
+<script>
+window.QUIZ_DATA = {
+  qz1:{exp:"转化率 = 支付买家数 ÷ 访客数 × 100% = 3000 ÷ 60000 × 100% = 5%（有5%的访客最终付款）；客单价 = 支付金额 ÷ 支付买家数 = 270000 ÷ 3000 = 90元（每笔订单平均90元）。销售额公式验证：60000×5%×90 = 270000元 ✓"},
+  qz2:{exp:"除数为0时，Excel会报 #DIV/0! 错误（除以零错误）。正确处理方式是套上IFERROR函数：=IFERROR(D2/B2*100, 0)。这样访客数为0时显示0，不报错，表格保持整洁可用。养成好习惯：所有除法都加IFERROR！"},
+  qz3:{exp:"DATEDIF的code参数中，\"M\"返回两个日期之间的完整月数（总月数），是会员活跃度分析最常用的参数。\"Y\"返回年数，\"D\"返回总天数，\"YM\"返回忽略年份后剩余的月数差（不是总月数）。"},
+  qz4:{exp:"DAYS360(TODAY(), H2) = TODAY()到H2的天数。结果为-5说明TODAY()比H2晚了5天，即H2的截止日期已经过去5天了，客户已经超时5天没有评价，需要发短信催促。DAYS360当start_date > end_date时返回负数，负数=已超时。"},
+  qz5:{exp:"$符号是绝对引用，锁定行号。B$3:F$3中的$3表示行号3永远不变。当公式从第2行向下拖到第3、4、5行时，得分区域自动变成B3:F3、B4:F4...，但权重区域始终是B$3:F$3，正确引用权重。不加$的话权重行会跟着偏移，导致计算错误。"}
+};
+</script>
+</body>
+</html>
