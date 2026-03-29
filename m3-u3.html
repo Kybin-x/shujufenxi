@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>3.3 数据处理 · 电商数据分析</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pri:#7C3AED;--pri2:#8B5CF6;--priL:#F5F3FF;--priM:#DDD6FE;--priD:#4C1D95;
+  --teal:#0891B2;--tealL:#ECFEFF;--tealM:#A5F3FC;
+  --amber:#D97706;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --red:#DC2626;--redL:#FEF2F2;--redM:#FECACA;
+  --green:#16A34A;--greenL:#F0FDF4;--greenM:#BBF7D0;
+  --blue:#2563EB;--blueL:#EFF6FF;--blueM:#BFDBFE;
+  --ink:#1C1917;--ink2:#44403C;--ink3:#78716C;--ink4:#A8A29E;
+  --bg:#FAF5FF;--card:#FFFFFF;--border:#EDE9FE;
+  --r:10px;--shadow:0 2px 12px rgba(124,58,237,.1),0 1px 3px rgba(0,0,0,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65;
+  background-image:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(124,58,237,.07),transparent),
+  radial-gradient(ellipse 50% 40% at 90% 100%,rgba(139,92,246,.05),transparent)}
+
+/* ── NAV ── */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(250,245,255,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--border);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(124,58,237,.09)}
+.nav-back{font-size:13px;font-weight:700;color:var(--pri);text-decoration:none;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:7px;transition:background .2s}
+.nav-back:hover{background:var(--priL)}
+.nav-title{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-xp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--pri),var(--pri2));color:#fff;border-radius:20px;padding:4px 12px;white-space:nowrap}
+.prog-wrap{height:5px;background:var(--priM);position:sticky;top:52px;z-index:99}
+.prog-fill{height:5px;background:linear-gradient(90deg,var(--pri),var(--pri2));border-radius:0 3px 3px 0;transition:width .5s}
+.pnav{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--card);border:1.5px solid var(--border);color:var(--ink3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--pri);color:var(--pri)}
+.pb.active{background:var(--pri);border-color:var(--pri);color:#fff}
+
+/* ── MAIN ── */
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#EDE9FE 0%,#DDD6FE 50%,#F5F3FF 100%);border:1.5px solid var(--border);border-radius:14px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'🧹';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.12;pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.12);border:1.5px solid rgba(124,58,237,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--priD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--pri)}
+.hero-sub{font-size:13px;color:var(--ink2);line-height:1.8;max-width:600px}
+.hero-goals{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.hg{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--ink2)}
+.hg-dot{width:18px;height:18px;border-radius:50%;background:var(--pri);color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+
+/* ── SCENARIO ── */
+.scenario{background:#fff;border:1.5px solid #FDE68A;border-radius:var(--r);margin-bottom:18px;overflow:hidden;box-shadow:var(--shadow)}
+.sc-head{background:linear-gradient(90deg,#FFFBEB,#FFFDE7);border-bottom:1px solid #FDE68A;padding:12px 18px;display:flex;align-items:center;gap:8px}
+.sc-head-icon{font-size:20px}.sc-head-title{font-size:14px;font-weight:800;color:#92400E}
+.sc-body{padding:16px 18px;font-size:13px;color:var(--ink2);line-height:1.9}
+.sc-body em{font-style:normal;font-weight:700;color:var(--ink)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
+.card-head{background:linear-gradient(135deg,#EDE9FE,#F5F3FF);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;gap:8px}
+.ch-icon{font-size:20px;flex-shrink:0}
+.ch-title{font-size:14px;font-weight:800;color:var(--ink)}
+.ch-sub{font-size:11px;color:var(--ink3);margin-left:auto}
+.card-body{padding:16px 18px}
+
+/* ── SEC TITLE ── */
+.sec-title{font-size:14px;font-weight:800;color:var(--ink);margin:22px 0 10px;display:flex;align-items:center;gap:7px}
+.sec-title::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--pri),var(--pri2));border-radius:2px;flex-shrink:0}
+
+/* ── SECTION TABS ── */
+.seg-wrap{display:flex;gap:4px;background:#EDE9FE;border:1.5px solid var(--border);border-radius:25px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
+.seg-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;color:var(--ink3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.seg-btn.active{background:var(--pri);color:#fff;box-shadow:0 2px 6px rgba(124,58,237,.25)}
+.seg-pane{display:none}.seg-pane.active{display:block}
+
+/* ── DIRTY TABLE ── */
+.dtable{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.dtable th{background:#374151;color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11px;white-space:nowrap}
+.dtable td{padding:7px 10px;border-bottom:1px solid #F3F4F6;color:var(--ink2);white-space:nowrap;vertical-align:top}
+.dtable tr:nth-child(even) td{background:#FAFAFA}
+.dtable td.bad{background:var(--redL);color:var(--red);font-weight:700}
+.dtable td.dupe{background:var(--amberL);color:var(--amber);font-weight:700}
+.dtable td.empty{background:var(--redL);color:var(--redM);font-style:italic}
+.dtable td.ok{background:var(--greenL);color:var(--green);font-weight:700}
+.dtable tfoot td{background:var(--pri);color:#fff;font-weight:800;padding:7px 10px}
+.bad-tag{display:inline-block;background:var(--redL);border:1px solid var(--redM);border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700;color:var(--red);margin-left:3px;white-space:nowrap}
+.ok-tag{display:inline-block;background:var(--greenL);border:1px solid var(--greenM);border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700;color:var(--green);margin-left:3px}
+
+/* ── TYPE CARDS (5 types) ── */
+.type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.type-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;box-shadow:0 1px 4px rgba(124,58,237,.06)}
+.tc-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 7px;box-shadow:0 2px 6px rgba(124,58,237,.2)}
+.tc-name{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.tc-eg{font-size:10.5px;color:var(--ink3);line-height:1.55}
+
+/* ── STEPS ── */
+.steps-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.step-item{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px 15px;box-shadow:0 1px 4px rgba(124,58,237,.06)}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(124,58,237,.2)}
+.step-body{flex:1}
+.step-title{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--ink2);line-height:1.7}
+.step-path{background:#FAF5FF;border:1px solid var(--priM);border-radius:6px;padding:5px 10px;margin-top:5px;font-size:11.5px;color:var(--priD);font-family:monospace;line-height:1.7}
+.step-kbd{display:inline-block;background:#374151;color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;font-family:monospace;margin:0 2px}
+
+/* ── FORMULA BLOCK ── */
+.formula-block{background:#1E1B4B;border-radius:var(--r);padding:14px 18px;margin:12px 0}
+.fb-label{font-size:10px;color:#A5B4FC;margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
+.fb-line{font-size:13.5px;margin-bottom:4px;color:#E2E8F0;font-family:monospace}
+.fb-line:last-child{margin:0}
+.fb-kw{color:#A5B4FC}
+.fb-fn{color:#C4B5FD}
+.fb-str{color:#86EFAC}
+.fb-num{color:#FCD34D}
+.fb-err{color:#F87171}
+.fb-comment{color:#6B7280;font-size:11.5px}
+.fb-result{font-size:12px;color:#86EFAC;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
+
+/* ── FN CARDS ── */
+.fn-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.fn-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:13px 14px;box-shadow:0 1px 4px rgba(124,58,237,.06)}
+.fn-name{font-size:16px;font-weight:900;color:var(--pri);font-family:monospace;margin-bottom:4px}
+.fn-desc{font-size:12px;color:var(--ink2);margin-bottom:5px}
+.fn-fmt{background:var(--priL);border-radius:5px;padding:5px 9px;font-size:11.5px;color:var(--priD);font-family:monospace;margin-bottom:5px}
+.fn-mem{font-size:11px;color:var(--ink3);font-style:italic}
+
+/* ── ERROR TABLE ── */
+.err-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.err-table th{background:var(--priD);color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11px}
+.err-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--ink2);line-height:1.6;vertical-align:top}
+.err-table tr:last-child td{border:none}
+.err-table td:first-child{font-family:monospace;color:var(--red);font-weight:800;font-size:13px}
+.err-table td.err-code{background:var(--redL)}
+
+/* ── GENERAL TABLE ── */
+.gen-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.gen-table th{background:var(--pri);color:#fff;padding:8px 11px;text-align:left;font-weight:700;font-size:11.5px}
+.gen-table td{padding:8px 11px;border-bottom:1px solid #EDE9FE;color:var(--ink2);line-height:1.65;vertical-align:top}
+.gen-table tr:nth-child(even) td{background:var(--priL)}
+.gen-table td:first-child{font-weight:700;color:var(--ink)}
+.gen-table tfoot td{background:#EDE9FE;color:var(--priD);font-weight:800}
+
+/* ── COMPARE GRID ── */
+.cmp-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.cmp-label{font-size:11px;font-weight:700;text-align:center;margin-bottom:6px;padding:4px 8px;border-radius:5px}
+.lbl-err{background:var(--redL);color:var(--red)}
+.lbl-ok{background:var(--greenL);color:var(--green)}
+
+/* ── TIPS ── */
+.tip{background:var(--priL);border:1px solid var(--priM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:var(--priD);line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--amberL);border:1px solid var(--amberM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.danger-box{background:var(--redL);border:1px solid var(--redM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#7F1D1D;line-height:1.75;display:flex;gap:7px}
+.think-box{background:#F0F9FF;border:1.5px solid var(--blueM);border-radius:var(--r);padding:14px 16px;margin:14px 0}
+.think-title{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.think-q{font-size:13px;color:var(--ink2);line-height:1.85}
+
+/* ── QUIZ ── */
+.quiz-box{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(124,58,237,.06)}
+.quiz-q{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.6}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.qopt{background:#FAFAFA;border:1.5px solid #E5E7EB;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--ink2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500}
+.qopt:hover:not(:disabled){border-color:var(--pri);background:var(--priL);color:var(--priD)}
+.qopt.ok{background:var(--priL);border-color:var(--pri);color:var(--priD);font-weight:700}
+.qopt.err{background:var(--redL);border-color:var(--redM);color:var(--red)}
+.quiz-fb{font-size:12px;margin-top:7px;padding:7px 11px;border-radius:6px;display:none}
+.quiz-fb.ok{display:block;background:var(--priL);color:var(--priD);border:1px solid var(--priM)}
+.quiz-fb.err{display:block;background:var(--redL);color:var(--red);border:1px solid var(--redM)}
+
+/* ── JUDGE ── */
+.judge-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 1px 4px rgba(124,58,237,.06)}
+.judge-q{flex:1;font-size:13px;color:var(--ink2);line-height:1.7}
+.judge-btns{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbtn-t{background:var(--greenL);border-color:var(--greenM);color:var(--green)}
+.jbtn-t:hover:not(:disabled){background:var(--green);color:#fff;border-color:var(--green)}
+.jbtn-f{background:var(--redL);border-color:var(--redM);color:var(--red)}
+.jbtn-f:hover:not(:disabled){background:var(--red);color:#fff;border-color:var(--red)}
+.jbtn.correct{background:var(--green);color:#fff;border-color:var(--green)}
+.jbtn.wrong{background:var(--red);color:#fff;border-color:var(--red)}
+.jbtn.dim{opacity:.35}
+.judge-fb{font-size:11.5px;margin-top:6px;padding:6px 10px;border-radius:5px;display:none}
+.judge-fb.ok{display:block;background:var(--greenL);color:#14532D}
+.judge-fb.err{display:block;background:var(--redL);color:var(--red)}
+
+/* ── DRAG SORT ── */
+.sort-bank{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;background:#FAF5FF;border:1.5px dashed var(--priM);border-radius:var(--r);padding:12px;margin-bottom:14px}
+.sort-chip{background:var(--pri);color:#fff;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;cursor:grab;user-select:none;box-shadow:0 2px 6px rgba(124,58,237,.25);transition:opacity .2s}
+.sort-chip:active{cursor:grabbing}
+.sort-chip.placed{opacity:.3;cursor:not-allowed}
+.sort-zones{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.sort-zone{background:#fff;border:2px dashed var(--border);border-radius:var(--r);padding:12px;min-height:80px;transition:all .2s}
+.sort-zone.over{border-color:var(--pri);background:var(--priL)}
+.sz-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.sz-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.sort-fb{font-size:12.5px;padding:10px 14px;border-radius:8px;margin:8px 0;display:none}
+.sort-fb.ok{display:block;background:var(--priL);color:var(--priD);border:1px solid var(--priM);font-weight:600}
+.sort-fb.err{display:block;background:var(--amberL);color:#78350F;border:1px solid var(--amberM)}
+.btn-check{background:var(--pri);color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
+.btn-check:hover{background:var(--priD)}
+.btn-reset{background:#fff;color:var(--ink3);border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:8px}
+
+/* ── MATCH ── */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mc-col .mc-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px;padding:4px 8px;background:var(--priL);border-radius:5px;display:inline-block}
+.mc-item{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12.5px;color:var(--ink2);cursor:pointer;transition:all .18s;margin-bottom:6px;line-height:1.5}
+.mc-item:hover:not(.locked){border-color:var(--pri)}
+.mc-item.selected{border-color:var(--pri);background:var(--priL);color:var(--priD);font-weight:700}
+.mc-item.pending{border-color:var(--priM);background:#F8F4FF;color:var(--priD);font-weight:600;cursor:default}
+.mc-item.locked{cursor:default}
+.mc-item.matched-ok{border-color:var(--green);background:var(--greenL);color:#14532D;font-weight:700;cursor:default}
+.mc-item.matched-err{border-color:var(--red);background:var(--redL);color:var(--red);cursor:default}
+.mc-fb{font-size:12px;margin-top:8px;padding:8px 12px;border-radius:7px;display:none;grid-column:1/-1}
+.mc-fb.show{display:block;background:var(--priL);color:var(--priD);border:1px solid var(--priM)}
+
+/* ── SUMMARY ── */
+.summary-card{background:linear-gradient(135deg,#EDE9FE,#F5F3FF);border:1.5px solid var(--priM);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+.sum-title{font-size:16px;font-weight:900;color:var(--ink);margin-bottom:14px}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sum-item{background:#fff;border:1px solid var(--priM);border-radius:var(--r);padding:12px}
+.si-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px}
+.si-val{font-size:18px;font-weight:900;color:var(--pri)}
+.si-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.key-points{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.kp-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink2);line-height:1.65}
+.kp-dot{width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+#p1done,#p2done,#p3done{display:none;text-align:center;padding:14px 0 4px}
+.btn-done{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border:none;border-radius:25px;padding:11px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(124,58,237,.3);transition:all .2s}
+.btn-done:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,58,237,.35)}
+.btn-complete{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(124,58,237,.3);transition:all .2s;margin-top:18px}
+.btn-complete:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(124,58,237,.4)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpPop{position:fixed;top:80px;right:20px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none;box-shadow:0 4px 12px rgba(124,58,237,.4)}
+#xpPop.show{opacity:1;transform:translateY(0)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){
+  .type-grid{grid-template-columns:repeat(2,1fr)}
+  .fn-cards,.sort-zones{grid-template-columns:1fr}
+  .cmp-2,.match-grid,.sum-grid{grid-template-columns:1fr}
+  .hero h1{font-size:20px}
+  .seg-wrap{gap:3px}.seg-btn{padding:5px 10px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div id="confetti"></div>
+<div id="toast"></div>
+<div id="xpPop"></div>
+
+<nav class="navbar">
+  <a class="nav-back" href="index.html">← 返回</a>
+  <div class="nav-title">3.3 · 数据处理</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+<div class="pnav">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📚 知识讲解</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🎮 互动练习</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🏁 单元完成</button>
+</div>
+
+<div class="main">
+
+<!-- ══ PART 1 情境导入 ══ -->
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="hero-tag">M3 · 单元三</div>
+    <h1><em>数据处理</em>：清洗·转化·排序</h1>
+    <p class="hero-sub">掌握数据清洗（5种问题类型）、数据转化（行列互换/文本提炼/类型转换）、数据排序（简单/高级/自定义）三大核心操作，让"脏数据"变成可用数据。</p>
+    <div class="hero-goals">
+      <div class="hg"><div class="hg-dot">1</div><span>识别并处理五种常见数据质量问题：缺失值、格式问题、逻辑错误、重复数据、无价值数据</span></div>
+      <div class="hg"><div class="hg-dot">2</div><span>掌握 IFERROR、LEFT、MID、RIGHT 函数的用法</span></div>
+      <div class="hg"><div class="hg-dot">3</div><span>掌握行列互换（转置）和数据类型转换（分列法）的操作</span></div>
+      <div class="hg"><div class="hg-dot">4</div><span>掌握三种排序方式，记住"扩展选定区域"这个关键操作</span></div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <div class="sc-head"><div class="sc-head-icon">😰</div><div class="sc-head-title">情境导入 · 小林的头大时刻</div></div>
+    <div class="sc-body">
+      小林已经学会了分类统计的四种方法，准备大展身手。店长又发来一份流量推广数据——2000多行，小林信心满满打开，准备直接做数据透视表，却发现问题一个接一个：
+      <div style="overflow-x:auto;margin:12px 0">
+        <table class="dtable">
+          <tr><th>统计日期</th><th>流量来源</th><th>来源明细</th><th>访客数</th><th>下单买家数</th><th>支付金额(元)</th></tr>
+          <tr>
+            <td>2024/3/1</td><td>付费流量</td><td>直通车</td><td>1,250</td><td>38</td><td>5,680.00</td>
+          </tr>
+          <tr>
+            <td class="dupe">2024/3/1 <span class="bad-tag">重复↓</span></td><td class="dupe">付费流量</td><td class="dupe">直通车</td><td class="dupe">1,250</td><td class="dupe">38</td><td class="dupe">5,680.00</td>
+          </tr>
+          <tr>
+            <td>2024/3/2</td><td>淘内免费</td><td>手淘搜索</td><td class="empty">（空缺）</td><td>22</td><td>3,210.50</td>
+          </tr>
+          <tr>
+            <td>2024/3/2</td><td>自主访问</td><td>直接访问</td><td>856</td><td>15</td><td class="bad">-2,400.00 ⚠️</td>
+          </tr>
+          <tr>
+            <td class="bad">2024年3月3日 ⚠️</td><td>付费流量</td><td>钻展</td><td>620</td><td>8</td><td>1,580.00</td>
+          </tr>
+          <tr>
+            <td>2024/3/3</td><td>淘内免费</td><td>手淘推荐</td><td>1,100</td><td class="bad">十二 ⚠️</td><td>2,890.00</td>
+          </tr>
+        </table>
+      </div>
+      <div class="warn-box"><span>😱</span>
+        <div>问题一个接一个：<em>第1-2行完全相同（重复数据）</em>、<em>第3行访客数空缺（缺失值）</em>、<em>第4行支付金额为负数（逻辑错误）</em>、<em>第5行日期格式不统一（格式问题）</em>、<em>第6行下单数是汉字（格式问题）</em>……用这样的数据做分析，结果一定是错的！</div>
+      </div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:10px;line-height:1.9">
+        小林意识到：<em>在分析数据之前，必须先把数据"洗干净"、"转规范"、"排整齐"。</em>这就是本单元要学习的三项核心操作——<em>数据清洗、数据转化和数据排序</em>。
+      </div>
+    </div>
+  </div>
+
+  <!-- 三项操作总览 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">📌</div><div class="ch-title">数据处理三项核心操作总览</div></div>
+    <div class="card-body">
+      <table class="gen-table">
+        <tr><th>处理操作</th><th>目的</th><th>通俗理解</th></tr>
+        <tr><td>🧹 数据清洗</td><td>提升数据质量，确保准确性、完整性和一致性</td><td>把"脏东西"挑出来——删多余的、补缺少的、改错误的</td></tr>
+        <tr><td>🔄 数据转化</td><td>将数据的格式或结构转换为适合分析的形式</td><td>把"不合身的衣服"改一改——换格式、拆信息、调结构</td></tr>
+        <tr><td>📶 数据排序</td><td>按一定规则排列数据，便于查看和后续操作</td><td>把"乱放的东西"摆整齐——按大小排、按类别排、按自定义顺序排</td></tr>
+      </table>
+      <div class="tip"><span>💡</span><span>实际工作中的一般顺序：<strong>先清洗 → 再转化 → 最后排序</strong>。清洗是基础——不把错误和重复数据处理掉，后续转化和排序都没有意义。</span></div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn-check" style="font-size:12px;padding:7px 18px" onclick="markP1Done()">已阅读，进入知识讲解 →</button>
+  </div>
+  <div id="p1done"><button class="btn-done" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
+</div>
+
+<!-- ══ PART 2 知识讲解 ══ -->
+<div class="part" id="part2">
+
+  <div class="seg-wrap">
+    <button class="seg-btn active" id="st0" onclick="switchSeg(0)">🧹 一、数据清洗</button>
+    <button class="seg-btn" id="st1" onclick="switchSeg(1)">🔄 二、数据转化</button>
+    <button class="seg-btn" id="st2" onclick="switchSeg(2)">📶 三、数据排序</button>
+  </div>
+
+  <!-- ══ 数据清洗 ══ -->
+  <div class="seg-pane active" id="seg0">
+
+    <div class="sec-title">五种常见数据质量问题</div>
+    <div class="type-grid">
+      <div class="type-card"><div class="tc-num">1</div><div class="tc-name">缺失值</div><div class="tc-eg">某单元格没有数据，是空的<br>如：访客数未填写</div></div>
+      <div class="type-card"><div class="tc-num">2</div><div class="tc-name">格式内容问题</div><div class="tc-eg">格式不统一或含多余空格<br>如：日期格式混用</div></div>
+      <div class="type-card"><div class="tc-num">3</div><div class="tc-name">逻辑错误</div><div class="tc-eg">数据不符合常理或规则<br>如：支付金额为负数</div></div>
+      <div class="type-card"><div class="tc-num">4</div><div class="tc-name">重复数据</div><div class="tc-eg">同一条记录录入了多次<br>如：同一订单出现两行</div></div>
+      <div class="type-card"><div class="tc-num">5</div><div class="tc-name">无价值数据</div><div class="tc-eg">对当前分析无用的字段<br>如：客户备注、物流单号</div></div>
+    </div>
+
+    <!-- 清洗一：缺失值 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">1️⃣</div><div class="ch-title">缺失值清洗</div></div>
+      <div class="card-body">
+        <table class="gen-table" style="margin-bottom:12px">
+          <tr><th>处理方式</th><th>适用场景</th><th>举例</th></tr>
+          <tr><td>数据补齐</td><td>能通过其他途径获取正确数据时</td><td>访客数为空，从平台后台重新导出补上</td></tr>
+          <tr><td>删除记录</td><td>缺失信息无法获取，且该条记录不影响整体分析</td><td>某条订单所有关键字段都为空，直接删除整行</td></tr>
+          <tr><td>不处理</td><td>缺失字段不影响当前分析目标</td><td>分析销售额时，"客户备注"为空不影响计算</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top:4px">Excel 操作：快速定位所有空值</div>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中整个数据区域</div><div class="step-desc">用鼠标框选，或按 <span class="step-kbd">Ctrl+A</span> 全选</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">定位所有空值</div><div class="step-path">「开始」→「编辑」→「查找和选择」→「定位条件」→ 选中「空值」→「确定」</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">处理空值</div><div class="step-desc"><strong>批量填充</strong>：输入内容后按 <span class="step-kbd">Ctrl+Enter</span>（所有选中空格同时填入相同内容）<br><strong>删除整行</strong>：右键 → 删除行</div></div></div>
+        </div>
+        <div class="tip"><span>💡</span><span><span class="step-kbd">Ctrl+Enter</span> 是批量填充快捷键——用"定位条件"选中多个空白单元格后，输入内容按此键，所有选中空格同时填入。</span></div>
+      </div>
+    </div>
+
+    <!-- 清洗二：格式内容 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">2️⃣</div><div class="ch-title">格式内容清洗</div></div>
+      <div class="card-body">
+        <div class="sec-title" style="margin-top:0">（1）日期格式不统一</div>
+        <div style="overflow-x:auto">
+          <table class="dtable">
+            <tr><th>原始数据</th><th>状态</th></tr>
+            <tr><td>2024/3/1</td><td class="ok">✅ 标准格式</td></tr>
+            <tr><td>2024年3月2日</td><td class="bad">❌ 中文格式，不统一</td></tr>
+            <tr><td>3月3日</td><td class="bad">❌ 缺少年份</td></tr>
+            <tr><td>20240304</td><td class="bad">❌ 纯数字，不是日期格式</td></tr>
+          </table>
+        </div>
+        <div class="step-path" style="margin:8px 0">处理方法：选中日期列 → 右键 →「设置单元格格式」→「数字」→「日期」→ 选择统一格式（如 2024/3/1）</div>
+        <div class="tip"><span>💡</span><span>如果日期以文本形式存储（单元格左上角有绿色小三角），仅设置格式可能无法生效，需先做"数据类型转换"（见数据转化部分）。</span></div>
+
+        <div class="sec-title">（2）文本中含多余空格</div>
+        <p style="font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:8px">"坚果 大礼包"和"坚果大礼包"在 Excel 看来是两个不同的值，会导致分类统计出错。</p>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">打开查找替换</div><div class="step-path">选中数据区域 → <span class="step-kbd">Ctrl+H</span>（或「开始」→「查找和选择」→「替换」）</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">设置替换内容</div><div class="step-desc">「查找内容」框输入一个<strong>空格</strong>；「替换为」框保持<strong>空（不填）</strong></div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">全部替换</div><div class="step-desc">点击「全部替换」，一键去除所有多余空格</div></div></div>
+        </div>
+
+        <div class="sec-title">（3）单元格中的错误标识符</div>
+        <table class="err-table">
+          <tr><th>错误标识</th><th>常见原因</th><th>通俗理解</th><th>解决方法</th></tr>
+          <tr><td>#####</td><td>列宽不够，数据显示不下</td><td>"格子太窄了"</td><td>拖宽列宽即可</td></tr>
+          <tr><td>#DIV/0!</td><td>公式中除数为零或为空</td><td>"不能除以0"</td><td>检查被除的单元格是否为空或0</td></tr>
+          <tr><td>#VALUE!</td><td>数据类型不匹配</td><td>"用文字做加减法算不了"</td><td>检查参与计算的单元格是否含文本</td></tr>
+        </table>
+        <div class="sec-title">用 IFERROR 函数优雅处理错误值</div>
+        <div class="formula-block">
+          <div class="fb-label">原公式 vs 改进公式</div>
+          <div class="fb-line"><span class="fb-comment">// 原公式：除数可能为0时会报错</span></div>
+          <div class="fb-line"><span class="fb-err">=H2/E2</span>  <span class="fb-comment">→ 当 E2=0 时显示 #DIV/0!</span></div>
+          <div style="height:8px"></div>
+          <div class="fb-line"><span class="fb-comment">// 改进公式：出错时显示"/"代替错误代码</span></div>
+          <div class="fb-line"><span class="fb-fn">=IFERROR</span>(<span class="fb-kw">H2/E2</span>, <span class="fb-str">"/"</span>)</div>
+          <div class="fb-result">公式正常 → 显示计算结果（如 3.04%）；公式出错 → 显示 /</div>
+        </div>
+        <div class="tip"><span>💡</span><span>修改一个单元格的 IFERROR 公式后，拖动右下角的<strong>填充柄</strong>（小方块）即可批量应用到其他行。</span></div>
+      </div>
+    </div>
+
+    <!-- 清洗三：逻辑错误 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">3️⃣</div><div class="ch-title">逻辑错误清洗</div></div>
+      <div class="card-body">
+        <table class="gen-table" style="margin-bottom:12px">
+          <tr><th>类型</th><th>含义</th><th>电商举例</th></tr>
+          <tr><td>数据不合理</td><td>数值超出正常范围</td><td>支付金额为 -2,400 元；客户年龄 500 岁</td></tr>
+          <tr><td>数据自相矛盾</td><td>同一条记录中多个字段互相冲突</td><td>下单时间3月5日，但签收时间3月3日（签收比下单还早）</td></tr>
+          <tr><td>数据不符合规则</td><td>违反了业务规则</td><td>某商品限购1件，但订单中购买数量为5件</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top:4px">用条件格式快速标注逻辑错误</div>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中要检查的列</div><div class="step-desc">如选中"支付金额"列的数据区域</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">打开条件格式</div><div class="step-path">「开始」→「样式」→「条件格式」→「突出显示单元格规则」→「小于」</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">设置条件和颜色</div><div class="step-desc">输入数值 <strong>0</strong>，选择标记格式（如"浅红填充深红色文本"）→「确定」</div></div></div>
+          <div class="step-item"><div class="step-num">✓</div><div class="step-body"><div class="step-title">效果</div><div class="step-desc">所有支付金额为负数的单元格自动变为红色背景，非常醒目</div></div></div>
+        </div>
+        <div class="warn-box"><span>⚠️</span><span>条件格式只是帮你<strong>"找到"</strong>问题数据，找到之后还需要人工判断如何处理——是修正数据还是删除整条记录，要根据实际情况决定。</span></div>
+      </div>
+    </div>
+
+    <!-- 清洗四：重复数据 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">4️⃣</div><div class="ch-title">重复数据清洗</div></div>
+      <div class="card-body">
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中整个数据区域</div><div class="step-desc">框选包含表头在内的所有数据</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">打开删除重复项</div><div class="step-path">「数据」→「数据工具」→「删除重复项」</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">选择判断重复的依据列（关键！）</div><div class="step-desc">勾选用来判断是否重复的<strong>多个列</strong>，点击「确定」</div></div></div>
+        </div>
+        <div class="danger-box"><span>⚠️</span>
+          <div><strong>重要提醒</strong>：选判断列时不能只勾选一列（如"商品名称"），否则所有商品名相同的记录都会被误删！<br>
+          <strong>正确做法</strong>：同时勾选<strong>多个关键列</strong>——如"订单编号"+"商品名称"+"下单日期"+"支付金额"，只有这些字段全部相同时才认为是真正的重复数据。</div>
+        </div>
+        <div style="overflow-x:auto;margin-top:10px">
+          <table class="dtable">
+            <tr><th>订单编号</th><th>商品名称</th><th>支付金额</th><th>是否重复？</th></tr>
+            <tr><td>D001</td><td>坚果大礼包</td><td>179.8</td><td class="ok">保留</td></tr>
+            <tr><td class="dupe">D001</td><td class="dupe">坚果大礼包</td><td class="dupe">179.8</td><td class="bad">✅ 重复（所有字段相同）→ 删除</td></tr>
+            <tr><td>D002</td><td>坚果大礼包</td><td>89.9</td><td class="ok">❌ 不重复（订单号和金额不同）→ 保留</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 清洗五：无价值数据 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">5️⃣</div><div class="ch-title">无价值数据清洗</div></div>
+      <div class="card-body">
+        <table class="gen-table">
+          <tr><th>原则</th><th>说明</th></tr>
+          <tr><td>⚠️ 先备份，再删除</td><td>删除前一定要保存一份原始数据的备份，防止误删</td></tr>
+          <tr><td>⚠️ 通常不建议直接删除</td><td>当前用不到的数据，将来可能有用。除非数据量太大影响效率，否则保留为好</td></tr>
+          <tr><td>✅ 隐藏代替删除</td><td>不想看到某些列，可以右键 → 隐藏列，而不是删除</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 数据转化 ══ -->
+  <div class="seg-pane" id="seg1">
+
+    <div class="sec-title">三种常用数据转化操作</div>
+    <table class="gen-table" style="margin-bottom:14px">
+      <tr><th>操作</th><th>目的</th><th>举例</th></tr>
+      <tr><td>🔄 行列互换</td><td>调整数据的展示方向</td><td>把横向排列的月份数据转为纵向排列</td></tr>
+      <tr><td>✂️ 文本数据提炼</td><td>从一个单元格中拆分出多项信息</td><td>从"张三 13800001111 广东深圳"中分别提取姓名、电话、地址</td></tr>
+      <tr><td>🔢 数据类型转换</td><td>将数据转为正确的类型</td><td>把文本格式的数字转为真正的数值，使其能参与计算</td></tr>
+    </table>
+
+    <!-- 行列互换 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">🔄</div><div class="ch-title">操作一：行列互换（转置）</div></div>
+      <div class="card-body">
+        <div class="cmp-2">
+          <div>
+            <div class="cmp-label lbl-err">转置前（横向，不便分析）</div>
+            <div style="overflow-x:auto">
+              <table class="dtable" style="font-size:11.5px">
+                <tr><th></th><th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th></tr>
+                <tr><td style="font-weight:700">销售额(元)</td><td>12,500</td><td>15,800</td><td>18,200</td><td>14,600</td><td>20,100</td><td>22,500</td></tr>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="cmp-label lbl-ok">转置后（纵向，方便排序和图表）</div>
+            <table class="dtable" style="font-size:11.5px">
+              <tr><th>月份</th><th>销售额(元)</th></tr>
+              <tr><td>1月</td><td>12,500</td></tr>
+              <tr><td>2月</td><td>15,800</td></tr>
+              <tr><td>3月</td><td>18,200</td></tr>
+              <tr><td>4月</td><td>14,600</td></tr>
+              <tr><td>5月</td><td>20,100</td></tr>
+              <tr><td>6月</td><td>22,500</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="steps-list" style="margin-top:12px">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">复制源数据</div><div class="step-desc">选中要转置的数据区域 → 按 <span class="step-kbd">Ctrl+C</span> 复制</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">选择性粘贴→转置</div><div class="step-path">点击目标空白单元格 → <span class="step-kbd">Ctrl+Alt+V</span>（或「开始」→「粘贴」下拉→「转置」）→ 勾选「转置」→「确定」</div></div></div>
+        </div>
+        <div class="tip"><span>💡</span><span>转置会在新位置生成数据副本，原始数据不变。确认转置无误后，可以删除原始数据。</span></div>
+      </div>
+    </div>
+
+    <!-- 文本提炼 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">✂️</div><div class="ch-title">操作二：文本数据提炼（LEFT/MID/RIGHT）</div></div>
+      <div class="card-body">
+        <div class="scenario" style="margin-bottom:12px">
+          <div class="sc-head"><div class="sc-head-icon">📋</div><div class="sc-head-title">真实场景</div></div>
+          <div class="sc-body">某系统导出的客户信息把所有内容塞进一个格子：<strong>张小文15191842599山西运城569834882682982536</strong><br>姓名、电话、地址、订单号全部挤在一起，无法直接分析，需要逐项拆分提取。</div>
+        </div>
+        <div class="fn-cards">
+          <div class="fn-card">
+            <div class="fn-name">LEFT</div>
+            <div class="fn-desc">从文本<strong>左边</strong>提取指定个数的字符</div>
+            <div class="fn-fmt">=LEFT(文本, 字符数)</div>
+            <div class="fn-mem">💡 从左数，取几个字</div>
+          </div>
+          <div class="fn-card">
+            <div class="fn-name">MID</div>
+            <div class="fn-desc">从<strong>指定位置</strong>开始提取指定个数的字符</div>
+            <div class="fn-fmt">=MID(文本, 起始位置, 字符数)</div>
+            <div class="fn-mem">💡 从第几个字开始，取几个字</div>
+          </div>
+          <div class="fn-card">
+            <div class="fn-name">RIGHT</div>
+            <div class="fn-desc">从文本<strong>右边</strong>提取指定个数的字符</div>
+            <div class="fn-fmt">=RIGHT(文本, 字符数)</div>
+            <div class="fn-mem">💡 从右数，取几个字</div>
+          </div>
+        </div>
+        <div class="formula-block" style="margin-top:12px">
+          <div class="fb-label">A1 = "张小文15191842599山西运城569834882682982536"</div>
+          <div class="fb-line"><span class="fb-comment">// 提取姓名（最左边3个字）</span></div>
+          <div class="fb-line"><span class="fb-fn">=LEFT</span>(<span class="fb-kw">A1</span>, <span class="fb-num">3</span>) <span class="fb-comment">→ 张小文</span></div>
+          <div style="height:6px"></div>
+          <div class="fb-line"><span class="fb-comment">// 提取电话（第4个字符开始，共11位）</span></div>
+          <div class="fb-line"><span class="fb-fn">=MID</span>(<span class="fb-kw">A1</span>, <span class="fb-num">4</span>, <span class="fb-num">11</span>) <span class="fb-comment">→ 15191842599</span></div>
+          <div style="height:6px"></div>
+          <div class="fb-line"><span class="fb-comment">// 提取订单号（最右边18位）</span></div>
+          <div class="fb-line"><span class="fb-fn">=RIGHT</span>(<span class="fb-kw">A1</span>, <span class="fb-num">18</span>) <span class="fb-comment">→ 569834882682982536</span></div>
+        </div>
+        <div class="tip"><span>💡</span><span>确定 MID 的"起始位置"：数一数目标内容前面有几个字符，加1就是起始位置。电话前面有"张小文"3个字，所以起始位置 = 3+1 = <strong>4</strong>。</span></div>
+      </div>
+    </div>
+
+    <!-- 数据类型转换 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">🔢</div><div class="ch-title">操作三：数据类型转换</div></div>
+      <div class="card-body">
+        <table class="gen-table" style="margin-bottom:12px">
+          <tr><th>问题信号</th><th>说明</th></tr>
+          <tr><td>单元格左上角有<strong style="color:var(--green)">绿色小三角</strong></td><td>该单元格中的数字以文本形式存储，无法参与计算</td></tr>
+          <tr><td>数字显示为<strong>科学计数法</strong>（如 5.69E+17）</td><td>长数字（如订单号）被 Excel 自动转为科学计数法，精度丢失</td></tr>
+          <tr><td>SUM 函数求和结果为 0</td><td>参与计算的数据是文本格式，Excel 无法识别为数字</td></tr>
+        </table>
+
+        <div class="sec-title" style="margin-top:4px">（1）数值 → 文本：解决科学计数法</div>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中需要转换的列</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">打开分列功能</div><div class="step-path">「数据」→「分列」</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">设置列格式为"文本"</div><div class="step-desc">保持默认连续点击「下一步」，直到第3步「列数据格式」选择「<strong>文本</strong>」→「完成」</div></div></div>
+        </div>
+        <div class="tip"><span>✅</span><span>转换成功的标志：数字左上角出现绿色小三角，数字完整显示，不再是科学计数法。</span></div>
+
+        <div class="sec-title">（2）文本 → 数值：解决文本型数字无法计算</div>
+        <div class="cmp-2">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--pri);margin-bottom:6px">方法一：分列法</div>
+            <div class="steps-list">
+              <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中数据列 →「数据」→「分列」</div></div></div>
+              <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">第3步选择「常规」→「完成」</div></div></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px">方法二：提示符（更简单）</div>
+            <div class="steps-list">
+              <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中有绿色小三角的数据列</div></div></div>
+              <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">点击列旁边的黄色提醒符号 ⚠️ → 选择「转换为数字」</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-title">（3）文本日期 → 标准日期</div>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">选中日期列 →「数据」→「分列」</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">第3步选「日期」→ 下拉选「YMD」→「完成」</div><div class="step-desc">YMD 表示年-月-日顺序</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">（可选）统一显示格式</div><div class="step-path">右键 →「设置单元格格式」→「自定义」→ 类型输入 <code>yyyy-mm-dd</code></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 数据排序 ══ -->
+  <div class="seg-pane" id="seg2">
+
+    <div class="sec-title">三种排序方式总览</div>
+    <table class="gen-table" style="margin-bottom:14px">
+      <tr><th>排序方式</th><th>排序条件</th><th>操作复杂度</th><th>典型场景</th></tr>
+      <tr><td>📊 简单排序</td><td>1个条件</td><td>⭐</td><td>找最大/最小值，如销售额最高的商品</td></tr>
+      <tr><td>🔧 高级排序</td><td>2个或以上</td><td>⭐⭐</td><td>主条件相同时，需次要条件进一步区分</td></tr>
+      <tr><td>🎨 自定义排序</td><td>1个（自定义顺序）</td><td>⭐⭐⭐</td><td>按特定业务逻辑排列，如按流量来源重要性</td></tr>
+    </table>
+
+    <!-- 简单排序 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">📊</div><div class="ch-title">简单排序</div></div>
+      <div class="card-body">
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">点击排序列中的任意单元格</div><div class="step-desc">告诉 Excel 要按哪一列排序</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">选择排序方向</div><div class="step-path">「数据」→「排序和筛选」→ 点击「降序」（Z→A / 大→小）或「升序」（A→Z / 小→大）</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">选择「扩展选定区域」（关键！）</div><div class="step-desc">弹出排序提醒时，必须选择「<strong>扩展选定区域</strong>」→「排序」，确保整行数据一起移动</div></div></div>
+        </div>
+        <div class="danger-box"><span>🚨</span>
+          <div><strong>一定要选"扩展选定区域"！</strong><br>
+          如果选"以当前选定区域排序"，Excel 只移动那一列的数据，其他列保持不变，导致整行数据<strong>错位混乱</strong>——商品名和价格对不上。</div>
+        </div>
+        <div class="cmp-2" style="margin-top:12px">
+          <div>
+            <div class="cmp-label lbl-err">排序前（顺序混乱）</div>
+            <table class="dtable" style="font-size:11.5px">
+              <tr><th>商品</th><th>销售额</th></tr>
+              <tr><td>坚果大礼包</td><td>179.8</td></tr>
+              <tr><td>芒果干</td><td>35.5</td></tr>
+              <tr><td>牛肉干</td><td>126.0</td></tr>
+              <tr><td>开心果</td><td>269.7</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="cmp-label lbl-ok">按销售额降序后（一眼看出最高）</div>
+            <table class="dtable" style="font-size:11.5px">
+              <tr><th>商品</th><th>销售额</th></tr>
+              <tr><td class="ok">开心果</td><td class="ok">269.7 ← 最高</td></tr>
+              <tr><td>坚果大礼包</td><td>179.8</td></tr>
+              <tr><td>牛肉干</td><td>126.0</td></tr>
+              <tr><td>芒果干</td><td>35.5</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 高级排序 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">🔧</div><div class="ch-title">高级排序（多条件）</div></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:12px">当主要排序字段有相同的值时，需要设置<strong>次要排序条件</strong>来进一步区分。例如：访客数相同时，再按支付金额降序排列。</p>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">打开排序对话框</div><div class="step-path">「数据」→「排序」</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">设置主要关键字</div><div class="step-desc">列：选"访客数"，排序依据：单元格值，次序：降序</div></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-body"><div class="step-title">添加次要关键字</div><div class="step-desc">点击「添加条件」→ 列：选"支付金额"，次序：降序</div></div></div>
+          <div class="step-item"><div class="step-num">4</div><div class="step-body"><div class="step-title">点击「确定」完成</div><div class="step-desc">Excel 先按"访客数"从大到小排列；当访客数相同时，再按"支付金额"从大到小排列</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自定义排序 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">🎨</div><div class="ch-title">自定义排序</div></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:12px">按<strong>特定的顺序</strong>排列数据，而不是简单升序/降序。例如：把流量来源按重要性排列：自主访问 → 付费流量 → 淘内免费 → 淘外网站 → 其他来源。</p>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-body"><div class="step-title">创建自定义序列</div><div class="step-path">「文件」→「选项」→「高级」→「编辑自定义列表」→ 在"输入序列"框中逐行输入：自主访问、付费流量、淘内免费、淘外网站、其他来源 →「添加」→「确定」</div></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-body"><div class="step-title">使用自定义序列排序</div><div class="step-path">「数据」→「排序」→ 主要关键字选"流量来源" → 在「次序」下拉选「自定义序列」→ 选择刚才创建的序列 →「确定」</div></div></div>
+        </div>
+        <div style="overflow-x:auto;margin-top:10px">
+          <table class="dtable">
+            <tr><th>流量来源（自定义顺序）</th><th>访客数</th><th>支付金额(元)</th></tr>
+            <tr><td class="ok">自主访问 ← 第1位</td><td>18,579</td><td>120,959.61</td></tr>
+            <tr><td>付费流量 ← 第2位</td><td>265,698</td><td>94,476.37</td></tr>
+            <tr><td>淘内免费 ← 第3位</td><td>75,991</td><td>88,288.85</td></tr>
+            <tr><td>淘外网站 ← 第4位</td><td>4</td><td>0.00</td></tr>
+            <tr><td>其他来源 ← 第5位</td><td>2</td><td>0.00</td></tr>
+          </table>
+        </div>
+        <div class="tip"><span>💡</span><span>自定义排序常用场景：按商品类别重要程度排列、按客户等级高低排列、按周一到周日顺序排列等。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="p2done"><button class="btn-done" onclick="showPart(3)">✅ 知识学完，开始互动练习 →</button></div>
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn-check" style="font-size:12px;padding:7px 18px" onclick="markP2Done()">已阅读，进入练习 →</button>
+  </div>
+</div>
+
+<!-- ══ PART 3 互动练习 ══ -->
+<div class="part" id="part3">
+
+  <!-- 判断题 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">✅</div><div class="ch-title">练习一 · 判断题</div><div class="ch-sub">每题 +8 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">对的选"√"，错的选"×"：</p>
+      <div class="judge-item">
+        <div class="judge-q">1. 数据清洗的目的是提升数据质量，确保数据的准确性、完整性和一致性。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j1t" onclick="judgeQ(1,true)">√</button>
+          <button class="jbtn jbtn-f" id="j1f" onclick="judgeQ(1,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j1-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">2. 缺失值只能通过删除整条记录来处理，没有其他方法。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j2t" onclick="judgeQ(2,true)">√</button>
+          <button class="jbtn jbtn-f" id="j2f" onclick="judgeQ(2,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j2-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">3. #DIV/0! 错误通常是因为公式中的除数为零或为空。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j3t" onclick="judgeQ(3,true)">√</button>
+          <button class="jbtn jbtn-f" id="j3f" onclick="judgeQ(3,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j3-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">4. 删除重复数据时，只需要勾选一列（如"商品名称"）就可以准确判断记录是否重复。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j4t" onclick="judgeQ(4,true)">√</button>
+          <button class="jbtn jbtn-f" id="j4f" onclick="judgeQ(4,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j4-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">5. 对数据排序时，应该选择"扩展选定区域"以确保整行数据同步移动。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j5t" onclick="judgeQ(5,true)">√</button>
+          <button class="jbtn jbtn-f" id="j5f" onclick="judgeQ(5,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j5-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">6. LEFT 函数是从文本的右边开始提取字符。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j6t" onclick="judgeQ(6,true)">√</button>
+          <button class="jbtn jbtn-f" id="j6f" onclick="judgeQ(6,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j6-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">7. 自定义排序可以按照自己指定的特定顺序来排列数据。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j7t" onclick="judgeQ(7,true)">√</button>
+          <button class="jbtn jbtn-f" id="j7f" onclick="judgeQ(7,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j7-fb"></div>
+    </div>
+  </div>
+
+  <!-- 选择题 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">📝</div><div class="ch-title">练习二 · 选择题</div><div class="ch-sub">每题 +8 XP</div></div>
+    <div class="card-body">
+
+      <div class="quiz-box">
+        <div class="quiz-q">1. 以下哪种情况属于"逻辑错误"？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q1',0,1,'商品名称为空属于缺失值，不是逻辑错误。')">A. 商品名称为空</button>
+          <button class="qopt" onclick="ansQ('q1',1,1,'✅ 正确！签收时间早于下单时间，违反了时间顺序的基本逻辑（先下单才能签收），属于逻辑错误。')">B. 签收时间早于下单时间</button>
+          <button class="qopt" onclick="ansQ('q1',2,1,'日期格式不统一属于格式内容问题，不是逻辑错误。')">C. 日期格式不统一</button>
+          <button class="qopt" onclick="ansQ('q1',3,1,'同一订单出现两次属于重复数据，不是逻辑错误。')">D. 同一订单出现两次</button>
+        </div>
+        <div class="quiz-fb" id="q1-fb"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">2. 某单元格中的订单号显示为 5.69835E+17，需要将其转换为完整显示。应将数据类型转换为？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q2',0,1,'转换为数值仍然可能以科学计数法显示，且可能丢失精度。订单号等长数字应转为文本格式。')">A. 数值</button>
+          <button class="qopt" onclick="ansQ('q2',1,1,'✅ 正确！订单号等长数字（18位以上）在 Excel 中会自动显示为科学计数法且丢失精度。转换为文本格式后，数字会完整显示，且不再参与数学计算（订单号本身也不需要计算）。')">B. 文本</button>
+          <button class="qopt" onclick="ansQ('q2',2,1,'日期格式用于存储时间数据，订单号不是日期。')">C. 日期</button>
+          <button class="qopt" onclick="ansQ('q2',3,1,'百分比格式用于比例数据，不适合订单号。')">D. 百分比</button>
+        </div>
+        <div class="quiz-fb" id="q2-fb"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">3. 要从 A1="广东省深圳市南山区" 中提取"深圳市"（3个字，从第4个字符开始），应使用哪个公式？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q3',0,1,'LEFT(A1,3) 会提取最左边3个字，结果是"广东省"，不是"深圳市"。')">A. =LEFT(A1,3)</button>
+          <button class="qopt" onclick="ansQ('q3',1,1,'✅ 正确！MID(A1,4,3) 表示从第4个字符（"深"）开始，提取3个字符，结果是"深圳市"。"广东省"占了前3个字符，所以深圳市从第4个字符开始。')">B. =MID(A1,4,3)</button>
+          <button class="qopt" onclick="ansQ('q3',2,1,'RIGHT(A1,3) 会提取最右边3个字，结果是"南山区"，不是"深圳市"。')">C. =RIGHT(A1,3)</button>
+          <button class="qopt" onclick="ansQ('q3',3,1,'MID(A1,3,3) 从第3个字符（"省"）开始提取3个字，结果是"省深圳"，不正确。')">D. =MID(A1,3,3)</button>
+        </div>
+        <div class="quiz-fb" id="q3-fb"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">4. 某运营人员排序后发现数据错位——商品名和销售额对不上了。他最可能犯了什么错误？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q4',0,3,'降序方向本身没有问题，不会造成数据错位。')">A. 选择了升序而不是降序</button>
+          <button class="qopt" onclick="ansQ('q4',1,3,'先做筛选不会导致排序后数据错位。')">B. 排序前没有先做筛选</button>
+          <button class="qopt" onclick="ansQ('q4',2,3,'定位空值是查找缺失数据的操作，和排序错位无关。')">C. 排序前没有定位空值</button>
+          <button class="qopt" onclick="ansQ('q4',3,3,'✅ 正确！选择"以当前选定区域排序"时，Excel 只移动那一列的数据，其他列保持不变，导致各行数据错位混乱。正确做法是选择"扩展选定区域"，让整行数据一起移动。')">D. 排序时选择了"以当前选定区域排序"而不是"扩展选定区域"</button>
+        </div>
+        <div class="quiz-fb" id="q4-fb"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 连线题：清洗类型匹配 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">🔗</div><div class="ch-title">练习三 · 连线题：问题 → 清洗类型</div><div class="ch-sub">全对 +20 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">先点选左侧数据问题，再点选右侧对应的清洗类型：</p>
+      <div class="match-grid">
+        <div class="mc-col">
+          <div class="mc-label">📋 数据问题</div>
+          <div class="mc-item" id="ml0" onclick="mcClick('l',0)">① 日期格式不统一（有的写2024/3/1，有的写3月1日）</div>
+          <div class="mc-item" id="ml1" onclick="mcClick('l',1)">② 支付金额出现 -2400 元的负数</div>
+          <div class="mc-item" id="ml2" onclick="mcClick('l',2)">③ 同一笔订单出现了两行完全相同的记录</div>
+          <div class="mc-item" id="ml3" onclick="mcClick('l',3)">④ 访客数这一列有些行是空的</div>
+          <div class="mc-item" id="ml4" onclick="mcClick('l',4)">⑤ 商品备注列对当前的销售额分析没有任何帮助</div>
+        </div>
+        <div class="mc-col">
+          <div class="mc-label">🏷️ 清洗类型</div>
+          <div class="mc-item" id="mr0" onclick="mcClick('r',0)">A. 缺失值清洗</div>
+          <div class="mc-item" id="mr1" onclick="mcClick('r',1)">B. 格式内容清洗</div>
+          <div class="mc-item" id="mr2" onclick="mcClick('r',2)">C. 逻辑错误清洗</div>
+          <div class="mc-item" id="mr3" onclick="mcClick('r',3)">D. 重复数据清洗</div>
+          <div class="mc-item" id="mr4" onclick="mcClick('r',4)">E. 无价值数据清洗</div>
+        </div>
+      </div>
+      <div class="mc-fb" id="mcFb"></div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn-check" onclick="checkMatch()">✅ 提交匹配</button>
+        <button class="btn-reset" onclick="resetMatch()">🔄 重置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拖拽：处理操作归类 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">🎯</div><div class="ch-title">练习四 · 拖拽分类：操作归属</div><div class="ch-sub">全对 +20 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:10px">将下方操作描述拖入对应的处理类别区域：</p>
+      <div class="sort-bank" id="sortBank"></div>
+      <div class="sort-zones">
+        <div class="sort-zone" id="zone0"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="dropChip(event,0)">
+          <div class="sz-label">🧹 数据清洗</div>
+          <div class="sz-chips" id="zone0-chips"></div>
+        </div>
+        <div class="sort-zone" id="zone1"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="dropChip(event,1)">
+          <div class="sz-label">🔄 数据转化</div>
+          <div class="sz-chips" id="zone1-chips"></div>
+        </div>
+        <div class="sort-zone" id="zone2"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="dropChip(event,2)">
+          <div class="sz-label">📶 数据排序</div>
+          <div class="sz-chips" id="zone2-chips"></div>
+        </div>
+      </div>
+      <div class="sort-fb" id="sortFb"></div>
+      <div>
+        <button class="btn-check" onclick="checkSort()">✅ 提交答案</button>
+        <button class="btn-reset" onclick="resetSort()">🔄 重置</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="p3done" style="display:none;text-align:center;padding:18px 0 6px">
+    <div style="font-size:15px;font-weight:800;color:var(--pri);margin-bottom:6px">🎉 全部练习完成！</div>
+    <button class="btn-done" onclick="showPart(4)">查看单元完成情况 →</button>
+  </div>
+</div>
+
+<!-- ══ PART 4 完成 ══ -->
+<div class="part" id="part4">
+  <div class="summary-card">
+    <div class="sum-title">🏆 单元完成！</div>
+    <div class="sum-grid">
+      <div class="sum-item"><div class="si-label">获得XP</div><div class="si-val" id="finalXP">+0</div><div class="si-sub">经验值</div></div>
+      <div class="sum-item"><div class="si-label">评分</div><div class="si-val" id="finalScore">—</div><div class="si-sub">综合得分</div></div>
+      <div class="sum-item"><div class="si-label">评级</div><div class="si-val" id="finalStars">—</div><div class="si-sub">星级</div></div>
+    </div>
+    <div class="key-points">
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px">📌 本单元核心要点</div>
+      <div class="kp-item"><div class="kp-dot">1</div><div>数据处理三项核心操作：<strong>数据清洗 → 数据转化 → 数据排序</strong>（这个顺序很重要）</div></div>
+      <div class="kp-item"><div class="kp-dot">2</div><div>数据清洗五种类型：<strong>缺失值、格式内容问题、逻辑错误、重复数据、无价值数据</strong></div></div>
+      <div class="kp-item"><div class="kp-dot">3</div><div>定位空值用「定位条件→空值」；去多余空格用 <strong>Ctrl+H 查找替换</strong>；标注逻辑错误用<strong>条件格式</strong>；删除重复项要<strong>同时勾选多列</strong></div></div>
+      <div class="kp-item"><div class="kp-dot">4</div><div><strong>IFERROR</strong> 函数让出错公式显示替代值（如"/"），避免出现 #DIV/0! 等错误标识</div></div>
+      <div class="kp-item"><div class="kp-dot">5</div><div>文本提取三函数：<strong>LEFT（取左边）、MID（取中间）、RIGHT（取右边）</strong>；MID 起始位置 = 前面字符数 + 1</div></div>
+      <div class="kp-item"><div class="kp-dot">6</div><div>数据类型转换核心工具：<strong>「数据→分列」</strong>，列格式选文本/常规/日期实现不同转换</div></div>
+      <div class="kp-item"><div class="kp-dot">7</div><div>排序时务必选<strong>「扩展选定区域」</strong>，否则只有排序列移动，其他列不动，造成数据错位</div></div>
+      <div class="kp-item"><div class="kp-dot">8</div><div>自定义排序需要先<strong>创建自定义序列</strong>，再在排序时引用该序列（适合按业务逻辑排列）</div></div>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <button class="btn-complete" onclick="completeUnit()">✅ 完成单元，返回主页</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const SUPABASE_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _supabase=null;
+if(SUPABASE_URL.startsWith('https://')&&window.supabase){_supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}
+const STORAGE_KEY='ecommerce_data_analysis_user';
+const ALL_UNITS=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+let earnedXP=0,gameStars=0,sortDone=false,matchDone=false,judgeDone={};
+
+function loadUser(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function getWeekStart(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function saveUser(data){
+  data.lastVisit=new Date().toISOString();const ws=getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws;}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_supabase){const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _supabase.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('sync:',error.message)});}
+}
+function showToast(msg,d=2500){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d)}
+function showXP(amt){const e=document.getElementById('xpPop');e.textContent='+'+amt+' XP';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function addXP(amt){earnedXP+=amt;const u=loadUser();document.getElementById('navXP').textContent='⚡ '+(u?u.xp+earnedXP:earnedXP)+' XP';showXP(amt)}
+function launchConfetti(){const c=document.getElementById('confetti'),cols=['#7C3AED','#8B5CF6','#A78BFA','#F97316','#10B981','#FBBF24'];c.innerHTML='';for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p);}setTimeout(()=>c.innerHTML='',4000);}
+function showPart(n){[1,2,3,4].forEach(i=>{document.getElementById('part'+i).classList.toggle('active',i===n);document.getElementById('btn'+i).classList.toggle('active',i===n);});document.getElementById('progFill').style.width=[0,25,55,80,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function switchSeg(n){[0,1,2].forEach(i=>{document.getElementById('seg'+i).classList.toggle('active',i===n);document.getElementById('st'+i).classList.toggle('active',i===n);});}
+function markP1Done(){document.getElementById('p1done').style.display='block';showPart(2);}
+function markP2Done(){document.getElementById('p2done').style.display='block';showPart(3);}
+
+// ── Judge ──
+const judgeAnswers={1:true,2:false,3:true,4:false,5:true,6:false,7:true};
+const judgeFb={
+  1:'√ 正确！数据清洗的三个目标：准确性（数据是对的）、完整性（数据是全的）、一致性（格式和规则是统一的）。',
+  2:'× 错误！缺失值有三种处理方式：①数据补齐（能从其他途径获取时）②删除记录（无法获取且不影响分析时）③不处理（缺失字段不影响当前分析目标时）。并不是只能删除。',
+  3:'√ 正确！#DIV/0! 就是"除以零"错误。当公式的除数（分母）为零或为空时就会出现这个错误。可以用 IFERROR 函数来优雅处理。',
+  4:'× 错误！只勾选一列（如"商品名称"）会把所有同名商品的不同订单都误删！正确做法是同时勾选多个关键列（如订单编号+商品名称+下单日期+支付金额），只有这些字段全部相同时才认为是重复数据。',
+  5:'√ 正确！排序时如果选"以当前选定区域排序"，只有排序列的数据会移动，其他列保持不变，导致整行数据错位混乱。必须选"扩展选定区域"让整行一起移动。',
+  6:'× 错误！LEFT 函数是从文本的左边（开头）开始提取字符。从右边提取字符的是 RIGHT 函数。',
+  7:'√ 正确！自定义排序先创建自定义序列（如自主访问→付费流量→淘内免费…），再在排序时引用该序列，数据就会按照指定的特定顺序排列。'
+};
+function judgeQ(n,chosenTrue){
+  if(judgeDone[n])return;judgeDone[n]=true;
+  const correct=judgeAnswers[n];
+  const tBtn=document.getElementById('j'+n+'t'),fBtn=document.getElementById('j'+n+'f');
+  const fb=document.getElementById('j'+n+'-fb');
+  tBtn.disabled=true;fBtn.disabled=true;
+  const isRight=(chosenTrue===correct);
+  if(correct===true){tBtn.classList.add('correct');fBtn.classList.add('dim');}
+  else{fBtn.classList.add('correct');tBtn.classList.add('dim');}
+  if(!isRight){if(chosenTrue)tBtn.classList.add('wrong');else fBtn.classList.add('wrong');}
+  fb.textContent=(isRight?'✅ ':'❌ ')+judgeFb[n];
+  fb.className='judge-fb '+(isRight?'ok':'err');
+  fb.style.display='block';
+  if(isRight){addXP(8);showToast('✅ 答对！+8 XP');}else{showToast('❌ 答错了，看解析再理解一下');}
+  checkPartDone();
+}
+
+// ── MCQ ──
+const quizDone={};
+function ansQ(qid,chosen,correct,fb){
+  if(quizDone[qid])return;quizDone[qid]=true;
+  const box=document.getElementById(qid);
+  box.querySelectorAll('.qopt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===chosen&&chosen!==correct)b.classList.add('err');});
+  const fbEl=document.getElementById(qid+'-fb');
+  if(chosen===correct){fbEl.textContent='✅ '+fb;fbEl.className='quiz-fb ok';addXP(8);showToast('✅ 答对了！+8 XP');}
+  else{fbEl.textContent='❌ '+fb;fbEl.className='quiz-fb err';showToast('❌ 答错了，看看解析再想想');}
+  checkPartDone();
+}
+
+// ── Match ──
+// correct: ml0→mr1(B格式), ml1→mr2(C逻辑), ml2→mr3(D重复), ml3→mr0(A缺失), ml4→mr4(E无价值)
+const matchCorrect={0:1,1:2,2:3,3:0,4:4};
+let mcSelL=-1,mcSelR=-1,mcPairs={};
+function mcClick(side,idx){
+  const lEl=document.getElementById('ml'+idx),rEl=document.getElementById('mr'+idx);
+  if(side==='l'&&lEl.classList.contains('locked'))return;
+  if(side==='r'&&rEl.classList.contains('locked'))return;
+  if(side==='l'){
+    if(mcSelL>=0&&mcSelL!==idx)document.getElementById('ml'+mcSelL).classList.remove('selected');
+    if(mcSelL===idx){lEl.classList.remove('selected');mcSelL=-1;return;}
+    mcSelL=idx;lEl.classList.add('selected');
+  } else {
+    if(mcSelR>=0&&mcSelR!==idx)document.getElementById('mr'+mcSelR).classList.remove('selected');
+    if(mcSelR===idx){rEl.classList.remove('selected');mcSelR=-1;return;}
+    mcSelR=idx;rEl.classList.add('selected');
+  }
+  if(mcSelL>=0&&mcSelR>=0){
+    const l=mcSelL,r=mcSelR;mcPairs[l]=r;
+    document.getElementById('ml'+l).classList.remove('selected');
+    document.getElementById('mr'+r).classList.remove('selected');
+    document.getElementById('ml'+l).classList.add('pending','locked');
+    document.getElementById('mr'+r).classList.add('pending','locked');
+    mcSelL=-1;mcSelR=-1;
+  }
+}
+function checkMatch(){
+  if(Object.keys(mcPairs).length<5){showToast('⚠️ 请先完成全部5对匹配再提交');return;}
+  let correct=0;
+  for(let l=0;l<5;l++){
+    const r=mcPairs[l];
+    const lEl=document.getElementById('ml'+l),rEl=document.getElementById('mr'+r);
+    lEl.classList.remove('pending');rEl.classList.remove('pending');
+    if(r===matchCorrect[l]){lEl.classList.add('matched-ok');rEl.classList.add('matched-ok');correct++;}
+    else{lEl.classList.add('matched-err');if(rEl)rEl.classList.add('matched-err');document.getElementById('mr'+matchCorrect[l]).classList.add('matched-ok');}
+  }
+  const fb=document.getElementById('mcFb');
+  if(correct===5){
+    fb.textContent='🎉 全部正确！①日期格式→格式内容清洗 ②负数金额→逻辑错误清洗 ③重复记录→重复数据清洗 ④访客数为空→缺失值清洗 ⑤备注列→无价值数据清洗 +20 XP';
+    fb.className='mc-fb show';addXP(20);matchDone=true;launchConfetti();gameStars=Math.max(gameStars,3);showToast('🌟 全对！+20 XP！');
+  } else {
+    fb.textContent=`有 ${5-correct} 对不正确（已标红），绿色为正确答案，请回顾五种清洗类型再想想。`;
+    fb.className='mc-fb show';
+  }
+  checkPartDone();
+}
+function resetMatch(){
+  mcSelL=-1;mcSelR=-1;mcPairs={};
+  for(let i=0;i<5;i++){['ml','mr'].forEach(p=>{const e=document.getElementById(p+i);e.className='mc-item';});}
+  document.getElementById('mcFb').className='mc-fb';
+}
+
+// ── Drag sort ──
+// zone0=清洗 zone1=转化 zone2=排序
+const SORT_ITEMS=[
+  {name:'用"定位条件→空值"找出并补充缺失的访客数',zone:0},
+  {name:'用"条件格式"把支付金额为负数的行标为红色',zone:0},
+  {name:'用"删除重复项"去掉重复订单，需同时勾选多列',zone:0},
+  {name:'把横向排列的月销售额数据改为纵向排列',zone:1},
+  {name:'用 LEFT/MID/RIGHT 从一个格子中拆分姓名、电话',zone:1},
+  {name:'用"数据→分列"把科学计数法显示的订单号转为文本',zone:1},
+  {name:'按销售额从高到低排列，找出最畅销的商品',zone:2},
+  {name:'先按访客数降序，再按支付金额降序排列（多条件）',zone:2},
+];
+let placed={};
+function initSort(){
+  const bank=document.getElementById('sortBank');bank.innerHTML='';placed={};
+  SORT_ITEMS.sort(()=>Math.random()-.5).forEach(item=>{
+    const chip=document.createElement('div');chip.className='sort-chip';chip.textContent=item.name;chip.draggable=true;chip.id='chip-'+item.name;
+    chip.style.fontSize='11px';chip.style.padding='5px 12px';
+    chip.addEventListener('dragstart',e=>e.dataTransfer.setData('text',item.name));bank.appendChild(chip);
+  });
+  [0,1,2].forEach(z=>document.getElementById('zone'+z+'-chips').innerHTML='');
+  const fb=document.getElementById('sortFb');fb.style.display='none';fb.className='sort-fb';
+}
+function dropChip(event,zone){
+  event.preventDefault();const name=event.dataTransfer.getData('text');const chip=document.getElementById('chip-'+name);
+  if(!chip||chip.classList.contains('placed'))return;chip.classList.add('placed');
+  const nc=chip.cloneNode(true);nc.classList.remove('placed');nc.draggable=false;nc.id='placed-'+name;
+  document.getElementById('zone'+zone+'-chips').appendChild(nc);document.getElementById('zone'+zone).classList.remove('over');placed[name]=zone;
+}
+function checkSort(){
+  if(Object.keys(placed).length===0){showToast('⚠️ 请先把操作拖入分类区再提交');return;}
+  let correct=0;SORT_ITEMS.forEach(item=>{if(placed[item.name]===item.zone)correct++;});
+  const fb=document.getElementById('sortFb');fb.style.display='block';
+  if(correct===SORT_ITEMS.length){
+    fb.textContent='🎉 全部正确！+20 XP';
+    fb.className='sort-fb ok';addXP(20);launchConfetti();gameStars=Math.max(gameStars,3);sortDone=true;checkPartDone();showToast('🌟 分类全对！+20 XP！');
+  } else {
+    fb.textContent=`还差 ${SORT_ITEMS.length-correct} 个。提示：补/删/标问题数据→清洗；改格式/拆内容/转类型→转化；按规则重新排列→排序。`;
+    fb.className='sort-fb err';
+  }
+}
+function resetSort(){placed={};initSort();}
+
+function checkPartDone(){
+  const judgeAll=Object.keys(judgeDone).length>=7;
+  const quizAll=['q1','q2','q3','q4'].every(q=>quizDone[q]);
+  if(judgeAll&&quizAll&&sortDone&&matchDone){
+    document.getElementById('p3done').style.display='block';
+    gameStars=Math.max(gameStars,3);
+  }
+}
+
+function completeUnit(){
+  const user=loadUser();if(!user){window.location.href='index.html';return;}
+  const score=Math.min(100,20+Math.round(earnedXP*0.8));
+  const stars=gameStars>0?gameStars:(score>=90?5:score>=75?4:score>=60?3:score>=45?2:1);
+  const totalXP=earnedXP+20;
+  const alreadyDone=user.units['m3u3']?.completed&&user.units['m3u3']?.xpEarned>0;
+  const actualXP=alreadyDone?0:totalXP;const prev=user.units['m3u3']||{};
+  user.units['m3u3']={completed:true,stars:Math.max(prev.stars||0,stars),score:Math.max(prev.score||0,score),xpEarned:alreadyDone?(prev.xpEarned||0):totalXP};
+  user.xp+=actualXP;user.weekXp=(user.weekXp||0)+actualXP;
+  const ach=user.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(stars>=3&&!ach.includes('first_star3'))ach.push('first_star3');user.achievements=ach;
+  saveUser(user);
+  document.getElementById('finalStars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('finalXP').textContent='+'+(alreadyDone?0:totalXP);
+  document.getElementById('finalScore').textContent=score;
+  showPart(4);if(stars>=4)launchConfetti();
+  showToast(alreadyDone?'🔄 已重新提交，XP不重复计入':`🎉 已保存！获得 +${totalXP} XP`,2200);
+  setTimeout(()=>window.location.href='index.html',2300);
+}
+
+(function(){
+  const user=loadUser();document.getElementById('navXP').textContent='⚡ '+(user?user.xp:0)+' XP';
+  initSort();
+  [0,1,2].forEach(z=>{document.getElementById('zone'+z).addEventListener('dragover',e=>e.preventDefault());});
+})();
+</script>
+</body>
+</html>
