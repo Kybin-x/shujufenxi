@@ -180,9 +180,11 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
 .match-col{display:flex;flex-direction:column;gap:7px}
 .match-item{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--ink2);cursor:pointer;transition:all .18s;user-select:none;line-height:1.5}
 .match-item:hover{border-color:var(--pri)}
+.match-item.pending{border-color:var(--priM);background:#F0FDF4;color:var(--priD);font-weight:600;cursor:default}
 .match-item.selected{border-color:var(--pri);background:var(--priL);color:var(--priD);font-weight:700}
 .match-item.matched-ok{border-color:var(--pri);background:#F0FDF4;color:var(--priD);font-weight:700;cursor:default}
 .match-item.matched-err{border-color:var(--red);background:var(--redL);color:var(--red);cursor:default}
+.match-item.locked{cursor:default}
 .match-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px}
 .match-fb{font-size:12px;margin-top:8px;padding:8px 12px;border-radius:7px;display:none;grid-column:1/-1}
 .match-fb.show{display:block;background:#F0FDF4;color:var(--priD);border:1px solid var(--priM)}
@@ -530,8 +532,8 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
       <div class="judge-item">
         <div class="judge-q" id="j1q">1. 从电商平台导出的原始数据可以直接用于分析，不需要做任何处理。</div>
         <div class="judge-btns">
-          <button class="jbtn jbtn-t" id="j1t" onclick="judgeQ(1,false)">√</button>
-          <button class="jbtn jbtn-f" id="j1f" onclick="judgeQ(1,true)">×</button>
+          <button class="jbtn jbtn-t" id="j1t" onclick="judgeQ(1,true)">√</button>
+          <button class="jbtn jbtn-f" id="j1f" onclick="judgeQ(1,false)">×</button>
         </div>
       </div>
       <div class="judge-fb" id="j1-fb"></div>
@@ -548,8 +550,8 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
       <div class="judge-item" style="margin-top:6px">
         <div class="judge-q" id="j3q">3. 为了让月度报告数据更好看，运营人员可以适当调高一些指标的数值。</div>
         <div class="judge-btns">
-          <button class="jbtn jbtn-t" id="j3t" onclick="judgeQ(3,false)">√</button>
-          <button class="jbtn jbtn-f" id="j3f" onclick="judgeQ(3,true)">×</button>
+          <button class="jbtn jbtn-t" id="j3t" onclick="judgeQ(3,true)">√</button>
+          <button class="jbtn jbtn-f" id="j3f" onclick="judgeQ(3,false)">×</button>
         </div>
       </div>
       <div class="judge-fb" id="j3-fb"></div>
@@ -566,8 +568,8 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
       <div class="judge-item" style="margin-top:6px">
         <div class="judge-q" id="j5q">5. 数据排序和分类统计是同一种方法。</div>
         <div class="judge-btns">
-          <button class="jbtn jbtn-t" id="j5t" onclick="judgeQ(5,false)">√</button>
-          <button class="jbtn jbtn-f" id="j5f" onclick="judgeQ(5,true)">×</button>
+          <button class="jbtn jbtn-t" id="j5t" onclick="judgeQ(5,true)">√</button>
+          <button class="jbtn jbtn-f" id="j5f" onclick="judgeQ(5,false)">×</button>
         </div>
       </div>
       <div class="judge-fb" id="j5-fb"></div>
@@ -750,6 +752,7 @@ function markP1Done(){document.getElementById('p1done').style.display='block';sh
 function markP2Done(){document.getElementById('p2done').style.display='block';showPart(3);}
 
 // ── Judgement questions ──
+// judgeAnswers: true = 正确答案是"√", false = 正确答案是"×"
 const judgeAnswers={1:false,2:true,3:false,4:true,5:false};
 const judgeFb={
   1:'× 错误！原始数据往往存在缺失、重复、格式不统一等问题，必须先经过分类与处理才能用于分析。',
@@ -758,24 +761,30 @@ const judgeFb={
   4:'√ 正确！数据清洗通常是第一步——只有先清理脏数据，后续的转化、排序、计算和统计才有意义。',
   5:'× 错误！数据排序是按大小对数据进行排列；分类统计是按类别对数据进行汇总计算，两者是不同的方法。'
 };
-function judgeQ(n,chosen){
-  if(judgeDone[n])return;judgeDone[n]=true;
-  const correct=judgeAnswers[n];
-  const tBtn=document.getElementById('j'+n+'t'),fBtn=document.getElementById('j'+n+'f');
+// chosenTrue=true 表示用户点了"√"按钮；chosenTrue=false 表示用户点了"×"按钮
+function judgeQ(n, chosenTrue){
+  if(judgeDone[n])return;
+  judgeDone[n]=true;
+  const correct=judgeAnswers[n];          // true=正确答案是√, false=正确答案是×
+  const tBtn=document.getElementById('j'+n+'t');   // √ 按钮
+  const fBtn=document.getElementById('j'+n+'f');   // × 按钮
   const fb=document.getElementById('j'+n+'-fb');
-  tBtn.disabled=true;fBtn.disabled=true;
-  if(chosen===correct){
-    (chosen?tBtn:fBtn).classList.add('correct');
-    (chosen?fBtn:tBtn).classList.add('dim');
-    fb.textContent='✅ '+judgeFb[n];fb.className='judge-fb ok';
-    addXP(8);showToast('✅ 答对！+8 XP');
-  } else {
-    (chosen?tBtn:fBtn).classList.add('wrong');
-    (chosen?fBtn:tBtn).classList.add('correct');
-    fb.textContent='❌ '+judgeFb[n];fb.className='judge-fb err';
-    showToast('❌ 答错了，看解析再理解一下');
+  tBtn.disabled=true;
+  fBtn.disabled=true;
+  const isRight=(chosenTrue===correct);
+  // 始终高亮正确答案按钮为绿色
+  if(correct===true){tBtn.classList.add('correct');fBtn.classList.add('dim');}
+  else             {fBtn.classList.add('correct');tBtn.classList.add('dim');}
+  // 如果选错了，把用户选的那个标红
+  if(!isRight){
+    if(chosenTrue) tBtn.classList.add('wrong');
+    else           fBtn.classList.add('wrong');
   }
+  fb.textContent=(isRight?'✅ ':'❌ ')+judgeFb[n];
+  fb.className='judge-fb '+(isRight?'ok':'err');
   fb.style.display='block';
+  if(isRight){addXP(8);showToast('✅ 答对！+8 XP');}
+  else       {showToast('❌ 答错了，看解析再理解一下');}
   checkPartDone();
 }
 
@@ -795,47 +804,99 @@ function ansQ(qid,chosen,correct,fb){
 // correct pairs: l0→r1(B清洗), l1→r3(D分类统计), l2→r0(A转化), l3→r2(C排序), l4→r4(E计算)
 const matchCorrect={0:1,1:3,2:0,3:2,4:4};
 let matchSelL=-1,matchSelR=-1,matchPairs={};
+
 function matchClick(side,idx){
-  const all=[...document.querySelectorAll('.match-item')];
-  if(all[side==='l'?idx:idx+5]?.classList.contains('matched-ok'))return;
+  // 已经配对完成的项（locked）不能再点
+  const lEl=document.getElementById('ml'+idx);
+  const rEl=document.getElementById('mr'+idx);
+  if(side==='l'&&lEl.classList.contains('locked'))return;
+  if(side==='r'&&rEl.classList.contains('locked'))return;
+
   if(side==='l'){
-    if(matchSelL===idx){matchSelL=-1;document.getElementById('ml'+idx).classList.remove('selected');return;}
-    if(matchSelL>=0)document.getElementById('ml'+matchSelL).classList.remove('selected');
-    matchSelL=idx;document.getElementById('ml'+idx).classList.add('selected');
+    // 取消已选中的左侧
+    if(matchSelL>=0&&matchSelL!==idx){
+      document.getElementById('ml'+matchSelL).classList.remove('selected');
+    }
+    if(matchSelL===idx){
+      // 再次点击同一个：取消选中
+      lEl.classList.remove('selected');
+      matchSelL=-1;
+      return;
+    }
+    matchSelL=idx;
+    lEl.classList.add('selected');
   } else {
-    if(matchSelR===idx){matchSelR=-1;document.getElementById('mr'+idx).classList.remove('selected');return;}
-    if(matchSelR>=0)document.getElementById('mr'+matchSelR).classList.remove('selected');
-    matchSelR=idx;document.getElementById('mr'+idx).classList.add('selected');
+    // 取消已选中的右侧
+    if(matchSelR>=0&&matchSelR!==idx){
+      document.getElementById('mr'+matchSelR).classList.remove('selected');
+    }
+    if(matchSelR===idx){
+      // 再次点击同一个：取消选中
+      rEl.classList.remove('selected');
+      matchSelR=-1;
+      return;
+    }
+    matchSelR=idx;
+    rEl.classList.add('selected');
   }
-  if(matchSelL>=0&&matchSelR>=0){
-    matchPairs[matchSelL]=matchSelR;
-    document.getElementById('ml'+matchSelL).classList.remove('selected');
-    document.getElementById('mr'+matchSelR).classList.remove('selected');
-    matchSelL=-1;matchSelR=-1;
+
+  // 两侧都已选定 → 完成一对配对
+  if(matchSelL>=0 && matchSelR>=0){
+    const l=matchSelL, r=matchSelR;
+    matchPairs[l]=r;
+    const lE=document.getElementById('ml'+l);
+    const rE=document.getElementById('mr'+r);
+    // 加上待提交样式（灰绿），并锁定
+    lE.classList.remove('selected');
+    rE.classList.remove('selected');
+    lE.classList.add('pending');
+    rE.classList.add('pending');
+    lE.classList.add('locked');
+    rE.classList.add('locked');
+    matchSelL=-1;
+    matchSelR=-1;
   }
 }
+
 function checkMatch(){
   if(Object.keys(matchPairs).length<5){showToast('⚠️ 请先完成全部5对匹配再提交');return;}
   let correct=0;
   for(let l=0;l<5;l++){
     const r=matchPairs[l];
-    const lEl=document.getElementById('ml'+l),rEl=document.getElementById('mr'+r);
-    if(r===matchCorrect[l]){lEl.classList.add('matched-ok');rEl.classList.add('matched-ok');correct++;}
-    else{lEl.classList.add('matched-err');if(rEl)rEl.classList.add('matched-err');}
+    const lEl=document.getElementById('ml'+l);
+    const rEl=document.getElementById('mr'+r);
+    lEl.classList.remove('pending');
+    rEl.classList.remove('pending');
+    if(r===matchCorrect[l]){
+      lEl.classList.add('matched-ok');
+      rEl.classList.add('matched-ok');
+      correct++;
+    } else {
+      lEl.classList.add('matched-err');
+      if(rEl) rEl.classList.add('matched-err');
+      // 也标出正确答案
+      document.getElementById('mr'+matchCorrect[l]).classList.add('matched-ok');
+    }
   }
   const fb=document.getElementById('matchFb');
   if(correct===5){
     fb.textContent='🎉 全部正确！①重复订单→B清洗 ②按类别统计→D分类统计 ③日期格式→A转化 ④找最高→C排序 ⑤单价×数量→E计算 +20 XP';
     fb.className='match-fb show';addXP(20);matchDone=true;launchConfetti();gameStars=Math.max(gameStars,3);showToast('🌟 连线全对！+20 XP！');
   } else {
-    fb.textContent=`有 ${5-correct} 对不正确，已标红，请查看正确答案后重新思考。`;
+    fb.textContent=`有 ${5-correct} 对不正确（已标红），绿色为正确答案，请仔细回顾知识点。`;
     fb.className='match-fb show';
   }
   checkPartDone();
 }
-function resetMatch(){matchSelL=-1;matchSelR=-1;matchPairs={};
-  for(let i=0;i<5;i++){const l=document.getElementById('ml'+i),r=document.getElementById('mr'+i);
-    l.className='match-item';r.className='match-item';}
+
+function resetMatch(){
+  matchSelL=-1;matchSelR=-1;matchPairs={};
+  for(let i=0;i<5;i++){
+    const l=document.getElementById('ml'+i);
+    const r=document.getElementById('mr'+i);
+    l.className='match-item';
+    r.className='match-item';
+  }
   document.getElementById('matchFb').className='match-fb';
 }
 
