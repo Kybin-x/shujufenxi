@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实训任务书</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        /* 头部横幅 */
+        .header-banner {
+            background: linear-gradient(135deg, #1a73e8 0%, #4a90d9 50%, #667eea 100%);
+            padding: 40px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .header-banner .course-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-banner h1 {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-banner .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 导航目录 */
+        .nav-bar {
+            background: #f8f9fc;
+            padding: 16px 50px;
+            border-bottom: 1px solid #e8ecf1;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-bar .nav-label {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-right: 8px;
+            font-weight: 500;
+        }
+
+        .nav-bar a {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #fff;
+            color: #555;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            border: 1px solid #e8ecf1;
+            transition: all 0.3s ease;
+        }
+
+        .nav-bar a:hover, .nav-bar a.active {
+            background: #1a73e8;
+            color: #fff;
+            border-color: #1a73e8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+        }
+
+        /* 主内容区 */
+        .content {
+            padding: 40px 50px 50px;
+        }
+
+        /* 章节样式 */
+        .section {
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.15s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.25s; }
+        .section:nth-child(5) { animation-delay: 0.3s; }
+        .section:nth-child(6) { animation-delay: 0.35s; }
+        .section:nth-child(7) { animation-delay: 0.4s; }
+        .section:nth-child(8) { animation-delay: 0.45s; }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .section-title .number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #1a73e8, #667eea);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .section-title h2 {
+            font-size: 22px;
+            color: #1a1a2e;
+            font-weight: 700;
+        }
+
+        /* 列表样式 */
+        .list-items {
+            list-style: none;
+            padding: 0;
+        }
+
+        .list-items li {
+            padding: 10px 16px;
+            margin-bottom: 8px;
+            background: #f8f9fc;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #444;
+            line-height: 1.7;
+            display: flex;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .list-items li:hover {
+            background: #eef2ff;
+            transform: translateX(4px);
+        }
+
+        .list-items li .li-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            background: #1a73e8;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* 环境标签 */
+        .env-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .env-tag {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            background: #f8f9fc;
+            border-radius: 12px;
+            border: 1px solid #e8ecf1;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .env-tag:hover {
+            border-color: #1a73e8;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .env-tag .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .env-tag .icon.pc { background: #e8f0fe; }
+        .env-tag .icon.browser { background: #fef7e0; }
+        .env-tag .icon.tool { background: #e6f9e6; }
+
+        .env-tag .text {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .env-tag .text strong {
+            display: block;
+            color: #1a1a2e;
+            margin-bottom: 2px;
+        }
+
+        /* 背景卡片 */
+        .background-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #f8f9fc;
+            border-radius: 12px;
+            border-left: 4px solid #1a73e8;
+        }
+
+        .bg-card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bg-card {
+            background: #ffffff;
+            border: 2px solid #e8ecf1;
+            border-radius: 14px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .bg-card.card-a::before { background: #1a73e8; }
+        .bg-card.card-b::before { background: #e8710a; }
+        .bg-card.card-c::before { background: #0d904f; }
+
+        .bg-card:hover {
+            border-color: #1a73e8;
+            box-shadow: 0 8px 24px rgba(26, 115, 232, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .bg-card.active {
+            border-color: #1a73e8;
+            background: #f0f6ff;
+            box-shadow: 0 8px 24px rgba(26, 115, 232, 0.15);
+        }
+
+        .bg-card .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .bg-card .card-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            margin-right: 12px;
+        }
+
+        .card-a .card-tag { background: #1a73e8; }
+        .card-b .card-tag { background: #e8710a; }
+        .card-c .card-tag { background: #0d904f; }
+
+        .bg-card .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .bg-card .card-desc {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #666;
+            padding-left: 2px;
+        }
+
+        .bg-card .check-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .bg-card.active .check-icon {
+            background: #1a73e8;
+            border-color: #1a73e8;
+            color: #fff;
+        }
+
+        .bg-select-hint {
+            display: flex;
+            align-items: center;
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #fff8e1;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #8a6d00;
+        }
+
+        .bg-select-hint .hint-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        /* 任务区域 */
+        .task-block {
+            margin-bottom: 28px;
+            background: #fafbfe;
+            border-radius: 14px;
+            padding: 24px 28px;
+            border: 1px solid #eef0f5;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .task-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 14px;
+            background: linear-gradient(135deg, #1a73e8, #4a90d9);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .task-desc {
+            font-size: 14.5px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .naming-demo {
+            background: #1a1a2e;
+            color: #a5d6a7;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 15px;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .naming-demo::before {
+            content: '命名格式';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(165, 214, 167, 0.2);
+            color: #a5d6a7;
+            padding: 4px 12px;
+            font-size: 11px;
+            border-radius: 0 10px 0 8px;
+        }
+
+        .naming-demo .label {
+            color: #78909c;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .naming-demo .format {
+            color: #80cbc4;
+            font-weight: 700;
+        }
+
+        .naming-demo .example {
+            color: #fff176;
+            margin-top: 8px;
+        }
+
+        /* 提示框 */
+        .tip-box {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.7;
+            margin-top: 12px;
+        }
+
+        .tip-box .tip-icon {
+            font-size: 18px;
+            margin-right: 10px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .tip-box.warning {
+            background: #fff8e1;
+            color: #8a6d00;
+            border: 1px solid #ffe082;
+        }
+
+        .tip-box.info {
+            background: #e8f0fe;
+            color: #1a56a8;
+            border: 1px solid #aecbfa;
+        }
+
+        .tip-box.success {
+            background: #e6f9e6;
+            color: #1b7a1b;
+            border: 1px solid #a5d6a7;
+        }
+
+        /* 表格样式 */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e8ecf1;
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a73e8, #4a90d9);
+        }
+
+        thead th {
+            padding: 14px 16px;
+            text-align: left;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13.5px;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fc;
+        }
+
+        tbody tr:hover {
+            background: #eef2ff;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            color: #444;
+            border-bottom: 1px solid #f0f2f5;
+            line-height: 1.6;
+        }
+
+        /* 逻辑跳转示例表格 */
+        .jump-table tbody td:first-child {
+            font-weight: 600;
+            color: #1a73e8;
+            white-space: nowrap;
+        }
+
+        /* 设置项卡片 */
+        .setting-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .setting-card {
+            background: #fff;
+            border: 1px solid #e8ecf1;
+            border-radius: 12px;
+            padding: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .setting-card:hover {
+            border-color: #1a73e8;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.08);
+        }
+
+        .setting-card .sc-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .setting-card .sc-title .sc-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .setting-card .sc-desc {
+            font-size: 13px;
+            color: #777;
+            line-height: 1.6;
+            padding-left: 26px;
+        }
+
+        /* 步骤列表 */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step;
+        }
+
+        .step-list li {
+            position: relative;
+            padding: 14px 16px 14px 52px;
+            margin-bottom: 10px;
+            background: #fff;
+            border: 1px solid #e8ecf1;
+            border-radius: 10px;
+            font-size: 14.5px;
+            color: #444;
+            line-height: 1.7;
+            transition: all 0.3s ease;
+        }
+
+        .step-list li:hover {
+            border-color: #1a73e8;
+            background: #f8faff;
+        }
+
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #1a73e8, #667eea);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* 提交内容表 */
+        .submit-table tbody td:first-child {
+            text-align: center;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+
+        .submit-hint {
+            margin-top: 16px;
+            display: flex;
+            align-items: flex-start;
+            padding: 16px 20px;
+            background: #f0f6ff;
+            border-radius: 12px;
+            border: 1px dashed #aecbfa;
+        }
+
+        .submit-hint .sh-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .submit-hint .sh-text {
+            font-size: 13.5px;
+            color: #1a56a8;
+            line-height: 1.7;
+        }
+
+        .submit-hint .sh-text strong {
+            color: #1a1a2e;
+        }
+
+        /* 评分表 */
+        .score-table thead th:last-child,
+        .score-table tbody td:last-child {
+            text-align: left;
+        }
+
+        .score-table thead th:nth-child(2),
+        .score-table tbody td:nth-child(2) {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .score-table tbody tr:last-child {
+            background: linear-gradient(135deg, #f0f6ff, #eef2ff);
+            font-weight: 700;
+        }
+
+        .score-table tbody tr:last-child td {
+            color: #1a73e8;
+        }
+
+        /* 注意事项 */
+        .notice-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .notice-list li {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #fffbf0;
+            border-radius: 10px;
+            border: 1px solid #ffeeba;
+            font-size: 14px;
+            color: #664d00;
+            line-height: 1.7;
+            transition: all 0.3s ease;
+        }
+
+        .notice-list li:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .notice-list li .notice-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            background: #f59e0b;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 12px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px 50px;
+            background: #f8f9fc;
+            border-top: 1px solid #e8ecf1;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        /* 返回顶部 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, #1a73e8, #667eea);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
+        }
+
+        /* 打印样式 */
+        .print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            background: #fff;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 12px;
+        }
+
+        .print-btn:hover {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header-banner {
+                padding: 30px 24px;
+            }
+
+            .header-banner h1 {
+                font-size: 24px;
+            }
+
+            .nav-bar {
+                padding: 12px 20px;
+            }
+
+            .content {
+                padding: 24px 20px 30px;
+            }
+
+            .setting-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .env-tags {
+                flex-direction: column;
+            }
+
+            .env-tag {
+                min-width: auto;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            thead th, tbody td {
+                padding: 10px 12px;
+            }
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .nav-bar, .back-to-top, .print-btn {
+                display: none !important;
+            }
+
+            .header-banner {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .section {
+                opacity: 1 !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 头部横幅 -->
+    <div class="header-banner">
+        <div class="course-tag">📊 数据分析基础</div>
+        <h1>实训任务书</h1>
+        <div class="subtitle">金山表单进阶 —— 自主设计调查问卷</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <div class="nav-bar" id="navBar">
+        <span class="nav-label">📑 目录</span>
+        <a href="#section1">实训目的</a>
+        <a href="#section2">实训环境</a>
+        <a href="#section3">实训背景</a>
+        <a href="#section4">实训要求</a>
+        <a href="#section5">成果提交</a>
+        <a href="#section6">评分标准</a>
+        <a href="#section7">注意事项</a>
+        <button class="print-btn" onclick="window.print()">🖨️ 打印</button>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="content">
+
+        <!-- 一、实训目的 -->
+        <div class="section" id="section1">
+            <div class="section-title">
+                <span class="number">一</span>
+                <h2>实训目的</h2>
+            </div>
+            <ul class="list-items">
+                <li><span class="li-num">1</span>巩固金山表单的基本操作技能</li>
+                <li><span class="li-num">2</span>掌握下拉选择框、逻辑跳转等进阶功能的使用方法</li>
+                <li><span class="li-num">3</span>学会根据实际调查需求自主设计问卷题目</li>
+                <li><span class="li-num">4</span>理解问卷文件命名规范的意义，养成良好的数据管理习惯</li>
+            </ul>
+        </div>
+
+        <!-- 二、实训环境 -->
+        <div class="section" id="section2">
+            <div class="section-title">
+                <span class="number">二</span>
+                <h2>实训环境</h2>
+            </div>
+            <div class="env-tags">
+                <div class="env-tag">
+                    <div class="icon pc">💻</div>
+                    <div class="text">
+                        <strong>计算机一台</strong>
+                        需要联网
+                    </div>
+                </div>
+                <div class="env-tag">
+                    <div class="icon browser">🌐</div>
+                    <div class="text">
+                        <strong>浏览器</strong>
+                        推荐使用 Chrome 浏览器
+                    </div>
+                </div>
+                <div class="env-tag">
+                    <div class="icon tool">📝</div>
+                    <div class="text">
+                        <strong>金山表单</strong>
+                        在线工具，无需安装
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 三、实训背景 -->
+        <div class="section" id="section3">
+            <div class="section-title">
+                <span class="number">三</span>
+                <h2>实训背景</h2>
+            </div>
+            <div class="background-text">
+                在上一次实训中，同学们已经学会了使用金山表单制作一份基础的调查问卷。本次实训将进入进阶阶段，要求同学们围绕给定的任务背景，<strong>自行设计问卷题目</strong>，并运用<strong>下拉选择框、逻辑跳转、文件命名设置</strong>等进阶功能，完成一份更具专业性的调查问卷。
+            </div>
+
+            <p style="font-size:15px;color:#333;margin-bottom:16px;font-weight:600;">📋 请从以下三个背景中任选其一：</p>
+
+            <div class="bg-card-container">
+                <div class="bg-card card-a" onclick="selectCard(this)">
+                    <div class="check-icon">✓</div>
+                    <div class="card-header">
+                        <span class="card-tag">背景 A</span>
+                        <span class="card-title">校园食堂满意度调查</span>
+                    </div>
+                    <div class="card-desc">
+                        学校后勤部门希望了解同学们对校园食堂在菜品种类、口味、价格、卫生状况、就餐环境等方面的满意程度及改进建议，以便优化食堂服务质量。
+                    </div>
+                </div>
+
+                <div class="bg-card card-b" onclick="selectCard(this)">
+                    <div class="check-icon">✓</div>
+                    <div class="card-header">
+                        <span class="card-tag">背景 B</span>
+                        <span class="card-title">中职学生手机使用习惯调查</span>
+                    </div>
+                    <div class="card-desc">
+                        学校学生处希望了解同学们日常使用手机的时长、主要用途、对学习的影响、自我管理情况等，为制定合理的手机管理方案提供数据支撑。
+                    </div>
+                </div>
+
+                <div class="bg-card card-c" onclick="selectCard(this)">
+                    <div class="check-icon">✓</div>
+                    <div class="card-header">
+                        <span class="card-tag">背景 C</span>
+                        <span class="card-title">班级文艺晚会节目征集调查</span>
+                    </div>
+                    <div class="card-desc">
+                        班级计划在学期末举办一场文艺晚会，需要了解同学们的才艺特长、参演意愿、节目类型偏好、可接受的排练时间等信息，以便统筹策划节目内容。
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-select-hint">
+                <span class="hint-icon">💡</span>
+                每位同学从以上三个背景中任选其一，自主构思并设计调查问卷。
+            </div>
+        </div>
+
+        <!-- 四、实训要求 -->
+        <div class="section" id="section4">
+            <div class="section-title">
+                <span class="number">四</span>
+                <h2>实训要求</h2>
+            </div>
+
+            <p style="font-size:15px;color:#555;margin-bottom:24px;line-height:1.7;">
+                请访问 <a href="https://f.wps.cn" target="_blank" style="color:#1a73e8;font-weight:600;">金山表单（https://f.wps.cn）</a>，完成以下任务：
+            </p>
+
+            <!-- 任务1 -->
+            <div class="task-block">
+                <div class="task-header">
+                    <span class="task-badge">任务 1</span>
+                    <span class="task-title">文件命名设置</span>
+                </div>
+                <div class="task-desc">
+                    创建新的空白表单后，按照以下命名规范设置表单文件名称：
+                </div>
+                <div class="naming-demo">
+                    <span class="label">命名格式：</span>
+                    <span class="format">班级-姓名-问卷主题</span>
+                    <div class="example">
+                        <span class="label">示例：</span>
+                        2301班-张三-校园食堂满意度调查
+                    </div>
+                </div>
+                <div class="tip-box warning">
+                    <span class="tip-icon">⚠️</span>
+                    <div>规范的文件命名有助于后续的文件管理与数据整理，是数据分析工作中的良好习惯。请严格按照格式命名，<strong>不得使用"未命名表单"等默认名称</strong>。</div>
+                </div>
+            </div>
+
+            <!-- 任务2 -->
+            <div class="task-block">
+                <div class="task-header">
+                    <span class="task-badge">任务 2</span>
+                    <span class="task-title">自主设计题目</span>
+                </div>
+                <div class="task-desc">
+                    根据所选的任务背景，自行设计调查问卷题目，需满足以下要求：
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>要求项</th>
+                                <th>具体说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>题目总数</td>
+                                <td>不少于 <strong>8 题</strong></td>
+                            </tr>
+                            <tr>
+                                <td>填空题</td>
+                                <td>至少包含 <strong>1 题</strong>（如姓名、学号等基本信息采集）</td>
+                            </tr>
+                            <tr>
+                                <td>单选题</td>
+                                <td>至少包含 <strong>2 题</strong></td>
+                            </tr>
+                            <tr>
+                                <td>多选题</td>
+                                <td>至少包含 <strong>1 题</strong></td>
+                            </tr>
+                            <tr>
+                                <td>下拉选择框</td>
+                                <td>至少包含 <strong>2 题</strong>（如班级选择、年级选择、评分等级等）</td>
+                            </tr>
+                            <tr>
+                                <td>多行填空题</td>
+                                <td>至少包含 <strong>1 题</strong>（如建议、意见等开放性问题）</td>
+                            </tr>
+                            <tr>
+                                <td>必填设置</td>
+                                <td>关键题目须设为必填</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tip-box info">
+                    <span class="tip-icon">💡</span>
+                    <div>设计题目时应紧扣任务背景，题目表述清晰、选项设置合理、逻辑通顺。下拉选择框适合用于选项较多或选项为固定列表（如班级列表、满意度等级等）的场景，使问卷更简洁。</div>
+                </div>
+            </div>
+
+            <!-- 任务3 -->
+            <div class="task-block">
+                <div class="task-header">
+                    <span class="task-badge">任务 3</span>
+                    <span class="task-title">设置逻辑跳转</span>
+                </div>
+                <div class="task-desc">
+                    在问卷中设置<strong>至少1处逻辑跳转</strong>，使问卷根据答题者的选择自动跳转到对应的题目或页面。
+                </div>
+                <p style="font-size:14px;color:#777;margin-bottom:12px;">参考示例：</p>
+                <div class="table-wrapper">
+                    <table class="jump-table">
+                        <thead>
+                            <tr>
+                                <th>背景</th>
+                                <th>逻辑跳转设计参考</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>背景A</td>
+                                <td>问"你是否经常在食堂就餐？"→ 选"否"跳转至"你不在食堂就餐的原因是？"→ 跳过中间的满意度评价题目</td>
+                            </tr>
+                            <tr>
+                                <td>背景B</td>
+                                <td>问"你每天使用手机的时长？"→ 选"3小时以上"跳转至"你认为手机使用是否影响了你的学习？"</td>
+                            </tr>
+                            <tr>
+                                <td>背景C</td>
+                                <td>问"你是否愿意参加文艺晚会表演？"→ 选"不愿意"跳转至问卷末尾的建议题 → 跳过节目类型、排练时间等题目</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tip-box warning">
+                    <span class="tip-icon">⚠️</span>
+                    <div>逻辑跳转的设置方法——在金山表单中，选中某道题目，点击"逻辑跳转"或"跳转规则"，设置"当选择某选项时，跳转到第X题"。请确保跳转逻辑合理，<strong>不出现死循环或遗漏</strong>。</div>
+                </div>
+            </div>
+
+            <!-- 任务4 -->
+            <div class="task-block">
+                <div class="task-header">
+                    <span class="task-badge">任务 4</span>
+                    <span class="task-title">表单全局设置</span>
+                </div>
+                <div class="task-desc">
+                    对问卷进行以下全局设置：
+                </div>
+                <div class="setting-cards">
+                    <div class="setting-card">
+                        <div class="sc-title"><span class="sc-icon">🖼️</span>问卷封面</div>
+                        <div class="sc-desc">为问卷设置一个与主题相关的封面或头部图片（可使用自带模板图或自行上传）</div>
+                    </div>
+                    <div class="setting-card">
+                        <div class="sc-title"><span class="sc-icon">📝</span>问卷描述</div>
+                        <div class="sc-desc">在问卷开头添加一段简要说明（50字以内），介绍调查目的</div>
+                    </div>
+                    <div class="setting-card">
+                        <div class="sc-title"><span class="sc-icon">✅</span>提交提示语</div>
+                        <div class="sc-desc">设置提交成功后显示一句感谢提示语</div>
+                    </div>
+                    <div class="setting-card">
+                        <div class="sc-title"><span class="sc-icon">🔒</span>限制提交</div>
+                        <div class="sc-desc">每人限填1次（需登录）</div>
+                    </div>
+                    <div class="setting-card" style="grid-column: 1 / -1;">
+                        <div class="sc-title"><span class="sc-icon">📅</span>有效期设置</div>
+                        <div class="sc-desc">设置问卷的开始时间和截止时间（有效期为1周）</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务5 -->
+            <div class="task-block">
+                <div class="task-header">
+                    <span class="task-badge">任务 5</span>
+                    <span class="task-title">发布、测试与数据查看</span>
+                </div>
+                <ol class="step-list">
+                    <li>完成问卷设计后，点击<strong>发布</strong>，获取问卷的<strong>分享链接</strong>和<strong>二维码</strong></li>
+                    <li>自行填写问卷<strong>至少1次</strong>，验证以下功能是否正常：所有题目能正常显示和填写；下拉选择框选项完整、可正常选择；逻辑跳转按预期生效（分别测试不同选项的跳转路径）；必填题未填时是否有提示</li>
+                    <li>提交后进入<strong>数据汇总</strong>页面，确认填写数据已成功记录</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- 五、实训成果提交 -->
+        <div class="section" id="section5">
+            <div class="section-title">
+                <span class="number">五</span>
+                <h2>实训成果提交</h2>
+            </div>
+            <div class="table-wrapper">
+                <table class="submit-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">序号</th>
+                            <th>提交内容</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>问卷分享链接</td>
+                            <td>发布后生成的链接地址</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>问卷设计页面截图</td>
+                            <td>截取完整的题目编辑界面，展示所有题目</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>逻辑跳转设置截图</td>
+                            <td>截取逻辑跳转的规则设置界面</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>文件命名截图</td>
+                            <td>截取表单列表页面，展示规范的文件命名</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>数据汇总页面截图</td>
+                            <td>展示测试填写后的数据记录</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="submit-hint">
+                <span class="sh-icon">📌</span>
+                <div class="sh-text">
+                    <strong>提交方式：</strong>将以上截图整理到一个Word文档中，文档命名格式为 <code style="background:#e8f0fe;padding:2px 8px;border-radius:4px;color:#1a73e8;font-weight:600;">班级-姓名-金山表单进阶实训</code>，提交至教师指定平台。
+                </div>
+            </div>
+        </div>
+
+        <!-- 六、评分标准 -->
+        <div class="section" id="section6">
+            <div class="section-title">
+                <span class="number">六</span>
+                <h2>评分标准</h2>
+            </div>
+            <div class="table-wrapper">
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>评分项</th>
+                            <th>分值</th>
+                            <th>评分说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>文件命名规范</td>
+                            <td>10分</td>
+                            <td>按照"班级-姓名-问卷主题"的格式正确命名</td>
+                        </tr>
+                        <tr>
+                            <td>题目设计质量</td>
+                            <td>25分</td>
+                            <td>题目数量达标（≥8题），题型覆盖完整，题目表述清晰，选项设置合理，紧扣任务背景</td>
+                        </tr>
+                        <tr>
+                            <td>下拉选择框使用</td>
+                            <td>15分</td>
+                            <td>至少2处使用下拉选择框，选项设置完整合理</td>
+                        </tr>
+                        <tr>
+                            <td>逻辑跳转设置</td>
+                            <td>20分</td>
+                            <td>至少1处逻辑跳转，跳转规则正确，逻辑合理，测试通过</td>
+                        </tr>
+                        <tr>
+                            <td>表单全局设置</td>
+                            <td>15分</td>
+                            <td>封面/描述、提交提示语、限填次数、有效期等设置正确</td>
+                        </tr>
+                        <tr>
+                            <td>测试与数据查看</td>
+                            <td>10分</td>
+                            <td>能正常提交并查看数据汇总，功能验证完整</td>
+                        </tr>
+                        <tr>
+                            <td>界面整洁与排版美观</td>
+                            <td>5分</td>
+                            <td>问卷整体排版美观、条理清晰、易于填写</td>
+                        </tr>
+                        <tr>
+                            <td><strong>合计</strong></td>
+                            <td><strong>100分</strong></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 七、注意事项 -->
+        <div class="section" id="section7">
+            <div class="section-title">
+                <span class="number">七</span>
+                <h2>注意事项</h2>
+            </div>
+            <ul class="notice-list">
+                <li>
+                    <span class="notice-num">1</span>
+                    本次实训题目由同学自行设计，<strong>不得照搬网上现成问卷</strong>，鼓励原创。
+                </li>
+                <li>
+                    <span class="notice-num">2</span>
+                    下拉选择框与单选题的区别：当选项较多（如超过5个）或选项为固定列表（如省份、班级）时，优先使用下拉选择框，使问卷更简洁。
+                </li>
+                <li>
+                    <span class="notice-num">3</span>
+                    逻辑跳转设置完成后务必<strong>实际测试</strong>，确保不同选择路径都能正确跳转。
+                </li>
+                <li>
+                    <span class="notice-num">4</span>
+                    如遇操作问题，可参考金山表单官方帮助文档或向老师提问。
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        ©2025 数据分析基础 · 实训任务 &nbsp;|&nbsp; 工具：<a href="https://f.wps.cn" target="_blank">金山表单</a>
+    </div>
+</div>
+
+<!-- 返回顶部 -->
+<button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+<script>
+    // 背景卡片选择
+    function selectCard(card) {
+        document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+    }
+
+    // 导航高亮
+    function updateNav() {
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-bar a');
+        let current = '';
+
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= 120) {
+                current = section.id;
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // 返回顶部
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleBackToTop() {
+        const btn = document.getElementById('backToTop');
+        if (window.scrollY > 300) {
+            btn.classList.add('visible');
+        } else {
+            btn.classList.remove('visible');
+        }
+    }
+
+    // 平滑滚动
+    document.querySelectorAll('.nav-bar a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+                const offset = target.offsetTop - 80;
+                window.scrollTo({ top: offset, behavior: 'smooth' });
+            }
+        });
+    });
+
+    // 滚动动画
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.section').forEach(section => {
+        observer.observe(section);
+    });
+
+    // 事件监听
+    window.addEventListener('scroll', () => {
+        updateNav();
+        toggleBackToTop();
+    });
+
+    // 初始化
+    updateNav();
+</script>
+
+</body>
+</html>
