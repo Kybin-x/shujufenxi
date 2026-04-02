@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>3.4 数据计算 · 电商数据分析</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pri:#EA580C;--pri2:#F97316;--pri3:#FB923C;
+  --priL:#FFF7ED;--priM:#FED7AA;--priD:#7C2D12;
+  --teal:#0891B2;--tealL:#ECFEFF;--tealM:#A5F3FC;
+  --amber:#D97706;--amberL:#FFFBEB;--amberM:#FDE68A;
+  --red:#DC2626;--redL:#FEF2F2;--redM:#FECACA;
+  --green:#16A34A;--greenL:#F0FDF4;--greenM:#BBF7D0;
+  --violet:#7C3AED;--violetL:#F5F3FF;--violetM:#DDD6FE;
+  --blue:#2563EB;--blueL:#EFF6FF;--blueM:#BFDBFE;
+  --ink:#1C0A04;--ink2:#44200E;--ink3:#92400E;--ink4:#C07040;
+  --bg:#FFFBF6;--card:#FFFFFF;--border:#FED7AA;
+  --r:10px;--shadow:0 2px 12px rgba(234,88,12,.1),0 1px 3px rgba(0,0,0,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65;
+  background-image:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(234,88,12,.07),transparent),
+  radial-gradient(ellipse 50% 40% at 90% 100%,rgba(249,115,22,.05),transparent)}
+
+/* ── NAV ── */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(255,251,246,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--border);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(234,88,12,.09)}
+.nav-back{font-size:13px;font-weight:700;color:var(--pri);text-decoration:none;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:7px;transition:background .2s}
+.nav-back:hover{background:var(--priL)}
+.nav-title{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-xp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--pri),var(--pri2));color:#fff;border-radius:20px;padding:4px 12px;white-space:nowrap}
+.prog-wrap{height:5px;background:var(--priM);position:sticky;top:52px;z-index:99}
+.prog-fill{height:5px;background:linear-gradient(90deg,var(--pri),var(--pri2));border-radius:0 3px 3px 0;transition:width .5s}
+.pnav{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--card);border:1.5px solid var(--border);color:var(--ink3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--pri);color:var(--pri)}
+.pb.active{background:var(--pri);border-color:var(--pri);color:#fff}
+
+/* ── MAIN ── */
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#FED7AA 0%,#FDBA74 40%,#FFF7ED 100%);border:1.5px solid var(--border);border-radius:14px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'🧮';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.12;pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(234,88,12,.12);border:1.5px solid rgba(234,88,12,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--priD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--pri)}
+.hero-sub{font-size:13px;color:var(--ink2);line-height:1.8;max-width:600px}
+.hero-goals{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.hg{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--ink2)}
+.hg-dot{width:18px;height:18px;border-radius:50%;background:var(--pri);color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+
+/* ── SCENARIO ── */
+.scenario{background:#fff;border:1.5px solid var(--amberM);border-radius:var(--r);margin-bottom:18px;overflow:hidden;box-shadow:var(--shadow)}
+.sc-head{background:linear-gradient(90deg,var(--amberL),#FFFDE7);border-bottom:1px solid var(--amberM);padding:12px 18px;display:flex;align-items:center;gap:8px}
+.sc-head-icon{font-size:20px}.sc-head-title{font-size:14px;font-weight:800;color:#78350F}
+.sc-body{padding:16px 18px;font-size:13px;color:var(--ink2);line-height:1.9}
+.sc-body em{font-style:normal;font-weight:700;color:var(--ink)}
+.sc-q{display:flex;align-items:flex-start;gap:7px;padding:5px 0;font-size:13px;color:var(--ink2)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
+.card-head{background:linear-gradient(135deg,#FFF7ED,#FFFBF6);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;gap:8px}
+.ch-icon{font-size:20px;flex-shrink:0}
+.ch-title{font-size:14px;font-weight:800;color:var(--ink)}
+.ch-sub{font-size:11px;color:var(--ink3);margin-left:auto}
+.card-body{padding:16px 18px}
+
+/* ── SEC TITLE ── */
+.sec-title{font-size:14px;font-weight:800;color:var(--ink);margin:22px 0 10px;display:flex;align-items:center;gap:7px}
+.sec-title::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--pri),var(--pri2));border-radius:2px;flex-shrink:0}
+
+/* ── SEGMENT TABS ── */
+.seg-wrap{display:flex;gap:4px;background:#FFF7ED;border:1.5px solid var(--border);border-radius:25px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
+.seg-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;color:var(--ink3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.seg-btn.active{background:var(--pri);color:#fff;box-shadow:0 2px 6px rgba(234,88,12,.25)}
+.seg-pane{display:none}.seg-pane.active{display:block}
+
+/* ── FORMULA CARDS ── */
+.formula-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.fc{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:13px 14px;box-shadow:0 1px 4px rgba(234,88,12,.07)}
+.fc-name{font-size:13.5px;font-weight:900;color:var(--pri);margin-bottom:4px}
+.fc-formula{font-size:12px;color:var(--ink2);margin-bottom:5px;font-weight:600}
+.fc-mem{font-size:10.5px;color:var(--ink3);background:var(--priL);border-radius:4px;padding:3px 8px;display:inline-block}
+
+/* ── FORMULA BLOCK ── */
+.formula-block{background:#1C0A04;border-radius:var(--r);padding:14px 18px;margin:12px 0}
+.fb-label{font-size:10px;color:#FDBA74;margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
+.fb-line{font-size:13.5px;margin-bottom:4px;color:#FEF3C7;font-family:monospace}
+.fb-line:last-child{margin:0}
+.fb-kw{color:#FCA5A5}
+.fb-fn{color:#FDBA74}
+.fb-str{color:#86EFAC}
+.fb-num{color:#A5F3FC}
+.fb-comment{color:#92400E;font-size:11.5px}
+.fb-result{font-size:12px;color:#FDE68A;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
+
+/* ── GENERAL TABLE ── */
+.gen-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.gen-table th{background:var(--pri);color:#fff;padding:8px 11px;text-align:left;font-weight:700;font-size:11.5px}
+.gen-table td{padding:8px 11px;border-bottom:1px solid #FED7AA;color:var(--ink2);line-height:1.65;vertical-align:top}
+.gen-table tr:nth-child(even) td{background:var(--priL)}
+.gen-table td:first-child{font-weight:700;color:var(--ink)}
+.gen-table td.hi{color:var(--pri);font-weight:800}
+.gen-table td.ok{color:var(--green);font-weight:700}
+.gen-table tfoot td{background:var(--priM);color:var(--priD);font-weight:800}
+
+/* ── DATA TABLE ── */
+.dtable{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.dtable th{background:#374151;color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11px;white-space:nowrap}
+.dtable td{padding:7px 10px;border-bottom:1px solid #F3F4F6;color:var(--ink2);white-space:nowrap}
+.dtable tr:nth-child(even) td{background:#FAFAFA}
+.dtable td.hi{color:var(--pri);font-weight:800}
+.dtable td.ok{color:var(--green);font-weight:700}
+.dtable td.q{color:var(--amber);font-weight:700}
+
+/* ── WEIGHT VIZ ── */
+.weight-bar{display:flex;border-radius:8px;overflow:hidden;height:32px;margin:10px 0;font-size:11px;font-weight:700}
+.wb-seg{display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* ── SUMPRODUCT VIZ ── */
+.sp-viz{background:#1C0A04;border-radius:var(--r);padding:16px 18px;margin:12px 0;font-family:monospace;overflow-x:auto}
+.sp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;flex-wrap:wrap}
+.sp-num{background:rgba(253,186,116,.15);border:1px solid #FDBA74;border-radius:5px;padding:2px 10px;color:#FDE68A;font-weight:700}
+.sp-op{color:#FCA5A5;font-size:14px}
+.sp-pct{background:rgba(134,239,172,.12);border:1px solid #86EFAC;border-radius:5px;padding:2px 10px;color:#86EFAC}
+.sp-eq{color:#A5F3FC;font-weight:700}
+.sp-prod{color:#FDBA74}
+.sp-plus{color:#FCA5A5;font-size:16px;font-weight:700}
+.sp-total{color:#4ADE80;font-size:15px;font-weight:900}
+
+/* ── STEPS ── */
+.steps-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.step-item{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px 15px;box-shadow:0 1px 4px rgba(234,88,12,.06)}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(234,88,12,.22)}
+.step-body{flex:1}
+.step-title{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--ink2);line-height:1.7}
+
+/* ── TIPS ── */
+.tip{background:var(--priL);border:1px solid var(--priM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:var(--priD);line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--amberL);border:1px solid var(--amberM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.danger-box{background:var(--redL);border:1px solid var(--redM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#7F1D1D;line-height:1.75;display:flex;gap:7px}
+.think-box{background:var(--blueL);border:1.5px solid var(--blueM);border-radius:var(--r);padding:14px 16px;margin:14px 0}
+.think-title{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:7px}
+.think-q{font-size:13px;color:var(--ink2);line-height:1.85}
+
+/* ── QUIZ ── */
+.quiz-box{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(234,88,12,.06)}
+.quiz-q{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.6}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.qopt{background:#FAFAFA;border:1.5px solid #E5E7EB;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--ink2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500}
+.qopt:hover:not(:disabled){border-color:var(--pri);background:var(--priL);color:var(--priD)}
+.qopt.ok{background:var(--priL);border-color:var(--pri);color:var(--priD);font-weight:700}
+.qopt.err{background:var(--redL);border-color:var(--redM);color:var(--red)}
+.quiz-fb{font-size:12px;margin-top:7px;padding:7px 11px;border-radius:6px;display:none}
+.quiz-fb.ok{display:block;background:var(--priL);color:var(--priD);border:1px solid var(--priM)}
+.quiz-fb.err{display:block;background:var(--redL);color:var(--red);border:1px solid var(--redM)}
+
+/* ── JUDGE ── */
+.judge-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 1px 4px rgba(234,88,12,.06)}
+.judge-q{flex:1;font-size:13px;color:var(--ink2);line-height:1.7}
+.judge-btns{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbtn-t{background:var(--greenL);border-color:var(--greenM);color:var(--green)}
+.jbtn-t:hover:not(:disabled){background:var(--green);color:#fff;border-color:var(--green)}
+.jbtn-f{background:var(--redL);border-color:var(--redM);color:var(--red)}
+.jbtn-f:hover:not(:disabled){background:var(--red);color:#fff;border-color:var(--red)}
+.jbtn.correct{background:var(--green);color:#fff;border-color:var(--green)}
+.jbtn.wrong{background:var(--red);color:#fff;border-color:var(--red)}
+.jbtn.dim{opacity:.35}
+.judge-fb{font-size:11.5px;margin-top:6px;padding:6px 10px;border-radius:5px;display:none}
+.judge-fb.ok{display:block;background:var(--greenL);color:#14532D}
+.judge-fb.err{display:block;background:var(--redL);color:var(--red)}
+
+/* ── DRAG SORT ── */
+.sort-bank{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;background:var(--priL);border:1.5px dashed var(--priM);border-radius:var(--r);padding:12px;margin-bottom:14px}
+.sort-chip{background:var(--pri);color:#fff;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;cursor:grab;user-select:none;box-shadow:0 2px 6px rgba(234,88,12,.25);transition:opacity .2s}
+.sort-chip:active{cursor:grabbing}
+.sort-chip.placed{opacity:.3;cursor:not-allowed}
+.sort-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.sort-zone{background:#fff;border:2px dashed var(--border);border-radius:var(--r);padding:12px;min-height:80px;transition:all .2s}
+.sort-zone.over{border-color:var(--pri);background:var(--priL)}
+.sz-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.sz-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.sort-fb{font-size:12.5px;padding:10px 14px;border-radius:8px;margin:8px 0;display:none}
+.sort-fb.ok{display:block;background:var(--priL);color:var(--priD);border:1px solid var(--priM);font-weight:600}
+.sort-fb.err{display:block;background:var(--amberL);color:#78350F;border:1px solid var(--amberM)}
+.btn-check{background:var(--pri);color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
+.btn-check:hover{background:var(--priD)}
+.btn-reset{background:#fff;color:var(--ink3);border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:8px}
+
+/* ── MATCH ── */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mc-col .mc-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px;padding:4px 8px;background:var(--priL);border-radius:5px;display:inline-block}
+.mc-item{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12.5px;color:var(--ink2);cursor:pointer;transition:all .18s;margin-bottom:6px;line-height:1.5}
+.mc-item:hover:not(.locked){border-color:var(--pri)}
+.mc-item.selected{border-color:var(--pri);background:var(--priL);color:var(--priD);font-weight:700}
+.mc-item.pending{border-color:var(--priM);background:#FFF3E8;color:var(--priD);font-weight:600;cursor:default}
+.mc-item.locked{cursor:default}
+.mc-item.matched-ok{border-color:var(--green);background:var(--greenL);color:#14532D;font-weight:700;cursor:default}
+.mc-item.matched-err{border-color:var(--red);background:var(--redL);color:var(--red);cursor:default}
+.mc-fb{font-size:12px;margin-top:8px;padding:8px 12px;border-radius:7px;display:none;grid-column:1/-1}
+.mc-fb.show{display:block;background:var(--priL);color:var(--priD);border:1px solid var(--priM)}
+
+/* ── CALC CHALLENGE ── */
+.calc-card{background:linear-gradient(135deg,#FFF7ED,#FFFBF6);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow)}
+.calc-q{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.65}
+.calc-data{background:#fff;border:1px solid var(--border);border-radius:7px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:var(--ink2);line-height:1.9}
+.calc-input-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.calc-label{font-size:12px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.calc-input{border:1.5px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:120px;transition:border-color .2s}
+.calc-input:focus{border-color:var(--pri);background:var(--priL)}
+.calc-btn{background:var(--pri);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.calc-fb{font-size:12px;padding:7px 11px;border-radius:6px;margin-top:6px;display:none}
+.calc-fb.ok{display:block;background:var(--greenL);color:#14532D;border:1px solid var(--greenM)}
+.calc-fb.err{display:block;background:var(--redL);color:var(--red);border:1px solid var(--redM)}
+
+/* ── SUMMARY ── */
+.summary-card{background:linear-gradient(135deg,#FED7AA,#FFF7ED);border:1.5px solid var(--priM);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+.sum-title{font-size:16px;font-weight:900;color:var(--ink);margin-bottom:14px}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sum-item{background:#fff;border:1px solid var(--priM);border-radius:var(--r);padding:12px}
+.si-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px}
+.si-val{font-size:18px;font-weight:900;color:var(--pri)}
+.si-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.key-points{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.kp-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink2);line-height:1.65}
+.kp-dot{width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+#p1done,#p2done,#p3done{display:none;text-align:center;padding:14px 0 4px}
+.btn-done{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border:none;border-radius:25px;padding:11px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(234,88,12,.3);transition:all .2s}
+.btn-done:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(234,88,12,.35)}
+.btn-complete{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(234,88,12,.3);transition:all .2s;margin-top:18px}
+.btn-complete:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(234,88,12,.4)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpPop{position:fixed;top:80px;right:20px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none;box-shadow:0 4px 12px rgba(234,88,12,.4)}
+#xpPop.show{opacity:1;transform:translateY(0)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){
+  .formula-grid{grid-template-columns:1fr 1fr}
+  .sort-zones,.match-grid,.sum-grid{grid-template-columns:1fr}
+  .seg-wrap{gap:3px}.seg-btn{padding:5px 10px;font-size:11px}
+  .hero h1{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div id="confetti"></div><div id="toast"></div><div id="xpPop"></div>
+
+<nav class="navbar">
+  <a class="nav-back" href="index.html">← 返回</a>
+  <div class="nav-title">3.4 · 数据计算</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+<div class="pnav">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📚 知识讲解</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🎮 互动练习</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🏁 单元完成</button>
+</div>
+
+<div class="main">
+
+<!-- ══ PART 1 情境导入 ══ -->
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="hero-tag">M3 · 单元四</div>
+    <h1><em>数据计算</em>：算出运营价值</h1>
+    <p class="hero-sub">掌握常规计算（电商9大核心指标）、日期计算（DATEDIF/DAYS360/TODAY）、加权计算（SUMPRODUCT）三大类型，让"原始数据"变成"运营决策依据"。</p>
+    <div class="hero-goals">
+      <div class="hg"><div class="hg-dot">1</div><span>记住并会计算销售额、利润率、转化率、ROI等9个电商核心指标</span></div>
+      <div class="hg"><div class="hg-dot">2</div><span>掌握 DATEDIF 函数，计算复购间隔、物流时效等日期差</span></div>
+      <div class="hg"><div class="hg-dot">3</div><span>理解加权计算原理，用 SUMPRODUCT 函数计算综合评分</span></div>
+      <div class="hg"><div class="hg-dot">4</div><span>理解绝对引用（$ 符号）的作用，能在填充公式时正确使用</span></div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <div class="sc-head"><div class="sc-head-icon">🧮</div><div class="sc-head-title">情境导入 · 店长的六个问题</div></div>
+    <div class="sc-body">
+      小林终于完成了数据清洗、转化和排序，拿到了一份干干净净的"双11"订单数据。店长看了很满意，接着提出了新的要求：
+      <div style="margin:12px 0;display:flex;flex-direction:column;gap:6px">
+        <div class="sc-q"><span>❓</span><div>活动期间每笔订单的<em>销售额</em>是多少？（单价 × 数量）</div></div>
+        <div class="sc-q"><span>❓</span><div>活动期间的<em>客单价</em>是多少？（总销售额 ÷ 买家人数）</div></div>
+        <div class="sc-q"><span>❓</span><div>各推广渠道的<em>转化率</em>是多少？（下单买家数 ÷ 访客数）</div></div>
+        <div class="sc-q"><span>❓</span><div>直通车推广的 <em>ROI</em> 是多少？（成交金额 ÷ 推广花费）</div></div>
+        <div class="sc-q"><span>❓</span><div>老客户从上次购买到这次购买，<em>间隔了多长时间</em>？</div></div>
+        <div class="sc-q"><span>❓</span><div>综合评估各推广渠道效果，每个渠道的<em>综合得分</em>是多少？</div></div>
+      </div>
+      <div class="warn-box" style="margin-top:4px"><span>💡</span><span>这些问题不再是简单地"整理数据"，而是需要通过<em>计算</em>来得出新的指标——这就是数据计算的核心价值。</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">📌</div><div class="ch-title">三大计算类型总览</div></div>
+    <div class="card-body">
+      <table class="gen-table">
+        <tr><th>类型</th><th>解决什么问题</th><th>核心工具</th><th>电商典型应用</th></tr>
+        <tr><td>🔢 常规计算</td><td>基本的加减乘除运算</td><td>公式 + SUM 等基础函数</td><td>销售额、利润、转化率、ROI 等</td></tr>
+        <tr><td>📅 日期计算</td><td>计算日期之间的间隔</td><td>DATEDIF / DAYS360 / TODAY()</td><td>复购间隔、物流时效、超时提醒</td></tr>
+        <tr><td>⚖️ 加权计算</td><td>按权重计算综合得分</td><td>SUMPRODUCT</td><td>渠道综合评估、商品综合评分</td></tr>
+      </table>
+      <div class="tip"><span>💡</span><span>平台给你的原始数据通常是访客数、下单数、支付金额等"原料"，而店长想看的是转化率、客单价、ROI等"成品指标"——这些都需要通过计算得出。</span></div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn-check" style="font-size:12px;padding:7px 18px" onclick="markP1Done()">已阅读，进入知识讲解 →</button>
+  </div>
+  <div id="p1done"><button class="btn-done" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
+</div>
+
+<!-- ══ PART 2 知识讲解 ══ -->
+<div class="part" id="part2">
+
+  <div class="seg-wrap">
+    <button class="seg-btn active" id="st0" onclick="switchSeg(0)">🔢 一、常规计算</button>
+    <button class="seg-btn" id="st1" onclick="switchSeg(1)">📅 二、日期计算</button>
+    <button class="seg-btn" id="st2" onclick="switchSeg(2)">⚖️ 三、加权计算</button>
+  </div>
+
+  <!-- ══ 常规计算 ══ -->
+  <div class="seg-pane active" id="seg0">
+
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">🔢</div><div class="ch-title">Excel 数据计算的三种形式</div></div>
+      <div class="card-body">
+        <table class="gen-table">
+          <tr><th>形式</th><th>说明</th><th>示例</th><th>建议</th></tr>
+          <tr><td>含常量的公式</td><td>直接用数字计算</td><td><code>=20*3+25*2</code></td><td>❌ 不推荐（数据变了结果不会自动更新）</td></tr>
+          <tr><td>含单元格引用的公式</td><td>用单元格地址代替数字</td><td><code>=A2*B2</code></td><td>✅ 推荐（数据变化时结果自动更新）</td></tr>
+          <tr><td>含函数的计算</td><td>使用 Excel 内置函数</td><td><code>=SUM(C2:C100)</code></td><td>✅ 推荐（简洁高效，不容易出错）</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 9大核心指标 -->
+    <div class="sec-title">电商运营 9 大核心计算指标</div>
+
+    <!-- 基础销售 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">💰</div><div class="ch-title">基础销售指标</div></div>
+      <div class="card-body">
+        <div class="formula-grid">
+          <div class="fc">
+            <div class="fc-name">销售额</div>
+            <div class="fc-formula">单价 × 销售数量</div>
+            <div class="fc-mem">💡 卖了多少钱</div>
+          </div>
+          <div class="fc">
+            <div class="fc-name">利润</div>
+            <div class="fc-formula">销售额 - 成本</div>
+            <div class="fc-mem">💡 赚了多少钱</div>
+          </div>
+          <div class="fc">
+            <div class="fc-name">利润率</div>
+            <div class="fc-formula">利润 ÷ 销售额 × 100%</div>
+            <div class="fc-mem">💡 每卖100元赚多少</div>
+          </div>
+          <div class="fc" style="grid-column:1/-1">
+            <div class="fc-name">客单价</div>
+            <div class="fc-formula">总销售额 ÷ 买家人数</div>
+            <div class="fc-mem">💡 平均每个顾客花了多少钱</div>
+          </div>
+        </div>
+        <div class="formula-block">
+          <div class="fb-label">案例：坚果大礼包（单价89.9元，销售50件，成本2800元）</div>
+          <div class="fb-line"><span class="fb-comment">// 销售额</span></div>
+          <div class="fb-line"><span class="fb-fn">=B2*C2</span>  <span class="fb-comment">→ 89.9 × 50 = 4,495 元</span></div>
+          <div class="fb-line"><span class="fb-fn">=D2-E2</span>  <span class="fb-comment">// 利润 → 4495 - 2800 = 1,695 元</span></div>
+          <div class="fb-line"><span class="fb-fn">=F2/D2</span>  <span class="fb-comment">// 利润率 → 1695÷4495 ≈ 37.7%</span></div>
+        </div>
+        <div class="tip"><span>💡</span><span>计算出利润率后，选中单元格 → 右键 →「设置单元格格式」→「百分比」，设置小数位数即可显示为百分比格式。</span></div>
+      </div>
+    </div>
+
+    <!-- 流量转化 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">🔄</div><div class="ch-title">流量与转化指标</div></div>
+      <div class="card-body">
+        <div class="formula-grid">
+          <div class="fc">
+            <div class="fc-name">转化率</div>
+            <div class="fc-formula">下单买家数 ÷ 访客数</div>
+            <div class="fc-mem">💡 来100人几人买</div>
+          </div>
+          <div class="fc">
+            <div class="fc-name">支付转化率</div>
+            <div class="fc-formula">支付买家数 ÷ 访客数</div>
+            <div class="fc-mem">💡 来100人几人付款</div>
+          </div>
+          <div class="fc">
+            <div class="fc-name">UV价值</div>
+            <div class="fc-formula">支付金额 ÷ 访客数</div>
+            <div class="fc-mem">💡 每个访客带来多少元</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="dtable">
+            <tr><th>流量来源</th><th>访客数</th><th>下单买家</th><th>支付金额(元)</th><th>转化率</th><th>UV价值</th></tr>
+            <tr><td>直通车</td><td>5,000</td><td>150</td><td>18,000</td><td class="hi">3.0%</td><td class="hi">3.60元</td></tr>
+            <tr><td>手淘搜索</td><td>8,000</td><td>400</td><td>42,000</td><td class="ok">5.0% ↑</td><td class="ok">5.25元 ↑</td></tr>
+          </table>
+        </div>
+        <div class="tip"><span>💡</span><span>从数据可以看出：手淘搜索的转化率（5%）和UV价值（5.25元）都高于直通车，说明<strong>免费搜索流量的质量更高</strong>，每个访客带来的收益更多。</span></div>
+      </div>
+    </div>
+
+    <!-- 推广效果 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">📣</div><div class="ch-title">推广效果指标</div></div>
+      <div class="card-body">
+        <div class="formula-grid">
+          <div class="fc">
+            <div class="fc-name">ROI</div>
+            <div class="fc-formula">成交金额 ÷ 推广花费</div>
+            <div class="fc-mem">💡 花1元赚几元</div>
+          </div>
+          <div class="fc">
+            <div class="fc-name">PPC 点击单价</div>
+            <div class="fc-formula">推广花费 ÷ 点击次数</div>
+            <div class="fc-mem">💡 每次点击花多少钱</div>
+          </div>
+          <div class="fc">
+            <div class="fc-name">点击率 CTR</div>
+            <div class="fc-formula">点击次数 ÷ 展现次数</div>
+            <div class="fc-mem">💡 展示100次点几次</div>
+          </div>
+        </div>
+        <div class="formula-block">
+          <div class="fb-label">案例：直通车-爆款（展现10万次，点击3千次，花费1500元，成交12000元）</div>
+          <div class="fb-line"><span class="fb-fn">=E2/D2</span>  <span class="fb-comment">// ROI → 12000÷1500 = 8（每花1元带来8元销售额）</span></div>
+          <div class="fb-line"><span class="fb-fn">=D2/C2</span>  <span class="fb-comment">// PPC → 1500÷3000 = 0.5元（每次点击花0.5元）</span></div>
+          <div class="fb-line"><span class="fb-fn">=C2/B2</span>  <span class="fb-comment">// CTR → 3000÷100000 = 3%（每100次展示有3次点击）</span></div>
+        </div>
+        <div class="tip"><span>💡</span><span><strong>ROI怎么看？</strong> ROI &gt; 1 说明推广赚钱；ROI &lt; 1 说明推广亏钱。ROI = 8 表示投入1元赚回了8元，效果非常好。具体多少算"好"，要结合行业平均水平和商品利润率来判断。</span></div>
+      </div>
+    </div>
+
+    <!-- 速记表 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">⚡</div><div class="ch-title">9 大指标速记表</div></div>
+      <div class="card-body">
+        <table class="gen-table">
+          <tr><th>指标</th><th>计算公式</th><th>口诀记忆</th><th>Excel公式</th></tr>
+          <tr><td>销售额</td><td>单价 × 数量</td><td>卖了多少钱</td><td><code>=B2*C2</code></td></tr>
+          <tr><td>利润</td><td>销售额 - 成本</td><td>赚了多少钱</td><td><code>=D2-E2</code></td></tr>
+          <tr><td>利润率</td><td>利润 ÷ 销售额</td><td>每卖100赚多少</td><td><code>=F2/D2</code></td></tr>
+          <tr><td>客单价</td><td>总销售额 ÷ 买家数</td><td>平均每人花多少</td><td><code>=SUM(D2:D100)/买家数</code></td></tr>
+          <tr><td>转化率</td><td>下单数 ÷ 访客数</td><td>来100人几人买</td><td><code>=C2/B2</code></td></tr>
+          <tr><td>UV价值</td><td>支付金额 ÷ 访客数</td><td>每个人值多少钱</td><td><code>=E2/B2</code></td></tr>
+          <tr><td>ROI</td><td>成交额 ÷ 推广费</td><td>花1元赚几元</td><td><code>=D2/C2</code></td></tr>
+          <tr><td>PPC</td><td>推广费 ÷ 点击数</td><td>每次点击花多少</td><td><code>=C2/B2</code></td></tr>
+          <tr><td>点击率</td><td>点击数 ÷ 展现数</td><td>展示100次点几次</td><td><code>=B2/A2</code></td></tr>
+        </table>
+        <div class="warn-box" style="margin-top:10px"><span>⚠️</span>
+          <div><strong>注意事项</strong>：① 除法要防止除数为0（用 <code>=IFERROR(C2/B2,0)</code> 避免 #DIV/0! 报错）；② 百分比指标计算后要设置单元格格式为"百分比"；③ 写好一行公式后，拖动<strong>填充柄</strong>（右下角小方块）可批量应用到所有行。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 日期计算 ══ -->
+  <div class="seg-pane" id="seg1">
+
+    <div class="sec-title">电商中为什么需要日期计算？</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px">
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;box-shadow:0 1px 4px rgba(234,88,12,.06)">
+        <div style="font-size:22px;margin-bottom:6px">🔄</div>
+        <div style="font-size:12px;font-weight:800;color:var(--ink);margin-bottom:3px">复购间隔</div>
+        <div style="font-size:11px;color:var(--ink3)">上次到这次间隔多久？<br>评估复购周期</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;box-shadow:0 1px 4px rgba(234,88,12,.06)">
+        <div style="font-size:22px;margin-bottom:6px">🚚</div>
+        <div style="font-size:12px;font-weight:800;color:var(--ink);margin-bottom:3px">物流时效</div>
+        <div style="font-size:11px;color:var(--ink3)">从发货到签收用了几天？<br>评估物流速度</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;box-shadow:0 1px 4px rgba(234,88,12,.06)">
+        <div style="font-size:22px;margin-bottom:6px">⏰</div>
+        <div style="font-size:12px;font-weight:800;color:var(--ink);margin-bottom:3px">超时提醒</div>
+        <div style="font-size:11px;color:var(--ink3)">确认收货后是否超过15天<br>未评价？</div>
+      </div>
+    </div>
+
+    <!-- DATEDIF -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">📅</div><div class="ch-title">DATEDIF 函数——计算日期间隔</div></div>
+      <div class="card-body">
+        <div class="formula-block">
+          <div class="fb-label">函数格式</div>
+          <div class="fb-line"><span class="fb-fn">=DATEDIF</span>(<span class="fb-num">起始日期</span>, <span class="fb-num">结束日期</span>, <span class="fb-str">"单位代码"</span>)</div>
+          <div class="fb-result">通俗理解：从某天到某天，一共过了多久？</div>
+        </div>
+        <table class="gen-table" style="margin:12px 0">
+          <tr><th>代码</th><th>含义</th><th>举例（2024/1/15 到 2024/8/20）</th></tr>
+          <tr><td><code>"Y"</code></td><td>相差的完整年数</td><td>0（不满1年）</td></tr>
+          <tr><td><code>"M"</code></td><td>相差的完整月数</td><td class="hi">7个月 ← 最常用</td></tr>
+          <tr><td><code>"D"</code></td><td>相差的总天数</td><td class="hi">218天 ← 最常用</td></tr>
+          <tr><td><code>"YM"</code></td><td>不足一年的月份差</td><td>7个月</td></tr>
+          <tr><td><code>"MD"</code></td><td>不足一个月的天数差</td><td>5天</td></tr>
+        </table>
+        <div class="danger-box"><span>⚠️</span><span><strong>结束日期必须晚于起始日期！</strong>如果写反了（结束日期比起始日期早），函数会返回 <code>#NUM!</code> 错误。确保 date1（起始日期）在前、date2（结束日期）在后。</span></div>
+
+        <!-- 复购间隔案例 -->
+        <div class="sec-title" style="margin-top:14px">案例：计算会员客户复购间隔</div>
+        <div style="overflow-x:auto">
+          <table class="dtable">
+            <tr><th>客户编号</th><th>会员名</th><th>首次下单(C列)</th><th>最近下单(D列)</th><th>间隔月数 E列公式</th><th>结果</th></tr>
+            <tr><td>QL001</td><td>张先生</td><td>2022/3/18</td><td>2024/10/1</td><td class="q">=DATEDIF(C2,D2,"M")</td><td class="hi">30个月</td></tr>
+            <tr><td>QL002</td><td>李小姐</td><td>2023/1/19</td><td>2024/5/11</td><td class="q">=DATEDIF(C3,D3,"M")</td><td>15个月</td></tr>
+            <tr><td>QL003</td><td>王同学</td><td>2024/1/3</td><td>2024/7/12</td><td class="q">=DATEDIF(C4,D4,"M")</td><td class="ok">6个月 ← 复购最快</td></tr>
+            <tr><td>QL004</td><td>赵先生</td><td>2023/6/11</td><td>2024/8/12</td><td class="q">=DATEDIF(C5,D5,"M")</td><td>14个月</td></tr>
+          </table>
+        </div>
+        <div class="tip"><span>💡</span><span>运营分析：张先生30个月才复购，属于<strong>低频客户</strong>，可以通过优惠券或会员活动来提高复购频率；王同学仅6个月就复购，是<strong>需要重点维护的忠实客户</strong>。</span></div>
+      </div>
+    </div>
+
+    <!-- TODAY + 直接相减 -->
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">⏰</div><div class="ch-title">TODAY() 函数 + 日期直接相减</div></div>
+      <div class="card-body">
+        <div class="formula-block">
+          <div class="fb-label">三种常用日期计算方式</div>
+          <div class="fb-line"><span class="fb-fn">=TODAY()</span>          <span class="fb-comment">// 自动获取今天的日期，每天打开文件自动更新</span></div>
+          <div class="fb-line"><span class="fb-fn">=D2-C2</span>             <span class="fb-comment">// 日期直接相减，结果为天数（最简单）</span></div>
+          <div class="fb-line"><span class="fb-fn">=TODAY()-C2</span>        <span class="fb-comment">// 从某日期到今天过了多少天</span></div>
+          <div class="fb-line"><span class="fb-fn">=IF(D2&gt;15,"需催促","未超时")</span>  <span class="fb-comment">// 配合IF函数判断是否超时</span></div>
+        </div>
+        <div class="sec-title" style="margin-top:14px">案例：标记评价超时的订单</div>
+        <div style="overflow-x:auto">
+          <table class="dtable">
+            <tr><th>订单</th><th>会员名</th><th>确认收货(C列)</th><th>距今天数(D列)</th><th>是否超时(E列)</th></tr>
+            <tr><td>D001</td><td>张先生</td><td>2024/10/7</td><td class="q">=TODAY()-C2</td><td class="q">=IF(D2&gt;15,"需催促","未超时")</td></tr>
+            <tr><td>D002</td><td>李小姐</td><td>2024/10/1</td><td class="q">=TODAY()-C3</td><td class="q">=IF(D3&gt;15,"需催促","未超时")</td></tr>
+          </table>
+        </div>
+        <div class="tip"><span>💡</span><span><strong>物流时效计算</strong>直接用日期相减即可：<code>=签收日期-发货日期</code>，结果就是物流天数。这是最简单的日期计算方式。</span></div>
+
+        <!-- DAYS360 -->
+        <div class="sec-title" style="margin-top:14px">DAYS360 函数（了解即可）</div>
+        <div class="formula-block">
+          <div class="fb-label">格式与用途</div>
+          <div class="fb-line"><span class="fb-fn">=DAYS360</span>(<span class="fb-num">起始日期</span>, <span class="fb-num">结束日期</span>)</div>
+          <div class="fb-result">按每月固定30天计算（一年360天），常用于金融领域的账期计算。日常电商运营中，直接用日期相减或 DATEDIF 更常用。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 加权计算 ══ -->
+  <div class="seg-pane" id="seg2">
+
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">⚖️</div><div class="ch-title">什么是加权计算？</div></div>
+      <div class="card-body">
+        <div class="scenario" style="margin:0 0 14px">
+          <div class="sc-head"><div class="sc-head-icon">🎓</div><div class="sc-head-title">生活中的加权：期末成绩</div></div>
+          <div class="sc-body">
+            老师说：平时成绩占30%，期末考试占70%。你的平时成绩80分，期末90分：<br><br>
+            <strong>简单平均</strong>：(80 + 90) ÷ 2 = 85分<br>
+            <strong>加权计算</strong>：80 × 30% + 90 × 70% = 24 + 63 = <em>87分</em><br><br>
+            因为期末权重更大，期末考好了会拉高总成绩。这就是加权——每个数据不是平等对待，而是<em>乘以各自的权重（重要程度）后再求和</em>。
+          </div>
+        </div>
+        <div class="warn-box"><span>📌</span><span>加权计算在电商中的应用：综合评估推广渠道效果（ROI权重最大）、商品综合评分（销量、好评率、利润率各有权重）、客户价值评分等。<strong>所有权重加起来必须等于100%。</strong></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">⚡</div><div class="ch-title">SUMPRODUCT 函数——加权计算的利器</div></div>
+      <div class="card-body">
+        <div class="formula-block">
+          <div class="fb-label">格式与原理</div>
+          <div class="fb-line"><span class="fb-fn">=SUMPRODUCT</span>(<span class="fb-num">数组1</span>, <span class="fb-num">数组2</span>)</div>
+          <div class="fb-result">原理：将两组数据"对应相乘"，再把所有乘积"加起来"。通俗理解：先一对一地乘，再全部加起来。</div>
+        </div>
+        <div class="sp-viz" style="margin:14px 0">
+          <div style="font-size:10px;color:#FDBA74;margin-bottom:10px;letter-spacing:.06em">SUMPRODUCT 计算过程可视化（渠道A的综合得分）</div>
+          <div class="sp-row">
+            <span style="color:#A5F3FC;font-size:12px">得分</span>
+            <span class="sp-num">8</span><span class="sp-op">×</span><span class="sp-pct">10%</span>
+            <span class="sp-plus">+</span>
+            <span class="sp-num">3</span><span class="sp-op">×</span><span class="sp-pct">20%</span>
+            <span class="sp-plus">+</span>
+            <span class="sp-num">3</span><span class="sp-op">×</span><span class="sp-pct">40%</span>
+            <span class="sp-plus">+</span>
+            <span class="sp-num">3</span><span class="sp-op">×</span><span class="sp-pct">30%</span>
+          </div>
+          <div class="sp-row" style="margin-top:4px">
+            <span style="color:#A5F3FC;font-size:12px">结果</span>
+            <span class="sp-prod">0.8</span>
+            <span class="sp-plus">+</span>
+            <span class="sp-prod">0.6</span>
+            <span class="sp-plus">+</span>
+            <span class="sp-prod">1.2</span>
+            <span class="sp-plus">+</span>
+            <span class="sp-prod">0.9</span>
+            <span class="sp-eq">=</span>
+            <span class="sp-total">3.5 分</span>
+          </div>
+        </div>
+
+        <!-- 完整案例 -->
+        <div class="sec-title" style="margin-top:4px">案例：综合评估4个推广渠道</div>
+        <p style="font-size:12.5px;color:var(--ink2);line-height:1.85;margin-bottom:12px">
+          A、B、C、D四个渠道，从点击率、转化率、ROI、客单价四个指标评分（满分10分），权重分别为10%、20%、40%、30%（ROI权重最大，说明企业最看重投入产出比）。
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow-x:auto">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px;text-align:center">各渠道各指标评分（B2:E5区域）</div>
+            <table class="dtable" style="font-size:11.5px">
+              <tr><th>渠道</th><th>点击率</th><th>转化率</th><th>ROI</th><th>客单价</th></tr>
+              <tr><td>渠道A</td><td>8</td><td>3</td><td>3</td><td>3</td></tr>
+              <tr><td>渠道B</td><td>5</td><td>6</td><td>6</td><td>10</td></tr>
+              <tr><td>渠道C</td><td>10</td><td>2</td><td>4</td><td>7</td></tr>
+              <tr><td>渠道D</td><td>6</td><td>10</td><td>10</td><td>1</td></tr>
+            </table>
+            <div style="margin-top:8px">
+              <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:5px">权重（I2:L2区域）</div>
+              <div class="weight-bar">
+                <div class="wb-seg" style="width:10%;background:#EA580C">10%<br>点</div>
+                <div class="wb-seg" style="width:20%;background:#C2410C">20%<br>转</div>
+                <div class="wb-seg" style="width:40%;background:#9A3412">40%<br>ROI</div>
+                <div class="wb-seg" style="width:30%;background:#7C2D12">30%<br>客单</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px;text-align:center">综合得分与排名</div>
+            <table class="dtable" style="font-size:11.5px">
+              <tr><th>渠道</th><th>SUMPRODUCT公式</th><th>得分</th><th>排名</th></tr>
+              <tr><td>渠道A</td><td style="font-family:monospace;font-size:10px">=SUMPRODUCT(B2:E2,I$2:L$2)</td><td>3.5</td><td>4</td></tr>
+              <tr><td>渠道B</td><td style="font-family:monospace;font-size:10px">=SUMPRODUCT(B3:E3,I$2:L$2)</td><td>6.9</td><td>2</td></tr>
+              <tr><td>渠道C</td><td style="font-family:monospace;font-size:10px">=SUMPRODUCT(B4:E4,I$2:L$2)</td><td>4.9</td><td>3</td></tr>
+              <tr><td style="color:var(--green);font-weight:800">渠道D ⭐</td><td style="font-family:monospace;font-size:10px">=SUMPRODUCT(B5:E5,I$2:L$2)</td><td class="ok">7.4</td><td class="ok">1 ← 最优</td></tr>
+            </table>
+            <div class="tip" style="margin-top:8px"><span>💡</span><span>渠道D虽然客单价只有1分，但转化率和ROI都是10分（高权重），综合得分依然最高！</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="ch-icon">$</div><div class="ch-title">绝对引用（$ 符号）的作用</div></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:12px">
+          在公式 <code>=SUMPRODUCT(B2:E2,<strong>I$2:L$2</strong>)</code> 中，<code>I$2:L$2</code> 使用了 <code>$</code> 符号，叫做<strong>绝对引用</strong>。
+        </p>
+        <table class="gen-table">
+          <tr><th>引用方式</th><th>向下拖动填充柄时的变化</th><th>效果</th></tr>
+          <tr><td>相对引用 <code>I2:L2</code></td><td>会变成 I3:L3、I4:L4……引用到了权重行下面的其他行</td><td class="bad" style="color:var(--red);font-weight:700">❌ 计算错误</td></tr>
+          <tr><td>绝对引用 <code>I$2:L$2</code></td><td>始终保持为 I$2:L$2，权重行始终正确</td><td class="ok">✅ 计算正确</td></tr>
+        </table>
+        <div class="tip"><span>💡</span><span><strong>记忆口诀</strong>：<code>$</code> 符号放在行号前面 = "锁住行号不让它跑"。<code>I$2</code> 意思是：I列可以变，但第2行被锁住。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="p2done"><button class="btn-done" onclick="showPart(3)">✅ 知识学完，开始互动练习 →</button></div>
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn-check" style="font-size:12px;padding:7px 18px" onclick="markP2Done()">已阅读，进入练习 →</button>
+  </div>
+</div>
+
+<!-- ══ PART 3 互动练习 ══ -->
+<div class="part" id="part3">
+
+  <!-- 计算挑战 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">🧮</div><div class="ch-title">练习一 · 计算挑战（输入答案）</div><div class="ch-sub">每题 +10 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:14px">根据下方给出的数据，计算各指标并输入答案（数字，保留整数或一位小数）：</p>
+      <div class="calc-data">
+        📊 某店铺"双11"数据：总访客数 <strong>20,000人</strong>，下单买家数 <strong>800人</strong>，支付金额 <strong>96,000元</strong>，推广花费 <strong>12,000元</strong>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-q">① 转化率 = 下单买家数 ÷ 访客数 × 100%<br><span style="font-size:11.5px;color:var(--ink3)">提示：800 ÷ 20000 × 100% = ?（填百分号前的数字，如4填4）</span></div>
+        <div class="calc-input-row">
+          <span class="calc-label">转化率 =</span>
+          <input class="calc-input" id="ca1" placeholder="输入数字" type="number" step="0.1">
+          <span style="font-size:13px;font-weight:700;color:var(--ink2)">%</span>
+          <button class="calc-btn" onclick="checkCalc(1)">提交</button>
+        </div>
+        <div class="calc-fb" id="ca1-fb"></div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-q">② 客单价 = 总支付金额 ÷ 下单买家数<br><span style="font-size:11.5px;color:var(--ink3)">提示：96000 ÷ 800 = ?（填整数）</span></div>
+        <div class="calc-input-row">
+          <span class="calc-label">客单价 =</span>
+          <input class="calc-input" id="ca2" placeholder="输入数字" type="number">
+          <span style="font-size:13px;font-weight:700;color:var(--ink2)">元</span>
+          <button class="calc-btn" onclick="checkCalc(2)">提交</button>
+        </div>
+        <div class="calc-fb" id="ca2-fb"></div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-q">③ UV价值 = 总支付金额 ÷ 访客数<br><span style="font-size:11.5px;color:var(--ink3)">提示：96000 ÷ 20000 = ?（保留一位小数）</span></div>
+        <div class="calc-input-row">
+          <span class="calc-label">UV价值 =</span>
+          <input class="calc-input" id="ca3" placeholder="输入数字" type="number" step="0.1">
+          <span style="font-size:13px;font-weight:700;color:var(--ink2)">元</span>
+          <button class="calc-btn" onclick="checkCalc(3)">提交</button>
+        </div>
+        <div class="calc-fb" id="ca3-fb"></div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-q">④ ROI = 支付金额 ÷ 推广花费<br><span style="font-size:11.5px;color:var(--ink3)">提示：96000 ÷ 12000 = ?（填整数）</span></div>
+        <div class="calc-input-row">
+          <span class="calc-label">ROI =</span>
+          <input class="calc-input" id="ca4" placeholder="输入数字" type="number">
+          <button class="calc-btn" onclick="checkCalc(4)">提交</button>
+        </div>
+        <div class="calc-fb" id="ca4-fb"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 判断题 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">✅</div><div class="ch-title">练习二 · 判断题</div><div class="ch-sub">每题 +8 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">对的选"√"，错的选"×"：</p>
+      <div class="judge-item">
+        <div class="judge-q">1. ROI = 3 意味着每花1元推广费，能赚回3元纯利润。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j1t" onclick="judgeQ(1,true)">√</button>
+          <button class="jbtn jbtn-f" id="j1f" onclick="judgeQ(1,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j1-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">2. 使用 DATEDIF 函数时，结束日期必须晚于起始日期，否则会报错。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j2t" onclick="judgeQ(2,true)">√</button>
+          <button class="jbtn jbtn-f" id="j2f" onclick="judgeQ(2,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j2-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">3. 加权计算中，所有指标的权重加起来必须等于100%。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j3t" onclick="judgeQ(3,true)">√</button>
+          <button class="jbtn jbtn-f" id="j3f" onclick="judgeQ(3,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j3-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">4. TODAY() 函数每天都会自动更新为当天的日期。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j4t" onclick="judgeQ(4,true)">√</button>
+          <button class="jbtn jbtn-f" id="j4f" onclick="judgeQ(4,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j4-fb"></div>
+      <div class="judge-item" style="margin-top:6px">
+        <div class="judge-q">5. 写公式时，用 =89.9*50 和 =B2*C2 效果完全相同，没有任何区别。</div>
+        <div class="judge-btns">
+          <button class="jbtn jbtn-t" id="j5t" onclick="judgeQ(5,true)">√</button>
+          <button class="jbtn jbtn-f" id="j5f" onclick="judgeQ(5,false)">×</button>
+        </div>
+      </div>
+      <div class="judge-fb" id="j5-fb"></div>
+    </div>
+  </div>
+
+  <!-- 连线题 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">🔗</div><div class="ch-title">练习三 · 连线题：指标 → 计算公式</div><div class="ch-sub">全对 +20 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">先点选左侧指标名称，再点选右侧对应的计算公式：</p>
+      <div class="match-grid">
+        <div class="mc-col">
+          <div class="mc-label">📊 指标名称</div>
+          <div class="mc-item" id="ml0" onclick="mcClick('l',0)">① 转化率</div>
+          <div class="mc-item" id="ml1" onclick="mcClick('l',1)">② ROI</div>
+          <div class="mc-item" id="ml2" onclick="mcClick('l',2)">③ 利润率</div>
+          <div class="mc-item" id="ml3" onclick="mcClick('l',3)">④ 客单价</div>
+          <div class="mc-item" id="ml4" onclick="mcClick('l',4)">⑤ PPC 点击单价</div>
+        </div>
+        <div class="mc-col">
+          <div class="mc-label">📐 计算公式</div>
+          <div class="mc-item" id="mr0" onclick="mcClick('r',0)">A. 推广花费 ÷ 点击次数</div>
+          <div class="mc-item" id="mr1" onclick="mcClick('r',1)">B. 利润 ÷ 销售额 × 100%</div>
+          <div class="mc-item" id="mr2" onclick="mcClick('r',2)">C. 成交金额 ÷ 推广花费</div>
+          <div class="mc-item" id="mr3" onclick="mcClick('r',3)">D. 下单买家数 ÷ 访客数</div>
+          <div class="mc-item" id="mr4" onclick="mcClick('r',4)">E. 总销售额 ÷ 买家人数</div>
+        </div>
+      </div>
+      <div class="mc-fb" id="mcFb"></div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn-check" onclick="checkMatch()">✅ 提交匹配</button>
+        <button class="btn-reset" onclick="resetMatch()">🔄 重置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 选择题 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">📝</div><div class="ch-title">练习四 · 选择题</div><div class="ch-sub">每题 +8 XP</div></div>
+    <div class="card-body">
+      <div class="quiz-box">
+        <div class="quiz-q">1. DATEDIF(C2,D2,"M") 中，代码 "M" 表示计算两个日期相差的什么？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q1',0,2,'"Y" 代码表示相差的完整年数，不是"M"。')">A. 年数</button>
+          <button class="qopt" onclick="ansQ('q1',1,2,'"D" 代码表示相差的总天数，不是"M"。')">B. 天数</button>
+          <button class="qopt" onclick="ansQ('q1',2,2,'✅ 正确！"M" 代码表示计算两个日期相差的完整月数。"Y"=年，"M"=月，"D"=天，记住这三个最常用的代码。')">C. 月数</button>
+          <button class="qopt" onclick="ansQ('q1',3,2,'"YM" 才是不足一年的月份差，"M"是总月数。')">D. 不足一年的月份差</button>
+        </div>
+        <div class="quiz-fb" id="q1-fb"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">2. 在公式 =SUMPRODUCT(B2:E2,I$2:L$2) 中，权重区域用了 I$2:L$2 而不是 I2:L2，原因是？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q2',0,2,'$符号不是为了让计算更快，而是固定行号的引用方式。')">A. 使用 $ 可以让公式计算更快</button>
+          <button class="qopt" onclick="ansQ('q2',1,2,'$ 符号在行号前面是锁住行，不是列。I$2 表示I列可变但第2行被锁住。')">B. $ 可以锁住列号，避免列移动</button>
+          <button class="qopt" onclick="ansQ('q2',2,2,'✅ 正确！$ 放在行号前面叫"绝对引用行"。当向下拖动填充柄计算其他渠道时，权重的行号始终固定为第2行，不会随着拖动变成第3行、第4行，确保每次都引用正确的权重。')">C. 向下拖动填充柄时，权重的行号始终固定为第2行不变</button>
+          <button class="qopt" onclick="ansQ('q2',3,2,'$符号不是防止报错的，IFERROR才是用来处理错误的函数。')">D. 防止公式计算出错报 #VALUE!</button>
+        </div>
+        <div class="quiz-fb" id="q2-fb"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">3. 某推广计划：展现次数10万次，点击次数2000次，推广花费1000元，成交5000元。请问ROI是多少？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q3',0,2,'2是点击率（2000÷100000=2%），不是ROI。ROI=成交额÷推广费。')">A. 2</button>
+          <button class="qopt" onclick="ansQ('q3',1,2,'0.5是PPC（1000÷2000=0.5元/次），不是ROI。')">B. 0.5</button>
+          <button class="qopt" onclick="ansQ('q3',2,2,'✅ 正确！ROI = 成交金额 ÷ 推广花费 = 5000 ÷ 1000 = 5。含义是每花1元推广费带来了5元销售额，ROI>1说明推广是赚钱的。')">C. 5</button>
+          <button class="qopt" onclick="ansQ('q3',3,2,'100不对，计算一下：5000÷1000=5，不是100。')">D. 100</button>
+        </div>
+        <div class="quiz-fb" id="q3-fb"></div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">4. 以下哪个描述最准确地说明了 SUMPRODUCT 函数的作用？</div>
+        <div class="quiz-opts">
+          <button class="qopt" onclick="ansQ('q4',0,2,'SUM是对一组数求和，SUMPRODUCT是先对应相乘再求和，功能不一样。')">A. 对一组数据中的所有数字求和</button>
+          <button class="qopt" onclick="ansQ('q4',1,2,'SUMIF是按条件求和，SUMPRODUCT是加权计算，功能不同。')">B. 按条件对数据中满足条件的数字求和</button>
+          <button class="qopt" onclick="ansQ('q4',2,2,'✅ 正确！SUMPRODUCT = 先把两组数据"对应相乘"（第一个乘第一个，第二个乘第二个……），再把所有乘积"加起来"。这正是加权计算的核心步骤。')">C. 将两组数据对应相乘后，再把所有乘积加起来</button>
+          <button class="qopt" onclick="ansQ('q4',3,2,'AVERAGE是求平均值，SUMPRODUCT不是求平均值。')">D. 计算一组数据的平均值</button>
+        </div>
+        <div class="quiz-fb" id="q4-fb"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拖拽：计算类型归类 -->
+  <div class="card">
+    <div class="card-head"><div class="ch-icon">🎯</div><div class="ch-title">练习五 · 拖拽分类：计算场景归属</div><div class="ch-sub">全对 +20 XP</div></div>
+    <div class="card-body">
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:10px">将下方计算场景描述拖入对应的计算类型区域：</p>
+      <div class="sort-bank" id="sortBank"></div>
+      <div class="sort-zones">
+        <div class="sort-zone" id="zone0"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="dropChip(event,0)">
+          <div class="sz-label">🔢 常规计算</div>
+          <div class="sz-chips" id="zone0-chips"></div>
+        </div>
+        <div class="sort-zone" id="zone1"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="dropChip(event,1)">
+          <div class="sz-label">📅 日期计算</div>
+          <div class="sz-chips" id="zone1-chips"></div>
+        </div>
+        <div class="sort-zone" id="zone2"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="dropChip(event,2)">
+          <div class="sz-label">⚖️ 加权计算</div>
+          <div class="sz-chips" id="zone2-chips"></div>
+        </div>
+      </div>
+      <div class="sort-fb" id="sortFb"></div>
+      <div>
+        <button class="btn-check" onclick="checkSort()">✅ 提交答案</button>
+        <button class="btn-reset" onclick="resetSort()">🔄 重置</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="p3done" style="display:none;text-align:center;padding:18px 0 6px">
+    <div style="font-size:15px;font-weight:800;color:var(--pri);margin-bottom:6px">🎉 全部练习完成！</div>
+    <button class="btn-done" onclick="showPart(4)">查看单元完成情况 →</button>
+  </div>
+</div>
+
+<!-- ══ PART 4 完成 ══ -->
+<div class="part" id="part4">
+  <div class="summary-card">
+    <div class="sum-title">🏆 单元完成！模块三全部学习完毕！</div>
+    <div class="sum-grid">
+      <div class="sum-item"><div class="si-label">获得XP</div><div class="si-val" id="finalXP">+0</div><div class="si-sub">经验值</div></div>
+      <div class="sum-item"><div class="si-label">评分</div><div class="si-val" id="finalScore">—</div><div class="si-sub">综合得分</div></div>
+      <div class="sum-item"><div class="si-label">评级</div><div class="si-val" id="finalStars">—</div><div class="si-sub">星级</div></div>
+    </div>
+    <div class="key-points">
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px">📌 本单元核心要点</div>
+      <div class="kp-item"><div class="kp-dot">1</div><div>数据计算分三大类型：<strong>常规计算、日期计算、加权计算</strong>，各有核心工具</div></div>
+      <div class="kp-item"><div class="kp-dot">2</div><div>建议用<strong>单元格引用</strong>写公式（=B2*C2 而非 =89.9*50），数据变化时结果自动更新</div></div>
+      <div class="kp-item"><div class="kp-dot">3</div><div>电商9大核心指标：<strong>销售额=单价×数量、转化率=下单数÷访客数、ROI=成交额÷推广费、客单价=总额÷买家数</strong>等，务必记住</div></div>
+      <div class="kp-item"><div class="kp-dot">4</div><div><strong>DATEDIF(起始日期, 结束日期, 代码)</strong>：代码"Y"=年、"M"=月、"D"=天，结束日期必须晚于起始日期</div></div>
+      <div class="kp-item"><div class="kp-dot">5</div><div><strong>TODAY()</strong> 自动获取当天日期，每天打开文件自动更新，适合做"距今多少天"的动态计算</div></div>
+      <div class="kp-item"><div class="kp-dot">6</div><div><strong>SUMPRODUCT(数组1, 数组2)</strong>：将两组数据对应相乘再全部加起来，是加权计算的核心函数</div></div>
+      <div class="kp-item"><div class="kp-dot">7</div><div><strong>$ 符号（绝对引用）</strong>锁住行号或列号，向下拖动填充柄时保持引用不变——权重区域必须用 <code>I$2:L$2</code> 而非 <code>I2:L2</code></div></div>
+    </div>
+    <div style="background:var(--priL);border:1.5px solid var(--priM);border-radius:var(--r);padding:14px 16px;margin-top:16px">
+      <div style="font-size:13px;font-weight:800;color:var(--priD);margin-bottom:8px">🎉 恭喜完成模块三全部学习！</div>
+      <div style="font-size:12.5px;color:var(--ink2);line-height:1.85">
+        在模块三中你学习了：<strong>单元一</strong> 认识数据分类与处理 · <strong>单元二</strong> 分类统计四种方法 · <strong>单元三</strong> 数据清洗/转化/排序 · <strong>单元四</strong> 数据计算三大类型<br>
+        这些技能构成了电商数据分析的<strong>基本功</strong>！继续加油，后续模块将运用这些技能对真实电商运营数据进行完整分析！
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <button class="btn-complete" onclick="completeUnit()">✅ 完成单元，返回主页</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const SUPABASE_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+let _supabase=null;
+if(SUPABASE_URL.startsWith('https://')&&window.supabase){_supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}
+const STORAGE_KEY='ecommerce_data_analysis_user';
+const ALL_UNITS=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+let earnedXP=0,gameStars=0,sortDone=false,matchDone=false,judgeDone={},calcDone={};
+
+function loadUser(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function getWeekStart(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d.toISOString().slice(0,10)}
+function saveUser(data){
+  data.lastVisit=new Date().toISOString();const ws=getWeekStart();
+  if(data.weekStart!==ws){data.weekXp=0;data.weekStart=ws;}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  if(_supabase){const cu=ALL_UNITS.filter(id=>data.units[id]?.completed).length;const ts=ALL_UNITS.reduce((s,id)=>s+(data.units[id]?.stars||0),0);
+    _supabase.from('student_progress').upsert({student_id:data.studentId,name:data.name,xp:data.xp,completed_units:cu,total_stars:ts,week_xp:data.weekXp||0,week_start:data.weekStart||ws,achievements:data.achievements,units:data.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(({error})=>{if(error)console.warn('sync:',error.message)});}
+}
+function showToast(msg,d=2500){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d)}
+function showXP(amt){const e=document.getElementById('xpPop');e.textContent='+'+amt+' XP';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function addXP(amt){earnedXP+=amt;const u=loadUser();document.getElementById('navXP').textContent='⚡ '+(u?u.xp+earnedXP:earnedXP)+' XP';showXP(amt)}
+function launchConfetti(){const c=document.getElementById('confetti'),cols=['#EA580C','#F97316','#FB923C','#FDE68A','#16A34A','#3B82F6'];c.innerHTML='';for(let i=0;i<60;i++){const p=document.createElement('div');p.className='cp';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p);}setTimeout(()=>c.innerHTML='',4000);}
+function showPart(n){[1,2,3,4].forEach(i=>{document.getElementById('part'+i).classList.toggle('active',i===n);document.getElementById('btn'+i).classList.toggle('active',i===n);});document.getElementById('progFill').style.width=[0,25,55,80,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function switchSeg(n){[0,1,2].forEach(i=>{document.getElementById('seg'+i).classList.toggle('active',i===n);document.getElementById('st'+i).classList.toggle('active',i===n);});}
+function markP1Done(){document.getElementById('p1done').style.display='block';showPart(2);}
+function markP2Done(){document.getElementById('p2done').style.display='block';showPart(3);}
+
+// ── Calc challenge ──
+// 转化率=4%, 客单价=120, UV价值=4.8, ROI=8
+const calcAnswers={1:4,2:120,3:4.8,4:8};
+const calcFb={
+  1:'✅ 正确！转化率 = 800 ÷ 20000 × 100% = 4%。每100个访客中有4人下单，属于正常水平。',
+  2:'✅ 正确！客单价 = 96000 ÷ 800 = 120元。平均每位买家花了120元。',
+  3:'✅ 正确！UV价值 = 96000 ÷ 20000 = 4.8元。每个访客平均带来4.8元的收入。',
+  4:'✅ 正确！ROI = 96000 ÷ 12000 = 8。每花1元推广费带来8元销售额，ROI=8属于优秀水平。'
+};
+function checkCalc(n){
+  if(calcDone[n])return;
+  const el=document.getElementById('ca'+n);
+  const val=parseFloat(el.value);
+  const ans=calcAnswers[n];
+  const fb=document.getElementById('ca'+n+'-fb');
+  if(isNaN(val)){fb.textContent='⚠️ 请输入数字';fb.className='calc-fb err';fb.style.display='block';return;}
+  const tol=ans<=10?0.15:1;
+  if(Math.abs(val-ans)<=tol){
+    calcDone[n]=true;
+    fb.textContent=calcFb[n];fb.className='calc-fb ok';fb.style.display='block';
+    el.disabled=true;el.style.background='#F0FDF4';el.style.borderColor='#86EFAC';
+    addXP(10);showToast('✅ 计算正确！+10 XP');
+    checkPartDone();
+  } else {
+    const hint={1:'转化率 = 下单买家数 ÷ 访客数 × 100% = 800 ÷ 20000 × 100%',2:'客单价 = 总支付金额 ÷ 下单买家数 = 96000 ÷ 800',3:'UV价值 = 总支付金额 ÷ 访客数 = 96000 ÷ 20000',4:'ROI = 支付金额 ÷ 推广花费 = 96000 ÷ 12000'}[n];
+    fb.textContent='❌ 答案不对。提示：'+hint;fb.className='calc-fb err';fb.style.display='block';
+    showToast('❌ 再算一次试试！');
+  }
+}
+
+// ── Judge ──
+const judgeAnswers={1:false,2:true,3:true,4:true,5:false};
+const judgeFb={
+  1:'× 错误！ROI = 成交金额 ÷ 推广花费，ROI=3 意味着每花1元推广费带来了3元"销售额"，而不是3元纯利润。纯利润还要扣掉商品成本等费用。',
+  2:'√ 正确！DATEDIF 的结束日期（date2）必须晚于起始日期（date1），否则会返回 #NUM! 错误。如果日期写反了，需要检查两个日期的先后顺序。',
+  3:'√ 正确！加权计算的核心规则：所有指标的权重之和必须等于100%，否则计算出来的综合得分就没有意义（不是满分对应满分范围）。',
+  4:'√ 正确！TODAY() 是一个动态函数，每次打开 Excel 文件时会自动更新为当天的日期，非常适合做"距今多少天"类的动态计算。',
+  5:'× 错误！虽然当前数据相同时结果一样，但本质区别在于：用 =89.9*50 写死了数字，当单价或数量发生变化时结果不会自动更新，需要手动修改公式；而 =B2*C2 引用的是单元格，原始数据变化后结果自动更新，这才是推荐做法。'
+};
+function judgeQ(n,chosenTrue){
+  if(judgeDone[n])return;judgeDone[n]=true;
+  const correct=judgeAnswers[n];
+  const tBtn=document.getElementById('j'+n+'t'),fBtn=document.getElementById('j'+n+'f');
+  const fb=document.getElementById('j'+n+'-fb');
+  tBtn.disabled=true;fBtn.disabled=true;
+  const isRight=(chosenTrue===correct);
+  if(correct===true){tBtn.classList.add('correct');fBtn.classList.add('dim');}
+  else{fBtn.classList.add('correct');tBtn.classList.add('dim');}
+  if(!isRight){if(chosenTrue)tBtn.classList.add('wrong');else fBtn.classList.add('wrong');}
+  fb.textContent=(isRight?'✅ ':'❌ ')+judgeFb[n];
+  fb.className='judge-fb '+(isRight?'ok':'err');
+  fb.style.display='block';
+  if(isRight){addXP(8);showToast('✅ 答对！+8 XP');}else{showToast('❌ 答错了，看解析再理解一下');}
+  checkPartDone();
+}
+
+// ── MCQ ──
+const quizDone={};
+function ansQ(qid,chosen,correct,fb){
+  if(quizDone[qid])return;quizDone[qid]=true;
+  const box=document.getElementById(qid);
+  box.querySelectorAll('.qopt').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('ok');else if(i===chosen&&chosen!==correct)b.classList.add('err');});
+  const fbEl=document.getElementById(qid+'-fb');
+  if(chosen===correct){fbEl.textContent='✅ '+fb;fbEl.className='quiz-fb ok';addXP(8);showToast('✅ 答对了！+8 XP');}
+  else{fbEl.textContent='❌ '+fb;fbEl.className='quiz-fb err';showToast('❌ 答错了，看看解析再想想');}
+  checkPartDone();
+}
+
+// ── Match: 转化率→D, ROI→C, 利润率→B, 客单价→E, PPC→A ──
+const matchCorrect={0:3,1:2,2:1,3:4,4:0};
+let mcSelL=-1,mcSelR=-1,mcPairs={};
+function mcClick(side,idx){
+  const lEl=document.getElementById('ml'+idx),rEl=document.getElementById('mr'+idx);
+  if(side==='l'&&lEl.classList.contains('locked'))return;
+  if(side==='r'&&rEl.classList.contains('locked'))return;
+  if(side==='l'){
+    if(mcSelL>=0&&mcSelL!==idx)document.getElementById('ml'+mcSelL).classList.remove('selected');
+    if(mcSelL===idx){lEl.classList.remove('selected');mcSelL=-1;return;}
+    mcSelL=idx;lEl.classList.add('selected');
+  } else {
+    if(mcSelR>=0&&mcSelR!==idx)document.getElementById('mr'+mcSelR).classList.remove('selected');
+    if(mcSelR===idx){rEl.classList.remove('selected');mcSelR=-1;return;}
+    mcSelR=idx;rEl.classList.add('selected');
+  }
+  if(mcSelL>=0&&mcSelR>=0){
+    const l=mcSelL,r=mcSelR;mcPairs[l]=r;
+    document.getElementById('ml'+l).classList.remove('selected');
+    document.getElementById('mr'+r).classList.remove('selected');
+    document.getElementById('ml'+l).classList.add('pending','locked');
+    document.getElementById('mr'+r).classList.add('pending','locked');
+    mcSelL=-1;mcSelR=-1;
+  }
+}
+function checkMatch(){
+  if(Object.keys(mcPairs).length<5){showToast('⚠️ 请先完成全部5对匹配再提交');return;}
+  let correct=0;
+  for(let l=0;l<5;l++){
+    const r=mcPairs[l];
+    const lEl=document.getElementById('ml'+l),rEl=document.getElementById('mr'+r);
+    lEl.classList.remove('pending');rEl.classList.remove('pending');
+    if(r===matchCorrect[l]){lEl.classList.add('matched-ok');rEl.classList.add('matched-ok');correct++;}
+    else{lEl.classList.add('matched-err');if(rEl)rEl.classList.add('matched-err');document.getElementById('mr'+matchCorrect[l]).classList.add('matched-ok');}
+  }
+  const fb=document.getElementById('mcFb');
+  if(correct===5){
+    fb.textContent='🎉 全部正确！①转化率→下单数÷访客数 ②ROI→成交额÷推广费 ③利润率→利润÷销售额 ④客单价→总额÷买家数 ⑤PPC→推广费÷点击数 +20 XP';
+    fb.className='mc-fb show';addXP(20);matchDone=true;launchConfetti();gameStars=Math.max(gameStars,3);showToast('🌟 全对！+20 XP！');
+  } else {
+    fb.textContent=`有 ${5-correct} 对不正确（已标红），绿色为正确答案，请回顾9大指标公式再想想。`;
+    fb.className='mc-fb show';
+  }
+  checkPartDone();
+}
+function resetMatch(){
+  mcSelL=-1;mcSelR=-1;mcPairs={};
+  for(let i=0;i<5;i++){['ml','mr'].forEach(p=>{const e=document.getElementById(p+i);e.className='mc-item';});}
+  document.getElementById('mcFb').className='mc-fb';
+}
+
+// ── Drag sort ──
+// zone0=常规 zone1=日期 zone2=加权
+const SORT_ITEMS=[
+  {name:'计算坚果大礼包的销售额（单价×数量）',zone:0},
+  {name:'计算推广计划的ROI（成交额÷推广费）',zone:0},
+  {name:'计算会员从首次下单到最近下单间隔了多少个月',zone:1},
+  {name:'用TODAY()判断订单是否超过15天未评价',zone:1},
+  {name:'根据"点击率30%+转化率40%+ROI30%"评估各渠道综合得分',zone:2},
+  {name:'按销量40%、好评率35%、利润率25%算商品综合评分',zone:2},
+];
+let placed={};
+function initSort(){
+  const bank=document.getElementById('sortBank');bank.innerHTML='';placed={};
+  SORT_ITEMS.sort(()=>Math.random()-.5).forEach(item=>{
+    const chip=document.createElement('div');chip.className='sort-chip';chip.textContent=item.name;chip.draggable=true;chip.id='chip-'+item.name;
+    chip.style.fontSize='11px';chip.style.padding='5px 12px';
+    chip.addEventListener('dragstart',e=>e.dataTransfer.setData('text',item.name));bank.appendChild(chip);
+  });
+  [0,1,2].forEach(z=>document.getElementById('zone'+z+'-chips').innerHTML='');
+  const fb=document.getElementById('sortFb');fb.style.display='none';fb.className='sort-fb';
+}
+function dropChip(event,zone){
+  event.preventDefault();const name=event.dataTransfer.getData('text');const chip=document.getElementById('chip-'+name);
+  if(!chip||chip.classList.contains('placed'))return;chip.classList.add('placed');
+  const nc=chip.cloneNode(true);nc.classList.remove('placed');nc.draggable=false;nc.id='placed-'+name;
+  document.getElementById('zone'+zone+'-chips').appendChild(nc);document.getElementById('zone'+zone).classList.remove('over');placed[name]=zone;
+}
+function checkSort(){
+  if(Object.keys(placed).length===0){showToast('⚠️ 请先把场景拖入分类区再提交');return;}
+  let correct=0;SORT_ITEMS.forEach(item=>{if(placed[item.name]===item.zone)correct++;});
+  const fb=document.getElementById('sortFb');fb.style.display='block';
+  if(correct===SORT_ITEMS.length){
+    fb.textContent='🎉 全部正确！+20 XP';
+    fb.className='sort-fb ok';addXP(20);launchConfetti();gameStars=Math.max(gameStars,3);sortDone=true;checkPartDone();showToast('🌟 分类全对！+20 XP！');
+  } else {
+    fb.textContent=`还差 ${SORT_ITEMS.length-correct} 个。提示：加减乘除算指标→常规；算日期间隔或天数→日期；多指标乘权重再求和→加权。`;
+    fb.className='sort-fb err';
+  }
+}
+function resetSort(){placed={};initSort();}
+
+function checkPartDone(){
+  const calcAll=Object.keys(calcDone).length>=4;
+  const judgeAll=Object.keys(judgeDone).length>=5;
+  const quizAll=['q1','q2','q3','q4'].every(q=>quizDone[q]);
+  if(calcAll&&judgeAll&&quizAll&&sortDone&&matchDone){
+    document.getElementById('p3done').style.display='block';
+    gameStars=Math.max(gameStars,3);
+  }
+}
+
+function completeUnit(){
+  const user=loadUser();if(!user){window.location.href='index.html';return;}
+  const score=Math.min(100,20+Math.round(earnedXP*0.8));
+  const stars=gameStars>0?gameStars:(score>=90?5:score>=75?4:score>=60?3:score>=45?2:1);
+  const totalXP=earnedXP+20;
+  const alreadyDone=user.units['m3u4']?.completed&&user.units['m3u4']?.xpEarned>0;
+  const actualXP=alreadyDone?0:totalXP;const prev=user.units['m3u4']||{};
+  user.units['m3u4']={completed:true,stars:Math.max(prev.stars||0,stars),score:Math.max(prev.score||0,score),xpEarned:alreadyDone?(prev.xpEarned||0):totalXP};
+  user.xp+=actualXP;user.weekXp=(user.weekXp||0)+actualXP;
+  const ach=user.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(stars>=3&&!ach.includes('first_star3'))ach.push('first_star3');user.achievements=ach;
+  saveUser(user);
+  document.getElementById('finalStars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('finalXP').textContent='+'+(alreadyDone?0:totalXP);
+  document.getElementById('finalScore').textContent=score;
+  showPart(4);if(stars>=4)launchConfetti();
+  showToast(alreadyDone?'🔄 已重新提交，XP不重复计入':`🎉 已保存！获得 +${totalXP} XP`,2200);
+  setTimeout(()=>window.location.href='index.html',2300);
+}
+
+(function(){
+  const user=loadUser();document.getElementById('navXP').textContent='⚡ '+(user?user.xp:0)+' XP';
+  initSort();
+  [0,1,2].forEach(z=>document.getElementById('zone'+z).addEventListener('dragover',e=>e.preventDefault()));
+})();
+</script>
+</body>
+</html>
