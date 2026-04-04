@@ -1011,23 +1011,53 @@
                 return `<div class="ap-score-row"><div style="width:20px;color:#888;font-weight:bold">${i+1}</div><div style="flex:1"><b>${cls}${r.name}</b><div style="color:#999;font-size:10px">${r.student_id}</div></div><div style="width:180px;text-align:right">📚${r.completed_units||0} ⭐${r.total_stars||0} ⚡${r.xp||0}</div><div style="margin-left:10px">${bad?'<span class="ap-score-flag">⚠️异常</span> <button class="ap-btn" style="padding:2px 6px" onclick="resetOne(\''+r.student_id+'\')">重置</button>':'<span class="ap-score-flag clean">✅正常</span>'}</div></div>`;
             }).join('');
         }
-        async function resetOne(sid) {
-            if(!confirm('重置将按实际完成的单元重新计算XP，确定吗？')) return;
+        // 1. 修改 resetOne 函数，增加一个 skipConfirm 参数，默认为 false
+        async function resetOne(sid, skipConfirm = false) {
+            // 如果不是批量操作，才弹出单独的确认框
+            if(!skipConfirm && !confirm('重置将按实际完成的单元重新计算XP，确定吗？')) return;
             const row = cachedRows.find(x=>x.student_id===sid); if(!row)return;
-            let nXp = 15; ALL_UNITS.forEach(id => { const u=row.units[id]; if(u){ if(u.completed){ u.xpEarned=Math.min(u.xpEarned||0,80); nXp+=u.xpEarned; }else{ u.xpEarned=0; } } });
+            
+            let nXp = 15; 
+            ALL_UNITS.forEach(id => { 
+                const u=row.units[id]; 
+                if(u){ 
+                    if(u.completed){ u.xpEarned=Math.min(u.xpEarned||0,80); nXp+=u.xpEarned; }
+                    else{ u.xpEarned=0; } 
+                } 
+            });
+            
             if(_supabase) await _supabase.from('student_progress').update({xp:nXp, units:row.units}).eq('student_id',sid);
             else { const lu=loadUser(); if(lu&&lu.studentId===sid){lu.xp=nXp;lu.units=row.units;saveUser(lu);} }
-            alert('已重置！'); loadAdminScores();
+            
+            // 如果不是批量操作，单次重置完后提示并刷新列表
+            if(!skipConfirm) { 
+                alert('已重置！'); 
+                loadAdminScores(); 
+            }
         }
+
+        // 2. 修改批量修复 resetStudentXP 函数
         async function resetStudentXP() {
             if(!cachedRows) return alert('请先刷新数据');
+            
+            // 【新增】在批量修复开始前，只弹出一个总的确认框
+            if(!confirm('将批量重置所有异常数据的XP（按实际完成的单元重新计算），确定要开始吗？')) return;
+            
             let fixCount = 0;
             for(const r of cachedRows) {
                 let bad = (r.xp||0) > 15+(r.completed_units||0)*80;
                 ALL_UNITS.forEach(id => { const u=r.units?.[id]; if(u && (u.xpEarned>80 || (!u.completed && u.xpEarned>0))) bad=true; });
-                if(bad) { await resetOne(r.student_id); fixCount++; }
+                
+                if(bad) { 
+                    // 【关键修改】调用时传入 true，跳过单人修复里的弹窗和刷新
+                    await resetOne(r.student_id, true); 
+                    fixCount++; 
+                }
             }
-            alert(`批量检测并修复完成，共修复了 ${fixCount} 名异常数据。`); loadAdminScores();
+            
+            // 批量处理结束后，统一提示并刷新一次界面
+            alert(`批量检测并修复完成，共修复了 ${fixCount} 名异常数据。`); 
+            loadAdminScores();
         }
     </script>
 </body>
