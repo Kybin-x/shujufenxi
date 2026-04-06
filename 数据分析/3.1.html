@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.1 认识数据分类与处理 · 任务书</title>
+    <style>
+        /* ===== 全局 ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ===== 顶部 Banner ===== */
+        .banner {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: #fff;
+            padding: 36px 48px 28px;
+        }
+
+        .banner .course-tag {
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: .75;
+            margin-bottom: 8px;
+        }
+
+        .banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .banner .subtitle {
+            font-size: 14px;
+            opacity: .85;
+        }
+
+        .banner .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        .banner .meta span::before {
+            margin-right: 4px;
+        }
+
+        /* ===== 主体布局 ===== */
+        .container {
+            max-width: 960px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ===== 情景卡片 ===== */
+        .scenario-card {
+            background: #fff;
+            border-left: 5px solid #1a73e8;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+        }
+
+        .scenario-card h2 {
+            font-size: 15px;
+            color: #1a73e8;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card p {
+            font-size: 14px;
+        }
+
+        /* ===== 难度块 ===== */
+        .level-block {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 28px;
+            color: #fff;
+        }
+
+        .level-header.basic {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .level-header.medium {
+            background: linear-gradient(90deg, #fb8c00, #ffa726);
+        }
+
+        .level-header.hard {
+            background: linear-gradient(90deg, #e53935, #ef5350);
+        }
+
+        .level-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, .25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .level-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .level-header .level-desc {
+            font-size: 13px;
+            opacity: .9;
+            margin-left: auto;
+        }
+
+        .level-body {
+            padding: 24px 28px;
+        }
+
+        /* ===== 数据导出区 ===== */
+        .download-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #f0f4ff;
+            border: 1px dashed #90aee8;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+
+        .download-bar .dl-info {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .download-bar .dl-info strong {
+            color: #1a73e8;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-download:hover {
+            background: #1558b0;
+        }
+
+        .btn-download svg {
+            width: 15px;
+            height: 15px;
+            fill: #fff;
+        }
+
+        /* ===== 任务说明 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-left: 4px solid #1a73e8;
+            padding-left: 10px;
+            margin: 22px 0 12px;
+        }
+
+        /* 字段说明表 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        th {
+            background: #e8f0fe;
+            color: #1a73e8;
+            font-weight: 700;
+            padding: 9px 14px;
+            text-align: left;
+            border: 1px solid #c5d8f8;
+        }
+
+        td {
+            padding: 8px 14px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        /* 任务步骤 */
+        .task-list {
+            padding-left: 0;
+            list-style: none;
+            counter-reset: task;
+        }
+
+        .task-list li {
+            counter-increment: task;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .task-list li::before {
+            content: counter(task);
+            min-width: 26px;
+            height: 26px;
+            background: #1a73e8;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .level-header.medium~.level-body .task-list li::before {
+            background: #fb8c00;
+        }
+
+        .level-header.hard~.level-body .task-list li::before {
+            background: #e53935;
+        }
+
+        /* 提示框 */
+        .tip-box {
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            margin-top: 16px;
+        }
+
+        .tip-box.green {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+
+        .tip-box.orange {
+            background: #fff3e0;
+            border-left: 4px solid #fb8c00;
+        }
+
+        .tip-box.red {
+            background: #fce4ec;
+            border-left: 4px solid #e53935;
+        }
+
+        .tip-box .tip-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .tip-box.green .tip-title {
+            color: #2e7d32;
+        }
+
+        .tip-box.orange .tip-title {
+            color: #e65100;
+        }
+
+        .tip-box.red .tip-title {
+            color: #b71c1c;
+        }
+
+        .tip-box ul {
+            padding-left: 18px;
+            margin-top: 6px;
+        }
+
+        .tip-box ul li {
+            margin-bottom: 4px;
+        }
+
+        /* 记录表格区 */
+        .record-table th {
+            background: #fce4ec;
+            color: #c62828;
+            border-color: #f5a5b8;
+        }
+
+        /* 问题类型标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .tag.miss {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .tag.format {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .tag.outlier {
+            background: #e8eaf6;
+            color: #283593;
+        }
+
+        .tag.logic {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        /* ===== 底部 ===== */
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Banner ===== -->
+    <div class="banner">
+        <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+        <h1>3.1 认识数据与数据分类处理</h1>
+        <div class="subtitle">识别数据问题类型，掌握基本处理思路</div>
+        <div class="meta">
+            <span>📁 配套文件：3.1_练习数据.xlsx</span>
+            <span>🎯 三个难度等级</span>
+            <span>🏢 情景：星途电商有限公司</span>
+        </div>
+    </div>
+
+    <!-- ===== 情景说明 ===== -->
+    <div class="container">
+        <div class="scenario-card">
+            <h2>📋 背景情景</h2>
+            <p>
+                星途电商有限公司是一家主营 3C 配件（手机数据线、充电宝、手机壳、蓝牙耳机等）的电商企业。
+                运营部小李负责整理近期平台导出的订单数据，发现数据中存在各种质量问题，需要你协助完成数据问题的<strong>识别与分类</strong>工作，
+                为后续数据清洗做准备。
+            </p>
+        </div>
+
+        <!-- ==================== 基础 ==================== -->
+        <div class="level-block">
+            <div class="level-header basic">
+                <span class="level-badge">LEVEL 1</span>
+                <h2>基础练习</h2>
+                <span class="level-desc">适合：刚学完理论，第一次上手 · 25 条数据</span>
+            </div>
+            <div class="level-body">
+
+                <!-- 下载区 -->
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据文件：<strong>基础数据（25条）</strong>｜字段数：5列｜问题类型：4种，分布清晰
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('basic')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <!-- 字段说明 -->
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>说明</th>
+                        <th>示例</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>平台生成的唯一编号</td>
+                        <td>ORD-2024-001</td>
+                    </tr>
+                    <tr>
+                        <td>商品名称</td>
+                        <td>销售商品全称</td>
+                        <td>快充数据线 Type-C 1m</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>本笔订单成交金额</td>
+                        <td>29.90</td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>客户下单时间</td>
+                        <td>2024-03-15</td>
+                    </tr>
+                    <tr>
+                        <td>订单状态</td>
+                        <td>当前订单状态</td>
+                        <td>已完成 / 已退款</td>
+                    </tr>
+                </table>
+
+                <!-- 问题类型说明 -->
+                <div class="section-title">🔍 本次数据包含的四种问题类型</div>
+                <table>
+                    <tr>
+                        <th>问题类型</th>
+                        <th>含义</th>
+                        <th>本文件中的表现</th>
+                        <th>大约数量</th>
+                    </tr>
+                    <tr>
+                        <td><span class="tag miss">缺失值</span></td>
+                        <td>某字段内容为空</td>
+                        <td>销售额或下单日期单元格为空</td>
+                        <td>约 6 条</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag format">格式错误</span></td>
+                        <td>数据格式不统一或不规范</td>
+                        <td>日期写成"20240315""2024/3/15"等多种形式</td>
+                        <td>约 6 条</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag outlier">异常值</span></td>
+                        <td>数值明显超出正常范围</td>
+                        <td>销售额为负数或超过 99999</td>
+                        <td>约 6 条</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag logic">逻辑错误</span></td>
+                        <td>数据之间存在矛盾</td>
+                        <td>订单状态为"已完成"但销售额为0</td>
+                        <td>约 5 条</td>
+                    </tr>
+                </table>
+
+                <!-- 任务步骤 -->
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>打开 CSV 文件，将数据复制到 <code>3.1_练习数据.xlsx</code> 的"数据（基础）"Sheet 中。</li>
+                    <li>逐行检查每条数据，判断该行是否存在问题。</li>
+                    <li>在 Excel 中新增一列"问题类型"，在对应行填写问题类型名称（缺失值 / 格式错误 / 异常值 / 逻辑错误），无问题则填"正常"。</li>
+                    <li>在 Excel 中再新增一列"问题说明"，用一句话描述具体问题，例如："销售额为空"、"日期格式为斜线分隔"。</li>
+                    <li>完成后统计：四种问题各发现了多少条？填入下方记录表。</li>
+                </ol>
+
+                <!-- 记录表 -->
+                <div class="section-title">📝 问题统计记录表（在 Excel 中填写）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>问题类型</th>
+                        <th>发现条数</th>
+                        <th>举例说明（写出1条具体描述）</th>
+                    </tr>
+                    <tr>
+                        <td><span class="tag miss">缺失值</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag format">格式错误</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag outlier">异常值</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag logic">逻辑错误</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><strong>合计</strong></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <!-- 操作提示 -->
+                <div class="tip-box green">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li>可以使用 Excel 的"条件格式"→"突出显示空值"快速定位缺失值。</li>
+                        <li>日期格式问题：观察单元格内容，格式不是 <code>yyyy-mm-dd</code> 的均属格式错误。</li>
+                        <li>异常值判断参考：数据线/充电宝/手机壳单价一般在 10～299 元之间，超出此范围需标记。</li>
+                        <li>逻辑错误：重点检查"订单状态"与"销售额"是否匹配（已完成但金额为0属逻辑错误）。</li>
+                        <li>新增列可在 F 列（问题类型）和 G 列（问题说明）操作，不要修改原始数据。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div><!-- /基础 -->
+
+        <!-- ==================== 巩固 ==================== -->
+        <div class="level-block">
+            <div class="level-header medium">
+                <span class="level-badge">LEVEL 2</span>
+                <h2>巩固练习</h2>
+                <span class="level-desc">适合：熟悉基本操作后 · 28 条数据</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据文件：<strong>巩固数据（28条）</strong>｜字段数：7列｜问题特征：多种问题同行并存
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('medium')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <!-- 字段说明 -->
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>说明</th>
+                        <th>示例</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>平台订单号</td>
+                        <td>ORD-2024-101</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>引流来源</td>
+                        <td>直通车 / 超级推荐 / 自然搜索</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>商品所属大类</td>
+                        <td>数据线 / 充电宝 / 手机壳</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>成交金额</td>
+                        <td>59.00</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>该订单归因的推广费用</td>
+                        <td>12.50</td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>客户下单时间</td>
+                        <td>2024-03-15</td>
+                    </tr>
+                    <tr>
+                        <td>发货状态</td>
+                        <td>是否已发货</td>
+                        <td>已发货 / 未发货 / 待审核</td>
+                    </tr>
+                </table>
+
+                <!-- 任务步骤 -->
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>打开数据文件，将数据复制到"数据（巩固）"Sheet 中。</li>
+                    <li>逐行识别问题：注意<strong>一行数据可能同时存在多种问题</strong>，需全部列出。</li>
+                    <li>在 Excel 中新增"问题类型（全部）"列，用"/"分隔同一行的多个问题，例如："缺失值/格式错误"。</li>
+                    <li>新增"处理方法"列，说明针对每种问题你建议采用哪种方法（补齐 / 删除 / 格式转换 / 人工核实）。</li>
+                    <li>新增"预计处理结果"列，简述处理后该字段/行会变成什么样。</li>
+                    <li>完成后填写下方汇总表。</li>
+                </ol>
+
+                <!-- 汇总表 -->
+                <div class="section-title">📝 问题汇总表（在 Excel 中填写）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>问题类型</th>
+                        <th>涉及行数</th>
+                        <th>建议处理方法</th>
+                        <th>处理难点说明</th>
+                    </tr>
+                    <tr>
+                        <td><span class="tag miss">缺失值</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag format">格式错误</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag outlier">异常值</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag logic">逻辑错误</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="font-size:13px;color:#888;">⚠️ 注意：一行数据可能被计入多个问题类型，行数总和可能大于28。</td>
+                    </tr>
+                </table>
+
+                <div class="tip-box orange">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>多问题并存的识别方法</strong>：建议逐列检查，先检查所有行的某一列，再换下一列，避免遗漏。</li>
+                        <li><strong>处理方法判断依据</strong>：
+                            <br>① 推广花费为空 → 可用0填充（说明无推广费用）
+                            <br>② 日期格式混乱 → 格式统一转换
+                            <br>③ 销售额为负但状态为"已完成" → 人工核实
+                            <br>④ 发货状态缺失且销售额为0 → 可删除整行
+                        </li>
+                        <li><strong>注意"预计处理结果"要具体</strong>，例如："将2024/3/15统一改为2024-03-15"。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div><!-- /巩固 -->
+
+        <!-- ==================== 进阶 ==================== -->
+        <div class="level-block">
+            <div class="level-header hard">
+                <span class="level-badge">LEVEL 3</span>
+                <h2>进阶练习</h2>
+                <span class="level-desc">适合：综合运用阶段 · 35 条数据</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据文件：<strong>进阶数据（35条）</strong>｜字段数：9列｜含隐蔽逻辑错误
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('hard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <!-- 字段说明 -->
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>说明</th>
+                        <th>示例</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>平台订单号</td>
+                        <td>ORD-2024-201</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>商品大类</td>
+                        <td>数据线 / 充电宝 / 手机壳 / 蓝牙耳机</td>
+                    </tr>
+                    <tr>
+                        <td>SKU编码</td>
+                        <td>商品唯一规格码</td>
+                        <td>DXX-BK-1M</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>成交金额</td>
+                        <td>89.00</td>
+                    </tr>
+                    <tr>
+                        <td>退款金额（元）</td>
+                        <td>退款金额，无退款为0</td>
+                        <td>0 / 89.00</td>
+                    </tr>
+                    <tr>
+                        <td>退款率</td>
+                        <td>退款金额÷销售额</td>
+                        <td>0% / 100%</td>
+                    </tr>
+                    <tr>
+                        <td>下单时间</td>
+                        <td>精确到分钟</td>
+                        <td>2024-03-15 10:23</td>
+                    </tr>
+                    <tr>
+                        <td>签收时间</td>
+                        <td>买家签收时间</td>
+                        <td>2024-03-18 14:05</td>
+                    </tr>
+                    <tr>
+                        <td>客服备注</td>
+                        <td>客服人工填写的说明</td>
+                        <td>客户投诉 / 正常 / （空）</td>
+                    </tr>
+                </table>
+
+                <!-- 任务步骤 -->
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>完整检查 35 条数据，识别所有问题（包括表面问题和隐蔽的逻辑问题）。</li>
+                    <li>在 Excel 中建立"诊断表"（可另起一个 Sheet），包含以下列：行号 / 问题类型 / 问题字段 / 问题描述 / 严重程度（高/中/低） / 处理建议。</li>
+                    <li>
+                        重点关注以下隐蔽逻辑错误（需结合多列判断）：
+                        <ul style="margin-top:8px;padding-left:20px;font-size:13.5px;">
+                            <li>签收时间 早于 下单时间（时间逻辑矛盾）</li>
+                            <li>退款率 ≠ 退款金额÷销售额（计算逻辑矛盾）</li>
+                            <li>退款率异常高（某商品类别整体退款率超过50%）</li>
+                            <li>销售额为0但订单状态不是退款/取消</li>
+                        </ul>
+                    </li>
+                    <li>完成后撰写一份简短的<strong>数据诊断报告</strong>（在 Excel 中新建"诊断报告"Sheet，用文字说明）：
+                        <ul style="margin-top:8px;padding-left:20px;font-size:13.5px;">
+                            <li>发现了哪些问题（分类列举）</li>
+                            <li>哪些问题优先处理（说明理由）</li>
+                            <li>针对每类问题给出具体处理建议</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="tip-box red">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>时间逻辑判断</strong>：在新增列中用公式 <code>=IF(签收时间&lt;下单时间,"⚠️时间异常","正常")</code> 快速标记。</li>
+                        <li><strong>退款率验证</strong>：新增辅助列 <code>=退款金额/销售额</code>，与"退款率"列对比，不一致即为逻辑错误。</li>
+                        <li><strong>严重程度参考标准</strong>：
+                            <br>高：影响业务决策的关键字段错误（如销售额、时间逻辑）
+                            <br>中：影响分析准确性的格式/计算问题
+                            <br>低：不影响分析的格式不统一、备注缺失等
+                        </li>
+                        <li><strong>诊断报告不要求长篇大论</strong>，每个要点用 2～3 句话说清楚即可。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div><!-- /进阶 -->
+
+        <footer>
+            数据分析基础 · 模块三 · 3.1 认识数据分类与处理 · 任务书<br>
+            数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+        </footer>
+    </div><!-- /container -->
+
+    <!-- ===== CSV 数据 + 下载逻辑 ===== -->
+    <script>
+        const CSV_DATA = {
+
+            basic: `订单编号,商品名称,销售额（元）,下单日期,订单状态
+ORD-2024-001,快充数据线 Type-C 1m,29.90,2024-03-01,已完成
+ORD-2024-002,充电宝 10000mAh,89.00,2024-03-01,已完成
+ORD-2024-003,手机壳 iPhone15,19.90,2024-03-02,已完成
+ORD-2024-004,快充数据线 Micro,15.90,,已完成
+ORD-2024-005,蓝牙耳机入耳式,129.00,2024-03-03,已完成
+ORD-2024-006,充电宝 20000mAh,149.00,20240303,已完成
+ORD-2024-007,手机壳 华为Mate60,24.90,2024-03-04,已完成
+ORD-2024-008,快充数据线 Type-C 2m,,2024-03-04,已完成
+ORD-2024-009,磁吸无线充电器,59.00,2024/3/5,已完成
+ORD-2024-010,手机支架桌面,22.00,2024-03-05,已完成
+ORD-2024-011,快充数据线 Type-C 1m,-29.90,2024-03-06,已完成
+ORD-2024-012,充电宝 5000mAh,49.00,2024-03-06,已退款
+ORD-2024-013,手机壳 小米14,18.90,2024年3月7日,已完成
+ORD-2024-014,蓝牙耳机头戴式,299.00,2024-03-07,已完成
+ORD-2024-015,快充数据线 Lightning,19.90,,已完成
+ORD-2024-016,充电宝 10000mAh,999999.00,2024-03-08,已完成
+ORD-2024-017,手机壳 iPhone14,19.90,2024-03-08,已完成
+ORD-2024-018,磁吸充电线,35.00,2024/3/9,已完成
+ORD-2024-019,手机支架车载,28.00,2024-03-09,已完成
+ORD-2024-020,快充数据线 Type-C 1m,0.00,2024-03-10,已完成
+ORD-2024-021,充电宝 20000mAh,149.00,2024-03-10,已完成
+ORD-2024-022,蓝牙耳机入耳式,,2024-03-11,已完成
+ORD-2024-023,手机壳 华为P60,22.90,20240311,已完成
+ORD-2024-024,快充数据线 Micro,15.90,2024-03-12,已完成
+ORD-2024-025,磁吸无线充电器,0.00,2024-03-12,已完成`,
+
+            medium: `订单编号,推广渠道,商品类别,销售额（元）,推广花费（元）,下单日期,发货状态
+ORD-2024-101,直通车,数据线,29.90,5.50,2024-03-01,已发货
+ORD-2024-102,超级推荐,充电宝,89.00,12.00,2024-03-01,已发货
+ORD-2024-103,自然搜索,手机壳,19.90,,2024-03-02,已发货
+ORD-2024-104,直通车,数据线,15.90,3.20,2024/3/2,已发货
+ORD-2024-105,直播带货,蓝牙耳机,129.00,18.00,2024-03-03,已发货
+ORD-2024-106,超级推荐,充电宝,,15.00,2024-03-03,已发货
+ORD-2024-107,自然搜索,手机壳,24.90,0.00,20240304,已发货
+ORD-2024-108,直通车,数据线,29.90,5.50,2024-03-04,
+ORD-2024-109,直播带货,蓝牙耳机,199.00,25.00,2024-03-05,已发货
+ORD-2024-110,超级推荐,充电宝,149.00,20.00,2024年3月5日,已发货
+ORD-2024-111,自然搜索,手机壳,-19.90,0.00,2024-03-06,已发货
+ORD-2024-112,直通车,数据线,19.90,3.80,2024-03-06,已发货
+ORD-2024-113,直播带货,蓝牙耳机,99.00,,2024/3/7,未发货
+ORD-2024-114,自然搜索,充电宝,89.00,0.00,2024-03-07,已发货
+ORD-2024-115,直通车,数据线,0.00,4.50,2024-03-08,已发货
+ORD-2024-116,超级推荐,手机壳,22.90,6.00,2024-03-08,已发货
+ORD-2024-117,直播带货,蓝牙耳机,259.00,30.00,2024-03-09,已发货
+ORD-2024-118,自然搜索,数据线,15.90,0.00,20240309,已发货
+ORD-2024-119,直通车,充电宝,49.00,8.00,2024-03-10,待审核
+ORD-2024-120,超级推荐,手机壳,,7.50,2024-03-10,已发货
+ORD-2024-121,直播带货,蓝牙耳机,129.00,20.00,2024-03-11,已发货
+ORD-2024-122,自然搜索,数据线,29.90,0.00,2024-03-11,已发货
+ORD-2024-123,直通车,充电宝,89.00,12.00,2024/3/12,已发货
+ORD-2024-124,超级推荐,手机壳,19.90,5.00,2024-03-12,
+ORD-2024-125,直播带货,蓝牙耳机,99999.00,28.00,2024-03-13,已发货
+ORD-2024-126,自然搜索,数据线,15.90,0.00,2024-03-13,已发货
+ORD-2024-127,直通车,充电宝,149.00,,2024年3月14日,已发货
+ORD-2024-128,超级推荐,手机壳,0.00,6.50,2024-03-14,已发货`,
+
+            hard: `订单编号,商品类别,SKU编码,销售额（元）,退款金额（元）,退款率,下单时间,签收时间,客服备注
+ORD-2024-201,数据线,DXL-BK-1M,29.90,0,0%,2024-03-01 09:15,2024-03-04 14:30,正常
+ORD-2024-202,充电宝,CPB-WH-10K,89.00,0,0%,2024-03-01 10:22,2024-03-05 11:20,正常
+ORD-2024-203,手机壳,PHC-CL-I15,19.90,19.90,100%,2024-03-01 11:05,2024-03-04 16:45,客户投诉
+ORD-2024-204,蓝牙耳机,BTE-BK-IN,129.00,0,0%,2024-03-02 08:30,2024-03-01 17:20,正常
+ORD-2024-205,数据线,DXL-WH-2M,15.90,0,0%,2024-03-02 09:45,2024-03-06 10:15,正常
+ORD-2024-206,充电宝,CPB-BK-20K,149.00,149.00,50%,2024-03-02 13:10,2024-03-07 09:30,退款纠纷
+ORD-2024-207,手机壳,PHC-BK-HW,24.90,0,0%,2024-03-03 10:00,2024-03-07 15:40,正常
+ORD-2024-208,磁吸充电器,MGC-WH-15W,59.00,0,0%,2024-03-03 14:25,,正常
+ORD-2024-209,数据线,DXL-BK-1M,29.90,29.90,100%,2024-03-03 16:00,2024-03-08 11:55,正常
+ORD-2024-210,蓝牙耳机,BTE-WH-OV,299.00,0,0%,2024-03-04 09:10,2024-03-09 14:20,正常
+ORD-2024-211,充电宝,CPB-WH-10K,89.00,89.00,100%,2024-03-04 11:30,2024-03-09 10:05,退款
+ORD-2024-212,手机壳,PHC-CL-I14,19.90,0,0%,2024-03-04 14:00,2024-03-09 16:30,正常
+ORD-2024-213,数据线,DXL-RD-1M,19.90,0,50%,2024-03-05 08:45,2024-03-10 09:20,正常
+ORD-2024-214,磁吸充电器,MGC-BK-20W,79.00,0,0%,2024-03-05 10:20,2024-03-04 13:15,正常
+ORD-2024-215,充电宝,CPB-BK-5K,49.00,0,0%,2024-03-05 13:55,2024-03-11 10:40,正常
+ORD-2024-216,蓝牙耳机,BTE-BK-IN,129.00,129.00,100%,2024-03-06 09:00,2024-03-11 15:25,客户投诉
+ORD-2024-217,手机壳,PHC-BK-MI,18.90,0,0%,2024-03-06 10:35,2024-03-12 11:10,正常
+ORD-2024-218,数据线,DXL-WH-1M,29.90,0,0%,2024-03-06 14:15,,正常
+ORD-2024-219,充电宝,CPB-WH-20K,149.00,149.00,100%,2024-03-07 08:50,2024-03-12 14:35,退款纠纷
+ORD-2024-220,磁吸充电器,MGC-WH-15W,59.00,59.00,100%,2024-03-07 11:20,2024-03-13 09:55,退款
+ORD-2024-221,蓝牙耳机,BTE-WH-IN,199.00,0,0%,2024-03-07 15:00,2024-03-13 16:40,正常
+ORD-2024-222,数据线,DXL-BK-2M,15.90,0,0%,2024-03-08 09:25,2024-03-14 10:20,
+ORD-2024-223,手机壳,PHC-CL-HW,22.90,22.90,100%,2024-03-08 12:40,2024-03-14 15:05,客户投诉
+ORD-2024-224,充电宝,CPB-BK-10K,89.00,0,0%,2024-03-09 08:15,2024-03-15 09:30,正常
+ORD-2024-225,磁吸充电器,MGC-BK-20W,79.00,79.00,100%,2024-03-09 10:50,2024-03-15 14:15,退款
+ORD-2024-226,蓝牙耳机,BTE-BK-OV,259.00,0,0%,2024-03-10 09:05,2024-03-16 11:40,正常
+ORD-2024-227,数据线,DXL-RD-2M,19.90,0,0%,2024-03-10 13:30,2024-03-16 15:55,正常
+ORD-2024-228,手机壳,PHC-BK-I15,24.90,0,0%,2024-03-11 08:45,2024-03-17 10:10,正常
+ORD-2024-229,充电宝,CPB-WH-5K,49.00,49.00,100%,2024-03-11 11:15,2024-03-17 14:45,退款
+ORD-2024-230,磁吸充电器,MGC-WH-10W,0.00,0,0%,2024-03-11 14:55,2024-03-18 09:20,
+ORD-2024-231,蓝牙耳机,BTE-WH-OV,299.00,299.00,100%,2024-03-12 09:30,2024-03-18 13:50,退款纠纷
+ORD-2024-232,数据线,DXL-BK-1M,29.90,0,0%,2024-03-12 11:00,2024-03-19 10:25,正常
+ORD-2024-233,手机壳,PHC-CL-MI,18.90,18.90,100%,2024-03-13 08:20,2024-03-12 15:40,客户投诉
+ORD-2024-234,充电宝,CPB-BK-20K,149.00,0,0%,2024-03-13 10:45,2024-03-20 11:15,正常
+ORD-2024-235,磁吸充电器,MGC-BK-15W,59.00,0,0%,2024-03-14 09:00,2024-03-21 14:30,正常`
+
+        };
+
+        function downloadCSV(level) {
+            const levelName = { basic: '基础', medium: '巩固', hard: '进阶' }[level];
+            const filename = `3.1_数据分类与处理_${levelName}数据.csv`;
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>

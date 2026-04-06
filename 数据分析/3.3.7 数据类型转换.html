@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3.3.7 数据类型转换 · 任务书</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #f4f6f9;
+      color: #2c3e50;
+      line-height: 1.7;
+    }
+
+    /* ===== Banner ===== */
+    .banner {
+      background: linear-gradient(135deg, #37474f 0%, #263238 100%);
+      color: #fff;
+      padding: 36px 48px 28px;
+    }
+    .banner .course-tag {
+      font-size: 12px;
+      letter-spacing: 2px;
+      opacity: .75;
+      margin-bottom: 8px;
+    }
+    .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .banner .subtitle { font-size: 14px; opacity: .85; }
+    .banner .meta {
+      margin-top: 18px;
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-size: 13px; opacity: .9;
+    }
+
+    /* ===== 主体 ===== */
+    .container {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ===== 情景卡片 ===== */
+    .scenario-card {
+      background: #fff;
+      border-left: 5px solid #37474f;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .scenario-card h2 { font-size: 15px; color: #37474f; margin-bottom: 8px; }
+    .scenario-card p { font-size: 14px; }
+
+    /* ===== 知识点速览 ===== */
+    .knowledge-card {
+      background: #eceff1;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      font-size: 13.5px;
+    }
+    .knowledge-card h3 {
+      color: #263238;
+      font-size: 14px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    /* 类型对比卡片 */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin: 14px 0;
+    }
+    .type-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 14px 16px;
+      border-top: 4px solid #37474f;
+    }
+    .type-card .t-name { font-weight: 700; color: #37474f; margin-bottom: 8px; }
+    .type-card .t-issue {
+      background: #ffebee; color: #c62828; padding: 4px 8px;
+      border-radius: 4px; font-size: 12px; margin-bottom: 6px;
+    }
+    .type-card .t-fix {
+      background: #e8f5e9; color: #2e7d32; padding: 4px 8px;
+      border-radius: 4px; font-size: 12px;
+    }
+
+    /* ===== 难度块 ===== */
+    .level-block {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      margin-bottom: 36px;
+      overflow: hidden;
+    }
+    .level-header {
+      display: flex;
+      align-items: center; gap: 14px;
+      padding: 18px 28px; color: #fff;
+    }
+    .level-header.basic  { background: linear-gradient(90deg,#43a047,#66bb6a); }
+    .level-header.medium { background: linear-gradient(90deg,#fb8c00,#ffa726); }
+    .level-header.hard   { background: linear-gradient(90deg,#e53935,#ef5350); }
+    .level-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      background: rgba(255,255,255,.25); padding: 2px 10px; border-radius: 20px;
+    }
+    .level-header h2 { font-size: 18px; font-weight: 700; }
+    .level-header .level-desc { font-size: 13px; opacity: .9; margin-left: auto; }
+
+    .level-body { padding: 24px 28px; }
+
+    /* ===== 下载区 ===== */
+    .download-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; background: #eceff1;
+      border: 1px dashed #b0bec5; border-radius: 8px;
+      padding: 14px 20px; margin-bottom: 24px;
+    }
+    .download-bar .dl-info { font-size: 13px; color: #444; }
+    .btn-download {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #37474f; color: #fff; border: none; border-radius: 6px;
+      padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+
+    /* ===== 通用表格 ===== */
+    .section-title {
+      font-size: 15px; font-weight: 700; color: #2c3e50;
+      border-left: 4px solid #37474f; padding-left: 10px; margin: 22px 0 12px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 16px; }
+    th { background: #eceff1; color: #263238; font-weight: 700; padding: 9px 14px; text-align: left; border: 1px solid #cfd8dc; }
+    td { padding: 8px 14px; border: 1px solid #e0e0e0; }
+
+    .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+    .task-list li {
+      counter-increment: task; display: flex; gap: 12px; margin-bottom: 14px; font-size: 14px;
+    }
+    .task-list li::before {
+      content: counter(task); min-width: 26px; height: 26px;
+      background: #37474f; color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
+    .record-table th { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+
+    .tip-box { border-radius: 8px; padding: 14px 18px; font-size: 13.5px; margin-top: 16px; }
+    .tip-box.green { background: #e8f5e9; border-left: 4px solid #43a047; }
+    .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+
+    code { background: #eceff1; border-radius: 3px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 13px; color: #c62828; }
+    
+    footer { text-align: center; font-size: 12px; color: #999; margin-top: 48px; padding-top: 20px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+  <h1>3.3.7 数据类型转换</h1>
+  <div class="subtitle">解决文本型数字无法求和、科学计数法显示错误等典型格式障碍</div>
+  <div class="meta">
+    <span>📁 配套文件：3.3.7_练习数据.xlsx</span>
+    <span>🎯 三个难度等级</span>
+    <span>🏢 情景：星途电商有限公司 (ERP数据清洗)</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="scenario-card">
+    <h2>📋 背景情景</h2>
+    <p>
+      星途电商有限公司的业务数据存放在旧版 ERP 系统中。由于系统导出机制的问题，下载到 Excel 的数据往往存在"类型错位"：销售额变成了无法计算的文本（带绿三角），长订单号变成了看不懂的科学计数法（1.23E+10），日期也被识别成了普通文本。这些问题直接导致后续的 SUM 求和结果为 0。请协助完成数据标准化转换。
+    </p>
+  </div>
+
+  <div class="knowledge-card">
+    <h3>📖 知识点速览：常见类型障碍</h3>
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="t-name">1. 文本型数字 (带绿三角)</div>
+        <div class="t-issue">❌ 表现：单元格左上角有绿三角，SUM求和为0</div>
+        <div class="t-fix">✅ 修复：点感叹号选"转换为数字"或使用【分列】</div>
+      </div>
+      <div class="type-card">
+        <div class="t-name">2. 科学计数法 (1.2E+10)</div>
+        <div class="t-issue">❌ 表现：超过11位数字自动变形，末尾变0</div>
+        <div class="t-fix">✅ 修复：选中→设置单元格格式→数字(0小数)或特殊(邮政编码)</div>
+      </div>
+      <div class="type-card">
+        <div class="t-name">3. 文本型日期</div>
+        <div class="t-issue">❌ 表现：无法进行日期排序或按月透视</div>
+        <div class="t-fix">✅ 修复：使用【分列】功能，在第三步选"日期:YMD"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 基础 ==================== -->
+  <div class="level-block">
+    <div class="level-header basic">
+      <span class="level-badge">LEVEL 1</span>
+      <h2>基础练习</h2>
+      <span class="level-desc">25条订单 · 处理销售额文本型数字</span>
+    </div>
+    <div class="level-body">
+      <div class="download-bar">
+        <div class="dl-info">📊 <strong>基础数据</strong>：销售额列为文本型，验证SUM结果。</div>
+        <button class="btn-download" onclick="downloadCSV('basic')">下载 CSV 数据</button>
+      </div>
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li>将数据粘贴到 Excel，在销售额底部（C27）尝试输入 <code>=SUM(C2:C26)</code>，观察结果是否为 0。</li>
+        <li>选中 C 列销售额数据，点击单元格旁的黄色感叹号图标，选择<strong>"转换为数字"</strong>。</li>
+        <li>再次观察 C27 的 SUM 结果，确认是否恢复正常。</li>
+        <li>记录转换前后的求和数值。</li>
+      </ol>
+      <div class="section-title">📝 结果记录</div>
+      <table>
+        <tr><th>状态</th><th>SUM(销售额) 结果</th><th>单元格对齐方式(左/右)</th></tr>
+        <tr><td>转换前</td><td></td><td></td></tr>
+        <tr><td>转换后</td><td></td><td></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== 巩固 ==================== -->
+  <div class="level-block">
+    <div class="level-header medium">
+      <span class="level-badge">LEVEL 2</span>
+      <h2>巩固练习</h2>
+      <span class="level-desc">28条数据 · 文本数字 + 科学计数法 + 文本日期</span>
+    </div>
+    <div class="level-body">
+      <div class="download-bar">
+        <div class="dl-info">📊 <strong>巩固数据</strong>：含订单号(变形)、销售额(文本)、下单日期(文本)。</div>
+        <button class="btn-download" onclick="downloadCSV('medium')">下载 CSV 数据</button>
+      </div>
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li><strong>修复订单号</strong>：A列订单号显示为 1.23E+11，请通过"设置单元格格式"恢复其 12 位数字显示。</li>
+        <li><strong>修复销售额</strong>：使用 <code>VALUE</code> 函数在 D 列建立新列转换 C 列的文本数字。</li>
+        <li><strong>修复日期</strong>：选中 E 列日期，通过<strong>【数据】-【分列】</strong>功能，在第三步选择"日期：YMD"，将其转为标准日期。</li>
+        <li>完成下表，验证所有列是否转换成功。</li>
+      </ol>
+      <div class="tip-box orange">
+        <strong>💡 提示：</strong>科学计数法若数值已经丢失（末尾变0），设置格式也无法找回。但在本练习数据中，仅为显示问题，可直接恢复。
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 进阶 ==================== -->
+  <div class="level-block">
+    <div class="level-header hard">
+      <span class="level-badge">LEVEL 3</span>
+      <h2>进阶练习</h2>
+      <span class="level-desc">30条 ERP 原始数据 · 混合障碍转换 (下调难度版)</span>
+    </div>
+    <div class="level-body">
+      <div class="download-bar">
+        <div class="dl-info">📊 <strong>进阶数据</strong>：模拟 ERP 导出，混合了文本数字与文本日期障碍。</div>
+        <button class="btn-download" onclick="downloadCSV('hard')">下载 CSV 数据</button>
+      </div>
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li><strong>识别障碍</strong>：使用 <code>ISNUMBER</code> 函数检测销售额列，记录有多少行是 FALSE（文本）。</li>
+        <li><strong>分列转换法</strong>：对销售额和下单日期两列，分别使用<strong>【分列】</strong>工具完成类型标准化。</li>
+        <li><strong>逻辑验证</strong>：转换后，计算"日均销售额"，若日期和金额任一类型错误，公式将报错。</li>
+        <li><strong>撰写说明</strong>：在 Excel 中简述为何"分列"比手动一个一个点绿三角转换更高效。</li>
+      </ol>
+      <div class="tip-box green">
+        <strong>💡 技巧：</strong>分列功能（Data -> Text to Columns）不仅能拆分文字，其第三步的"列数据格式"是批量转换数据类型的"万能钥匙"。
+      </div>
+    </div>
+  </div>
+
+  <footer>数据分析基础 · 3.3.7 数据类型转换</footer>
+</div>
+
+<script>
+const CSV_DATA = {
+basic: `订单号,商品,销售额\nORD001,数据线,'29.9\nORD002,充电宝,'89.0\nORD003,手机壳,'19.9\nORD004,数据线,'29.9\nORD005,耳机,'129.0\nORD006,数据线,'29.9\nORD007,充电宝,'89.0\nORD008,手机壳,'19.9\nORD009,数据线,'29.9\nORD010,耳机,'129.0\nORD011,数据线,'29.9\nORD012,充电宝,'89.0\nORD013,手机壳,'19.9\nORD014,数据线,'29.9\nORD015,耳机,'129.0\nORD016,数据线,'29.9\nORD017,充电宝,'89.0\nORD018,手机壳,'19.9\nORD019,数据线,'29.9\nORD020,耳机,'129.0\nORD021,数据线,'29.9\nORD022,充电宝,'89.0\nORD023,手机壳,'19.9\nORD024,数据线,'29.9\nORD025,耳机,'129.0`,
+medium: `订单号,商品,销售额,下单日期\n1.2403E+11,数据线,'29.9,20240301\n1.2403E+11,充电宝,'89.0,20240301\n1.2403E+11,手机壳,'19.9,20240302\n1.2403E+11,数据线,'29.9,20240302\n1.2403E+11,耳机,'129.0,20240303\n1.2403E+11,数据线,'29.9,20240303\n1.2403E+11,充电宝,'89.0,20240304\n1.2403E+11,手机壳,'19.9,20240304\n1.2403E+11,数据线,'29.9,20240305\n1.2403E+11,耳机,'129.0,20240305\n1.2403E+11,数据线,'29.9,20240306\n1.2403E+11,充电宝,'89.0,20240306\n1.2403E+11,手机壳,'19.9,20240307\n1.2403E+11,数据线,'29.9,20240307\n1.2403E+11,耳机,'129.0,20240308\n1.2403E+11,数据线,'29.9,20240308\n1.2403E+11,充电宝,'89.0,20240309\n1.2403E+11,手机壳,'19.9,20240309\n1.2403E+11,数据线,'29.9,20240310\n1.2403E+11,耳机,'129.0,20240310\n1.2403E+11,数据线,'29.9,20240311\n1.2403E+11,充电宝,'89.0,20240311\n1.2403E+11,手机壳,'19.9,20240312\n1.2403E+11,数据线,'29.9,20240312\n1.2403E+11,耳机,'129.0,20240313\n1.2403E+11,数据线,'29.9,20240313\n1.2403E+11,充电宝,'89.0,20240314\n1.2403E+11,手机壳,'19.9,20240314`,
+hard: `流水号,商品,金额,下单日期\nSN001,快充线,'35.5,2024/03/01\nSN002,充电宝,'145.0,2024/03/01\nSN003,保护膜,'9.9,2024/03/01\nSN004,支架,'25.0,2024/03/02\nSN005,耳机,'299.0,2024/03/02\nSN006,快充线,'35.5,2024/03/02\nSN007,充电宝,'145.0,2024/03/03\nSN008,保护膜,'9.9,2024/03/03\nSN009,支架,'25.0,2024/03/03\nSN010,耳机,'299.0,2024/03/04\nSN011,快充线,'35.5,2024/03/04\nSN012,充电宝,'145.0,2024/03/04\nSN013,保护膜,'9.9,2024/03/05\nSN014,支架,'25.0,2024/03/05\nSN015,耳机,'299.0,2024/03/05\nSN016,快充线,'35.5,2024/03/06\nSN017,充电宝,'145.0,2024/03/06\nSN018,保护膜,'9.9,2024/03/06\nSN019,支架,'25.0,2024/03/07\nSN020,耳机,'299.0,2024/03/07\nSN021,快充线,'35.5,2024/03/07\nSN022,充电宝,'145.0,2024/03/08\nSN023,保护膜,'9.9,2024/03/08\nSN024,支架,'25.0,2024/03/08\nSN025,耳机,'299.0,2024/03/09\nSN026,快充线,'35.5,2024/03/09\nSN027,充电宝,'145.0,2024/03/09\nSN028,保护膜,'9.9,2024/03/10\nSN029,支架,'25.0,2024/03/10\nSN030,耳机,'299.0,2024/03/10`
+};
+
+function downloadCSV(level) {
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `3.3.7_类型转换_${level}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+</script>
+</body>
+</html>

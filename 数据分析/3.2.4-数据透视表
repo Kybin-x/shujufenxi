@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3.2.4 数据透视表 · 任务书</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #f4f6f9;
+      color: #2c3e50;
+      line-height: 1.7;
+    }
+
+    /* ===== Banner ===== */
+    .banner {
+      background: linear-gradient(135deg, #558b2f 0%, #33691e 100%);
+      color: #fff;
+      padding: 36px 48px 28px;
+    }
+    .banner .course-tag {
+      font-size: 12px;
+      letter-spacing: 2px;
+      opacity: .75;
+      margin-bottom: 8px;
+    }
+    .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .banner .subtitle { font-size: 14px; opacity: .85; }
+    .banner .meta {
+      margin-top: 18px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    /* ===== 主体 ===== */
+    .container {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ===== 情景卡片 ===== */
+    .scenario-card {
+      background: #fff;
+      border-left: 5px solid #558b2f;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .scenario-card h2 { font-size: 15px; color: #558b2f; margin-bottom: 8px; }
+    .scenario-card p { font-size: 14px; }
+
+    /* ===== 知识点速览 ===== */
+    .knowledge-card {
+      background: #f1f8e9;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      font-size: 13.5px;
+    }
+    .knowledge-card h3 {
+      color: #33691e;
+      font-size: 14px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .knowledge-card .warn {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #fff8e1;
+      border-left: 3px solid #ffa000;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #5d4037;
+    }
+
+    /* 透视表四区域示意图 */
+    .pivot-diagram {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 8px;
+      margin: 14px 0;
+      max-width: 500px;
+    }
+    .pivot-zone {
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 13px;
+      text-align: center;
+    }
+    .pivot-zone .zone-name {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .pivot-zone .zone-desc { font-size: 12px; opacity: .85; }
+    .pz-filter  { background: #e3f2fd; border: 2px solid #90caf9; grid-column: 1 / -1; }
+    .pz-filter  .zone-name { color: #0277bd; }
+    .pz-rows    { background: #e8f5e9; border: 2px solid #a5d6a7; }
+    .pz-rows    .zone-name { color: #2e7d32; }
+    .pz-cols    { background: #fff3e0; border: 2px solid #ffcc80; }
+    .pz-cols    .zone-name { color: #e65100; }
+    .pz-values  { background: #fce4ec; border: 2px solid #f48fb1; grid-column: 1 / -1; }
+    .pz-values  .zone-name { color: #880e4f; }
+
+    /* ===== 难度块 ===== */
+    .level-block {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      margin-bottom: 36px;
+      overflow: hidden;
+    }
+    .level-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 28px;
+      color: #fff;
+    }
+    .level-header.basic  { background: linear-gradient(90deg,#43a047,#66bb6a); }
+    .level-header.medium { background: linear-gradient(90deg,#fb8c00,#ffa726); }
+    .level-header.hard   { background: linear-gradient(90deg,#e53935,#ef5350); }
+    .level-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: rgba(255,255,255,.25);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+    .level-header h2 { font-size: 18px; font-weight: 700; }
+    .level-header .level-desc { font-size: 13px; opacity: .9; margin-left: auto; }
+
+    .level-body { padding: 24px 28px; }
+
+    /* ===== 下载区 ===== */
+    .download-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #f1f8e9;
+      border: 1px dashed #aed581;
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+    }
+    .download-bar .dl-info { font-size: 13px; color: #444; }
+    .download-bar .dl-info strong { color: #558b2f; }
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #558b2f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-download:hover { background: #33691e; }
+    .btn-download svg { width: 15px; height: 15px; fill: #fff; }
+
+    /* ===== 透视表配置卡片 ===== */
+    .pivot-config {
+      background: #f8fff0;
+      border: 2px solid #aed581;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 16px 0;
+    }
+    .pivot-config .config-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #33691e;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .config-item {
+      background: #fff;
+      border-radius: 6px;
+      padding: 10px 14px;
+      border-left: 4px solid #558b2f;
+      font-size: 13.5px;
+    }
+    .config-item .ci-zone {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #558b2f;
+      margin-bottom: 4px;
+    }
+    .config-item .ci-field {
+      font-weight: 700;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+    .config-item .ci-note {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+    .config-item.rows  { border-left-color: #2e7d32; }
+    .config-item.rows  .ci-zone { color: #2e7d32; }
+    .config-item.cols  { border-left-color: #e65100; }
+    .config-item.cols  .ci-zone { color: #e65100; }
+    .config-item.vals  { border-left-color: #880e4f; }
+    .config-item.vals  .ci-zone { color: #880e4f; }
+    .config-item.filt  { border-left-color: #0277bd; }
+    .config-item.filt  .ci-zone { color: #0277bd; }
+
+    /* ===== 通用 ===== */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      border-left: 4px solid #558b2f;
+      padding-left: 10px;
+      margin: 22px 0 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-bottom: 16px;
+    }
+    th {
+      background: #f1f8e9;
+      color: #33691e;
+      font-weight: 700;
+      padding: 9px 14px;
+      text-align: left;
+      border: 1px solid #c5e1a5;
+    }
+    td {
+      padding: 8px 14px;
+      border: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+    .task-list li {
+      counter-increment: task;
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      align-items: flex-start;
+    }
+    .task-list li::before {
+      content: counter(task);
+      min-width: 26px;
+      height: 26px;
+      background: #558b2f;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .task-list.orange li::before { background: #fb8c00; }
+    .task-list.red    li::before { background: #e53935; }
+
+    .tip-box {
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13.5px;
+      margin-top: 16px;
+    }
+    .tip-box.green  { background: #e8f5e9; border-left: 4px solid #43a047; }
+    .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+    .tip-box.red    { background: #fce4ec; border-left: 4px solid #e53935; }
+    .tip-box.blue   { background: #e3f2fd; border-left: 4px solid #0277bd; }
+    .tip-box .tip-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .tip-box.green  .tip-title { color: #2e7d32; }
+    .tip-box.orange .tip-title { color: #e65100; }
+    .tip-box.red    .tip-title { color: #b71c1c; }
+    .tip-box.blue   .tip-title { color: #01579b; }
+    .tip-box ul { padding-left: 18px; }
+    .tip-box ul li { margin-bottom: 5px; }
+
+    .step-box {
+      background: #f9fbe7;
+      border: 1px solid #dce775;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+    .step-box .step-title {
+      font-weight: 700;
+      color: #827717;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .step-box ol { padding-left: 20px; }
+    .step-box ol li { margin-bottom: 6px; }
+
+    /* 记录填写表 */
+    .record-table th {
+      background: #e8f5e9;
+      color: #1b5e20;
+      border-color: #a5d6a7;
+    }
+    .record-table.orange th {
+      background: #fff3e0;
+      color: #bf360c;
+      border-color: #ffcc80;
+    }
+    .record-table.red th {
+      background: #fce4ec;
+      color: #880e4f;
+      border-color: #f48fb1;
+    }
+
+    /* 透视表结果预览框 */
+    .pivot-preview {
+      background: #fff;
+      border: 2px solid #c5e1a5;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 14px 0;
+      overflow-x: auto;
+    }
+    .pivot-preview table th {
+      background: #558b2f;
+      color: #fff;
+      border-color: #33691e;
+    }
+    .pivot-preview table th.col-header {
+      background: #7cb342;
+    }
+    .pivot-preview table td {
+      text-align: center;
+    }
+    .pivot-preview table td.row-label {
+      font-weight: 700;
+      background: #f1f8e9;
+      text-align: left;
+    }
+    .pivot-preview table td.total {
+      font-weight: 700;
+      background: #dcedc8;
+    }
+    .pivot-preview .preview-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #558b2f;
+      margin-bottom: 10px;
+    }
+
+    /* 运营问题卡片 */
+    .question-card {
+      background: #fff8f0;
+      border: 1px solid #ffcc80;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+    }
+    .question-card.red {
+      background: #fff8f8;
+      border-color: #ffcdd2;
+    }
+    .question-card .qc-title {
+      font-weight: 700;
+      color: #e65100;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .question-card.red .qc-title { color: #c62828; }
+    .question-card p { font-size: 13.5px; }
+
+    /* 参考Sheet提示 */
+    .ref-sheet-tip {
+      background: #e8eaf6;
+      border-left: 4px solid #3949ab;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin: 14px 0;
+      color: #283593;
+    }
+    .ref-sheet-tip strong { color: #1a237e; }
+
+    code {
+      background: #eceff1;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+      color: #c62828;
+    }
+    .highlight {
+      display: inline-block;
+      background: #fff9c4;
+      border-radius: 3px;
+      padding: 0 5px;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== Banner ===== -->
+<div class="banner">
+  <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+  <h1>3.2.4 数据透视表</h1>
+  <div class="subtitle">快速多维度汇总数据，发现数据背后的规律与趋势</div>
+  <div class="meta">
+    <span>📁 配套文件：3.2.4_练习数据.xlsx</span>
+    <span>🎯 三个难度等级</span>
+    <span>🏢 情景：星途电商有限公司</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 情景 -->
+  <div class="scenario-card">
+    <h2>📋 背景情景</h2>
+    <p>
+      星途电商有限公司每周运营例会上，主管都需要快速查看销售数据的多维度汇总结果，
+      包括各类别、各渠道、各省份的销售表现对比。
+      数据分析员小林发现，使用<strong>数据透视表</strong>可以在几分钟内完成过去需要几十个函数才能实现的汇总分析，
+      还能随时切换分析维度。请跟随小林一起掌握这个强大工具。
+    </p>
+  </div>
+
+  <!-- 知识点速览 -->
+  <div class="knowledge-card">
+    <h3>📖 知识点速览：数据透视表的四个区域</h3>
+    <div class="pivot-diagram">
+      <div class="pivot-zone pz-filter">
+        <div class="zone-name">🔽 筛选器（Filter）</div>
+        <div class="zone-desc">放在此区域的字段会出现在透视表上方，可以像筛选器一样过滤整张透视表的数据</div>
+      </div>
+      <div class="pivot-zone pz-rows">
+        <div class="zone-name">📋 行（Rows）</div>
+        <div class="zone-desc">该字段的每个值成为透视表的一行，通常放分类字段（如商品类别、省份）</div>
+      </div>
+      <div class="pivot-zone pz-cols">
+        <div class="zone-name">📊 列（Columns）</div>
+        <div class="zone-desc">该字段的每个值成为透视表的一列，用于交叉对比（如月份、渠道）</div>
+      </div>
+      <div class="pivot-zone pz-values">
+        <div class="zone-name">🔢 值（Values）</div>
+        <div class="zone-desc">放在此区域的字段会被汇总计算（求和、计数、平均值等），是透视表的核心数据</div>
+      </div>
+    </div>
+    <div class="warn">
+      ⚠️ 操作入口：选中数据区域任意单元格 → 【插入】选项卡 → 【数据透视表】→ 选择放置位置（建议新工作表）→ 确定。
+      之后在右侧"字段列表"中，将字段拖入对应区域即可。
+    </div>
+  </div>
+
+  <!-- 参考Sheet说明 -->
+  <div class="ref-sheet-tip">
+    📌 <strong>关于"参考透视表"Sheet：</strong>
+    练习数据 Excel 文件（3.2.4_练习数据.xlsx）中已预置了一个"参考透视表"Sheet，
+    包含每个难度对应的参考配置结果。
+    建议<strong>先独立完成操作，再对照参考Sheet检验结果</strong>，不要提前查看。
+  </div>
+
+  <!-- ==================== 基础 ==================== -->
+  <div class="level-block">
+    <div class="level-header basic">
+      <span class="level-badge">LEVEL 1</span>
+      <h2>基础练习</h2>
+      <span class="level-desc">适合：第一次操作透视表 · 25条数据 · 按指定配置创建</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>25条订单数据</strong>｜5个字段｜按指定配置方案创建1张透视表
+        </div>
+        <button class="btn-download" onclick="downloadCSV('basic')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+        <tr><td>订单编号</td><td>文本</td><td>唯一订单号</td><td>ORD-2024-001</td></tr>
+        <tr><td>商品类别</td><td>文本</td><td>商品大类，4种</td><td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td></tr>
+        <tr><td>销售省份</td><td>文本</td><td>买家所在省份，5个</td><td>广东 / 浙江 / 北京 / 上海 / 江苏</td></tr>
+        <tr><td>销售额（元）</td><td>数值</td><td>成交金额</td><td>89.00</td></tr>
+        <tr><td>销售数量（件）</td><td>数值</td><td>订单数量</td><td>2</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li>将 CSV 数据粘贴到 <code>3.2.4_练习数据.xlsx</code> 的"数据（基础）"Sheet 中，确保第一行为标题行。</li>
+        <li>按照下方<span class="highlight">指定配置方案</span>，创建一张数据透视表，放置在新工作表中（命名为"透视表-基础"）。</li>
+        <li>设置值区域的汇总方式为<span class="highlight">求和</span>，并将数值格式设置为<span class="highlight">保留2位小数</span>。</li>
+        <li>将透视表结果填写到下方记录表中。</li>
+        <li>与"参考透视表"Sheet 中的基础参考结果进行对照，记录是否一致。</li>
+      </ol>
+
+      <!-- 配置方案 -->
+      <div class="section-title">🎯 指定配置方案</div>
+      <div class="pivot-config">
+        <div class="config-title">📊 透视表配置方案 A：各省份各类别销售额汇总</div>
+        <div class="config-grid">
+          <div class="config-item filt">
+            <div class="ci-zone">🔽 筛选器</div>
+            <div class="ci-field">（不设置）</div>
+            <div class="ci-note">本题无需筛选器</div>
+          </div>
+          <div class="config-item rows">
+            <div class="ci-zone">📋 行</div>
+            <div class="ci-field">商品类别</div>
+            <div class="ci-note">每种类别占一行</div>
+          </div>
+          <div class="config-item cols">
+            <div class="ci-zone">📊 列</div>
+            <div class="ci-field">销售省份</div>
+            <div class="ci-note">每个省份占一列</div>
+          </div>
+          <div class="config-item vals">
+            <div class="ci-zone">🔢 值</div>
+            <div class="ci-field">销售额（元）— 求和</div>
+            <div class="ci-note">汇总方式：求和</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 预期结构说明 -->
+      <div class="section-title">📐 透视表预期结构（创建后应与此结构一致）</div>
+      <div class="pivot-preview">
+        <div class="preview-title">配置方案A 生成结果预览（数值由你完成后填入）</div>
+        <table>
+          <tr>
+            <th>商品类别 \ 销售省份</th>
+            <th class="col-header">北京</th>
+            <th class="col-header">广东</th>
+            <th class="col-header">江苏</th>
+            <th class="col-header">上海</th>
+            <th class="col-header">浙江</th>
+            <th class="col-header">总计</th>
+          </tr>
+          <tr>
+            <td class="row-label">充电宝</td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td class="total"></td>
+          </tr>
+          <tr>
+            <td class="row-label">蓝牙耳机</td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td class="total"></td>
+          </tr>
+          <tr>
+            <td class="row-label">手机壳</td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td class="total"></td>
+          </tr>
+          <tr>
+            <td class="row-label">数据线</td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td class="total"></td>
+          </tr>
+          <tr>
+            <td class="row-label total">总计</td>
+            <td class="total"></td>
+            <td class="total"></td>
+            <td class="total"></td>
+            <td class="total"></td>
+            <td class="total"></td>
+            <td class="total"></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🔧 操作路径提示</div>
+        <ol>
+          <li>点击数据区域任意单元格（如 A1）</li>
+          <li>点击【插入】→【数据透视表】</li>
+          <li>选择"新工作表"→ 点击【确定】</li>
+          <li>在右侧字段列表中：
+            <br>· 将"<strong>商品类别</strong>"拖入【行】区域
+            <br>· 将"<strong>销售省份</strong>"拖入【列】区域
+            <br>· 将"<strong>销售额（元）</strong>"拖入【值】区域
+          </li>
+          <li>点击值区域中的"销售额"下拉 → 值字段设置 → 确认汇总方式为"<strong>求和</strong>"</li>
+          <li>选中值区域 → 右键 → 设置单元格格式 → 数值 → 保留2位小数</li>
+          <li>将新工作表重命名为"透视表-基础"</li>
+        </ol>
+      </div>
+
+      <div class="section-title">📝 结果记录表（将透视表中的数值填入下方）</div>
+      <table class="record-table">
+        <tr>
+          <th>商品类别</th>
+          <th>北京销售额</th>
+          <th>广东销售额</th>
+          <th>江苏销售额</th>
+          <th>上海销售额</th>
+          <th>浙江销售额</th>
+          <th>行总计</th>
+        </tr>
+        <tr><td>充电宝</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>蓝牙耳机</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>手机壳</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>数据线</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td><strong>列总计</strong></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">✏️ 简单分析（填写在 Excel 中）</div>
+      <table class="record-table">
+        <tr><th>问题</th><th>答案（从透视表直接读取数据）</th></tr>
+        <tr><td>① 哪个商品类别的总销售额最高？</td><td></td></tr>
+        <tr><td>② 哪个省份的总销售额最高？</td><td></td></tr>
+        <tr><td>③ 充电宝在哪个省份销售最好？</td><td></td></tr>
+      </table>
+
+      <div class="tip-box green">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li>如果字段列表没有显示，点击透视表区域内任意位置，右侧字段列表会自动出现。</li>
+          <li>拖拽字段时，如果拖错了区域，直接把字段从错误区域拖回字段列表，再重新拖入正确区域。</li>
+          <li>如果透视表中出现"空白"列或行，说明原始数据有空值，返回数据Sheet检查并补全后，右键透视表→"刷新"。</li>
+          <li>透视表中数字显示为整数时，选中数值区域 → 右键 → 数字格式 → 设置为"数值"并保留2位小数。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 巩固 ==================== -->
+  <div class="level-block">
+    <div class="level-header medium">
+      <span class="level-badge">LEVEL 2</span>
+      <h2>巩固练习</h2>
+      <span class="level-desc">适合：熟悉基本操作后 · 30条数据 · 自建2种维度透视表+得出结论</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>30条订单+推广数据</strong>｜7个字段｜创建2种不同维度的透视表并对比分析
+        </div>
+        <button class="btn-download" onclick="downloadCSV('medium')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例</th></tr>
+        <tr><td>订单编号</td><td>文本</td><td>唯一订单号</td><td>ORD-2024-101</td></tr>
+        <tr><td>推广渠道</td><td>文本</td><td>引流来源，4种</td><td>直通车 / 超级推荐 / 直播带货 / 自然搜索</td></tr>
+        <tr><td>商品类别</td><td>文本</td><td>商品大类，4种</td><td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td></tr>
+        <tr><td>销售省份</td><td>文本</td><td>买家省份，5个</td><td>广东 / 浙江 / 北京 / 上海 / 江苏</td></tr>
+        <tr><td>销售额（元）</td><td>数值</td><td>成交金额</td><td>89.00</td></tr>
+        <tr><td>推广花费（元）</td><td>数值</td><td>投放费用</td><td>12.00</td></tr>
+        <tr><td>销售数量（件）</td><td>数值</td><td>订单数量</td><td>2</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list orange">
+        <li>将数据粘贴到"数据（巩固）"Sheet 中。</li>
+        <li>
+          <div>
+            <strong>创建透视表1</strong>：以<span class="highlight">推广渠道</span>为行、
+            <span class="highlight">商品类别</span>为列，
+            值为<span class="highlight">销售额求和</span>，放入新Sheet（命名"透视表-巩固1"）。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>创建透视表2</strong>：以<span class="highlight">商品类别</span>为行，
+            同时在值区域放入<span class="highlight">销售额求和</span>和<span class="highlight">推广花费求和</span>两个指标，
+            放入新Sheet（命名"透视表-巩固2"）。
+          </div>
+        </li>
+        <li>将两张透视表的关键数据填写到下方记录表中。</li>
+        <li>对比两张透视表的结果，得出<span class="highlight">至少1条</span>运营结论，填写到分析区。</li>
+        <li>与"参考透视表"Sheet 中的巩固参考结果对照，检验是否正确。</li>
+      </ol>
+
+      <!-- 透视表1配置 -->
+      <div class="section-title">🎯 透视表1 配置方案</div>
+      <div class="pivot-config">
+        <div class="config-title">📊 渠道×类别 销售额交叉表</div>
+        <div class="config-grid">
+          <div class="config-item rows">
+            <div class="ci-zone">📋 行</div>
+            <div class="ci-field">推广渠道</div>
+            <div class="ci-note">4个渠道各占一行</div>
+          </div>
+          <div class="config-item cols">
+            <div class="ci-zone">📊 列</div>
+            <div class="ci-field">商品类别</div>
+            <div class="ci-note">4个类别各占一列</div>
+          </div>
+          <div class="config-item vals">
+            <div class="ci-zone">🔢 值</div>
+            <div class="ci-field">销售额（元）— 求和</div>
+            <div class="ci-note">汇总方式：求和</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">📝 透视表1 结果���录</div>
+      <table class="record-table orange">
+        <tr>
+          <th>推广渠道 \ 商品类别</th>
+          <th>充电宝</th>
+          <th>蓝牙耳机</th>
+          <th>手机壳</th>
+          <th>数据线</th>
+          <th>行总计</th>
+        </tr>
+        <tr><td>直通车</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>超级推荐</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>直播带货</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>自然搜索</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td><strong>列总计</strong></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </table>
+
+      <!-- 透视表2配置 -->
+      <div class="section-title">🎯 透视表2 配置方案</div>
+      <div class="pivot-config">
+        <div class="config-title">📊 各类别 销售额 vs 推广花费 对比表</div>
+        <div class="config-grid">
+          <div class="config-item rows">
+            <div class="ci-zone">📋 行</div>
+            <div class="ci-field">商品类别</div>
+            <div class="ci-note">4个类别各占一行</div>
+          </div>
+          <div class="config-item cols">
+            <div class="ci-zone">📊 列</div>
+            <div class="ci-field">（不设置）</div>
+            <div class="ci-note">本表不需要列字段</div>
+          </div>
+          <div class="config-item vals">
+            <div class="ci-zone">🔢 值①</div>
+            <div class="ci-field">销售额（元）— 求和</div>
+            <div class="ci-note">第一个值字段</div>
+          </div>
+          <div class="config-item vals">
+            <div class="ci-zone">🔢 值②</div>
+            <div class="ci-field">推广花费（元）— 求和</div>
+            <div class="ci-note">第二个值字段</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">📝 透视表2 结果记录</div>
+      <table class="record-table orange">
+        <tr>
+          <th>商品类别</th>
+          <th>总销售额（元）</th>
+          <th>总推广花费（元）</th>
+          <th>ROI（销售额÷花费，手动计算）</th>
+        </tr>
+        <tr><td>充电宝</td><td></td><td></td><td></td></tr>
+        <tr><td>蓝牙耳机</td><td></td><td></td><td></td></tr>
+        <tr><td>手机壳</td><td></td><td></td><td></td></tr>
+        <tr><td>数据线</td><td></td><td></td><td></td></tr>
+        <tr><td><strong>总计</strong></td><td></td><td></td><td>—</td></tr>
+      </table>
+
+      <div class="section-title">💬 对比分析结论（在 Excel 中填写）</div>
+      <div class="question-card">
+        <div class="qc-title">🔍 根据两张透视表，得出运营结论</div>
+        <table class="record-table orange" style="margin-top:8px;">
+          <tr><th>分析角度</th><th>结论内容（请引用具体数字）</th></tr>
+          <tr><td>① 哪个渠道带来的总销售额最高？</td><td></td></tr>
+          <tr><td>② 哪个类别的 ROI 最高（花最少推广费带来最多销售额）？</td><td></td></tr>
+          <tr><td>③ 综合运营建议（结合两张表的发现，写1条）</td><td></td></tr>
+        </table>
+      </div>
+
+      <div class="tip-box orange">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>在值区域放两个字段</strong>：先将"销售额"拖入值区域，再将"推广花费"也拖入值区域，透视表会自动出现两列。</li>
+          <li><strong>值区域出现"列"字段</strong>：当值区域有多个字段时，Excel 会自动在列区域添加"∑值"字段，这是正常现象。</li>
+          <li><strong>ROI 在透视表中无法直接计算</strong>，需要在记录表中手动用公式计算（= 销售额 ÷ 花费）。</li>
+          <li>创建第二张透视表时，重新选中数据区域 → 插入 → 数据透视表，不要在第一张透视表上修改（会覆盖第一张）。</li>
+          <li>可以对透视表应用<strong>样式</strong>（设计选项卡中选择配色），让结果更直观。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 进阶 ==================== -->
+  <div class="level-block">
+    <div class="level-header hard">
+      <span class="level-badge">LEVEL 3</span>
+      <h2>进阶练习</h2>
+      <span class="level-desc">适合：综合运用阶段 · 35条数据 · 自主设计3张透视表回答运营问题</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>35条综合运营数据</strong>｜8个字段｜自主设计透视表+撰写分析报告
+        </div>
+        <button class="btn-download" onclick="downloadCSV('hard')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>类型</th><th>说明</th></tr>
+        <tr><td>订单编号</td><td>文本</td><td>唯一订单号</td></tr>
+        <tr><td>推广渠道</td><td>文本</td><td>直通车 / 超级推荐 / 直播带货 / 自然搜索</td></tr>
+        <tr><td>商品类别</td><td>文本</td><td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线 / 磁吸充电器</td></tr>
+        <tr><td>销售省份</td><td>文本</td><td>广东 / 浙江 / 北京 / 上海 / 江苏</td></tr>
+        <tr><td>销售额（元）</td><td>数值</td><td>成交金额</td></tr>
+        <tr><td>推广花费（元）</td><td>数值</td><td>投放费用（自然搜索为0）</td></tr>
+        <tr><td>销售数量（件）</td><td>数值</td><td>订单件数</td></tr>
+        <tr><td>是否退款</td><td>文本</td><td>是 / 否</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list red">
+        <li>将数据粘贴到"数据（进阶）"Sheet 中。</li>
+        <li>
+          <div>
+            阅读下方<span class="highlight">3个运营问题</span>，
+            针对每个问题<strong>自主设计透视表配置方案</strong>（行/列/值/筛选器各放什么字段），
+            先填写配置说明，再创建透视表。
+          </div>
+        </li>
+        <li>每张透视表放入单独的 Sheet（命名：透视表-进阶1、进阶2、进阶3）。</li>
+        <li>根据每张透视表的结果，回答对应的运营问题。</li>
+        <li>在新Sheet（命名"分析报告"）中撰写整体分析报告（要求见下方）。</li>
+        <li>与"参考透视表"Sheet 中的进阶参考结果对照。</li>
+      </ol>
+
+      <!-- 三个运营问题 -->
+      <div class="section-title">❓ 三个运营问题</div>
+
+      <div class="question-card red">
+        <div class="qc-title">🔍 运营问题一：各省份对不同商品类别的偏好有何差异？</div>
+        <p>
+          主管想知道：广东、浙江、北京等省份的消费者，
+          在充电宝、蓝牙耳机、手机壳、数据线等品类上的购买偏好是否有明显差异？
+          哪个省份是哪个品类的核心市场？
+        </p>
+      </div>
+
+      <div class="question-card red">
+        <div class="qc-title">🔍 运营问题二：哪个推广渠道在哪个商品类别上效率最高？</div>
+        <p>
+          运营团队想评估：直通车、超级推荐、直播带货各渠道，
+          在推广不同商品类别时，花费和带来的销售额各是多少？
+          哪个渠道+类别的组合最值得加大预算？
+        </p>
+      </div>
+
+      <div class="question-card red">
+        <div class="qc-title">🔍 运营问题三：退款情况集中在哪些渠道或类别？</div>
+        <p>
+          客服主管反映退款较多，想了解：
+          退款订单主要集中在哪个推广渠道？哪个商品类别？
+          是否存在某个渠道+类别组合的退款问题特别突出？
+        </p>
+      </div>
+
+      <!-- 配置设计表 -->
+      <div class="section-title">📝 透视表配置设计表（先填写，再操作）</div>
+      <table class="record-table red">
+        <tr>
+          <th>透视表编号</th>
+          <th>对应问题</th>
+          <th>行区域放什么字段</th>
+          <th>列区域放什么字段</th>
+          <th>值区域放什么字段（汇总方式）</th>
+          <th>筛选器（如需要）</th>
+        </tr>
+        <tr>
+          <td>透视表-进阶1</td>
+          <td>运营问题一</td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td>透视表-进阶2</td>
+          <td>运营问题二</td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td>透视表-进阶3</td>
+          <td>运营问题三</td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+      </table>
+
+      <!-- 结果记录 -->
+      <div class="section-title">📝 各问题分析结论（根据透视表结果填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>运营问题</th>
+          <th>关键发现（须引用透视表中的具体数据）</th>
+          <th>运营建议</th>
+        </tr>
+        <tr>
+          <td>问题一：省份×类别偏好</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>问题二：渠道×类别效率</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>问题三：退款集中分析</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+
+      <!-- 分析报告要求 -->
+      <div class="section-title">📄 分析报告要求（在"分析报告"Sheet 中完成）</div>
+      <table class="record-table red">
+        <tr><th>报告结构</th><th>内容要求</th></tr>
+        <tr>
+          <td>① 数据概况</td>
+          <td>说明本次分析的数据范围（共X条记录、X个类别、X个渠道、X个省份）</td>
+        </tr>
+        <tr>
+          <td>② 核心发现（3条）</td>
+          <td>每条发现必须有透视表数据支撑，格式：
+            "发现：……（数据：……）"</td>
+        </tr>
+        <tr>
+          <td>③ 运营建议（2条）</td>
+          <td>针对发现提出具体可执行的建议，说明针对哪个渠道/类别/省份进行何种调整</td>
+        </tr>
+        <tr>
+          <td>④ 数据局限性说明</td>
+          <td>说明本次数据分析有哪些不足（如数据量少、缺少时间维度等）</td>
+        </tr>
+      </table>
+
+      <div class="tip-box red">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>运营问题三（退款分析）</strong>：将"是否退款"字段放入值区域，汇总方式改为"<strong>计数</strong>"（而非求和），可以统计退款订单数量。</li>
+          <li><strong>筛选器的用法</strong>：将"是否退款"放入筛选器，可以在透视表上方直接切换查看"是"或"否"的数据，方便对比。</li>
+          <li><strong>配置设计要在操作前完成</strong>，先想清楚用哪个字段回答哪个问题，再操作，避免反复修改。</li>
+          <li><strong>透视表中的"计数"</strong>：当值字段是文本型（如"是否退款"）时，Excel 会自动选择计数，数值型字段默认为求和。</li>
+          <li>分析报告不需要很长，重点是<strong>数据支撑要具体</strong>，建议字数控制在200字以内，言简意赅。</li>
+        </ul>
+      </div>
+
+      <div class="tip-box blue">
+        <div class="tip-title">📌 透视表的快捷技巧（选做了解）</div>
+        <ul>
+          <li><strong>切片器（Slicer）</strong>：插入 → 切片器，可以为透视表添加可视化筛选按钮，点击即可切换维度。</li>
+          <li><strong>值显示方式</strong>：右键值区域 → 值显示方式 → "列汇总的百分比"，可直接显示各列占比。</li>
+          <li><strong>排序</strong>：点击行标签旁的下拉箭头，可以按数值大小对透视表行进行排序。</li>
+          <li><strong>钻取明细</strong>：双击透视表中任意数值单元格，Excel 会自动生成该数值对应的明细数据表。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    数据分析基础 · 模块三 · 3.2.4 数据透视表 · 任务书<br>
+    数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+  </footer>
+
+</div>
+
+<!-- ===== CSV 数据 ===== -->
+<script>
+const CSV_DATA = {
+
+basic: `订单编号,商品类别,销售省份,销售额（元）,销售数量（件）
+ORD-2024-001,充电宝,广东,89.00,1
+ORD-2024-002,蓝牙耳机,浙江,129.00,1
+ORD-2024-003,手机壳,广东,19.90,2
+ORD-2024-004,数据线,北京,29.90,2
+ORD-2024-005,充电宝,���海,149.00,1
+ORD-2024-006,蓝牙耳机,广东,299.00,1
+ORD-2024-007,手机壳,江苏,24.90,1
+ORD-2024-008,数据线,广东,15.90,3
+ORD-2024-009,充电宝,浙江,49.00,2
+ORD-2024-010,蓝牙耳机,北京,199.00,1
+ORD-2024-011,手机壳,广东,18.90,3
+ORD-2024-012,数据线,上海,19.90,1
+ORD-2024-013,充电宝,江苏,89.00,1
+ORD-2024-014,蓝牙耳机,广东,99.00,1
+ORD-2024-015,手机壳,浙江,22.90,1
+ORD-2024-016,数据线,广东,29.90,2
+ORD-2024-017,充电宝,北京,149.00,1
+ORD-2024-018,蓝牙耳机,上海,129.00,2
+ORD-2024-019,手机壳,广东,19.90,2
+ORD-2024-020,数据线,江苏,15.90,1
+ORD-2024-021,充电宝,广东,49.00,1
+ORD-2024-022,蓝牙耳机,浙江,259.00,1
+ORD-2024-023,手机壳,北京,24.90,1
+ORD-2024-024,数据线,广东,19.90,2
+ORD-2024-025,充电宝,上海,89.00,1`,
+
+medium: `订单编号,推广渠道,商品类别,销售省份,销售额（元）,推广花费（元）,销售数量（件）
+ORD-2024-101,直通车,充电宝,广东,89.00,12.00,1
+ORD-2024-102,超级推荐,蓝牙耳机,浙江,299.00,35.00,1
+ORD-2024-103,直播带货,手机壳,广东,59.00,18.00,3
+ORD-2024-104,自然搜索,数据线,北京,29.90,0.00,2
+ORD-2024-105,直通车,蓝牙耳机,上海,199.00,28.00,1
+ORD-2024-106,超级推荐,充电宝,江苏,149.00,22.00,1
+ORD-2024-107,直播带货,数据线,广东,49.90,12.00,3
+ORD-2024-108,自然搜索,手机壳,浙江,19.90,0.00,2
+ORD-2024-109,直通车,手机壳,广东,29.90,6.00,2
+ORD-2024-110,超级推荐,数据线,北京,39.90,9.00,2
+ORD-2024-111,直播带货,充电宝,上海,89.00,20.00,1
+ORD-2024-112,自然搜索,蓝牙耳机,江苏,129.00,0.00,1
+ORD-2024-113,直通车,数据线,广东,29.90,7.00,2
+ORD-2024-114,超级推荐,手机壳,浙江,24.90,7.00,1
+ORD-2024-115,直播带货,蓝牙耳机,广东,329.00,45.00,1
+ORD-2024-116,自然搜索,充电宝,北京,49.00,0.00,1
+ORD-2024-117,直通车,充电宝,上海,149.00,20.00,1
+ORD-2024-118,超级推荐,蓝牙耳机,江苏,199.00,30.00,1
+ORD-2024-119,直播带货,手机壳,广东,49.90,15.00,3
+ORD-2024-120,自然搜索,数据线,浙江,19.90,0.00,1
+ORD-2024-121,直通车,蓝牙耳机,广东,259.00,32.00,1
+ORD-2024-122,超级推荐,充电宝,北京,89.00,15.00,1
+ORD-2024-123,直播带货,数据线,上海,29.90,10.00,2
+ORD-2024-124,自然搜索,手机壳,江苏,22.90,0.00,2
+ORD-2024-125,直通车,手机壳,广东,19.90,5.00,2
+ORD-2024-126,超级推荐,数据线,浙江,29.90,8.00,2
+ORD-2024-127,直播带货,充电宝,广东,149.00,25.00,1
+ORD-2024-128,自然搜索,蓝牙耳机,北京,99.00,0.00,1
+ORD-2024-129,直通车,数据线,江苏,49.90,8.00,3
+ORD-2024-130,超级推荐,手机壳,广东,24.90,7.00,1`,
+
+hard: `订单编号,推广渠道,商品类别,销售省份,销售额（元）,推广花费（元）,销售数量（件）,是否退款
+ORD-2024-201,直通车,充电宝,广东,89.00,12.00,1,否
+ORD-2024-202,超级推荐,蓝牙耳机,浙江,299.00,35.00,1,否
+ORD-2024-203,直播带货,手机壳,广东,59.00,18.00,3,否
+ORD-2024-204,自然搜索,数据线,北京,29.90,0.00,2,否
+ORD-2024-205,直通车,磁吸充电器,上海,79.00,15.00,1,否
+ORD-2024-206,超级推荐,充电宝,江苏,149.00,22.00,1,否
+ORD-2024-207,直播带货,蓝牙耳机,广东,199.00,28.00,1,是
+ORD-2024-208,自然搜索,手机壳,浙江,19.90,0.00,2,否
+ORD-2024-209,直通车,数据线,广东,49.90,8.00,3,否
+ORD-2024-210,超级推荐,磁吸充电器,北京,99.00,18.00,1,否
+ORD-2024-211,直播带货,充电宝,上海,89.00,20.00,1,否
+ORD-2024-212,自然搜索,蓝牙耳机,江苏,129.00,0.00,1,否
+ORD-2024-213,直通车,手机壳,广东,29.90,6.00,2,否
+ORD-2024-214,超级推荐,数据线,浙江,39.90,9.00,2,是
+ORD-2024-215,直播带货,磁吸充电器,广东,79.00,22.00,1,否
+ORD-2024-216,自然搜索,充电宝,北京,49.00,0.00,1,否
+ORD-2024-217,直通车,蓝牙耳机,上海,259.00,32.00,1,否
+ORD-2024-218,超级推荐,手机壳,江苏,24.90,7.00,1,否
+ORD-2024-219,直播带货,数据线,广东,29.90,10.00,2,否
+ORD-2024-220,自然搜索,磁吸充电器,浙江,59.00,0.00,1,否
+ORD-2024-221,直通车,充电宝,广东,149.00,20.00,1,是
+ORD-2024-222,超级推荐,蓝牙耳机,北京,199.00,30.00,1,否
+ORD-2024-223,直播带货,手机壳,上海,49.90,15.00,3,否
+ORD-2024-224,自然搜索,数据线,江苏,19.90,0.00,1,否
+ORD-2024-225,直通车,磁吸充电器,广东,99.00,18.00,1,否
+ORD-2024-226,超级推荐,充电宝,浙江,89.00,15.00,1,否
+ORD-2024-227,直播带货,蓝牙耳机,广东,329.00,45.00,1,否
+ORD-2024-228,自然搜索,手机壳,北京,22.90,0.00,2,是
+ORD-2024-229,直通车,数据线,上海,29.90,7.00,2,否
+ORD-2024-230,超级推荐,磁吸充电器,江苏,79.00,16.00,1,否
+ORD-2024-231,直播带货,充电宝,广东,149.00,25.00,1,否
+ORD-2024-232,自然搜索,蓝牙耳机,浙江,99.00,0.00,1,否
+ORD-2024-233,直通车,手机壳,广东,19.90,5.00,2,否
+ORD-2024-234,超级推荐,数据线,北京,29.90,8.00,2,是
+ORD-2024-235,直播带货,磁吸充电器,上海,99.00,28.00,1,否`
+
+};
+
+function downloadCSV(level) {
+  const nameMap = {
+    basic:  '基础_订单数据',
+    medium: '巩固_订单推广数据',
+    hard:   '进阶_综合运营数据'
+  };
+  const filename = `3.2.4_数据透视表_${nameMap[level]}.csv`;
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + CSV_DATA[level]], {
+    type: 'text/csv;charset=utf-8;'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

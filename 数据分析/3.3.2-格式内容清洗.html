@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.3.2 格式内容清洗 · 任务书</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            line-height: 1.7;
+        }
+
+        /* ===== Banner ===== */
+        .banner {
+            background: linear-gradient(135deg, #ad1457 0%, #880e4f 100%);
+            color: #fff;
+            padding: 36px 48px 28px;
+        }
+
+        .banner .course-tag {
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: .75;
+            margin-bottom: 8px;
+        }
+
+        .banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .banner .subtitle {
+            font-size: 14px;
+            opacity: .85;
+        }
+
+        .banner .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        /* ===== 主体 ===== */
+        .container {
+            max-width: 980px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ===== 情景卡片 ===== */
+        .scenario-card {
+            background: #fff;
+            border-left: 5px solid #ad1457;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+        }
+
+        .scenario-card h2 {
+            font-size: 15px;
+            color: #ad1457;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card p {
+            font-size: 14px;
+        }
+
+        /* ===== 知识点速览 ===== */
+        .knowledge-card {
+            background: #fce4ec;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+        }
+
+        .knowledge-card h3 {
+            color: #880e4f;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .knowledge-card .warn {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #fff8e1;
+            border-left: 3px solid #ffa000;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #5d4037;
+        }
+
+        /* 问题类型卡片 */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .problem-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px 16px;
+            border-top: 4px solid #ad1457;
+            font-size: 13px;
+        }
+
+        .problem-card .p-name {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #880e4f;
+        }
+
+        .problem-card .p-before {
+            background: #ffebee;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: #c62828;
+            margin-bottom: 4px;
+        }
+
+        .problem-card .p-after {
+            background: #e8f5e9;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: #2e7d32;
+        }
+
+        .problem-card .p-method {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* ===== 难度块 ===== */
+        .level-block {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 28px;
+            color: #fff;
+        }
+
+        .level-header.basic {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .level-header.medium {
+            background: linear-gradient(90deg, #fb8c00, #ffa726);
+        }
+
+        .level-header.hard {
+            background: linear-gradient(90deg, #e53935, #ef5350);
+        }
+
+        .level-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, .25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .level-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .level-header .level-desc {
+            font-size: 13px;
+            opacity: .9;
+            margin-left: auto;
+        }
+
+        .level-body {
+            padding: 24px 28px;
+        }
+
+        /* ===== 下载区 ===== */
+        .download-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #fce4ec;
+            border: 1px dashed #f48fb1;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+
+        .download-bar .dl-info {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .download-bar .dl-info strong {
+            color: #ad1457;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ad1457;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-download:hover {
+            background: #880e4f;
+        }
+
+        .btn-download svg {
+            width: 15px;
+            height: 15px;
+            fill: #fff;
+        }
+
+        /* ===== 通用 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-left: 4px solid #ad1457;
+            padding-left: 10px;
+            margin: 22px 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        th {
+            background: #fce4ec;
+            color: #880e4f;
+            font-weight: 700;
+            padding: 9px 14px;
+            text-align: left;
+            border: 1px solid #f48fb1;
+        }
+
+        td {
+            padding: 8px 14px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .task-list {
+            padding-left: 0;
+            list-style: none;
+            counter-reset: task;
+        }
+
+        .task-list li {
+            counter-increment: task;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            align-items: flex-start;
+        }
+
+        .task-list li::before {
+            content: counter(task);
+            min-width: 26px;
+            height: 26px;
+            background: #ad1457;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .task-list.orange li::before {
+            background: #fb8c00;
+        }
+
+        .task-list.red li::before {
+            background: #e53935;
+        }
+
+        .tip-box {
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            margin-top: 16px;
+        }
+
+        .tip-box.green {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+
+        .tip-box.orange {
+            background: #fff3e0;
+            border-left: 4px solid #fb8c00;
+        }
+
+        .tip-box.red {
+            background: #fce4ec;
+            border-left: 4px solid #e53935;
+        }
+
+        .tip-box.blue {
+            background: #e3f2fd;
+            border-left: 4px solid #0277bd;
+        }
+
+        .tip-box .tip-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tip-box.green .tip-title {
+            color: #2e7d32;
+        }
+
+        .tip-box.orange .tip-title {
+            color: #e65100;
+        }
+
+        .tip-box.red .tip-title {
+            color: #b71c1c;
+        }
+
+        .tip-box.blue .tip-title {
+            color: #01579b;
+        }
+
+        .tip-box ul {
+            padding-left: 18px;
+        }
+
+        .tip-box ul li {
+            margin-bottom: 5px;
+        }
+
+        /* 记录填写表 */
+        .record-table th {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
+        }
+
+        .record-table.orange th {
+            background: #fff3e0;
+            color: #bf360c;
+            border-color: #ffcc80;
+        }
+
+        .record-table.red th {
+            background: #fce4ec;
+            color: #880e4f;
+            border-color: #f48fb1;
+        }
+
+        /* 前后对比展示 */
+        .compare-box {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .compare-box .cb-before {
+            background: #ffebee;
+            border-radius: 6px;
+            padding: 10px 14px;
+        }
+
+        .compare-box .cb-before .cb-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #c62828;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .compare-box .cb-after {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 10px 14px;
+        }
+
+        .compare-box .cb-after .cb-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .compare-box .cb-arrow {
+            font-size: 22px;
+            color: #ad1457;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .compare-box .cb-value {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* 操作步骤盒 */
+        .step-box {
+            background: #f9fbe7;
+            border: 1px solid #dce775;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .step-box .step-title {
+            font-weight: 700;
+            color: #827717;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .step-box ol {
+            padding-left: 20px;
+        }
+
+        .step-box ol li {
+            margin-bottom: 6px;
+        }
+
+        /* 清洗日志表 */
+        .log-table th {
+            background: #e8eaf6;
+            color: #1a237e;
+            border-color: #9fa8da;
+        }
+
+        /* 函数速查 */
+        .func-inline {
+            display: inline-block;
+            background: #e8eaf6;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            color: #1a237e;
+            margin: 2px;
+        }
+
+        code {
+            background: #eceff1;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c62828;
+        }
+
+        .highlight {
+            display: inline-block;
+            background: #fff9c4;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        /* 问题标签 */
+        .tag-date {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #0277bd;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .tag-space {
+            display: inline-block;
+            background: #f3e5f5;
+            color: #6a1b9a;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .tag-money {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .tag-name {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .tag-error {
+            display: inline-block;
+            background: #ffebee;
+            color: #c62828;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Banner ===== -->
+    <div class="banner">
+        <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+        <h1>3.3.2 格式内容清洗</h1>
+        <div class="subtitle">统一日期格式 · 去除多余空格 · 规范金额与商品名称 · 处理错误值</div>
+        <div class="meta">
+            <span>📁 配套文件：3.3.2_练习数据.xlsx</span>
+            <span>🎯 三个难度等级</span>
+            <span>🏢 情景：星途电商有限公司</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 情景 -->
+        <div class="scenario-card">
+            <h2>📋 背景情景</h2>
+            <p>
+                星途电商有限公司每月从各平台导出销售订单数据，
+                由于不同平台的导出格式不同、不同操作人员录入习惯各异，
+                数据中常常出现日期格式混乱、商品名称前后有空格、金额带单位符号等问题，
+                导致函数计算出错、排序不准确。
+                数据助理小何需要在正式分析前完成数据格式的全面清洗。
+                请协助小何完成各难度的格式清洗任务。
+            </p>
+        </div>
+
+        <!-- 知识点速览 -->
+        <div class="knowledge-card">
+            <h3>📖 知识点速览：常见格式问题与清洗方法</h3>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="p-name">📅 日期格式不统一</div>
+                    <div class="p-before">❌ 2024/3/15 / 20240315 / 2024年3月15日</div>
+                    <div class="p-after">✓ 2024-03-15</div>
+                    <div class="p-method">方法：选中列→设置单元格格式→日期→选择标准格式</div>
+                </div>
+                <div class="problem-card">
+                    <div class="p-name">🔲 多余空格</div>
+                    <div class="p-before">❌ " 快充数据线 " / "手 机 壳"</div>
+                    <div class="p-after">✓ "快充数据线" / "手机壳"</div>
+                    <div class="p-method">方法：=TRIM(A2) 去除首尾和多余中间空格</div>
+                </div>
+                <div class="problem-card">
+                    <div class="p-name">💰 金额格式问题</div>
+                    <div class="p-before">❌ "¥89.00" / "89元" / "89,00"</div>
+                    <div class="p-after">✓ 89.00（纯数值）</div>
+                    <div class="p-method">方法：查找替换去除符号，或用VALUE()转换</div>
+                </div>
+                <div class="problem-card">
+                    <div class="p-name">🔤 大小写/全半角</div>
+                    <div class="p-before">❌ "type-c" / "TYPE-C" / "Ｔｙｐｅ－Ｃ"（全角）</div>
+                    <div class="p-after">✓ "Type-C"</div>
+                    <div class="p-method">方法：PROPER()/UPPER()/LOWER() 或查找替换</div>
+                </div>
+                <div class="problem-card">
+                    <div class="p-name">⚠️ 错误值 #DIV/0!</div>
+                    <div class="p-before">❌ =B2/C2 → #DIV/0!（除以0报错）</div>
+                    <div class="p-after">✓ =IFERROR(B2/C2, "--")</div>
+                    <div class="p-method">方法：用IFERROR()包裹原公式，指定出错时的替代值</div>
+                </div>
+                <div class="problem-card">
+                    <div class="p-name">📝 省份/类别名称不统一</div>
+                    <div class="p-before">❌ "广东省" vs "广东" / "手机保护壳" vs "手机壳"</div>
+                    <div class="p-after">✓ 统一为标准名称</div>
+                    <div class="p-method">方法：查找替换（Ctrl+H）批量修改</div>
+                </div>
+            </div>
+            <div class="warn">
+                ⚠️ 清洗原则：<strong>不要直接修改原始数据列</strong>，
+                建议在旁边新增"清洗后"列，用函数处理后再复制→选择性粘贴（仅值）覆盖，
+                或保留原始列备份。
+            </div>
+        </div>
+
+        <!-- ==================== 基础 ==================== -->
+        <div class="level-block">
+            <div class="level-header basic">
+                <span class="level-badge">LEVEL 1</span>
+                <h2>基础练习</h2>
+                <span class="level-desc">适合：第一次格式清洗 · 25条数据 · 日期3种格式+商品名空格</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>25条订单数据</strong>｜5个字段｜
+                        日期3种格式混用 + 商品名称含首尾空格
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('basic')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列位置</th>
+                        <th>正常格式</th>
+                        <th>存在的格式问题</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A列</td>
+                        <td>ORD-2024-001</td>
+                        <td>无问题</td>
+                    </tr>
+                    <tr>
+                        <td>商品名称</td>
+                        <td>B列</td>
+                        <td>快充数据线 Type-C 1m</td>
+                        <td><span class="tag-space">首尾空格</span> 部分商品名称前后有空格</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>C列</td>
+                        <td>89.00</td>
+                        <td>无问题（已为数值）</td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>D列</td>
+                        <td>2024-03-15</td>
+                        <td>
+                            <span class="tag-date">3种日期格式</span>
+                            混用：2024-03-15 / 2024/3/15 / 2024年3月15日
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>订单状态</td>
+                        <td>E列</td>
+                        <td>已完成</td>
+                        <td>无问题</td>
+                    </tr>
+                </table>
+
+                <!-- 格式问题预览 -->
+                <div class="section-title">🔍 格式问题示例（清洗前 vs 清洗后）</div>
+                <div class="compare-box">
+                    <div class="cb-before">
+                        <div class="cb-label">❌ 清洗前（日期格式混乱）</div>
+                        <div class="cb-value">
+                            2024-03-01<br>
+                            2024/3/2<br>
+                            2024年3月3日<br>
+                            20240304<br>
+                            2024-03-05
+                        </div>
+                    </div>
+                    <div class="cb-arrow">→</div>
+                    <div class="cb-after">
+                        <div class="cb-label">✓ 清洗后（统一标准格式）</div>
+                        <div class="cb-value">
+                            2024-03-01<br>
+                            2024-03-02<br>
+                            2024-03-03<br>
+                            2024-03-04<br>
+                            2024-03-05
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compare-box">
+                    <div class="cb-before">
+                        <div class="cb-label">❌ 清洗前（商品名含空格）</div>
+                        <div class="cb-value">
+                            " 快充数据线 Type-C 1m "<br>
+                            "充电宝 10000mAh"（正常）<br>
+                            " 手机壳 iPhone15"<br>
+                            "蓝牙耳机 入耳式 "<br>
+                        </div>
+                    </div>
+                    <div class="cb-arrow">→</div>
+                    <div class="cb-after">
+                        <div class="cb-label">✓ 清洗后（去除多余空格）</div>
+                        <div class="cb-value">
+                            "快充数据线 Type-C 1m"<br>
+                            "充电宝 10000mAh"<br>
+                            "手机壳 iPhone15"<br>
+                            "蓝牙耳机 入耳式"<br>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>将数据粘贴到"数据（基础）"Sheet，<strong>不要修改原始列</strong>，在 F 列新建"商品名称（清洗后）"，在 G 列新建"下单日期（清洗后）"。</li>
+                    <li>
+                        <div>
+                            <strong>清洗商品名称</strong>：在 F2 输入公式 <code>=TRIM(B2)</code>，
+                            向下填充到 F26，去除所有首尾及多余空格。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>清洗日期格式</strong>：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>对于"2024/3/15"格式：选中该列 → 设置单元格格式 → 日期 → 选择"2012-03-14"样式</li>
+                                <li>对于"2024年3月15日"格式：查找替换（Ctrl+H），将"年"替换为"-"，"月"替换为"-"，"日"替换为""</li>
+                                <li>对于"20240315"格式（8位数字）：需用 TEXT+MID 函数组合转换，在 G 列写公式</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>完成清洗后，验证结果：G 列所有日期应能正确参与排序（按升序排列验证）。</li>
+                    <li>将清洗操作记录填入下方操作记录表。</li>
+                </ol>
+
+                <div class="step-box">
+                    <div class="step-title">🔧 日期清洗操作路径</div>
+                    <ol>
+                        <li><strong>格式统一（斜线日期）</strong>：选中 D 列 → 右键 → 设置单元格格式
+                            → 数字 → 日期 → 选择"2012-03-14"→ 确定</li>
+                        <li><strong>中文日期转换</strong>：Ctrl+H → 查找"年"→ 替换为"-"→ 全部替换；
+                            再次查找"月"→ 替换为"-"→ 全部替换；
+                            再次查找"日"→ 替换为""→ 全部替换</li>
+                        <li><strong>纯数字日期（如20240315）转换</strong>：
+                            在 G 列辅助列输入：
+                            <code>=TEXT(D2,"0000-00-00")</code>（若为数值型）
+                            或 <code>=LEFT(D2,4)&"-"&MID(D2,5,2)&"-"&RIGHT(D2,2)</code>（若为文本型）
+                        </li>
+                        <li>全部处理完成后，选中 G 列 → 复制 → 选择性粘贴（仅值）→ 粘贴到 D 列</li>
+                    </ol>
+                </div>
+
+                <div class="section-title">📝 操作记录表（在 Excel 中填写）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>清洗项目</th>
+                        <th>问题描述</th>
+                        <th>涉及行数</th>
+                        <th>使用方法</th>
+                        <th>操作路径</th>
+                        <th>验证方式</th>
+                    </tr>
+                    <tr>
+                        <td>商品名称去空格</td>
+                        <td></td>
+                        <td></td>
+                        <td>TRIM函数</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>斜线日期统一</td>
+                        <td>2024/3/15格式</td>
+                        <td></td>
+                        <td>设置单元格格式</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>中文日期转换</td>
+                        <td>2024年3月15日格式</td>
+                        <td></td>
+                        <td>查找替换</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>纯数字日期转换</td>
+                        <td>20240315格式</td>
+                        <td></td>
+                        <td>TEXT函数/MID函数</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✏️ 验证问题（在 Excel 中回答）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>验证问题</th>
+                        <th>回答</th>
+                    </tr>
+                    <tr>
+                        <td>① 清洗前用 TRIM 去空格，为什么不直接在原列操作？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>② 日期列清洗完成后，按升序排列，日期顺序是否正确？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>③ 如果日期格式不统一，用 COUNTIF 统计某月订单数会有什么问题？</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box green">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>TRIM 函数</strong>：只去除首尾空格和单词间多余空格（保留单词间一个空格），不能去除字符串中间所有空格。
+                            如需去除所有空格，用 <code>=SUBSTITUTE(B2," ","")</code>。</li>
+                        <li><strong>判断日期是否真正为日期格式</strong>：选中单元格，若左下角显示的是日期（如"2024-3-15"），
+                            说明 Excel 识别为日期；若显示为数字（如45366），也是日期（Excel内部日期存储为数字）；
+                            若显示为文本，则需要转换。</li>
+                        <li><strong>选择性粘贴（仅值）</strong>：复制公式结果 → 在目标单元格右键
+                            → 选择性粘贴 → 勾选"值"→ 确定。这样可以把公式结果转为静态数值。</li>
+                        <li>如果部分日期处理完后仍显示为文本（左对齐），
+                            可选中该列 → 数据 → 分列 → 直接点完成，强制让 Excel 重新识别格式。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 巩固 ==================== -->
+        <div class="level-block">
+            <div class="level-header medium">
+                <span class="level-badge">LEVEL 2</span>
+                <h2>巩固练习</h2>
+                <span class="level-desc">适合：熟悉基本操作后 · 28条数据 · 多字段格式问题+验证清洗结果</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>28条订单数据</strong>｜6个字段｜
+                        日期/省份/金额/商品名四类格式问题同时存在
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('medium')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明及问题清单</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>标准格式</th>
+                        <th>存在的格式问题</th>
+                        <th>问题数量</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A</td>
+                        <td>ORD-2024-101</td>
+                        <td>无问题</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>商品名称</td>
+                        <td>B</td>
+                        <td>快充数据线 Type-C 1m</td>
+                        <td>
+                            <span class="tag-space">首尾空格</span>
+                            <span class="tag-name">大小写不统一</span>
+                            （如 type-c / TYPE-C）
+                        </td>
+                        <td>约8行</td>
+                    </tr>
+                    <tr>
+                        <td>销售省份</td>
+                        <td>C</td>
+                        <td>广东</td>
+                        <td>
+                            <span class="tag-name">带"省"字</span>
+                            （如"广东省""浙江省"）
+                        </td>
+                        <td>约6行</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>D</td>
+                        <td>89.00（纯数值）</td>
+                        <td>
+                            <span class="tag-money">带¥符号</span>
+                            <span class="tag-money">带"元"字</span>
+                            （如"¥89.00""89元"）
+                        </td>
+                        <td>约8行</td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>E</td>
+                        <td>2024-03-15</td>
+                        <td>
+                            <span class="tag-date">斜线格式</span>
+                            <span class="tag-date">中文格式</span>
+                            <span class="tag-date">8位数字</span>
+                        </td>
+                        <td>约10行</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>F</td>
+                        <td>直通车</td>
+                        <td>无问题</td>
+                        <td>—</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list orange">
+                    <li>将数据粘贴到"数据（巩固）"Sheet，先统计各字段的格式问题数量，填入问题统计表。</li>
+                    <li>
+                        <div>
+                            <strong>清洗商品名称</strong>：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>去除首尾空格：<code>=TRIM(B2)</code></li>
+                                <li>统一 Type-C 大小写：使用查找替换，将"type-c""TYPE-C"统一替换为"Type-C"</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>清洗省份名称</strong>：使用查找替换（Ctrl+H），
+                            将"广东省"替换为"广东"，"浙江省"替换为"浙江"，依此类推。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>清洗销售额</strong>：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>去除"¥"符号：查找替换，将"¥"替换为""（空）</li>
+                                <li>去除"元"字：查找替换，将"元"替换为""（空）</li>
+                                <li>转换为数值：用 <code>=VALUE(D2)</code> 函数，或数据→分列→完成</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>清洗下单日期（方法同基础练习，参考操作路径提示）。</li>
+                    <li>
+                        <div>
+                            <strong>验证清洗结果</strong>：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>对销售额列用 SUM 函数求和，若结果正确（非0）说明已转为数值</li>
+                                <li>对日期列按升序排序，验证顺序是否正确</li>
+                                <li>对省份列用 COUNTIF 统计"广东"的数量，确认无"广东省"残留</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>完成所有清洗后，填写清洗结果验证表。</li>
+                </ol>
+
+                <div class="section-title">📝 问题统计表（Step 1 先统计）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>字段名</th>
+                        <th>格式问题类型</th>
+                        <th>问题行数</th>
+                        <th>清洗方法</th>
+                        <th>清洗后验证方式</th>
+                    </tr>
+                    <tr>
+                        <td>商品名称</td>
+                        <td><span class="tag-space">空格</span> <span class="tag-name">大小写</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>销售省份</td>
+                        <td><span class="tag-name">带"省"字</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>销售额</td>
+                        <td><span class="tag-money">带符号/单位</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td><span class="tag-date">格式不统一</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">📝 清洗结果验证表（清洗完成后填写）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>验证项目</th>
+                        <th>验证方法（公式或操作）</th>
+                        <th>验证结果</th>
+                        <th>是否通过</th>
+                    </tr>
+                    <tr>
+                        <td>销售额可正常求和</td>
+                        <td><code>=SUM(D2:D29)</code></td>
+                        <td></td>
+                        <td>☐ 通过 ☐ 未通过</td>
+                    </tr>
+                    <tr>
+                        <td>日期可正常排序</td>
+                        <td>按E列升序排序，检查顺序</td>
+                        <td></td>
+                        <td>☐ 通过 ☐ 未通过</td>
+                    </tr>
+                    <tr>
+                        <td>省份无"省"字残留</td>
+                        <td><code>=COUNTIF(C2:C29,"*省*")</code></td>
+                        <td></td>
+                        <td>☐ 通过 ☐ 未通过</td>
+                    </tr>
+                    <tr>
+                        <td>商品名无首尾空格</td>
+                        <td><code>=COUNTIF(B2:B29," *")</code></td>
+                        <td></td>
+                        <td>☐ 通过 ☐ 未通过</td>
+                    </tr>
+                </table>
+
+                <div class="tip-box orange">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>销售额带"¥"符号后无法求和</strong>：因为带符号的数字被存储为文本。
+                            查找替换去除符号后，如果 SUM 仍为 0，还需要用 <code>=VALUE()</code> 转换，
+                            或选中列→数据→分列→完成，强制转为数值型。</li>
+                        <li><strong>查找替换的注意事项</strong>：查找"元"时，如果商品名称中含有"元"字（如"万元充电宝"），
+                            会被一起替换。建议勾选"单元格匹配"选项，或只选中销售额列再执行替换。</li>
+                        <li><strong>省份统一的快捷方式</strong>：如果省份种类较多，可以用
+                            <code>=SUBSTITUTE(C2,"省","")</code> 函数一次性去除所有"省"字，
+                            比逐个查找替换更高效。
+                        </li>
+                        <li><strong>验证时发现未通过</strong>：重新检查该字段是否有遗漏的格式问题，
+                            用"查找"功能（Ctrl+F）搜索残留的符号或文字。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 进阶 ==================== -->
+        <div class="level-block">
+            <div class="level-header hard">
+                <span class="level-badge">LEVEL 3</span>
+                <h2>进阶练习</h2>
+                <span class="level-desc">适合：综合运用阶段 · 32条数据 · 含错误值+多类型格式问题+撰写清洗日志</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>32条推广数据</strong>｜8个字段｜
+                        含 #DIV/0! 错误值 + 多字段格式问题 + 需IFERROR处理
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('hard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明及问题清单</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>标准格式</th>
+                        <th>存在的问题</th>
+                    </tr>
+                    <tr>
+                        <td>记录编号</td>
+                        <td>A</td>
+                        <td>ADV-001</td>
+                        <td>无问题</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>B</td>
+                        <td>直通车</td>
+                        <td><span class="tag-space">含多余空格</span>（如"直 通 车"）约3行</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>C</td>
+                        <td>充电宝</td>
+                        <td><span class="tag-name">名称不统一</span>（如"充电宝类""充电宝-新"）约4行</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>D</td>
+                        <td>85.00（纯数值）</td>
+                        <td><span class="tag-money">带"元"或"￥"</span> 约6行；部分为0</td>
+                    </tr>
+                    <tr>
+                        <td>带来销售额（元）</td>
+                        <td>E</td>
+                        <td>420.00（纯数值）</td>
+                        <td><span class="tag-money">带"元"</span> 约5行</td>
+                    </tr>
+                    <tr>
+                        <td>点击量</td>
+                        <td>F</td>
+                        <td>380（整数）</td>
+                        <td>无问题</td>
+                    </tr>
+                    <tr>
+                        <td>转化率（%）</td>
+                        <td>G</td>
+                        <td>=成交数/点击量，百分比</td>
+                        <td>
+                            <span class="tag-error">#DIV/0! 错误</span>
+                            点击量为0时公式报错，约5行
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>记录日期</td>
+                        <td>H</td>
+                        <td>2024-03-15</td>
+                        <td><span class="tag-date">格式不统一</span> 约8行（斜线/中文/纯数字混用）</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list red">
+                    <li>
+                        <div>
+                            <strong>第一步：清洗推广渠道列。</strong>
+                            用 <code>=SUBSTITUTE(B2," ","")</code> 去除所有空格
+                            （注意：渠道名称中间的空格也要去除，用SUBSTITUTE而非TRIM）。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>第二步：规范商品类别名称。</strong>
+                            将"充电宝类""充电宝-新"等非标准名称统一为"充电宝"，
+                            其他类别同理，使用查找替换完成。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>第三步：清洗金额列。</strong>
+                            去除推广花费和带来销售额列中的"元""￥"符号，并用 <code>=VALUE()</code> 转换为数值型。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>第四步：处理转化率列的 #DIV/0! 错误。</strong>
+                            找到转化率列的原始公式（形如 <code>=成交数/点击量</code>），
+                            用 IFERROR 包裹，使出错时显示 <code>"--"</code>：
+                            <br><code>=IFERROR(原公式, "--")</code>
+                        </div>
+                    </li>
+                    <li>清洗记录日期列（方法同前两个难度）。</li>
+                    <li>
+                        <div>
+                            <strong>第五步：全面验证。</strong>
+                            使用下方验证清单，逐项检查清洗结果，确保所有字段达标。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>第六步：撰写清洗日志。</strong>
+                            在新 Sheet（命名"清洗日志"）中，按下方模板记录完整的清洗过程。
+                        </div>
+                    </li>
+                </ol>
+
+                <div class="section-title">📝 验证清单（逐项检查，打钩确认）</div>
+                <table class="record-table red">
+                    <tr>
+                        <th>验证项目</th>
+                        <th>验证公式/操作</th>
+                        <th>预期结果</th>
+                        <th>实际结果</th>
+                        <th>状态</th>
+                    </tr>
+                    <tr>
+                        <td>推广渠道无空格</td>
+                        <td><code>=COUNTIF(B:B,"* *")</code></td>
+                        <td>0</td>
+                        <td></td>
+                        <td>☐ ✓</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别统一</td>
+                        <td>数据透视表查看唯一值</td>
+                        <td>4个标准类别</td>
+                        <td></td>
+                        <td>☐ ✓</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费可求和</td>
+                        <td><code>=SUM(D2:D33)</code></td>
+                        <td>非0数值</td>
+                        <td></td>
+                        <td>☐ ✓</td>
+                    </tr>
+                    <tr>
+                        <td>销售额可求和</td>
+                        <td><code>=SUM(E2:E33)</code></td>
+                        <td>非0数值</td>
+                        <td></td>
+                        <td>☐ ✓</td>
+                    </tr>
+                    <tr>
+                        <td>转化率无报错</td>
+                        <td><code>=COUNTIF(G:G,"#*")</code></td>
+                        <td>0</td>
+                        <td></td>
+                        <td>☐ ✓</td>
+                    </tr>
+                    <tr>
+                        <td>日期可排序</td>
+                        <td>按H列升序排序，检查顺序</td>
+                        <td>时间顺序正确</td>
+                        <td></td>
+                        <td>☐ ✓</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">📋 清洗日志模板（在"清洗日志"Sheet 中完成）</div>
+                <table class="log-table">
+                    <tr>
+                        <th>序号</th>
+                        <th>清洗时间</th>
+                        <th>字段名</th>
+                        <th>问题描述</th>
+                        <th>涉及行数</th>
+                        <th>处理方法</th>
+                        <th>使用工具/函数</th>
+                        <th>处理结果</th>
+                        <th>备注</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>（填写今天日期）</td>
+                        <td>推广渠道</td>
+                        <td>渠道名称含多余空格</td>
+                        <td></td>
+                        <td>SUBSTITUTE去除所有空格</td>
+                        <td><code>=SUBSTITUTE(B2," ","")</code></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td></td>
+                        <td>商品类别</td>
+                        <td>类别名称不统一</td>
+                        <td></td>
+                        <td>查找替换统一名称</td>
+                        <td>Ctrl+H</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td></td>
+                        <td>推广花费</td>
+                        <td>含"元"/"￥"符号</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td></td>
+                        <td>带来销售额</td>
+                        <td>含"元"符号</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td></td>
+                        <td>转化率</td>
+                        <td>#DIV/0!错误值</td>
+                        <td></td>
+                        <td>IFERROR处理报错</td>
+                        <td><code>=IFERROR(原公式,"--")</code></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td></td>
+                        <td>记录日期</td>
+                        <td>格式不统一（3种）</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="font-size:12px;color:#888;text-align:center;">
+                            ※ 可根据实际清洗步骤增加行数
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="tip-box red">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>TRIM vs SUBSTITUTE 去空格的区别</strong>：
+                            <br>TRIM：去除首尾空格 + 单词间多余空格（保留一个）
+                            <br>SUBSTITUTE(B2," ","")：去除所有空格（包括中间的）
+                            <br>渠道名如"直 通 车"中间有空格，用 SUBSTITUTE 更合适。
+                        </li>
+                        <li><strong>查找类别非标准名称的方法</strong>：数据→数据透视表，把商品类别放到行区域，
+                            可快速看出有哪些非标准名称（如出现"充电宝类""充电宝-新"等）。</li>
+                        <li><strong>IFERROR 处理转化率</strong>：转化率原公式可能形如 <code>=G2/F2</code>（成交数/点击量），
+                            改写为 <code>=IFERROR(G2/F2,"--")</code>。
+                            注意：如果该列已经显示 #DIV/0!，说明公式已存在但点击量为0，
+                            直接编辑该单元格公式，在外层加 IFERROR 即可。</li>
+                        <li><strong>清洗日志的价值</strong>：清洗日志是数据处理的"操作记录"，
+                            便于他人复查和后续维护。填写时要具体到每个操作步骤，
+                            不能只写"已清洗"这类模糊表述。</li>
+                    </ul>
+                </div>
+
+                <div class="tip-box blue">
+                    <div class="tip-title">📌 进阶拓展：一次性检查所有格式问题的思路</div>
+                    <ul>
+                        <li>对文本字段：用 <code>=LENB(A2)-LEN(A2)</code> 检测是否含全角字符
+                            （全角字符LENB比LEN多1）。</li>
+                        <li>对数值字段：用 <code>=ISNUMBER(D2)</code> 检测是否为真正数值，
+                            结果为 FALSE 说明该单元格是文本型数字。</li>
+                        <li>对日期字段：用 <code>=ISNUMBER(E2)</code> 检测，
+                            Excel日期本质是数值，若为 FALSE 说明是文本型日期，需要转换。</li>
+                        <li>批量检测完成后，筛选出 FALSE 的行，集中处理。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <footer>
+            数据分析基础 · 模块三 · 3.3.2 格式内容清洗 · 任务书<br>
+            数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+        </footer>
+
+    </div>
+
+    <!-- ===== CSV 数据 ===== -->
+    <script>
+        const CSV_DATA = {
+
+            basic: `订单编号,商品名称,销售额（元）,下单日期,订单状态
+ORD-2024-001, 快充数据线 Type-C 1m ,29.90,2024-03-01,已完成
+ORD-2024-002,充电宝 10000mAh,89.00,2024/3/2,已完成
+ORD-2024-003, 手机壳 iPhone15,19.90,2024年3月3日,已完成
+ORD-2024-004,蓝牙耳机入耳式,129.00,2024-03-04,已完成
+ORD-2024-005,快充数据线 Micro ,15.90,20240305,已完成
+ORD-2024-006, 充电宝 20000mAh,149.00,2024-03-06,已完成
+ORD-2024-007,手机壳 华为Mate60 ,24.90,2024/3/7,已完成
+ORD-2024-008,磁吸无线充电器,59.00,2024年3月8日,已完成
+ORD-2024-009, 快充数据线 Type-C 2m ,19.90,2024-03-09,已完成
+ORD-2024-010,蓝牙耳机头戴式,299.00,20241003,已完成
+ORD-2024-011,充电宝 5000mAh ,49.00,2024-03-11,已完成
+ORD-2024-012, 手机壳 小米14,18.90,2024/3/12,已完成
+ORD-2024-013,快充数据线 Lightning,19.90,2024年3月13日,已完成
+ORD-2024-014, 磁吸充电线 ,35.00,2024-03-14,已完成
+ORD-2024-015,充电宝 10000mAh,89.00,20240315,已完成
+ORD-2024-016,手机壳 iPhone14 ,19.90,2024-03-16,已完成
+ORD-2024-017, 蓝牙耳机入耳式,129.00,2024/3/17,已完成
+ORD-2024-018,磁吸充电线,35.00,2024年3月18日,已完成
+ORD-2024-019,手机支架桌面 ,22.00,2024-03-19,已完成
+ORD-2024-020, 快充数据线 Type-C 1m,29.90,20240320,已完成
+ORD-2024-021,充电宝 20000mAh ,149.00,2024-03-21,已完成
+ORD-2024-022, 蓝牙耳机头戴式 ,299.00,2024/3/22,已完成
+ORD-2024-023,手机壳 华为P60,22.90,2024年3月23日,已完成
+ORD-2024-024,快充数据线 Micro,15.90,2024-03-24,已完成
+ORD-2024-025, 磁吸无线充电器 ,59.00,20240325,已完成`,
+
+            medium: `订单编号,商品名称,销售省份,销售额（元）,下单日期,推广渠道
+ORD-2024-101, 快充数据线 Type-C 1m,广东,29.90,2024-03-01,直通车
+ORD-2024-102,充电宝 10000mAh,浙江省,¥89.00,2024/3/2,超级推荐
+ORD-2024-103, 手机壳 iPhone15 ,广东省,19.90,2024年3月3日,自然搜索
+ORD-2024-104,蓝牙耳机 入耳式,北京,129元,2024-03-04,直播带货
+ORD-2024-105,快充数据线 type-c 1m,上海,29.90,20240305,直通车
+ORD-2024-106, 充电宝 20000mAh ,江苏省,¥149.00,2024-03-06,超级推荐
+ORD-2024-107,手机壳 华为Mate60,广东,24.90,2024/3/7,自然搜索
+ORD-2024-108,磁吸无线充电器,浙江,59元,2024年3月8日,直通车
+ORD-2024-109, 快充数据线 TYPE-C 2m,广东省,19.90,2024-03-09,直播带货
+ORD-2024-110,蓝牙耳机头戴式,北京,¥299.00,20240310,超级推荐
+ORD-2024-111,充电宝 5000mAh,上海,49.90,2024-03-11,直通车
+ORD-2024-112, 手机壳 小米14,江苏,18.90,2024/3/12,自然搜索
+ORD-2024-113,快充数据线 Lightning ,广东,19.90,2024年3月13日,直播带货
+ORD-2024-114,磁吸充电线,浙江省,35元,2024-03-14,超级推荐
+ORD-2024-115,充电宝 10000mAh ,广东,¥89.00,20240315,直通车
+ORD-2024-116,手机壳 iPhone14,北京,19.90,2024-03-16,自然搜索
+ORD-2024-117, 蓝牙耳机入耳式,上海,129.00,2024/3/17,直播带货
+ORD-2024-118,磁吸充电线,广东省,¥35.00,2024年3月18日,直通车
+ORD-2024-119,手机支架桌面,浙江,22元,2024-03-19,超级推荐
+ORD-2024-120, 快充数据线 Type-C 1m ,江苏省,29.90,20240320,直通车
+ORD-2024-121,充电宝 20000mAh,广东,149.00,2024-03-21,直播带货
+ORD-2024-122,蓝牙耳机头戴式 ,浙江,¥299.00,2024/3/22,超级推荐
+ORD-2024-123,手机壳 华为P60,广东,22.90,2024年3月23日,自然搜索
+ORD-2024-124,快充数据线 Micro,北京,15.90,2024-03-24,直通车
+ORD-2024-125, 磁吸无线充电器,上海,59元,20240325,直播带货
+ORD-2024-126,充电宝 5000mAh,江苏,¥49.00,2024-03-26,超级推荐
+ORD-2024-127,手机壳 小米14 ,广东省,18.90,2024/3/27,自然搜索
+ORD-2024-128,蓝牙耳机入耳式,浙江,129元,2024年3月28日,直通车`,
+
+            hard: `记录编号,推广渠道,商品类别,推广花费（元）,带来销售额（元）,点击量,转化率（%）,记录日期
+ADV-001,直通车,数据线,85元,420.00,380,#DIV/0!,2024-03-01
+ADV-002,超级推荐,充电宝,¥120.00,680元,290,#DIV/0!,2024/3/2
+ADV-003,直 播 带 货,蓝牙耳机,200.00,1580.00,520,#DIV/0!,2024年3月3日
+ADV-004,自然搜索,手机壳,0,210.00,0,#DIV/0!,2024-03-04
+ADV-005,直通车,充电宝类,95元,510.00,310,#DIV/0!,20240305
+ADV-006,超级推荐,蓝牙耳机,¥180.00,990元,260,#DIV/0!,2024-03-06
+ADV-007,直播带货,数据线,150.00,720.00,480,#DIV/0!,2024/3/7
+ADV-008,自然搜索,充电宝,0,330.00,0,#DIV/0!,2024年3月8日
+ADV-009,直 通 车,手机壳,60元,280.00,220,#DIV/0!,2024-03-09
+ADV-010,超级推荐,数据线,¥70.00,380元,240,#DIV/0!,20240310
+ADV-011,直播带货,充电宝-新,220.00,1250.00,560,#DIV/0!,2024-03-11
+ADV-012,自然搜索,蓝牙耳机,0,580.00,200,#DIV/0!,2024/3/12
+ADV-013,直通车,蓝牙耳机,160元,850.00,350,#DIV/0!,2024年3月13日
+ADV-014,超级推荐,手机壳,¥55.00,260元,190,#DIV/0!,2024-03-14
+ADV-015,直播 带货,手机壳,130.00,590.00,0,#DIV/0!,20240315
+ADV-016,自然搜索,数据线,0,180.00,130,#DIV/0!,2024-03-16
+ADV-017,直通车,充电宝,110元,560.00,300,#DIV/0!,2024/3/17
+ADV-018,超级推荐,充电宝类,¥140.00,750元,270,#DIV/0!,2024年3月18日
+ADV-019,直播带货,蓝牙耳机,250.00,1820.00,580,#DIV/0!,2024-03-19
+ADV-020,自然搜索,手机壳,0,160.00,110,#DIV/0!,20240320
+ADV-021,直 通 车,数据线,75元,390.00,350,#DIV/0!,2024-03-21
+ADV-022,超级推荐,蓝牙耳机,¥165.00,920元,280,#DIV/0!,2024/3/22
+ADV-023,直播带货,充电宝,190.00,1100.00,500,#DIV/0!,2024年3月23日
+ADV-024,自然搜索,充电宝,0,290.00,0,#DIV/0!,2024-03-24
+ADV-025,直通车,手机壳,50元,240.00,200,#DIV/0!,20240325
+ADV-026,超级推荐,数据线,¥80.00,410元,230,#DIV/0!,2024-03-26
+ADV-027,直播带货,手机壳,145.00,640.00,460,#DIV/0!,2024/3/27
+ADV-028,自然搜索,蓝牙耳机,0,520.00,190,#DIV/0!,2024年3月28日
+ADV-029,直通车,蓝牙耳机,175元,920.00,370,#DIV/0!,2024-03-29
+ADV-030,超级推荐,手机壳,¥65.00,300元,210,#DIV/0!,20240330
+ADV-031,直播带货,数据线,150.00,680.00,440,#DIV/0!,2024-03-31
+ADV-032,自然搜索,数据线,0,200.00,120,#DIV/0!,2024/4/1`
+
+        };
+
+        function downloadCSV(level) {
+            const nameMap = {
+                basic: '基础_订单数据',
+                medium: '巩固_订单数据',
+                hard: '进阶_推广数据'
+            };
+            const filename = `3.3.2_格式内容清洗_${nameMap[level]}.csv`;
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + CSV_DATA[level]], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>

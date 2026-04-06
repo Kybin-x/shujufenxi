@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.3.7 数据类型转换 · 任务书</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            line-height: 1.7;
+        }
+
+        /* ===== Banner ===== */
+        .banner {
+            background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%);
+            color: #fff;
+            padding: 36px 48px 28px;
+        }
+
+        .banner .course-tag {
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: .75;
+            margin-bottom: 8px;
+        }
+
+        .banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .banner .subtitle {
+            font-size: 14px;
+            opacity: .85;
+        }
+
+        .banner .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        /* ===== 主体 ===== */
+        .container {
+            max-width: 980px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ===== 情景卡片 ===== */
+        .scenario-card {
+            background: #fff;
+            border-left: 5px solid #6a1b9a;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+        }
+
+        .scenario-card h2 {
+            font-size: 15px;
+            color: #6a1b9a;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card p {
+            font-size: 14px;
+        }
+
+        /* ===== 知识点速览 ===== */
+        .knowledge-card {
+            background: #f3e5f5;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+        }
+
+        .knowledge-card h3 {
+            color: #4a148c;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .knowledge-card .warn {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #fff8e1;
+            border-left: 3px solid #ffa000;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #5d4037;
+        }
+
+        /* 类型卡片 */
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .type-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px 16px;
+            border-top: 4px solid #6a1b9a;
+            font-size: 13px;
+        }
+
+        .type-card .tc-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #4a148c;
+            margin-bottom: 6px;
+        }
+
+        .type-card .tc-look {
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .type-card .tc-test {
+            font-family: Consolas, monospace;
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .type-card .tc-test .good {
+            color: #2e7d32;
+            font-weight: 700;
+        }
+
+        .type-card .tc-test .bad {
+            color: #c62828;
+            font-weight: 700;
+        }
+
+        .type-card.num {
+            border-top-color: #1565c0;
+        }
+
+        .type-card.num .tc-name {
+            color: #1565c0;
+        }
+
+        .type-card.txt {
+            border-top-color: #c62828;
+        }
+
+        .type-card.txt .tc-name {
+            color: #c62828;
+        }
+
+        .type-card.date {
+            border-top-color: #00695c;
+        }
+
+        .type-card.date .tc-name {
+            color: #00695c;
+        }
+
+        /* 转换方法卡片 */
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .method-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px 16px;
+            border-left: 4px solid #6a1b9a;
+            font-size: 13px;
+        }
+
+        .method-card .mc-title {
+            font-weight: 700;
+            font-size: 13.5px;
+            color: #4a148c;
+            margin-bottom: 8px;
+        }
+
+        .method-card .mc-steps {
+            font-size: 12.5px;
+            color: #555;
+        }
+
+        .method-card .mc-steps li {
+            margin-bottom: 3px;
+        }
+
+        .method-card .mc-example {
+            margin-top: 8px;
+            font-family: Consolas, monospace;
+            background: #f3e5f5;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #4a148c;
+        }
+
+        .method-card.func {
+            border-left-color: #0277bd;
+        }
+
+        .method-card.func .mc-title {
+            color: #01579b;
+        }
+
+        .method-card.func .mc-example {
+            background: #e3f2fd;
+            color: #01579b;
+        }
+
+        .method-card.tool {
+            border-left-color: #2e7d32;
+        }
+
+        .method-card.tool .mc-title {
+            color: #1b5e20;
+        }
+
+        .method-card.tool .mc-example {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .method-card.special {
+            border-left-color: #e65100;
+        }
+
+        .method-card.special .mc-title {
+            color: #bf360c;
+        }
+
+        .method-card.special .mc-example {
+            background: #fff3e0;
+            color: #bf360c;
+        }
+
+        /* ===== 难度块 ===== */
+        .level-block {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 28px;
+            color: #fff;
+        }
+
+        .level-header.basic {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .level-header.medium {
+            background: linear-gradient(90deg, #fb8c00, #ffa726);
+        }
+
+        .level-header.hard {
+            background: linear-gradient(90deg, #e53935, #ef5350);
+        }
+
+        .level-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, .25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .level-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .level-header .level-desc {
+            font-size: 13px;
+            opacity: .9;
+            margin-left: auto;
+        }
+
+        .level-body {
+            padding: 24px 28px;
+        }
+
+        /* ===== 下载区 ===== */
+        .download-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #f3e5f5;
+            border: 1px dashed #ce93d8;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+
+        .download-bar .dl-info {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .download-bar .dl-info strong {
+            color: #6a1b9a;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #6a1b9a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-download:hover {
+            background: #4a148c;
+        }
+
+        .btn-download svg {
+            width: 15px;
+            height: 15px;
+            fill: #fff;
+        }
+
+        /* ===== 通用 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-left: 4px solid #6a1b9a;
+            padding-left: 10px;
+            margin: 22px 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        th {
+            background: #f3e5f5;
+            color: #4a148c;
+            font-weight: 700;
+            padding: 9px 14px;
+            text-align: left;
+            border: 1px solid #ce93d8;
+        }
+
+        td {
+            padding: 8px 14px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .task-list {
+            padding-left: 0;
+            list-style: none;
+            counter-reset: task;
+        }
+
+        .task-list li {
+            counter-increment: task;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            align-items: flex-start;
+        }
+
+        .task-list li::before {
+            content: counter(task);
+            min-width: 26px;
+            height: 26px;
+            background: #6a1b9a;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .task-list.orange li::before {
+            background: #fb8c00;
+        }
+
+        .task-list.red li::before {
+            background: #e53935;
+        }
+
+        .tip-box {
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            margin-top: 16px;
+        }
+
+        .tip-box.green {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+
+        .tip-box.orange {
+            background: #fff3e0;
+            border-left: 4px solid #fb8c00;
+        }
+
+        .tip-box.red {
+            background: #fce4ec;
+            border-left: 4px solid #e53935;
+        }
+
+        .tip-box.blue {
+            background: #e3f2fd;
+            border-left: 4px solid #0277bd;
+        }
+
+        .tip-box.purple {
+            background: #f3e5f5;
+            border-left: 4px solid #6a1b9a;
+        }
+
+        .tip-box .tip-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tip-box.green .tip-title {
+            color: #2e7d32;
+        }
+
+        .tip-box.orange .tip-title {
+            color: #e65100;
+        }
+
+        .tip-box.red .tip-title {
+            color: #b71c1c;
+        }
+
+        .tip-box.blue .tip-title {
+            color: #01579b;
+        }
+
+        .tip-box.purple .tip-title {
+            color: #4a148c;
+        }
+
+        .tip-box ul {
+            padding-left: 18px;
+        }
+
+        .tip-box ul li {
+            margin-bottom: 5px;
+        }
+
+        /* 记录填写表 */
+        .record-table th {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
+        }
+
+        .record-table.orange th {
+            background: #fff3e0;
+            color: #bf360c;
+            border-color: #ffcc80;
+        }
+
+        .record-table.red th {
+            background: #fce4ec;
+            color: #880e4f;
+            border-color: #f48fb1;
+        }
+
+        /* 填空题样式 */
+        .fill-block {
+            background: #faf5ff;
+            border: 1px solid #ce93d8;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+        }
+
+        .fill-block.orange {
+            background: #fffaf5;
+            border-color: #ffcc80;
+        }
+
+        .fill-block.red {
+            background: #fff8f8;
+            border-color: #ffcdd2;
+        }
+
+        .fill-block .fb-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fill-block .fb-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #6a1b9a;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .fill-block .fb-num.orange {
+            background: #fb8c00;
+        }
+
+        .fill-block .fb-num.red {
+            background: #e53935;
+        }
+
+        .fill-block .fb-source {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            background: #eceff1;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin: 6px 0;
+            color: #333;
+        }
+
+        .fill-block .fb-formula {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            background: #e8f5e9;
+            border: 1px dashed #a5d6a7;
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin: 4px 0;
+            color: #1b5e20;
+            min-height: 32px;
+        }
+
+        .fill-block .fb-result {
+            font-size: 12.5px;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        /* 判断展示盒 */
+        .judge-box {
+            background: #fff;
+            border: 2px solid #ce93d8;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .judge-box .jb-title {
+            font-weight: 700;
+            color: #4a148c;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .judge-box table th {
+            background: #6a1b9a;
+            color: #fff;
+            border-color: #4a148c;
+            text-align: center;
+        }
+
+        .judge-box table td {
+            text-align: center;
+        }
+
+        .jb-num {
+            color: #1565c0;
+            font-weight: 700;
+        }
+
+        .jb-text {
+            color: #c62828;
+            font-weight: 700;
+        }
+
+        .jb-date {
+            color: #00695c;
+            font-weight: 700;
+        }
+
+        .jb-left {
+            text-align: left !important;
+        }
+
+        /* 步骤盒 */
+        .step-box {
+            background: #f9fbe7;
+            border: 1px solid #dce775;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .step-box .step-title {
+            font-weight: 700;
+            color: #827717;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .step-box ol {
+            padding-left: 20px;
+        }
+
+        .step-box ol li {
+            margin-bottom: 6px;
+        }
+
+        code {
+            background: #eceff1;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c62828;
+        }
+
+        .highlight {
+            display: inline-block;
+            background: #fff9c4;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        .tag-num {
+            display: inline-block;
+            background: #bbdefb;
+            color: #0d47a1;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .tag-txt {
+            display: inline-block;
+            background: #ffcdd2;
+            color: #c62828;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .tag-date {
+            display: inline-block;
+            background: #b2dfdb;
+            color: #004d40;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Banner ===== -->
+    <div class="banner">
+        <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+        <h1>3.3.7 数据类型转换</h1>
+        <div class="subtitle">识别文本型数字与真数字，掌握文本↔数值↔日期的转换方法</div>
+        <div class="meta">
+            <span>📁 配套文件：3.3.7_练习数据.xlsx</span>
+            <span>🎯 三个难度等级</span>
+            <span>🏢 情景：星途电商有限公司</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 情景 -->
+        <div class="scenario-card">
+            <h2>📋 背景情景</h2>
+            <p>
+                星途电商有限公司财务部每月从不同系统导出销售报表，
+                由于各系统的数据格式不统一，导出的数据中经常出现：
+                销售额是文本型数字（SUM结果为0）、日期被识别为文本、
+                编号前面有多余的0等问题。
+                数据分析实习生小方需要将这些"表面看起来正常、实际类型错误"的数据
+                转换为正确的类型，才能进行统计和分析。
+                请协助小方完成各难度的数据类型转换任务。
+            </p>
+        </div>
+
+        <!-- 知识点速览 -->
+        <div class="knowledge-card">
+            <h3>📖 知识点速览：三种数据类型及识别方法</h3>
+
+            <div class="type-grid">
+                <div class="type-card num">
+                    <div class="tc-name">🔵 数值型</div>
+                    <div class="tc-look">
+                        默认<strong>右对齐</strong>显示，可参与加减乘除运算
+                    </div>
+                    <div class="tc-test">
+                        =ISNUMBER(A2) → <span class="good">TRUE</span><br>
+                        =SUM(A2:A5) → 正常求和
+                    </div>
+                </div>
+                <div class="type-card txt">
+                    <div class="tc-name">🔴 文本型</div>
+                    <div class="tc-look">
+                        默认<strong>左对齐</strong>显示，不能参与数值运算
+                    </div>
+                    <div class="tc-test">
+                        =ISNUMBER(A2) → <span class="bad">FALSE</span><br>
+                        =SUM(A2:A5) → <span class="bad">0</span>（文本数字求和为0）
+                    </div>
+                </div>
+                <div class="type-card date">
+                    <div class="tc-name">🟢 日期型</div>
+                    <div class="tc-look">
+                        本质是<strong>数值</strong>（天数），可排序和计算间隔
+                    </div>
+                    <div class="tc-test">
+                        =ISNUMBER(A2) → <span class="good">TRUE</span><br>
+                        =A2+1 → 下一日（日期加1天）
+                    </div>
+                </div>
+            </div>
+
+            <!-- 转换方法 -->
+            <h3 style="margin-top:16px;">🔧 常用转换方法</h3>
+            <div class="method-grid">
+                <div class="method-card func">
+                    <div class="mc-title">📐 方法一：VALUE 函数</div>
+                    <div class="mc-steps">文本型数字 → 数值型</div>
+                    <div class="mc-example">=VALUE("89.00") → 89.00（数值）</div>
+                </div>
+                <div class="method-card func">
+                    <div class="mc-title">📐 方法二：四则运算</div>
+                    <div class="mc-steps">文本型数字 ×1 / +0 / --（双负号）即可转为数值</div>
+                    <div class="mc-example">="89.00"*1 → 89.00（数值）</div>
+                </div>
+                <div class="method-card tool">
+                    <div class="mc-title">🔧 方法三：分列转换</div>
+                    <div class="mc-steps">
+                        <ol style="padding-left:16px;">
+                            <li>选中列 → 数据 → 分列</li>
+                            <li>第一步：直接"下一步"</li>
+                            <li>第二步：直接"下一步"</li>
+                            <li>第三步：选"常规"→ 完成</li>
+                        </ol>
+                    </div>
+                    <div class="mc-example">批量转换，不改变位置，推荐方法</div>
+                </div>
+                <div class="method-card special">
+                    <div class="mc-title">📐 方法四：TEXT 函数</div>
+                    <div class="mc-steps">数值 → 指定格式的文本</div>
+                    <div class="mc-example">=TEXT(89,"0.00") → "89.00"（文本）</div>
+                </div>
+            </div>
+
+            <div class="warn">
+                ⚠️ 最常见的陷阱：<strong>文本型数字看起来和真数字一模一样</strong>，
+                唯一的区别是默认对齐方式（左/右）和 SUM 的结果（0/正常）。
+                在做任何求和、平均值、排序之前，先用 <code>=ISNUMBER()</code> 检查数据类型！
+            </div>
+        </div>
+
+        <!-- ==================== 基础 ==================== -->
+        <div class="level-block">
+            <div class="level-header basic">
+                <span class="level-badge">LEVEL 1</span>
+                <h2>基础练习</h2>
+                <span class="level-desc">适合：第一次接触数据类型概念 · 20条数据 · 识别文本型数字并转换</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>20条销售数据</strong>｜
+                        销售额列为文本型数字（SUM结果为0）｜用VALUE函数和分列两种方法转换
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('basic')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>数据类型</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A列</td>
+                        <td>唯一订单号</td>
+                        <td><span class="tag-txt">文本</span>（正常，编号应为文本）</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>B列</td>
+                        <td>商品大类</td>
+                        <td><span class="tag-txt">文本</span>（正常，类别应为文本）</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>C列</td>
+                        <td>成交金额</td>
+                        <td style="color:#c62828;font-weight:700;">
+                            ⚠️ 文本型数字（看起来是数字，实际是文本）
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>D列</td>
+                        <td>下单时间</td>
+                        <td><span class="tag-date">日期型</span>（正常）</td>
+                    </tr>
+                </table>
+
+                <!-- 识别对比 -->
+                <div class="judge-box">
+                    <div class="jb-title">🔍 如何识别 C 列是文本型数字？</div>
+                    <table>
+                        <tr>
+                            <th>检查方法</th>
+                            <th>如果是数值型</th>
+                            <th>如果是文本型</th>
+                            <th>你的C列结果是？</th>
+                        </tr>
+                        <tr>
+                            <td class="jb-left">默认对齐方式</td>
+                            <td class="jb-num">右对齐</td>
+                            <td class="jb-text">左对齐</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="jb-left"><code>=ISNUMBER(C2)</code></td>
+                            <td class="jb-num">TRUE</td>
+                            <td class="jb-text">FALSE</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="jb-left"><code>=SUM(C2:C21)</code></td>
+                            <td class="jb-num">正常数值</td>
+                            <td class="jb-text">0</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="jb-left">左上角有绿色小三角</td>
+                            <td class="jb-num">无</td>
+                            <td class="jb-text">有 ✓</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>将 CSV 数据粘贴到"数据（基础）"Sheet，观察 C 列（销售额）的对齐方式。</li>
+                    <li>
+                        在 E2 输入 <code>=ISNUMBER(C2)</code>，向下填充到 E21，
+                        记录有多少个 TRUE、多少个 FALSE。
+                    </li>
+                    <li>
+                        在 F2 输入 <code>=SUM(C2:C21)</code>，记录结果（预期为 0）。
+                    </li>
+                    <li>
+                        <div>
+                            <strong>方法一：VALUE 函数转换</strong>。
+                            在 G 列新建"销售额（数值）"，G2 输入 <code>=VALUE(C2)</code>，
+                            向下填充到 G21。
+                        </div>
+                    </li>
+                    <li>
+                        在 H2 输入 <code>=SUM(G2:G21)</code>，记录结果（应为正常数值）。
+                    </li>
+                    <li>
+                        <div>
+                            <strong>方法二：分列转换</strong>（在原始列上操作）。
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>先复制 C 列到 I 列（保留原始数据做对比）</li>
+                                <li>选中 I 列 → 数据 → 分列 → 下一步 → 下一步 → 选"常规" → 完成</li>
+                                <li>在 J2 输入 <code>=SUM(I2:I21)</code>，验证结果</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>对比两种方法的结果，填写记录表。</li>
+                </ol>
+
+                <div class="section-title">📝 类型检查与转换记录表（在 Excel 中填写）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>检查/转换项目</th>
+                        <th>结果</th>
+                    </tr>
+                    <tr>
+                        <td>C 列 ISNUMBER 检查：TRUE 的数量</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>C 列 ISNUMBER 检查：FALSE 的数量</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>C 列 SUM 结果（转换前）</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>G 列 VALUE 转换后 SUM 结果</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>I 列 分列转换后 SUM 结果</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>两种方法转换结果是否一致</td>
+                        <td>☐ 一致 ☐ 不一致</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">💬 思考题（在 Excel 中填写）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>问题</th>
+                        <th>回答</th>
+                    </tr>
+                    <tr>
+                        <td>① 订单编号（A列）是文本型，需要转为数值吗？为什么？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>② VALUE 函数和分列转换，哪种方法更适合大量数据？为什么？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>③ 如果文本型数字中有"¥89.00"这样带符号的数据，VALUE 还能转换吗？</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box green">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>CSV 粘贴后数据类型说明</strong>：
+                            CSV 文件中所有数据以文本形式存储，粘贴到 Excel 后，
+                            数值和日期通常会被自动识别为正确类型。
+                            但本练习的 C 列数据经过特殊设计，粘贴后仍为文本型。
+                            <br>如果你的 Excel 自动转换了，可用"数据→分列→文本"强制设为文本再练习。
+                        </li>
+                        <li><strong>绿色小三角</strong>：文本型数字所在单元格左上角通常有绿色小三角，
+                            点击后会出现提示"此单元格中的数字为文本格式或前面有撇号"，
+                            可选择"转换为数字"一键转换。</li>
+                        <li><strong>VALUE 函数的限制</strong>：只能转换"纯数字文本"（如"89"、"89.00"），
+                            不能转换带符号的文本（如"¥89.00"、"$99"），
+                            带符号的需要先用 SUBSTITUTE 去除符号再 VALUE。</li>
+                        <li><strong>分列转换的优点</strong>：不新增列，直接在原位转换，
+                            适合大批量操作，且不改变数据位置。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 巩固 ==================== -->
+        <div class="level-block">
+            <div class="level-header medium">
+                <span class="level-badge">LEVEL 2</span>
+                <h2>巩固练习</h2>
+                <span class="level-desc">适合：掌握基本转换后 · 25条数据 · 多列混合类型问题+TEXT函数输出</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>25条订单数据</strong>｜
+                        销售额为文本型数字 + 日期为文本型日期 + 需用TEXT格式化输出
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('medium')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>当前类型</th>
+                        <th>目标类型</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A</td>
+                        <td>唯一编号</td>
+                        <td><span class="tag-txt">文本</span></td>
+                        <td><span class="tag-txt">保持文本</span>（编号不需转换）</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>B</td>
+                        <td>成交金额，部分带"¥"符号</td>
+                        <td style="color:#c62828;"><span class="tag-txt">文本型数字</span>（含符号）</td>
+                        <td><span class="tag-num">数值型</span></td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>C</td>
+                        <td>如"2024-03-01"</td>
+                        <td style="color:#c62828;"><span class="tag-txt">文本型日期</span></td>
+                        <td><span class="tag-date">日期型</span></td>
+                    </tr>
+                    <tr>
+                        <td>客户等级</td>
+                        <td>D</td>
+                        <td>1/2/3/4/5</td>
+                        <td style="color:#c62828;"><span class="tag-txt">文本型数字</span></td>
+                        <td><span class="tag-num">数值型</span></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list orange">
+                    <li>将数据粘贴到"数据（巩固）"Sheet，用 ISNUMBER 检查 B、C、D 列的数据类型。</li>
+                    <li>
+                        <div>
+                            <strong>Step 1：转换销售额列</strong>。
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>部分数据带"¥"符号（如"¥89.00"），需先用 SUBSTITUTE 去除：</li>
+                                <li>E 列去符号：<code>=SUBSTITUTE(B2,"¥","")</code></li>
+                                <li>F 列转数值：<code>=VALUE(E2)</code></li>
+                                <li>或合并为一个公式：<code>=VALUE(SUBSTITUTE(B2,"¥",""))</code></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Step 2：转换日期列</strong>。
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>选中 C 列 → 数据 → 分列 → 下一步 → 下一步 → 选"日期"(YMD) → 完成</li>
+                                <li>验证：<code>=ISNUMBER(C2)</code> 应为 TRUE</li>
+                                <li>验证：<code>=C2+1</code> 应显示下一天的日期</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Step 3：转换客户等级列</strong>。
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>方法：选中 D 列 → 数据 → 分列 → 下一步 → 下一步 → 选"常规" → 完成</li>
+                                <li>验证：<code>=ISNUMBER(D2)</code> 应为 TRUE</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Step 4：用 TEXT 函数格式化输出</strong>。
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>G 列：销售额显示为"¥89.00"格式 → <code>=TEXT(F2,"¥0.00")</code></li>
+                                <li>H 列：日期显示为"2024年3月1日"格式 → <code>=TEXT(C2,"yyyy年m月d日")</code></li>
+                                <li>I 列：等级显示为"第1级"格式 → <code>="第"&amp;D2&amp;"级"</code></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>完成转换后，用 SUM/AVERAGE/COUNTIF 完成下方统计表。</li>
+                </ol>
+
+                <!-- 填空题 -->
+                <div class="section-title">✏️ 关键公式填写</div>
+
+                <div class="fill-block orange">
+                    <div class="fb-title">
+                        <span class="fb-num orange">1</span>
+                        去除销售额中的"¥"符号并转为数值
+                    </div>
+                    <div class="fb-source">B2 内容：¥89.00（文本型，带符号）</div>
+                    <div class="fb-formula">= VALUE( SUBSTITUTE( B2, "_____", "_____" ) )</div>
+                    <div class="fb-result">预期结果：89.00（数值型，可求和）</div>
+                </div>
+
+                <div class="fill-block orange">
+                    <div class="fb-title">
+                        <span class="fb-num orange">2</span>
+                        将数值格式化为"¥89.00"的文本
+                    </div>
+                    <div class="fb-source">F2 内容：89.00（数值型）</div>
+                    <div class="fb-formula">= TEXT( F2, "_____" )</div>
+                    <div class="fb-result">预期结果：¥89.00（文本型，用于报表展示）</div>
+                </div>
+
+                <div class="fill-block orange">
+                    <div class="fb-title">
+                        <span class="fb-num orange">3</span>
+                        将日期格式化为"2024年3月1日"
+                    </div>
+                    <div class="fb-source">C2 内容：2024/3/1（日期型，已转换）</div>
+                    <div class="fb-formula">= TEXT( C2, "_____" )</div>
+                    <div class="fb-result">预期结果：2024年3月1日（文本型，用于报表展示）</div>
+                    <div class="fb-result">提示：格式代码为 "yyyy年m月d日"</div>
+                </div>
+
+                <div class="section-title">📝 转换后统计表（在 Excel 中用函数完成）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>统计项目</th>
+                        <th>使用函数</th>
+                        <th>结果</th>
+                    </tr>
+                    <tr>
+                        <td>总销售额</td>
+                        <td><code>=SUM(F2:F26)</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>平均销售额</td>
+                        <td><code>=AVERAGE(F2:F26)</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>最高销售额</td>
+                        <td><code>=MAX(F2:F26)</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3月份订单数量</td>
+                        <td><code>=COUNTIF(C2:C26,">=2024-3-1")-COUNTIF(C2:C26,">=2024-4-1")</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>客户等级为5的订单数</td>
+                        <td><code>=COUNTIF(D2:D26,5)</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>等级5客户的平均销售额</td>
+                        <td><code>=AVERAGEIF(D2:D26,5,F2:F26)</code></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box orange">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>分列转换日期的"YMD"选项</strong>：
+                            分列第三步中，列数据格式选"日期"后，
+                            右侧下拉框选"YMD"（表示年-月-日的顺序），
+                            这与原始文本"2024-03-01"的格式匹配。</li>
+                        <li><strong>TEXT 函数的常用格式代码</strong>：
+                            <br><code>"0.00"</code> → 保留2位小数（89.00）
+                            <br><code>"¥0.00"</code> → 带¥符号（¥89.00）
+                            <br><code>"yyyy-mm-dd"</code> → 2024-03-01
+                            <br><code>"yyyy年m月d日"</code> → 2024年3月1日
+                            <br>注意：TEXT 输出的是<span class="tag-txt">文本型</span>，不能用于求和！
+                        </li>
+                        <li><strong>转换顺序建议</strong>：
+                            先转换销售额（用函数，保留原始列），
+                            再用分列转换日期和等级（直接在原列操作，先备份！）。</li>
+                        <li><strong>验证日期转换成功</strong>：
+                            <code>=C2+1</code> 如果显示"2024/3/2"（下一天），
+                            说明日期转换成功；如果显示 #VALUE! 错误，说明仍是文本。
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 进阶 ==================== -->
+        <div class="level-block">
+            <div class="level-header hard">
+                <span class="level-badge">LEVEL 3</span>
+                <h2>进阶练习</h2>
+                <span class="level-desc">适合：综合运用阶段 · 30条数据 · 多类型混合+批量检测+撰写类型诊断报告</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>30条综合数据</strong>｜
+                        多列混合类型问题｜需批量检测+逐列转换+撰写类型诊断报告
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('hard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>当前类型</th>
+                        <th>目标类型</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A</td>
+                        <td>如"ORD-001"</td>
+                        <td><span class="tag-txt">文本</span></td>
+                        <td><span class="tag-txt">保持文本</span></td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>B</td>
+                        <td>部分带"¥"，部分纯数字</td>
+                        <td style="color:#c62828;"><span class="tag-txt">混合型</span>（部分文本/部分数值）</td>
+                        <td><span class="tag-num">全部数值型</span></td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>C</td>
+                        <td>多种格式混用</td>
+                        <td style="color:#c62828;"><span class="tag-txt">文本型日期</span>（3种格式混用）</td>
+                        <td><span class="tag-date">日期型</span></td>
+                    </tr>
+                    <tr>
+                        <td>客户等级</td>
+                        <td>D</td>
+                        <td>1-5的数字</td>
+                        <td style="color:#c62828;"><span class="tag-txt">文本型数字</span></td>
+                        <td><span class="tag-num">数值型</span></td>
+                    </tr>
+                    <tr>
+                        <td>购买数量</td>
+                        <td>E</td>
+                        <td>整数</td>
+                        <td><span class="tag-num">数值型</span>（正常）</td>
+                        <td><span class="tag-num">保持数值</span></td>
+                    </tr>
+                    <tr>
+                        <td>联系电话</td>
+                        <td>F</td>
+                        <td>11位手机号</td>
+                        <td><span class="tag-txt">文本</span></td>
+                        <td><span class="tag-txt">保持文本</span>（电话号不应转为数值）</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list red">
+                    <li>将数据粘贴到"数据（进阶）"Sheet，先备份到"备份"Sheet。</li>
+                    <li>
+                        <div>
+                            <strong>Step 1：批量类型检测</strong>。
+                            在 G 列新增"销售额类型"，输入 <code>=IF(ISNUMBER(B2),"数值","文本")</code>；
+                            <br>在 H 列新增"日期类型"，输入 <code>=IF(ISNUMBER(C2),"日期","文本")</code>；
+                            <br>在 I 列新增"等级类型"，输入 <code>=IF(ISNUMBER(D2),"数值","文本")</code>；
+                            <br>在 J 列新增"数量类型"，输入 <code>=IF(ISNUMBER(E2),"数值","文本")</code>；
+                            <br>在 K 列新增"电话类型"，输入 <code>=IF(ISNUMBER(F2),"数值","文本")</code>；
+                            <br>统计每列"文本"和"数值"各有多少个，填入诊断表。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Step 2：逐列转换</strong>。
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li><strong>销售额（B列）</strong>：新增 L 列"销售额（转换）"，
+                                    用 <code>=IFERROR(VALUE(SUBSTITUTE(B2,"¥","")),B2*1)</code>，
+                                    兼顾带符号和不带符号的情况。</li>
+                                <li><strong>下单日期（C列）</strong>：用分列转换（选日期YMD），
+                                    转换后统一格式为 yyyy-mm-dd。</li>
+                                <li><strong>客户等级（D列）</strong>：用分列转换（选常规）。</li>
+                                <li><strong>联系电话（F列）</strong>：<span class="highlight">不转换</span>，
+                                    电话号码应保持文本型（转为数值会丢失开头的0）。</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Step 3：转换后验证</strong>。
+                            重新运行 Step 1 的检测公式，确认所有应转换的列均为正确类型。
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Step 4：撰写类型诊断报告</strong>，在新 Sheet（"诊断报告"）中完成。
+                    </li>
+                </ol>
+
+                <!-- 诊断报告模板 -->
+                <div class="section-title">📝 类型诊断报告（在"诊断报告"Sheet 中完成）</div>
+
+                <p style="font-size:13.5px;margin-bottom:10px;color:#555;">▶ 第一部分：类型检测结果</p>
+                <table class="record-table red">
+                    <tr>
+                        <th>字段名</th>
+                        <th>期望类型</th>
+                        <th>转换前：数值型数量</th>
+                        <th>转换前：文本型数量</th>
+                        <th>是否存在问题</th>
+                        <th>转换后：数值型数量</th>
+                        <th>转换后：文本型数量</th>
+                        <th>是否修复完成</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>文本</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 是 ☐ 否</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 无需修复</td>
+                    </tr>
+                    <tr>
+                        <td>销售额</td>
+                        <td>数值</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 是 ☐ 否</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 完成 ☐ 未完成</td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>日期</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 是 ☐ 否</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 完成 ☐ 未完成</td>
+                    </tr>
+                    <tr>
+                        <td>客户等级</td>
+                        <td>数值</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 是 ☐ 否</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 完成 ☐ 未完成</td>
+                    </tr>
+                    <tr>
+                        <td>购买数量</td>
+                        <td>数值</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 是 ☐ 否</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 无需修复</td>
+                    </tr>
+                    <tr>
+                        <td>联系电话</td>
+                        <td>文本</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 是 ☐ 否</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 无需修复</td>
+                    </tr>
+                </table>
+
+                <p style="font-size:13.5px;margin:16px 0 10px;color:#555;">▶ 第二部分：转换方法说明</p>
+                <table class="record-table red">
+                    <tr>
+                        <th>字段名</th>
+                        <th>问题类型</th>
+                        <th>转换方法</th>
+                        <th>使用的函数/工具</th>
+                        <th>注意事项</th>
+                    </tr>
+                    <tr>
+                        <td>销售额</td>
+                        <td>混合型（部分带¥符号）</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>文本型日期</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>客户等级</td>
+                        <td>文本型数字</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>联系电话</td>
+                        <td>文本型（正确）</td>
+                        <td>不转换</td>
+                        <td>—</td>
+                        <td>转数值会丢失开头0</td>
+                    </tr>
+                </table>
+
+                <p style="font-size:13.5px;margin:16px 0 10px;color:#555;">▶ 第三部分：转换后统计验证</p>
+                <table class="record-table red">
+                    <tr>
+                        <th>验证项目</th>
+                        <th>验证公式</th>
+                        <th>转换前结果</th>
+                        <th>转换后结果</th>
+                        <th>是否正常</th>
+                    </tr>
+                    <tr>
+                        <td>销售额可求和</td>
+                        <td><code>=SUM(L2:L31)</code></td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 正常 ☐ 异常</td>
+                    </tr>
+                    <tr>
+                        <td>日期可排序</td>
+                        <td>按C列升序排序</td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 正常 ☐ 异常</td>
+                    </tr>
+                    <tr>
+                        <td>日期可加1天</td>
+                        <td><code>=C2+1</code></td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 正常 ☐ 异常</td>
+                    </tr>
+                    <tr>
+                        <td>等级可求平均</td>
+                        <td><code>=AVERAGE(D2:D31)</code></td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 正常 ☐ 异常</td>
+                    </tr>
+                    <tr>
+                        <td>电话号码完整</td>
+                        <td><code>=LEN(F2)</code></td>
+                        <td></td>
+                        <td></td>
+                        <td>☐ 11位 ☐ 异常</td>
+                    </tr>
+                </table>
+
+                <p style="font-size:13.5px;margin:16px 0 10px;color:#555;">▶ 第四部分：分析结论</p>
+                <table class="record-table red">
+                    <tr>
+                        <th>分析问题</th>
+                        <th>结论（须引用数据）</th>
+                    </tr>
+                    <tr>
+                        <td>① 转换后总销售额是多少？平均每单销售额是多少？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>② 等级5客户的平均购买数量是多少？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>③ 为什么电话号码不应转为数值型？举例说明。</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>④ 总结：数据类型转换的3条核心原则</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box red">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>混合型销售额的转换公式解析</strong>：
+                            <code>=IFERROR(VALUE(SUBSTITUTE(B2,"¥","")), B2*1)</code>
+                            <br>先尝试去除"¥"再转数值，如果失败（说明没有"¥"符号，VALUE报错），
+                            则用 B2*1 将纯数字文本转为数值。
+                        </li>
+                        <li><strong>日期分列转换注意</strong>：
+                            如果日期格式混用（"2024-03-01"和"2024/3/1"），
+                            分列时选"YMD"通常两种都能正确识别。
+                            转换后统一设置单元格格式为 yyyy-mm-dd。</li>
+                        <li><strong>电话号码保持文本的重要性</strong>：
+                            手机号"13800138001"如果转为数值，表面看起来不变，
+                            但如果有"013800138001"（某些系统的输出格式），
+                            转数值后开头的0会丢失，变成"13800138001"，
+                            少了一位，数据就错了。</li>
+                        <li><strong>批量检测的效率技巧</strong>：
+                            先在 G-K 列设置检测公式，然后用 COUNTIF 统计每列的"文本"和"数值"数量，
+                            一目了然哪些列需要转换。转换后重新统计，对比前后变化。</li>
+                    </ul>
+                </div>
+
+                <div class="tip-box purple">
+                    <div class="tip-title">📌 数据类型转换的核心原则</div>
+                    <ul>
+                        <li><strong>原则一：先检测再转换</strong>。
+                            不要看到数字就想转，用 ISNUMBER 检测后再决定是否需要转换。
+                            编码、电话号码等"数字型文本"不需要转。</li>
+                        <li><strong>原则二：转换后必须验证</strong>。
+                            用 SUM、排序、+1 等操作验证转换是否成功，
+                            不要只看表面格式就认为"转换好了"。</li>
+                        <li><strong>原则三：保留原始数据</strong>。
+                            用函数转换时，在旁边新建列而非覆盖原列；
+                            用分列转换时，先备份。转换出错可以回退。</li>
+                        <li><strong>原则四：格式 ≠ 类型</strong>。
+                            单元格显示"89.00"不一定就是数值型，
+                            可能只是文本"89.00"设置了数字格式。
+                            判断类型要用 ISNUMBER，不是看显示效果。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <footer>
+            数据分析基础 · 模块三 · 3.3.7 数据类型转换 · 任务书<br>
+            数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+        </footer>
+
+    </div>
+
+    <!-- ===== CSV 数据 ===== -->
+    <script>
+        const CSV_DATA = {
+
+            basic: `订单编号,商品类别,销售额（元）,下单日期
+ORD-2024-001,充电宝,89.00,2024-03-01
+ORD-2024-002,蓝牙耳机,129.00,2024-03-01
+ORD-2024-003,手机壳,19.90,2024-03-02
+ORD-2024-004,数据线,29.90,2024-03-02
+ORD-2024-005,充电宝,149.00,2024-03-03
+ORD-2024-006,蓝牙耳机,299.00,2024-03-03
+ORD-2024-007,手机壳,24.90,2024-03-04
+ORD-2024-008,数据线,15.90,2024-03-04
+ORD-2024-009,充电宝,49.00,2024-03-05
+ORD-2024-010,蓝牙耳机,199.00,2024-03-05
+ORD-2024-011,手机壳,18.90,2024-03-06
+ORD-2024-012,数据线,19.90,2024-03-06
+ORD-2024-013,充电宝,89.00,2024-03-07
+ORD-2024-014,蓝牙耳机,129.00,2024-03-07
+ORD-2024-015,手机壳,22.90,2024-03-08
+ORD-2024-016,数据线,29.90,2024-03-08
+ORD-2024-017,充电宝,149.00,2024-03-09
+ORD-2024-018,蓝牙耳机,199.00,2024-03-09
+ORD-2024-019,手机壳,19.90,2024-03-10
+ORD-2024-020,数据线,15.90,2024-03-10`,
+
+            medium: `订单编号,销售额（元）,下单日期,客户等级
+ORD-2024-101,¥89.00,2024-03-01,3
+ORD-2024-102,¥129.00,2024-03-01,4
+ORD-2024-103,19.90,2024-03-02,2
+ORD-2024-104,¥29.90,2024-03-02,3
+ORD-2024-105,149.00,2024-03-03,5
+ORD-2024-106,¥299.00,2024-03-03,5
+ORD-2024-107,24.90,2024-03-04,1
+ORD-2024-108,¥15.90,2024-03-04,2
+ORD-2024-109,¥49.00,2024-03-05,3
+ORD-2024-110,199.00,2024-03-05,4
+ORD-2024-111,¥18.90,2024-03-06,2
+ORD-2024-112,¥19.90,2024-03-06,3
+ORD-2024-113,89.00,2024-03-07,5
+ORD-2024-114,¥129.00,2024-03-07,4
+ORD-2024-115,22.90,2024-03-08,1
+ORD-2024-116,¥29.90,2024-03-08,3
+ORD-2024-117,149.00,2024-03-09,5
+ORD-2024-118,¥199.00,2024-03-09,4
+ORD-2024-119,19.90,2024-03-10,2
+ORD-2024-120,¥15.90,2024-03-10,1
+ORD-2024-121,¥89.00,2024-03-11,3
+ORD-2024-122,129.00,2024-03-11,4
+ORD-2024-123,¥24.90,2024-03-12,2
+ORD-2024-124,¥49.00,2024-03-12,3
+ORD-2024-125,199.00,2024-03-13,5`,
+
+            hard: `订单编号,销售额（元）,下单日期,客户等级,购买数量,联系电话
+ORD-2024-201,¥89.00,2024-03-01,3,2,13800138001
+ORD-2024-202,129.00,2024/3/2,4,1,13912345678
+ORD-2024-203,¥19.90,2024年3月3日,2,3,13623456789
+ORD-2024-204,¥29.90,2024-03-04,3,1,13534567890
+ORD-2024-205,149.00,2024/3/5,5,2,13745678901
+ORD-2024-206,¥299.00,2024年3月6日,5,1,13856789012
+ORD-2024-207,24.90,2024-03-07,1,4,13967890123
+ORD-2024-208,¥15.90,2024/3/8,2,2,13078901234
+ORD-2024-209,¥49.00,2024年3月9日,3,1,13189012345
+ORD-2024-210,199.00,2024-03-10,4,1,13290123456
+ORD-2024-211,¥18.90,2024/3/11,2,5,13311234567
+ORD-2024-212,¥19.90,2024年3月12日,3,2,13422345678
+ORD-2024-213,89.00,2024-03-13,5,1,13533456789
+ORD-2024-214,¥129.00,2024/3/14,4,2,13644567890
+ORD-2024-215,22.90,2024年3月15日,1,3,13755678901
+ORD-2024-216,¥29.90,2024-03-16,3,1,13866789012
+ORD-2024-217,149.00,2024/3/17,5,2,13977890123
+ORD-2024-218,¥199.00,2024年3月18日,4,1,13088901234
+ORD-2024-219,19.90,2024-03-19,2,3,13199012345
+ORD-2024-220,¥15.90,2024/3/20,1,2,13200123456
+ORD-2024-221,¥89.00,2024年3月21日,3,1,13311234568
+ORD-2024-222,129.00,2024-03-22,4,2,13422345679
+ORD-2024-223,¥24.90,2024/3/23,2,4,13533456780
+ORD-2024-224,¥49.00,2024年3月24日,3,1,13644567891
+ORD-2024-225,199.00,2024-03-25,5,1,13755678902
+ORD-2024-226,¥299.00,2024/3/26,5,1,13800138003
+ORD-2024-227,19.90,2024年3月27日,1,3,13912345680
+ORD-2024-228,¥89.00,2024-03-28,3,2,13623456791
+ORD-2024-229,149.00,2024/3/29,4,1,13534567892
+ORD-2024-230,¥49.00,2024年3月30日,3,2,13745678903`
+
+        };
+
+        function downloadCSV(level) {
+            const nameMap = {
+                basic: '基础_销售数据',
+                medium: '巩固_订单数据',
+                hard: '进阶_综合数据'
+            };
+            const filename = `3.3.7_数据类型转换_${nameMap[level]}.csv`;
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + CSV_DATA[level]], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>

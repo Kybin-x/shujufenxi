@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.3.6 LEFT/MID/RIGHT 文本提取 · 任务书</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            line-height: 1.7;
+        }
+
+        /* ===== Banner ===== */
+        .banner {
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            color: #fff;
+            padding: 36px 48px 28px;
+        }
+
+        .banner .course-tag {
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: .75;
+            margin-bottom: 8px;
+        }
+
+        .banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .banner .subtitle {
+            font-size: 14px;
+            opacity: .85;
+        }
+
+        .banner .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        /* ===== 主体 ===== */
+        .container {
+            max-width: 980px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ===== 情景卡片 ===== */
+        .scenario-card {
+            background: #fff;
+            border-left: 5px solid #1565c0;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+        }
+
+        .scenario-card h2 {
+            font-size: 15px;
+            color: #1565c0;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card p {
+            font-size: 14px;
+        }
+
+        /* ===== 知识点速览 ===== */
+        .knowledge-card {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+        }
+
+        .knowledge-card h3 {
+            color: #0d47a1;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .knowledge-card .warn {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #fff8e1;
+            border-left: 3px solid #ffa000;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #5d4037;
+        }
+
+        /* 函数语法卡片组 */
+        .func-syntax-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .fsg-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px 16px;
+            border-top: 4px solid #1565c0;
+        }
+
+        .fsg-card.left-c {
+            border-top-color: #1565c0;
+        }
+
+        .fsg-card.mid-c {
+            border-top-color: #6a1b9a;
+        }
+
+        .fsg-card.right-c {
+            border-top-color: #00695c;
+        }
+
+        .fsg-card .fc-name {
+            font-family: Consolas, monospace;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .fsg-card.left-c .fc-name {
+            color: #1565c0;
+        }
+
+        .fsg-card.mid-c .fc-name {
+            color: #6a1b9a;
+        }
+
+        .fsg-card.right-c .fc-name {
+            color: #00695c;
+        }
+
+        .fsg-card .fc-syntax {
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            background: #eceff1;
+            border-radius: 4px;
+            padding: 5px 8px;
+            margin: 6px 0;
+            color: #c62828;
+        }
+
+        .fsg-card .fc-param {
+            font-size: 12.5px;
+            color: #555;
+        }
+
+        .fsg-card .fc-param li {
+            margin-bottom: 3px;
+            padding-left: 4px;
+        }
+
+        .fsg-card .fc-example {
+            margin-top: 8px;
+            font-size: 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 5px 8px;
+        }
+
+        /* 文本提取可视化 */
+        .extract-visual {
+            background: #fff;
+            border: 2px solid #90caf9;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .extract-visual .ev-title {
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .ev-string {
+            font-family: Consolas, monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .ev-char {
+            display: inline-block;
+            width: 28px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 3px;
+            margin: 1px;
+        }
+
+        .ev-char.left-part {
+            background: #bbdefb;
+            color: #0d47a1;
+        }
+
+        .ev-char.mid-part {
+            background: #e1bee7;
+            color: #4a148c;
+        }
+
+        .ev-char.right-part {
+            background: #b2dfdb;
+            color: #004d40;
+        }
+
+        .ev-char.sep {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .ev-char.normal {
+            background: #f5f5f5;
+            color: #555;
+        }
+
+        .ev-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            margin-top: 8px;
+        }
+
+        .ev-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ev-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        /* ===== 难度块 ===== */
+        .level-block {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 28px;
+            color: #fff;
+        }
+
+        .level-header.basic {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .level-header.medium {
+            background: linear-gradient(90deg, #fb8c00, #ffa726);
+        }
+
+        .level-header.hard {
+            background: linear-gradient(90deg, #e53935, #ef5350);
+        }
+
+        .level-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, .25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .level-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .level-header .level-desc {
+            font-size: 13px;
+            opacity: .9;
+            margin-left: auto;
+        }
+
+        .level-body {
+            padding: 24px 28px;
+        }
+
+        /* ===== 下载区 ===== */
+        .download-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #e3f2fd;
+            border: 1px dashed #90caf9;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+
+        .download-bar .dl-info {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .download-bar .dl-info strong {
+            color: #1565c0;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1565c0;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-download:hover {
+            background: #0d47a1;
+        }
+
+        .btn-download svg {
+            width: 15px;
+            height: 15px;
+            fill: #fff;
+        }
+
+        /* ===== 通用 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-left: 4px solid #1565c0;
+            padding-left: 10px;
+            margin: 22px 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        th {
+            background: #e3f2fd;
+            color: #0d47a1;
+            font-weight: 700;
+            padding: 9px 14px;
+            text-align: left;
+            border: 1px solid #90caf9;
+        }
+
+        td {
+            padding: 8px 14px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .task-list {
+            padding-left: 0;
+            list-style: none;
+            counter-reset: task;
+        }
+
+        .task-list li {
+            counter-increment: task;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            align-items: flex-start;
+        }
+
+        .task-list li::before {
+            content: counter(task);
+            min-width: 26px;
+            height: 26px;
+            background: #1565c0;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .task-list.orange li::before {
+            background: #fb8c00;
+        }
+
+        .task-list.red li::before {
+            background: #e53935;
+        }
+
+        .tip-box {
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            margin-top: 16px;
+        }
+
+        .tip-box.green {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+
+        .tip-box.orange {
+            background: #fff3e0;
+            border-left: 4px solid #fb8c00;
+        }
+
+        .tip-box.red {
+            background: #fce4ec;
+            border-left: 4px solid #e53935;
+        }
+
+        .tip-box.blue {
+            background: #e3f2fd;
+            border-left: 4px solid #1565c0;
+        }
+
+        .tip-box .tip-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tip-box.green .tip-title {
+            color: #2e7d32;
+        }
+
+        .tip-box.orange .tip-title {
+            color: #e65100;
+        }
+
+        .tip-box.red .tip-title {
+            color: #b71c1c;
+        }
+
+        .tip-box.blue .tip-title {
+            color: #0d47a1;
+        }
+
+        .tip-box ul {
+            padding-left: 18px;
+        }
+
+        .tip-box ul li {
+            margin-bottom: 5px;
+        }
+
+        /* 记录填写表 */
+        .record-table th {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
+        }
+
+        .record-table.orange th {
+            background: #fff3e0;
+            color: #bf360c;
+            border-color: #ffcc80;
+        }
+
+        .record-table.red th {
+            background: #fce4ec;
+            color: #880e4f;
+            border-color: #f48fb1;
+        }
+
+        /* 填空题样式 */
+        .fill-block {
+            background: #f8fbff;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+        }
+
+        .fill-block.orange {
+            background: #fffaf5;
+            border-color: #ffcc80;
+        }
+
+        .fill-block.red {
+            background: #fff8f8;
+            border-color: #ffcdd2;
+        }
+
+        .fill-block .fb-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2c3e50;
+        }
+
+        .fill-block .fb-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #1565c0;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .fill-block .fb-num.orange {
+            background: #fb8c00;
+        }
+
+        .fill-block .fb-num.red {
+            background: #e53935;
+        }
+
+        .fill-block .fb-source {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            background: #eceff1;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin: 6px 0;
+            color: #333;
+        }
+
+        .fill-block .fb-formula {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            background: #e8f5e9;
+            border: 1px dashed #a5d6a7;
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin: 4px 0;
+            color: #1b5e20;
+            min-height: 32px;
+        }
+
+        .fill-block .fb-result {
+            font-size: 12.5px;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        /* SKU结构图 */
+        .sku-diagram {
+            background: #f3e5f5;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .sku-diagram .sd-title {
+            font-weight: 700;
+            color: #4a148c;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .sku-example {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 10px 0;
+            font-family: Consolas, monospace;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .sku-part {
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .sku-part.cat {
+            background: #bbdefb;
+            color: #0d47a1;
+        }
+
+        .sku-part.sep {
+            background: transparent;
+            color: #999;
+            padding: 6px 4px;
+        }
+
+        .sku-part.col {
+            background: #e1bee7;
+            color: #4a148c;
+        }
+
+        .sku-part.size {
+            background: #b2dfdb;
+            color: #004d40;
+        }
+
+        .sku-label {
+            display: flex;
+            gap: 0;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .sku-label-item {
+            text-align: center;
+        }
+
+        /* FIND函数说明 */
+        .find-box {
+            background: #e8eaf6;
+            border-left: 4px solid #3949ab;
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .find-box .fb2-title {
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* 操作步骤盒 */
+        .step-box {
+            background: #f9fbe7;
+            border: 1px solid #dce775;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .step-box .step-title {
+            font-weight: 700;
+            color: #827717;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .step-box ol {
+            padding-left: 20px;
+        }
+
+        .step-box ol li {
+            margin-bottom: 6px;
+        }
+
+        code {
+            background: #eceff1;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c62828;
+        }
+
+        .highlight {
+            display: inline-block;
+            background: #fff9c4;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        /* 颜色标签 */
+        .tag-left {
+            display: inline-block;
+            background: #bbdefb;
+            color: #0d47a1;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-family: Consolas;
+            margin: 2px;
+        }
+
+        .tag-mid {
+            display: inline-block;
+            background: #e1bee7;
+            color: #4a148c;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-family: Consolas;
+            margin: 2px;
+        }
+
+        .tag-right {
+            display: inline-block;
+            background: #b2dfdb;
+            color: #004d40;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-family: Consolas;
+            margin: 2px;
+        }
+
+        .tag-find {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #1a237e;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-family: Consolas;
+            margin: 2px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Banner ===== -->
+    <div class="banner">
+        <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+        <h1>3.3.6 LEFT / MID / RIGHT 文本提取</h1>
+        <div class="subtitle">从固定格式文本中精准提取所需片段，配合 FIND/LEN 处理变长字段</div>
+        <div class="meta">
+            <span>📁 配套文件：3.3.6_练习数据.xlsx</span>
+            <span>🎯 三个难度等级</span>
+            <span>🏢 情景：星途电商有限公司</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 情景 -->
+        <div class="scenario-card">
+            <h2>📋 背景情景</h2>
+            <p>
+                星途电商有限公司客服部门导出了一批客户信息和商品 SKU 编码数据。
+                这些数据中，姓名、手机号、城市代码等信息被混在一个字段里，
+                商品 SKU 也是用"-"分隔的多段编码。
+                数据分析实习生小方需要将这些"合并字段"拆分提取，
+                分别存入独立的列中，便于后续统计分析。
+                请协助小方使用 LEFT、MID、RIGHT 及配合 FIND、LEN 函数完成文本提取任务。
+            </p>
+        </div>
+
+        <!-- 知识点速览 -->
+        <div class="knowledge-card">
+            <h3>📖 知识点速览：三个文本提取函数</h3>
+            <div class="func-syntax-grid">
+                <div class="fsg-card left-c">
+                    <div class="fc-name">LEFT</div>
+                    <div class="fc-syntax">=LEFT(文本, 字符数)</div>
+                    <ul class="fc-param">
+                        <li><strong>文本</strong>：要提取的原始文本</li>
+                        <li><strong>字符数</strong>：从左边取几个字符</li>
+                    </ul>
+                    <div class="fc-example">
+                        <strong>示例：</strong><br>
+                        =LEFT("张三李四", 2)<br>
+                        → <strong>"张三"</strong>（取左边2个字符）
+                    </div>
+                </div>
+                <div class="fsg-card mid-c">
+                    <div class="fc-name">MID</div>
+                    <div class="fc-syntax">=MID(文本, 起始位置, 字符数)</div>
+                    <ul class="fc-param">
+                        <li><strong>文本</strong>：要提取的原始文本</li>
+                        <li><strong>起始位置</strong>：从第几个字符开始</li>
+                        <li><strong>字符数</strong>：取几个字符</li>
+                    </ul>
+                    <div class="fc-example">
+                        <strong>示例：</strong><br>
+                        =MID("DXL-BK-1M", 5, 2)<br>
+                        → <strong>"BK"</strong>（从第5位取2个字符）
+                    </div>
+                </div>
+                <div class="fsg-card right-c">
+                    <div class="fc-name">RIGHT</div>
+                    <div class="fc-syntax">=RIGHT(文本, 字符数)</div>
+                    <ul class="fc-param">
+                        <li><strong>文本</strong>：要提取的原始文本</li>
+                        <li><strong>字符数</strong>：从右边取几个字符</li>
+                    </ul>
+                    <div class="fc-example">
+                        <strong>示例：</strong><br>
+                        =RIGHT("北京0001", 4)<br>
+                        → <strong>"0001"</strong>（取右边4个字符）
+                    </div>
+                </div>
+            </div>
+
+            <!-- 可视化示意 -->
+            <div style="margin-top:14px;">
+                <strong style="font-size:13px;">📍 字符位置示意（以 "王小明13800138001广东0001" 为例）：</strong>
+                <div class="ev-string" style="margin-top:8px;">
+                    <span class="ev-char left-part">王</span>
+                    <span class="ev-char left-part">小</span>
+                    <span class="ev-char left-part">明</span>
+                    <span class="ev-char mid-part">1</span>
+                    <span class="ev-char mid-part">3</span>
+                    <span class="ev-char mid-part">8</span>
+                    <span class="ev-char mid-part">0</span>
+                    <span class="ev-char mid-part">0</span>
+                    <span class="ev-char mid-part">1</span>
+                    <span class="ev-char mid-part">3</span>
+                    <span class="ev-char mid-part">8</span>
+                    <span class="ev-char mid-part">0</span>
+                    <span class="ev-char mid-part">0</span>
+                    <span class="ev-char mid-part">1</span>
+                    <span class="ev-char right-part">广</span>
+                    <span class="ev-char right-part">东</span>
+                    <span class="ev-char right-part">0</span>
+                    <span class="ev-char right-part">0</span>
+                    <span class="ev-char right-part">0</span>
+                    <span class="ev-char right-part">1</span>
+                </div>
+                <div class="ev-legend">
+                    <div class="ev-legend-item">
+                        <div class="ev-dot" style="background:#bbdefb;"></div>
+                        <span><span class="tag-left">LEFT(A2,3)</span> = "王小明"（姓名3字）</span>
+                    </div>
+                    <div class="ev-legend-item">
+                        <div class="ev-dot" style="background:#e1bee7;"></div>
+                        <span><span class="tag-mid">MID(A2,4,11)</span> = "13800138001"（手机11位）</span>
+                    </div>
+                    <div class="ev-legend-item">
+                        <div class="ev-dot" style="background:#b2dfdb;"></div>
+                        <span><span class="tag-right">RIGHT(A2,6)</span> = "广东0001"（城市代码6位）</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warn">
+                ⚠️ 注意：LEFT/MID/RIGHT 中的"字符数"以<strong>字符个数</strong>计算，
+                汉字和英文字母、数字都算1个字符。
+                如果需要按字节计算（汉字=2字节），要用 LEFTB/MIDB/RIGHTB，
+                但本课程统一使用字符版本（LEFT/MID/RIGHT）。
+            </div>
+        </div>
+
+        <!-- ==================== 基础 ==================== -->
+        <div class="level-block">
+            <div class="level-header basic">
+                <span class="level-badge">LEVEL 1</span>
+                <h2>基础练习</h2>
+                <span class="level-desc">适合：第一次使用文本提取函数 · 25条客户信息 · 格式固定，三段信息</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>25条客户信息</strong>｜格式固定：
+                        3字姓名 + 11位手机号 + 城市名(2字) + 4位客户编号｜
+                        用 LEFT/MID/RIGHT 分别提取三段
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('basic')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>格式说明</th>
+                    </tr>
+                    <tr>
+                        <td>客户编码</td>
+                        <td>A列</td>
+                        <td>将姓名+手机+城市代码合并在一起的字段</td>
+                        <td>固定格式：<strong>3字姓名</strong> + <strong>11位手机号</strong> + <strong>2字城市</strong> +
+                            <strong>4位编号</strong>，共 20 个字符</td>
+                    </tr>
+                    <tr>
+                        <td>消费金额（元）</td>
+                        <td>B列</td>
+                        <td>该客户的累计消费金额</td>
+                        <td>数值型，无需提取</td>
+                    </tr>
+                    <tr>
+                        <td>会员等级</td>
+                        <td>C列</td>
+                        <td>普通/银牌/金牌/钻石</td>
+                        <td>文本，无需提取</td>
+                    </tr>
+                </table>
+
+                <!-- 格式说明 -->
+                <div class="extract-visual">
+                    <div class="ev-title">📐 客户编码格式拆解（共20个字符）</div>
+                    <div class="ev-string">
+                        <span class="ev-char left-part">张</span>
+                        <span class="ev-char left-part">三</span>
+                        <span class="ev-char left-part">丰</span>
+                        <span class="ev-char mid-part">1</span><span class="ev-char mid-part">3</span>
+                        <span class="ev-char mid-part">8</span><span class="ev-char mid-part">0</span>
+                        <span class="ev-char mid-part">0</span><span class="ev-char mid-part">1</span>
+                        <span class="ev-char mid-part">3</span><span class="ev-char mid-part">8</span>
+                        <span class="ev-char mid-part">0</span><span class="ev-char mid-part">0</span>
+                        <span class="ev-char mid-part">1</span>
+                        <span class="ev-char right-part">广</span>
+                        <span class="ev-char right-part">东</span>
+                        <span class="ev-char right-part">0</span>
+                        <span class="ev-char right-part">0</span>
+                        <span class="ev-char right-part">0</span>
+                        <span class="ev-char right-part">1</span>
+                    </div>
+                    <div class="ev-legend">
+                        <div class="ev-legend-item">
+                            <div class="ev-dot" style="background:#bbdefb;"></div>
+                            <span>第1-3位：<span class="tag-left">姓名（3字）</span> → LEFT(A2,3)</span>
+                        </div>
+                        <div class="ev-legend-item">
+                            <div class="ev-dot" style="background:#e1bee7;"></div>
+                            <span>第4-14位：<span class="tag-mid">手机号（11位）</span> → MID(A2,4,11)</span>
+                        </div>
+                        <div class="ev-legend-item">
+                            <div class="ev-dot" style="background:#b2dfdb;"></div>
+                            <span>第15-20位：<span class="tag-right">城市+编号（6位）</span> → RIGHT(A2,6)</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;font-size:13px;color:#555;">
+                        城市名（2字）在第15-16位：<span class="tag-mid">MID(A2,15,2)</span>；
+                        客户编号（4位）在第17-20位：<span class="tag-right">RIGHT(A2,4)</span>
+                    </div>
+                </div>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>将数据粘贴到"数据（基础）"Sheet，在 D、E、F、G 列分别新建：
+                        "姓名""手机号""所在城市""客户编号"四列。</li>
+                    <li>
+                        <div>
+                            在 D2 输入提取姓名的公式，向下填充到 D26：
+                            <br><code>=LEFT(A2, 3)</code>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            在 E2 输入提取手机号的公式，向下填充到 E26：
+                            <br><code>=MID(A2, 4, 11)</code>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            在 F2 输入提取城市名的公式，向下填充到 F26：
+                            <br><code>=MID(A2, 15, 2)</code>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            在 G2 输入提取客户编号的公式，向下填充到 G26：
+                            <br><code>=RIGHT(A2, 4)</code>
+                        </div>
+                    </li>
+                    <li>完成后验证结果，并完成下方统计练习。</li>
+                </ol>
+
+                <!-- 填空练习 -->
+                <div class="section-title">✏️ 公式填写练习</div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">1</span>
+                        提取姓名（前3个字符）
+                    </div>
+                    <div class="fb-source">原始数据示例：张三丰13800138001广东0001</div>
+                    <div class="fb-formula">= LEFT( A2, _____ )</div>
+                    <div class="fb-result">预期结果：张三丰</div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">2</span>
+                        提取手机号（从第4位开始，取11位）
+                    </div>
+                    <div class="fb-source">原始数据示例：张三丰13800138001广东0001</div>
+                    <div class="fb-formula">= MID( A2, _____ , _____ )</div>
+                    <div class="fb-result">预期结果：13800138001</div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">3</span>
+                        提取城市名（从第15位开始，取2位）
+                    </div>
+                    <div class="fb-source">原始数据示例：张三丰13800138001广东0001</div>
+                    <div class="fb-formula">= MID( A2, _____ , _____ )</div>
+                    <div class="fb-result">预期结果：广东</div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">4</span>
+                        提取客户编号（右边4位）
+                    </div>
+                    <div class="fb-source">原始数据示例：张三丰13800138001广东0001</div>
+                    <div class="fb-formula">= RIGHT( A2, _____ )</div>
+                    <div class="fb-result">预期结果：0001</div>
+                </div>
+
+                <div class="section-title">📝 提取结果统计（在 Excel 中用函数完成）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>统计项目</th>
+                        <th>使用函数</th>
+                        <th>公式示例</th>
+                        <th>结果</th>
+                    </tr>
+                    <tr>
+                        <td>来自"广东"的客户数量</td>
+                        <td>COUNTIF</td>
+                        <td><code>=COUNTIF(F2:F26,"广东")</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>广东客户的平均消费金额</td>
+                        <td>AVERAGEIF</td>
+                        <td><code>=AVERAGEIF(F2:F26,"广东",B2:B26)</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>金牌会员中广东客户数</td>
+                        <td>COUNTIFS</td>
+                        <td><code>=COUNTIFS(F2:F26,"广东",C2:C26,"金牌")</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>手机号以"138"开头的客户数</td>
+                        <td>COUNTIF</td>
+                        <td><code>=COUNTIF(E2:E26,"138*")</code></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box green">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>字符位置从1开始计数</strong>：
+                            MID(A2, 4, 11) 表示从第4个字符开始，取11个字符。
+                            第1个字符是"张"，第4个字符是"1"（手机号第一位）。</li>
+                        <li><strong>验证提取是否正确</strong>：提取完成后，
+                            用 <code>=LEN(E2)</code> 检查手机号长度是否为11，
+                            用 <code>=LEN(D2)</code> 检查姓名是否为3。
+                            若长度不对，说明提取参数有误。</li>
+                        <li><strong>为什么城市名用MID而不是RIGHT</strong>：
+                            城市名在第15-16位，后面还有4位编号，
+                            用RIGHT(A2,6)会得到"广东0001"（6位），
+                            只需城市名则用MID(A2,15,2)更精确。</li>
+                        <li>提取出的手机号是<strong>文本型数字</strong>（左对齐），
+                            这是正常的，手机号本来就应该存为文本（不参与数值运算）。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 巩固 ==================== -->
+        <div class="level-block">
+            <div class="level-header medium">
+                <span class="level-badge">LEVEL 2</span>
+                <h2>巩固练习</h2>
+                <span class="level-desc">适合：熟悉基本函数后 · 28条SKU数据 · 拆分编码+按类别统计</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>28条商品SKU数据</strong>｜
+                        SKU格式：类别代码(3位)-颜色代码(2位)-尺寸代码(2位)｜
+                        用 MID 提取颜色代码，用 LEFT/RIGHT 提取类别和尺寸
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('medium')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 SKU编码格式说明</div>
+
+                <div class="sku-diagram">
+                    <div class="sd-title">🏷️ SKU编码结构（格式固定：类别-颜色-尺寸）</div>
+                    <div class="sku-example">
+                        <span class="sku-part cat">DXL</span>
+                        <span class="sku-part sep">-</span>
+                        <span class="sku-part col">BK</span>
+                        <span class="sku-part sep">-</span>
+                        <span class="sku-part size">1M</span>
+                    </div>
+                    <div style="font-size:13px;margin-top:10px;">
+                        <strong>说明：</strong>
+                        <ul style="padding-left:20px;margin-top:6px;">
+                            <li><span class="tag-left">类别代码（3位）</span>：DXL=数据线，CPB=充电宝，PHC=手机壳，BTE=蓝牙耳机，MGC=磁吸充电器</li>
+                            <li><span class="tag-mid">颜色代码（2位）</span>：BK=黑色，WH=白色，RD=红色，BL=蓝色，GN=绿色</li>
+                            <li><span class="tag-right">尺寸代码（2位）</span>：1M=1米，2M=2米，5K=5000mAh，10K=10000mAh，IN=入耳，OV=头戴
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="margin-top:12px;font-size:13px;background:#fff;border-radius:6px;padding:10px 14px;">
+                        <strong>提取公式：</strong>
+                        <br>类别代码：<code>=LEFT(A2, 3)</code> → "DXL"
+                        <br>颜色代码：<code>=MID(A2, 5, 2)</code> → "BK"（跳过第4位的"-"，从第5位取2位）
+                        <br>尺寸代码：<code>=RIGHT(A2, 2)</code> → "1M"
+                    </div>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>SKU编码</td>
+                        <td>A列</td>
+                        <td>格式固定：类别(3)-颜色(2)-尺寸(2)，共8位（含两个"-"共10位）</td>
+                    </tr>
+                    <tr>
+                        <td>库存数量（件）</td>
+                        <td>B列</td>
+                        <td>当前库存</td>
+                    </tr>
+                    <tr>
+                        <td>单价（元）</td>
+                        <td>C列</td>
+                        <td>商品售价</td>
+                    </tr>
+                    <tr>
+                        <td>近30天销量（件）</td>
+                        <td>D列</td>
+                        <td>近30天出售数量</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list orange">
+                    <li>将数据粘贴到"数据（巩固）"Sheet，在 E、F、G 列分别新建：
+                        "类别代码""颜色代码""尺寸代码"三列，用公式提取。</li>
+                    <li>
+                        <div>
+                            在 H 列新建"商品类别（中文）"列，
+                            用 IF 嵌套将类别代码转为中文名称：
+                            <br><code>=IF(E2="DXL","数据线",IF(E2="CPB","充电宝",IF(E2="PHC","手机壳",IF(E2="BTE","蓝牙耳机","磁吸充电器"))))</code>
+                        </div>
+                    </li>
+                    <li>在 I 列新建"颜色（中文）"列，同理将颜色代码转为中文（黑/白/红/蓝/绿）。</li>
+                    <li>
+                        <div>
+                            完成提取后，在 Sheet 右侧建立"汇总统计区"，
+                            用 SUMIF/COUNTIF 完成下方统计表。
+                        </div>
+                    </li>
+                    <li>分析各类别的库存和销售情况，填写分析结论。</li>
+                </ol>
+
+                <!-- 填空题 -->
+                <div class="section-title">✏️ 关键公式填写</div>
+
+                <div class="fill-block orange">
+                    <div class="fb-title">
+                        <span class="fb-num orange">1</span>
+                        提取类别代码（SKU前3位）
+                    </div>
+                    <div class="fb-source">SKU示例：DXL-BK-1M</div>
+                    <div class="fb-formula">= LEFT( A2, _____ )</div>
+                    <div class="fb-result">预期结果：DXL</div>
+                </div>
+
+                <div class="fill-block orange">
+                    <div class="fb-title">
+                        <span class="fb-num orange">2</span>
+                        提取颜色代码（跳过前3位类别+第4位"-"，从第5位取2位）
+                    </div>
+                    <div class="fb-source">SKU示例：DXL-BK-1M（D=1, X=2, L=3, -=4, B=5, K=6, -=7, 1=8, M=9）</div>
+                    <div class="fb-formula">= MID( A2, _____ , _____ )</div>
+                    <div class="fb-result">预期结果：BK（黑色）</div>
+                </div>
+
+                <div class="fill-block orange">
+                    <div class="fb-title">
+                        <span class="fb-num orange">3</span>
+                        提取尺寸代码（右边2位）
+                    </div>
+                    <div class="fb-source">SKU示例：DXL-BK-1M</div>
+                    <div class="fb-formula">= RIGHT( A2, _____ )</div>
+                    <div class="fb-result">预期结果：1M</div>
+                </div>
+
+                <div class="section-title">📝 各类别汇总统计表（在 Excel 中用 SUMIF/COUNTIF 填写）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>商品类别（中文）</th>
+                        <th>SKU数量<br><small>COUNTIF(H列)</small></th>
+                        <th>总库存（件）<br><small>SUMIF(H列,类别,B列)</small></th>
+                        <th>近30天总销量<br><small>SUMIF(H列,类别,D列)</small></th>
+                        <th>平均单价（元）<br><small>AVERAGEIF</small></th>
+                        <th>库存消化率<br><small>=销量/库存</small></th>
+                    </tr>
+                    <tr>
+                        <td>数据线</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>充电宝</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>手机壳</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>蓝牙耳机</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>磁吸充电器</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">📝 各颜色销量统计（用 SUMIF 统计各颜色近30天总销量）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>颜色代码</th>
+                        <th>颜色中文</th>
+                        <th>SKU数量</th>
+                        <th>近30天总销量</th>
+                        <th>销量占比</th>
+                    </tr>
+                    <tr>
+                        <td>BK</td>
+                        <td>黑色</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>WH</td>
+                        <td>白色</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>RD</td>
+                        <td>红色</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>BL</td>
+                        <td>蓝色</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>GN</td>
+                        <td>绿色</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box orange">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>MID提取颜色代码的位置计算</strong>：
+                            SKU格式为 DXL-BK-1M，字符位置如下：
+                            D(1) X(2) L(3) -(4) B(5) K(6) -(7) 1(8) M(9)
+                            颜色代码从第5位开始，取2位，所以是 <code>=MID(A2,5,2)</code>。</li>
+                        <li><strong>IF嵌套转中文名称</strong>：
+                            5种类别需要嵌套4层IF，逻辑为：
+                            IF(是DXL, 数据线, IF(是CPB, 充电宝, IF(是PHC, 手机壳, IF(是BTE, 蓝牙耳机, 磁吸充电器))))
+                            最后一个不需要再判断，直接写默认值即可。</li>
+                        <li><strong>SUMIF按类别汇总</strong>：
+                            条件区域是 H 列（类别中文名），条件是"数据线"等，
+                            求和区域分别是 B 列（库存）或 D 列（销量）。</li>
+                        <li><strong>库存消化率</strong>= 近30天销量 ÷ 当前库存，
+                            反映库存周转速度，值越高说明销售越快、库存压力越小。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 进阶 ==================== -->
+        <div class="level-block">
+            <div class="level-header hard">
+                <span class="level-badge">LEVEL 3</span>
+                <h2>进阶练习</h2>
+                <span class="level-desc">适合：综合运用阶段 · 30条数据 · 变长字段需配合 FIND/LEN 动态提取</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>30条混合数据</strong>｜
+                        商品名称长度不固定，需配合 FIND/LEN 动态定位提取位置｜
+                        包含多种格式的合并字段
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('hard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <!-- FIND/LEN说明 -->
+                <div class="find-box">
+                    <div class="fb2-title">📐 进阶工具：FIND 和 LEN 函数</div>
+                    <table style="font-size:13px;">
+                        <tr>
+                            <th style="background:#3949ab;color:#fff;border-color:#283593;">函数</th>
+                            <th style="background:#3949ab;color:#fff;border-color:#283593;">语法</th>
+                            <th style="background:#3949ab;color:#fff;border-color:#283593;">用途</th>
+                            <th style="background:#3949ab;color:#fff;border-color:#283593;">示例</th>
+                        </tr>
+                        <tr>
+                            <td><span class="tag-find">FIND</span></td>
+                            <td><code>=FIND(查找文本, 字符串, [起始位置])</code></td>
+                            <td>返回某字符在字符串中的<strong>位置</strong></td>
+                            <td><code>=FIND("-","DXL-BK-1M")</code> → 4（第一个"-"在第4位）</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag-find">LEN</span></td>
+                            <td><code>=LEN(文本)</code></td>
+                            <td>返回字符串的<strong>总字符数</strong></td>
+                            <td><code>=LEN("快充数据线")</code> → 5（共5个字符）</td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:10px;font-size:13px;">
+                        <strong>组合用法：动态提取"-"之前的内容</strong><br>
+                        <code>=LEFT(A2, FIND("-",A2)-1)</code>
+                        → 提取第一个"-"之前的所有字符（不管前面有几个字符）
+                        <br><br>
+                        <strong>动态提取"-"之后的内容</strong><br>
+                        <code>=MID(A2, FIND("-",A2)+1, LEN(A2)-FIND("-",A2))</code>
+                        → 提取第一个"-"之后的所有字符
+                    </div>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>格式描述</th>
+                        <th>提取难点</th>
+                    </tr>
+                    <tr>
+                        <td>商品规格描述</td>
+                        <td>A列</td>
+                        <td>格式：商品名称-规格参数<br>例："快充数据线Type-C-1M" / "充电宝-10000mAh"</td>
+                        <td>商品名称长度不固定，用FIND定位"-"位置</td>
+                    </tr>
+                    <tr>
+                        <td>供应商_城市</td>
+                        <td>B列</td>
+                        <td>格式：供应商名称_城市<br>例："深圳华联科技_深圳" / "东莞聚能电子_东莞"</td>
+                        <td>供应商名称长度不固定，用FIND定位"_"位置</td>
+                    </tr>
+                    <tr>
+                        <td>入库批次</td>
+                        <td>C列</td>
+                        <td>格式：年份(4位)-月份(2位)-批次号(3位)<br>例："2024-03-001"</td>
+                        <td>格式固定，用LEFT/MID/RIGHT直接提取</td>
+                    </tr>
+                    <tr>
+                        <td>入库数量（件）</td>
+                        <td>D列</td>
+                        <td>数值型</td>
+                        <td>无需提取</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list red">
+                    <li>将数据粘贴到"数据（进阶）"Sheet，在右侧建立提取列：
+                        E列"商品名称"、F列"规格参数"、G列"供应商名称"、H列"城市"、I列"年份"、J列"月份"、K列"批次号"。</li>
+                    <li>
+                        <div>
+                            <strong>提取商品名称（A列"-"之前的内容，长度不固定）</strong>：
+                            <br><code>=LEFT(A2, FIND("-",A2)-1)</code>
+                            <br>注意：部分商品名称中含有多个"-"（如"Type-C"），
+                            需要用 <code>FIND("-",A2,FIND("-",A2)+1)</code> 定位第二个"-"。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>提取规格参数（A列最后一个"-"之后的内容）</strong>：
+                            <br>使用 LEN 和 FIND 组合动态计算：
+                            <br><code>=RIGHT(A2, LEN(A2)-FIND("☆",SUBSTITUTE(A2,"-","☆",LEN(A2)-LEN(SUBSTITUTE(A2,"-","")))))</code>
+                            <br>（此为提取最后一段"-"后内容的进阶公式，操作提示中有简化方法）
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>提取供应商名称和城市（B列"_"分隔）</strong>：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>供应商名称：<code>=LEFT(B2, FIND("_",B2)-1)</code></li>
+                                <li>城市：<code>=RIGHT(B2, LEN(B2)-FIND("_",B2))</code></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>提取入库批次各段（C列格式固定：年-月-批次号）</strong>：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>年份：<code>=LEFT(C2, 4)</code></li>
+                                <li>月份：<code>=MID(C2, 6, 2)</code></li>
+                                <li>批次号：<code>=RIGHT(C2, 3)</code></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>完成提取后，用 COUNTIF 统计各城市供应商数量，填入下方统计表。</li>
+                </ol>
+
+                <!-- 关键公式填写 -->
+                <div class="section-title">✏️ 关键公式填写（变长字段部分）</div>
+
+                <div class="fill-block red">
+                    <div class="fb-title">
+                        <span class="fb-num red">1</span>
+                        提取商品名称（"-"之前，长度不固定）
+                    </div>
+                    <div class="fb-source">示例：充电宝-10000mAh（"充电宝"3个字，"-"在第4位）</div>
+                    <div class="fb-formula">= LEFT( A2, FIND("-", A2) - _____ )</div>
+                    <div class="fb-result">预期结果：充电宝（不含"-"）</div>
+                </div>
+
+                <div class="fill-block red">
+                    <div class="fb-title">
+                        <span class="fb-num red">2</span>
+                        提取供应商名称（"_"之前，长度不固定）
+                    </div>
+                    <div class="fb-source">示例：深圳华联科技_深圳（"_"在第7位）</div>
+                    <div class="fb-formula">= LEFT( B2, FIND("_", B2) - _____ )</div>
+                    <div class="fb-result">预期结果：深圳华联科技</div>
+                </div>
+
+                <div class="fill-block red">
+                    <div class="fb-title">
+                        <span class="fb-num red">3</span>
+                        提取城市（"_"之后，用LEN-FIND动态计算）
+                    </div>
+                    <div class="fb-source">示例：深圳华联科技_深圳（总长度10，"_"在第7位，城市从第8位到最后）</div>
+                    <div class="fb-formula">= RIGHT( B2, LEN(B2) - FIND("_", B2) )</div>
+                    <div class="fb-result">预期结果：深圳（RIGHT取的字符数 = 总长度 - "_"的位置）</div>
+                </div>
+
+                <div class="fill-block red">
+                    <div class="fb-title">
+                        <span class="fb-num red">4</span>
+                        提取批次号月份（固定格式：2024-03-001，月份在第6-7位）
+                    </div>
+                    <div class="fb-source">示例：2024-03-001</div>
+                    <div class="fb-formula">= MID( C2, _____ , _____ )</div>
+                    <div class="fb-result">预期结果：03</div>
+                </div>
+
+                <!-- 简化提取方法提示 -->
+                <div class="step-box">
+                    <div class="step-title">🔧 进阶技巧：提取最后一段（最后一个"-"之后的内容）</div>
+                    <ol>
+                        <li>对于格式为"A-B-C"需要提取最后一段"C"的情况，有一个更简单的方法：</li>
+                        <li>先用<strong>分列功能</strong>：选中A列 → 数据 → 分列 → 分隔符号 → 勾选"-" → 完成。
+                            Excel会自动将内容按"-"拆分为多列。</li>
+                        <li>分列后最后一列即为最后一段内容。</li>
+                        <li><strong>注意</strong>：分列会修改原数据，建议先复制到旁边再操作，
+                            或使用公式方法保留原列。</li>
+                    </ol>
+                </div>
+
+                <div class="section-title">📝 供应商城市统计表（在 Excel 中填写）</div>
+                <table class="record-table red">
+                    <tr>
+                        <th>城市</th>
+                        <th>供应商数量<br><small>COUNTIF(H列)</small></th>
+                        <th>总入库数量（件）<br><small>SUMIF(H列,城市,D列)</small></th>
+                        <th>代表供应商（举例）</th>
+                    </tr>
+                    <tr>
+                        <td>深圳</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>东莞</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>广州</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>其他城市</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">📝 按月份统计入库情况（J列月份 + D列数量）</div>
+                <table class="record-table red">
+                    <tr>
+                        <th>月份</th>
+                        <th>入库批次数<br><small>COUNTIF(J列)</small></th>
+                        <th>总入库数量（件）<br><small>SUMIF(J列,月份,D列)</small></th>
+                    </tr>
+                    <tr>
+                        <td>01</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>03</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>04</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>05</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>06</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box red">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>FIND函数找不到字符时会报错</strong>：
+                            若数据中某行没有"-"或"_"，FIND会返回#VALUE!错误。
+                            可用 <code>=IFERROR(LEFT(A2,FIND("-",A2)-1), A2)</code> 保护，
+                            出错时直接显示原始文本。</li>
+                        <li><strong>提取最后一段的LEN-FIND方法解析</strong>：
+                            <code>=RIGHT(B2, LEN(B2)-FIND("_",B2))</code>
+                            <br>LEN(B2) = 总字符数，FIND("_",B2) = "_"所在位置，
+                            两者相减 = "_"之后的字符数，RIGHT取这么多字符就是"_"之后的内容。
+                        </li>
+                        <li><strong>商品名称含多个"-"的处理</strong>：
+                            "快充数据线Type-C-1M"中有两个"-"，第一个"-"在"Type"和"C"之间，
+                            不是我们要找的分隔符。
+                            可改用分列功能（数据→分列→分隔符"-"），
+                            Excel会拆成三列，取最后一列为规格参数。</li>
+                        <li><strong>月份提取结果为文本"03"不是数字3</strong>：
+                            这是正常的，用COUNTIF/SUMIF时条件写"03"（加引号）即可匹配。</li>
+                    </ul>
+                </div>
+
+                <div class="tip-box blue">
+                    <div class="tip-title">📌 LEN + FIND 组合公式的逻辑总结</div>
+                    <ul>
+                        <li><strong>提取分隔符之前</strong>：<code>=LEFT(A2, FIND("分隔符",A2)-1)</code></li>
+                        <li><strong>提取分隔符之后</strong>：<code>=RIGHT(A2, LEN(A2)-FIND("分隔符",A2))</code></li>
+                        <li><strong>提取两个分隔符之间</strong>：
+                            <code>=MID(A2, FIND("分隔符1",A2)+1, FIND("分隔符2",A2)-FIND("分隔符1",A2)-1)</code>
+                        </li>
+                        <li>这三个公式模板可以解决大多数变长字段的提取需求，
+                            记住模板比记住每个参数的含义更实用。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <footer>
+            数据分析基础 · 模块三 · 3.3.6 LEFT/MID/RIGHT 文本提取 · 任务书<br>
+            数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+        </footer>
+
+    </div>
+
+    <!-- ===== CSV 数据 ===== -->
+    <script>
+        const CSV_DATA = {
+
+            basic: `客户编码,消费金额（元）,会员等级
+张三丰13800138001广东0001,2580.00,金牌
+李小红13912345678浙江0002,1280.00,银牌
+王大力13623456789北京0003,3560.00,钻石
+赵美丽13534567890上海0004,890.00,普通
+陈志强13745678901江苏0005,1680.00,银牌
+刘晓燕13856789012广东0006,4200.00,钻石
+周建国13967890123浙江0007,760.00,普通
+吴秀芬13078901234北京0008,2100.00,金牌
+孙明远13189012345上海0009,1450.00,银牌
+徐国华13290123456江苏0010,980.00,普通
+朱丽华13311234567广东0011,3280.00,金牌
+杨志远13422345678浙江0012,1860.00,银牌
+郑晓明13533456789北京0013,680.00,普通
+冯美英13644567890上海0014,2950.00,金牌
+蒋建军13755678901江苏0015,1120.00,银牌
+韩秀丽13866789012广东0016,5600.00,钻石
+谢明亮13977890123浙江0017,830.00,普通
+邓国强13088901234北京0018,1790.00,银牌
+曹志华13199012345上海0019,3100.00,金牌
+彭小燕13200123456江苏0020,670.00,普通
+罗建平13311234568广东0021,2460.00,金牌
+梁秀英13422345679浙江0022,940.00,普通
+宋明远13533456780北京0023,1580.00,银牌
+唐志强13644567891上海0024,4800.00,钻石
+许美丽13755678902江苏0025,1230.00,银牌`,
+
+            medium: `SKU编码,库存数量（件）,单价（元）,近30天销量（件）
+DXL-BK-1M,350,29.90,85
+DXL-WH-1M,280,29.90,72
+DXL-RD-1M,120,29.90,38
+DXL-BK-2M,200,35.90,52
+DXL-WH-2M,180,35.90,45
+CPB-BK-5K,150,49.00,42
+CPB-WH-5K,200,49.00,58
+CPB-BK-10K,180,89.00,65
+CPB-WH-10K,220,89.00,78
+CPB-BK-20K,100,149.00,35
+CPB-WH-20K,130,149.00,42
+PHC-CL-I15,250,19.90,88
+PHC-BK-I15,180,19.90,65
+PHC-CL-HW,200,22.90,72
+PHC-BK-HW,150,22.90,48
+PHC-CL-MI,220,18.90,80
+PHC-BK-MI,170,18.90,55
+BTE-BK-IN,120,129.00,38
+BTE-WH-IN,100,129.00,32
+BTE-BK-OV,80,299.00,25
+BTE-WH-OV,90,299.00,28
+BTE-RD-IN,60,99.00,22
+MGC-WH-10W,150,59.00,45
+MGC-BK-10W,120,59.00,38
+MGC-WH-15W,100,79.00,32
+MGC-BK-15W,80,79.00,28
+MGC-WH-20W,60,99.00,22
+MGC-BK-20W,50,99.00,18`,
+
+            hard: `商品规格描述,供应商_城市,入库批次,入库数量（件）
+快充数据线-1M,深圳华联科技_深圳,2024-01-001,500
+充电宝-10000mAh,东莞聚能电子_东莞,2024-01-002,200
+手机壳-iPhone15,广州美力达_广州,2024-01-003,300
+蓝牙耳机入耳式-标准版,深圳声科电子_深圳,2024-01-004,150
+磁吸充电器-15W,深圳磁力科技_深圳,2024-02-001,100
+快充数据线-2M,深圳华联科技_深圳,2024-02-002,400
+充电宝-20000mAh,东莞聚能电子_东莞,2024-02-003,100
+手机壳-华为Mate60,广州美力达_广州,2024-02-004,250
+快充数据线Type-C-1M,深圳华联科技_深圳,2024-02-005,600
+蓝牙耳机头戴式-豪华版,深圳声科电子_深圳,2024-03-001,80
+充电宝-5000mAh,东莞聚能电子_东莞,2024-03-002,300
+手机壳-小米14,广州美力达_广州,2024-03-003,200
+磁吸充电器-20W,深圳磁力科技_深圳,2024-03-004,80
+快充数据线Micro-1M,深圳华联科技_深圳,2024-03-005,450
+充电宝-10000mAh,东莞聚能电子_东莞,2024-03-006,180
+蓝牙耳机入耳式-运动版,深圳声科电子_深圳,2024-04-001,120
+手机壳-iPhone14,广州美力达_广州,2024-04-002,280
+磁吸充电线-1M,深圳磁力科技_深圳,2024-04-003,120
+快充数据线-1M,深圳华联科技_深圳,2024-04-004,500
+充电宝-20000mAh,东莞聚能电子_东莞,2024-04-005,80
+手机壳-华为P60,广州美力达_广州,2024-04-006,220
+蓝牙耳机头戴式-标准版,深圳声科电子_深圳,2024-05-001,60
+磁吸充电器-10W,深圳磁力科技_深圳,2024-05-002,150
+快充数据线Type-C-2M,深圳华联科技_深圳,2024-05-003,350
+充电宝-5000mAh,东莞聚能电子_东莞,2024-05-004,250
+手机壳-小米14,广州美力达_广州,2024-05-005,180
+蓝牙耳机入耳式-标准版,深圳声科电子_深圳,2024-06-001,100
+磁吸充电器-15W,深圳磁力科技_深圳,2024-06-002,90
+快充数据线Micro-2M,深圳华联科技_深圳,2024-06-003,300
+充电宝-10000mAh,东莞聚能电子_东莞,2024-06-004,160`
+
+        };
+
+        function downloadCSV(level) {
+            const nameMap = {
+                basic: '基础_客户信息',
+                medium: '巩固_SKU数据',
+                hard: '进阶_混合数据'
+            };
+            const filename = `3.3.6_文本提取_${nameMap[level]}.csv`;
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + CSV_DATA[level]], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>

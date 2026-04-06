@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3.2.1 分类汇总 · 任务书</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #f4f6f9;
+      color: #2c3e50;
+      line-height: 1.7;
+    }
+
+    /* ===== Banner ===== */
+    .banner {
+      background: linear-gradient(135deg, #00897b 0%, #00695c 100%);
+      color: #fff;
+      padding: 36px 48px 28px;
+    }
+    .banner .course-tag {
+      font-size: 12px;
+      letter-spacing: 2px;
+      opacity: .75;
+      margin-bottom: 8px;
+    }
+    .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .banner .subtitle { font-size: 14px; opacity: .85; }
+    .banner .meta {
+      margin-top: 18px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    /* ===== 主体 ===== */
+    .container {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ===== 情景卡片 ===== */
+    .scenario-card {
+      background: #fff;
+      border-left: 5px solid #00897b;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .scenario-card h2 { font-size: 15px; color: #00897b; margin-bottom: 8px; }
+    .scenario-card p { font-size: 14px; }
+
+    /* ===== 知识点速览 ===== */
+    .knowledge-card {
+      background: #e0f2f1;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 32px;
+      font-size: 13.5px;
+    }
+    .knowledge-card h3 {
+      color: #00695c;
+      font-size: 14px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .knowledge-card ol {
+      padding-left: 20px;
+    }
+    .knowledge-card ol li { margin-bottom: 5px; }
+    .knowledge-card .warn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #fff8e1;
+      border-left: 3px solid #ffa000;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #5d4037;
+    }
+
+    /* ===== 难度块 ===== */
+    .level-block {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      margin-bottom: 36px;
+      overflow: hidden;
+    }
+    .level-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 28px;
+      color: #fff;
+    }
+    .level-header.basic  { background: linear-gradient(90deg,#43a047,#66bb6a); }
+    .level-header.medium { background: linear-gradient(90deg,#fb8c00,#ffa726); }
+    .level-header.hard   { background: linear-gradient(90deg,#e53935,#ef5350); }
+    .level-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: rgba(255,255,255,.25);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+    .level-header h2 { font-size: 18px; font-weight: 700; }
+    .level-header .level-desc {
+      font-size: 13px;
+      opacity: .9;
+      margin-left: auto;
+    }
+
+    .level-body { padding: 24px 28px; }
+
+    /* ===== 下载区 ===== */
+    .download-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #f0faf9;
+      border: 1px dashed #80cbc4;
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+    }
+    .download-bar .dl-info { font-size: 13px; color: #444; }
+    .download-bar .dl-info strong { color: #00897b; }
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #00897b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-download:hover { background: #00695c; }
+    .btn-download svg { width: 15px; height: 15px; fill: #fff; }
+
+    /* ===== 通用 ===== */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      border-left: 4px solid #00897b;
+      padding-left: 10px;
+      margin: 22px 0 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-bottom: 16px;
+    }
+    th {
+      background: #e0f2f1;
+      color: #00695c;
+      font-weight: 700;
+      padding: 9px 14px;
+      text-align: left;
+      border: 1px solid #b2dfdb;
+    }
+    td {
+      padding: 8px 14px;
+      border: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+    .task-list li {
+      counter-increment: task;
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      align-items: flex-start;
+    }
+    .task-list li::before {
+      content: counter(task);
+      min-width: 26px;
+      height: 26px;
+      background: #00897b;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .medium-num::before { background: #fb8c00 !important; }
+    .hard-num::before   { background: #e53935 !important; }
+
+    .tip-box {
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13.5px;
+      margin-top: 16px;
+    }
+    .tip-box.green  { background: #e8f5e9; border-left: 4px solid #43a047; }
+    .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+    .tip-box.red    { background: #fce4ec; border-left: 4px solid #e53935; }
+    .tip-box .tip-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 13px;
+      letter-spacing: .5px;
+    }
+    .tip-box.green  .tip-title { color: #2e7d32; }
+    .tip-box.orange .tip-title { color: #e65100; }
+    .tip-box.red    .tip-title { color: #b71c1c; }
+    .tip-box ul { padding-left: 18px; }
+    .tip-box ul li { margin-bottom: 5px; }
+
+    /* 步骤指引盒 */
+    .step-box {
+      background: #f9fbe7;
+      border: 1px solid #dce775;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+    .step-box .step-title {
+      font-weight: 700;
+      color: #827717;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .step-box ol { padding-left: 20px; }
+    .step-box ol li { margin-bottom: 5px; }
+
+    /* 记录填写表 */
+    .record-table th {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-color: #a5d6a7;
+    }
+    .record-table.orange th {
+      background: #fff3e0;
+      color: #bf360c;
+      border-color: #ffcc80;
+    }
+    .record-table.red th {
+      background: #fce4ec;
+      color: #880e4f;
+      border-color: #f48fb1;
+    }
+
+    /* 高亮提示 */
+    .highlight {
+      display: inline-block;
+      background: #fff9c4;
+      border-radius: 3px;
+      padding: 0 5px;
+      font-weight: 600;
+    }
+
+    code {
+      background: #eceff1;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+      color: #c62828;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== Banner ===== -->
+<div class="banner">
+  <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+  <h1>3.2.1 分类汇总</h1>
+  <div class="subtitle">按指定字段对数据进行分组统计，快速生成多层级汇总报告</div>
+  <div class="meta">
+    <span>📁 配套文件：3.2.1_练习数据.xlsx</span>
+    <span>🎯 三个难度等级</span>
+    <span>🏢 情景：星途电商有限公司</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 情景 -->
+  <div class="scenario-card">
+    <h2>📋 背景情景</h2>
+    <p>
+      星途电商有限公司运营部助理小王需要向主管汇报本月各商品类别的销售情况。
+      主管要求按<strong>商品类别</strong>和<strong>销售省份</strong>分层呈现数据，
+      小王决定使用 Excel 的<strong>分类汇总</strong>功能快速完成统计。
+      请你根据不同难度的要求，协助小王完成数据汇总任务。
+    </p>
+  </div>
+
+  <!-- 知识点速览 -->
+  <div class="knowledge-card">
+    <h3>📖 知识点速览：分类汇总的核心要点</h3>
+    <ol>
+      <li><strong>使用前必须先排序</strong>：必须先按"分类字段"排序，否则同一类别会被拆分成多个汇总行。</li>
+      <li><strong>汇总方式可选择</strong>：求和、计数、平均值、最大值、最小值等。</li>
+      <li><strong>嵌套汇总</strong>：先按主字段汇总，再按次字段汇总（第二次汇总时取消勾选"替换当前分类汇总"）。</li>
+      <li><strong>取消汇总</strong>：数据→分类汇总→全部删除，可恢复原始数据状态。</li>
+    </ol>
+    <div class="warn">
+      ⚠️ 重要提醒：分类汇总功能位于【数据】选项卡→【分级显示】组→【分类汇总】。
+      进行嵌套汇总时，第二次操作<strong>不能</strong>勾选"替换当前分类汇总"。
+    </div>
+  </div>
+
+  <!-- ==================== 基础 ==================== -->
+  <div class="level-block">
+    <div class="level-header basic">
+      <span class="level-badge">LEVEL 1</span>
+      <h2>基础练习</h2>
+      <span class="level-desc">适合：第一次操作分类汇总 · 25 条数据 · 已排好序</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>25条订单数据（已按商品类别排序）</strong>｜5列字段｜单层汇总练习
+        </div>
+        <button class="btn-download" onclick="downloadCSV('basic')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>说明</th><th>示例</th></tr>
+        <tr><td>订单编号</td><td>平台生成的唯一编号</td><td>ORD-2024-001</td></tr>
+        <tr><td>商品类别</td><td>商品所属大类（已按此列排序）</td><td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td></tr>
+        <tr><td>销售省份</td><td>买家所在省份</td><td>广东 / 浙江 / 北京</td></tr>
+        <tr><td>销售额（元）</td><td>本笔订单成交金额</td><td>89.00</td></tr>
+        <tr><td>销售数量（件）</td><td>本笔订单商品数量</td><td>2</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li>打开 CSV 数据，粘贴到 <code>3.2.1_练习数据.xlsx</code> 的"数据（基础）"Sheet 中。</li>
+        <li>
+          <div>
+            确认数据已按"商品类别"列<span class="highlight">升序排列</span>（数据已预先排好，直接观察确认即可）。
+          </div>
+        </li>
+        <li>使用"分类汇总"功能，按<span class="highlight">商品类别</span>对<span class="highlight">销售额</span>进行<span class="highlight">求和</span>汇总。</li>
+        <li>展开/折叠汇总结果，查看各级别视图（点击左侧数字 1、2、3 切换）。</li>
+        <li>将汇总结果填写到下方"结果记录表"中。</li>
+        <li>完成后在 Excel 中写出操作步骤（可在"任务书"Sheet 中用文字描述）。</li>
+      </ol>
+
+      <!-- 操作步骤指引 -->
+      <div class="step-box">
+        <div class="step-title">🔧 操作路径提示</div>
+        <ol>
+          <li>点击数据区域任意单元格</li>
+          <li>点击菜单栏【数据】选项卡</li>
+          <li>找到【分级显示】组，点击【分类汇总】</li>
+          <li>在弹出对话框中设置：
+            <br>· 分类字段 → <strong>商品类别</strong>
+            <br>· 汇总方式 → <strong>求和</strong>
+            <br>· 选定汇总项 → 勾选<strong>销售额（元）</strong>
+          </li>
+          <li>点击【确定】，查看汇总结果</li>
+        </ol>
+      </div>
+
+      <div class="section-title">📝 结果记录表（在 Excel 中填写）</div>
+      <table class="record-table">
+        <tr>
+          <th>商品类别</th>
+          <th>订单条数</th>
+          <th>销售额合计（元）</th>
+          <th>占总销售额比例（%）</th>
+        </tr>
+        <tr><td>充电宝</td><td></td><td></td><td></td></tr>
+        <tr><td>蓝牙耳机</td><td></td><td></td><td></td></tr>
+        <tr><td>手机壳</td><td></td><td></td><td></td></tr>
+        <tr><td>数据线</td><td></td><td></td><td></td></tr>
+        <tr><td><strong>总计</strong></td><td><strong>25</strong></td><td></td><td><strong>100%</strong></td></tr>
+      </table>
+
+      <div class="tip-box green">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li>本数据已预先按"商品类别"排好序，<strong>可以直接进行分类汇总</strong>，无需手动排序。</li>
+          <li>汇总完成后，左侧会出现 <code>1</code> <code>2</code> <code>3</code> 三个级别按钮：
+            <br>· 点击 <code>1</code> = 只显示总计行
+            <br>· 点击 <code>2</code> = 显示各类别小计+总计
+            <br>· 点击 <code>3</code> = 显示所有明细数据
+          </li>
+          <li>"占总销售额比例"需要自己手动计算（用类别合计÷总计），可在记录表旁边列用公式计算。</li>
+          <li>如果操作错误想重来：【数据】→【分类汇总】→【全部删除】。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 巩固 ==================== -->
+  <div class="level-block">
+    <div class="level-header medium">
+      <span class="level-badge">LEVEL 2</span>
+      <h2>巩固练习</h2>
+      <span class="level-desc">适合：熟悉基本操作后 · 28 条数据 · 需自行排序 · 嵌套汇总</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>28条订单数据（未排序）</strong>｜6列字段｜两层嵌套汇总练习
+        </div>
+        <button class="btn-download" onclick="downloadCSV('medium')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>说明</th><th>示例</th></tr>
+        <tr><td>订单编号</td><td>平台订单号</td><td>ORD-2024-101</td></tr>
+        <tr><td>商品类别</td><td>商品大类（未排序）</td><td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td></tr>
+        <tr><td>销售省份</td><td>买家所在省份（未排序）</td><td>广东 / 浙江 / 北京 / 上海 / 江苏</td></tr>
+        <tr><td>销售额（元）</td><td>本笔订单成交金额</td><td>89.00</td></tr>
+        <tr><td>销售数量（件）</td><td>本笔订单商品数量</td><td>2</td></tr>
+        <tr><td>客单价（元）</td><td>销售额÷销售数量</td><td>44.50</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li class="medium-num">打开 CSV 数据，粘贴到"数据（巩固）"Sheet 中，<strong>不要修改原始数据</strong>，在旁边空白区域或新 Sheet 中操作。</li>
+        <li class="medium-num">
+          <div>
+            进行<span class="highlight">两列排序</span>：先按<strong>商品类别</strong>升序，再按<strong>销售省份</strong>升序
+            （使用"高级排序"，添加两个排序条件）。
+          </div>
+        </li>
+        <li class="medium-num">
+          <div>
+            完成<span class="highlight">第一层汇总</span>：按<strong>商品类别</strong>对<strong>销售额</strong>求和。
+          </div>
+        </li>
+        <li class="medium-num">
+          <div>
+            完成<span class="highlight">第二层汇总</span>：再次打开分类汇总对话框，按<strong>销售省份</strong>对<strong>销售额</strong>求和，
+            <span class="highlight">取消勾选</span>"替换当前分类汇总"。
+          </div>
+        </li>
+        <li class="medium-num">切换到第 2 级视图，将各省各类别的销售额汇总结果填写到记录表中。</li>
+        <li class="medium-num">根据汇总结果，回答分析问题。</li>
+      </ol>
+
+      <div class="step-box">
+        <div class="step-title">🔧 操作路径提示</div>
+        <ol>
+          <li><strong>排序步骤</strong>：【数据】→【排序】→ 添加条件：主要关键字"商品类别"升序，次要关键字"销售省份"升序 → 确定</li>
+          <li><strong>第一层汇总</strong>：【数据】→【分类汇总】→ 分类字段"商品类别"，汇总方式"求和"，汇总项"销售额" → 确定</li>
+          <li><strong>第二层汇总</strong>：再次点击【分类汇总】→ 分类字段"销售省份"，汇总方式"求和"，汇总项"销售额"→ <strong>取消勾选"替换当前分类汇总"</strong> → 确定</li>
+        </ol>
+      </div>
+
+      <div class="section-title">📝 汇总结果记录表（在 Excel 中填写）</div>
+      <table class="record-table orange">
+        <tr>
+          <th>商品类别</th>
+          <th>销售省份</th>
+          <th>销售额合计（元）</th>
+          <th>该省该类别排名</th>
+        </tr>
+        <tr><td rowspan="3">充电宝</td><td>广东</td><td></td><td></td></tr>
+        <tr><td>浙江</td><td></td><td></td></tr>
+        <tr><td>其他省份</td><td></td><td></td></tr>
+        <tr><td rowspan="3">蓝牙耳机</td><td>广东</td><td></td><td></td></tr>
+        <tr><td>浙江</td><td></td><td></td></tr>
+        <tr><td>其他省份</td><td></td><td></td></tr>
+        <tr><td rowspan="3">手机壳</td><td>广东</td><td></td><td></td></tr>
+        <tr><td>浙江</td><td></td><td></td></tr>
+        <tr><td>其他省份</td><td></td><td></td></tr>
+        <tr><td rowspan="3">数据线</td><td>广东</td><td></td><td></td></tr>
+        <tr><td>浙江</td><td></td><td></td></tr>
+        <tr><td>其他省份</td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">💬 分析问题（在 Excel 中文字回答）</div>
+      <table class="record-table orange">
+        <tr><th>问题</th><th>你的回答</th></tr>
+        <tr><td>① 哪个商品类别的总销售额最高？</td><td></td></tr>
+        <tr><td>② 哪个省份在充电宝品类上消费最多？</td><td></td></tr>
+        <tr><td>③ 哪个省份是整体销售额最大的市场？</td><td></td></tr>
+      </table>
+
+      <div class="tip-box orange">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>嵌套汇总的关键</strong>：第二次操作时必须<strong>取消勾选"替换当前分类汇总"</strong>，否则第一层汇总会被覆盖。</li>
+          <li><strong>排序顺序很重要</strong>：主要关键字是"商品类别"，次要关键字是"销售省份"，顺序不能反。</li>
+          <li>如果省份种类较多，记录表中"其他省份"可合并填写汇总数。</li>
+          <li>切换视图：左侧出现 <code>1</code><code>2</code><code>3</code><code>4</code> 四个级别按钮，点击 <code>3</code> 可查看省份级别汇总。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 进阶 ==================== -->
+  <div class="level-block">
+    <div class="level-header hard">
+      <span class="level-badge">LEVEL 3</span>
+      <h2>进阶练习</h2>
+      <span class="level-desc">适合：综合运用阶段 · 32 条数据 · 需先清洗再汇总</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>32条推广数据（含数据问题，需先清洗）</strong>｜7列字段｜多维度汇总+对比分析
+        </div>
+        <button class="btn-download" onclick="downloadCSV('hard')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>说明</th><th>示例</th></tr>
+        <tr><td>记录编号</td><td>数据记录唯一编号</td><td>REC-001</td></tr>
+        <tr><td>推广渠道</td><td>投放渠道名称</td><td>直通车 / 超级推荐 / 直播带货 / 自然搜索</td></tr>
+        <tr><td>商品类别</td><td>推广的商品大类</td><td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td></tr>
+        <tr><td>推广花费（元）</td><td>该条记录的推广投入</td><td>150.00</td></tr>
+        <tr><td>带来销售额（元）</td><td>该推广带来的成交金额</td><td>680.00</td></tr>
+        <tr><td>点击次数</td><td>广告被点击的次数</td><td>320</td></tr>
+        <tr><td>成交订单数</td><td>该条记录带来的订单数量</td><td>8</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li class="hard-num">
+          <div>
+            <strong>第一步：数据清洗。</strong>
+            检查数据是否存在问题（格式不统一、明显异常值等），
+            记录发现的问题并处理后，在"数据（进阶）"Sheet 中保存<span class="highlight">干净数据</span>。
+          </div>
+        </li>
+        <li class="hard-num">
+          <div>
+            <strong>第二步：自主判断汇总维度。</strong>
+            根据数据特点，自己决定按哪个（哪些）字段进行分类汇总，
+            并在 Excel 中写明<span class="highlight">选择该维度的理由</span>。
+          </div>
+        </li>
+        <li class="hard-num">完成分类汇总操作（至少完成 2 种不同维度的汇总）。</li>
+        <li class="hard-num">
+          <div>
+            <strong>第三步：对比分析。</strong>
+            根据两种汇总结果，完成下方分析表，并写出<span class="highlight">至少 2 条</span>运营结论。
+          </div>
+        </li>
+      </ol>
+
+      <div class="section-title">📝 清洗记录表（在 Excel 中填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>发现的问题</th>
+          <th>涉及行数</th>
+          <th>处理方式</th>
+          <th>处理结果</th>
+        </tr>
+        <tr><td>（示例）推广渠道名称不统一</td><td>（示例）3行</td><td>（示例）统一为标准名称</td><td>（示例）已修改</td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">📝 汇总维度选择说明（在 Excel 中填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>汇总维度</th>
+          <th>汇总指标</th>
+          <th>选择理由</th>
+        </tr>
+        <tr><td>维度一：</td><td></td><td></td></tr>
+        <tr><td>维度二：</td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">📝 对比分析结论（在 Excel 中填写）</div>
+      <table class="record-table red">
+        <tr><th>分析角度</th><th>结论内容（请用数据支撑）</th></tr>
+        <tr><td>结论一</td><td></td></tr>
+        <tr><td>结论二</td><td></td></tr>
+        <tr><td>结论三（选做）</td><td></td></tr>
+      </table>
+
+      <div class="tip-box red">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>数据清洗重点检查</strong>：渠道名称是否有空格或大小写不一致、花费/销售额是否有异常值（负数或极大值）、是否有空行。</li>
+          <li><strong>推荐汇总维度方向</strong>（仅供参考，不限于此）：
+            <br>· 按"推广渠道"汇总 → 分析各渠道总花费和总带来销售额
+            <br>· 按"商品类别"汇总 → 分析各类别的推广投入产出
+          </li>
+          <li><strong>结论要有数据支撑</strong>，例如："直通车渠道带来销售额 XXXX 元，占总销售额 XX%，是最高效的渠道。"</li>
+          <li>进阶练习没有标准答案，重点考察<strong>分析思路和逻辑表达</strong>。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    数据分析基础 · 模块三 · 3.2.1 分类汇总 · 任务书<br>
+    数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+  </footer>
+
+</div>
+
+<!-- ===== CSV 数据 ===== -->
+<script>
+const CSV_DATA = {
+
+basic: `订单编号,商品类别,销售省份,销售额（元）,销售数量（件）
+ORD-2024-001,充电宝,广东,89.00,1
+ORD-2024-002,充电宝,浙江,149.00,1
+ORD-2024-003,充电宝,广东,49.00,2
+ORD-2024-004,充电宝,北京,89.00,1
+ORD-2024-005,充电宝,上海,149.00,1
+ORD-2024-006,充电宝,广东,49.00,1
+ORD-2024-007,蓝牙耳机,浙江,129.00,1
+ORD-2024-008,蓝牙耳机,广东,299.00,1
+ORD-2024-009,蓝牙耳机,江苏,129.00,2
+ORD-2024-010,蓝牙耳机,北京,199.00,1
+ORD-2024-011,蓝牙耳机,广东,99.00,1
+ORD-2024-012,手机壳,广东,19.90,2
+ORD-2024-013,手机壳,浙江,24.90,1
+ORD-2024-014,手机壳,上海,18.90,3
+ORD-2024-015,手机壳,广东,22.90,1
+ORD-2024-016,手机壳,江苏,19.90,2
+ORD-2024-017,手机壳,北京,24.90,1
+ORD-2024-018,手机壳,广东,18.90,2
+ORD-2024-019,数据线,浙江,29.90,2
+ORD-2024-020,数据线,广东,15.90,3
+ORD-2024-021,数据线,上海,19.90,1
+ORD-2024-022,数据线,广东,29.90,2
+ORD-2024-023,数据线,江苏,15.90,1
+ORD-2024-024,数据线,北京,19.90,2
+ORD-2024-025,数据线,广东,29.90,1`,
+
+medium: `订单编号,商品类别,销售省份,销售额（元）,销售数量（件）,客单价（元）
+ORD-2024-101,数据线,广东,29.90,2,14.95
+ORD-2024-102,充电宝,浙江,89.00,1,89.00
+ORD-2024-103,蓝牙耳机,北京,199.00,1,199.00
+ORD-2024-104,手机壳,广东,19.90,2,9.95
+ORD-2024-105,充电宝,广东,149.00,1,149.00
+ORD-2024-106,数据线,浙江,15.90,3,5.30
+ORD-2024-107,蓝牙耳机,广东,129.00,1,129.00
+ORD-2024-108,手机壳,江苏,24.90,1,24.90
+ORD-2024-109,充电宝,上海,49.00,2,24.50
+ORD-2024-110,数据线,广东,19.90,1,19.90
+ORD-2024-111,手机壳,浙江,18.90,3,6.30
+ORD-2024-112,蓝牙耳机,浙江,299.00,1,299.00
+ORD-2024-113,充电宝,北京,89.00,1,89.00
+ORD-2024-114,数据线,江苏,29.90,2,14.95
+ORD-2024-115,手机壳,广东,22.90,1,22.90
+ORD-2024-116,蓝牙耳机,上海,129.00,2,64.50
+ORD-2024-117,充电宝,广东,149.00,1,149.00
+ORD-2024-118,数据线,北京,15.90,1,15.90
+ORD-2024-119,手机壳,上海,19.90,2,9.95
+ORD-2024-120,蓝牙耳机,江苏,99.00,1,99.00
+ORD-2024-121,充电宝,浙江,49.00,1,49.00
+ORD-2024-122,数据线,广东,29.90,3,9.97
+ORD-2024-123,手机壳,北京,24.90,1,24.90
+ORD-2024-124,蓝牙耳机,广东,259.00,1,259.00
+ORD-2024-125,充电宝,江苏,89.00,2,44.50
+ORD-2024-126,数据线,浙江,19.90,1,19.90
+ORD-2024-127,手机壳,广东,18.90,2,9.45
+ORD-2024-128,蓝牙耳机,北京,129.00,1,129.00`,
+
+hard: `记录编号,推广渠道,商品类别,推广花费（元）,带来销售额（元）,点击次数,成交订单数
+REC-001,直通车,数据线,85.00,420.00,380,14
+REC-002,超级推荐,充电宝,120.00,680.00,290,8
+REC-003,直播带货,蓝牙耳机,200.00,1580.00,520,12
+REC-004,自然搜索,手机壳,0.00,210.00,180,11
+REC-005,直通车,充电宝,95.00,510.00,310,6
+REC-006,超级推荐,蓝牙耳机,180.00,990.00,260,8
+REC-007,直播带货,数据线,150.00,720.00,480,24
+REC-008,自然搜索,充电宝,0.00,330.00,150,4
+REC-009,直 通 车,手机壳,60.00,280.00,220,14
+REC-010,超级推荐,数据线,70.00,380.00,240,13
+REC-011,直播带货,充电宝,220.00,1250.00,560,14
+REC-012,自然搜索,蓝牙耳机,0.00,580.00,200,5
+REC-013,直通车,蓝牙耳机,160.00,850.00,350,7
+REC-014,超级推荐,手机壳,55.00,260.00,190,13
+REC-015,直播带货,手机壳,130.00,590.00,420,30
+REC-016,自然搜索,数据线,0.00,180.00,130,6
+REC-017,直通车,充电宝,110.00,560.00,300,7
+REC-018,超级推荐,充电宝,140.00,750.00,270,9
+REC-019,直播带货,蓝牙耳机,250.00,1820.00,580,14
+REC-020,自然搜索,手机壳,0.00,160.00,110,8
+REC-021,直通车,数据线,75.00,390.00,350,13
+REC-022,超级推荐,蓝牙耳机,165.00,920.00,280,7
+REC-023,直播带货,充电宝,190.00,1100.00,500,13
+REC-024,自然搜索,充电宝,0.00,290.00,140,4
+REC-025,直通车,手机壳,50.00,240.00,200,12
+REC-026,超级推荐,数据线,80.00,410.00,230,14
+REC-027,直播带货,手机壳,145.00,640.00,460,32
+REC-028,自然搜索,蓝牙耳机,0.00,520.00,190,4
+REC-029,直通车,蓝牙耳机,175.00,920.00,370,7
+REC-030,超级推荐,手机壳,65.00,300.00,210,15
+REC-031,直播带货,数据线,-150.00,680.00,440,23
+REC-032,自然搜索,数据线,0.00,200.00,120,7`
+
+};
+
+function downloadCSV(level) {
+  const levelName = { basic: '基础', medium: '巩固', hard: '进阶' }[level];
+  const filename = `3.2.1_分类汇总_${levelName}数据.csv`;
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

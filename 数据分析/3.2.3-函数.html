@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.2.3 条件统计函数 · 任务书</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            line-height: 1.7;
+        }
+
+        /* ===== Banner ===== */
+        .banner {
+            background: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+            color: #fff;
+            padding: 36px 48px 28px;
+        }
+
+        .banner .course-tag {
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: .75;
+            margin-bottom: 8px;
+        }
+
+        .banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .banner .subtitle {
+            font-size: 14px;
+            opacity: .85;
+        }
+
+        .banner .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        /* ===== 主体 ===== */
+        .container {
+            max-width: 980px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ===== 情景卡片 ===== */
+        .scenario-card {
+            background: #fff;
+            border-left: 5px solid #0277bd;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+        }
+
+        .scenario-card h2 {
+            font-size: 15px;
+            color: #0277bd;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card p {
+            font-size: 14px;
+        }
+
+        /* ===== 函数速览卡片组 ===== */
+        .func-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .func-card {
+            background: #fff;
+            border-radius: 8px;
+            border-top: 4px solid #0277bd;
+            padding: 14px 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .07);
+            font-size: 13px;
+        }
+
+        .func-card .func-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0277bd;
+            margin-bottom: 4px;
+            font-family: Consolas, monospace;
+        }
+
+        .func-card .func-syntax {
+            background: #e3f2fd;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: #0d47a1;
+            margin: 6px 0;
+        }
+
+        .func-card .func-desc {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .func-card.sumifs {
+            border-top-color: #00897b;
+        }
+
+        .func-card.sumifs .func-name {
+            color: #00897b;
+        }
+
+        .func-card.sumifs .func-syntax {
+            background: #e0f2f1;
+            color: #004d40;
+        }
+
+        .func-card.countifs {
+            border-top-color: #6a1b9a;
+        }
+
+        .func-card.countifs .func-name {
+            color: #6a1b9a;
+        }
+
+        .func-card.countifs .func-syntax {
+            background: #f3e5f5;
+            color: #4a148c;
+        }
+
+        .func-card.avg {
+            border-top-color: #e65100;
+        }
+
+        .func-card.avg .func-name {
+            color: #e65100;
+        }
+
+        .func-card.avg .func-syntax {
+            background: #fff3e0;
+            color: #bf360c;
+        }
+
+        .func-card.maxmin {
+            border-top-color: #c62828;
+        }
+
+        .func-card.maxmin .func-name {
+            color: #c62828;
+        }
+
+        .func-card.maxmin .func-syntax {
+            background: #ffebee;
+            color: #b71c1c;
+        }
+
+        /* ===== 难度块 ===== */
+        .level-block {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 28px;
+            color: #fff;
+        }
+
+        .level-header.basic {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .level-header.medium {
+            background: linear-gradient(90deg, #fb8c00, #ffa726);
+        }
+
+        .level-header.hard {
+            background: linear-gradient(90deg, #e53935, #ef5350);
+        }
+
+        .level-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, .25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .level-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .level-header .level-desc {
+            font-size: 13px;
+            opacity: .9;
+            margin-left: auto;
+        }
+
+        .level-body {
+            padding: 24px 28px;
+        }
+
+        /* ===== 下载区 ===== */
+        .download-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #e3f2fd;
+            border: 1px dashed #90caf9;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+
+        .download-bar .dl-info {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .download-bar .dl-info strong {
+            color: #0277bd;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #0277bd;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-download:hover {
+            background: #01579b;
+        }
+
+        .btn-download svg {
+            width: 15px;
+            height: 15px;
+            fill: #fff;
+        }
+
+        /* ===== 通用 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-left: 4px solid #0277bd;
+            padding-left: 10px;
+            margin: 22px 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        th {
+            background: #e3f2fd;
+            color: #01579b;
+            font-weight: 700;
+            padding: 9px 14px;
+            text-align: left;
+            border: 1px solid #90caf9;
+        }
+
+        td {
+            padding: 8px 14px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        /* 答题区表格 */
+        .answer-table th {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
+        }
+
+        .answer-table.orange th {
+            background: #fff3e0;
+            color: #bf360c;
+            border-color: #ffcc80;
+        }
+
+        .answer-table.red th {
+            background: #fce4ec;
+            color: #880e4f;
+            border-color: #f48fb1;
+        }
+
+        .answer-table td.formula-cell {
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            background: #f8f9fa;
+            color: #c62828;
+        }
+
+        .answer-table td.result-cell {
+            background: #fffde7;
+            font-weight: 600;
+            color: #333;
+            min-width: 90px;
+        }
+
+        /* 题号标记 */
+        .q-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #0277bd;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .q-num.orange {
+            background: #fb8c00;
+        }
+
+        .q-num.red {
+            background: #e53935;
+        }
+
+        .question-block {
+            background: #f8fbff;
+            border: 1px solid #c5d8f8;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+        }
+
+        .question-block.orange {
+            background: #fffaf5;
+            border-color: #ffe0b2;
+        }
+
+        .question-block.red {
+            background: #fff8f8;
+            border-color: #ffcdd2;
+        }
+
+        .question-block .q-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .question-block .q-body {
+            font-size: 13.5px;
+        }
+
+        .question-block .q-body .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .question-block .q-body input-area {
+            display: block;
+            background: #fff;
+            border: 1px dashed #aaa;
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin: 4px 0 8px;
+            min-height: 30px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* 提示与步骤 */
+        .tip-box {
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            margin-top: 16px;
+        }
+
+        .tip-box.green {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+
+        .tip-box.orange {
+            background: #fff3e0;
+            border-left: 4px solid #fb8c00;
+        }
+
+        .tip-box.red {
+            background: #fce4ec;
+            border-left: 4px solid #e53935;
+        }
+
+        .tip-box .tip-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tip-box.green .tip-title {
+            color: #2e7d32;
+        }
+
+        .tip-box.orange .tip-title {
+            color: #e65100;
+        }
+
+        .tip-box.red .tip-title {
+            color: #b71c1c;
+        }
+
+        .tip-box ul {
+            padding-left: 18px;
+        }
+
+        .tip-box ul li {
+            margin-bottom: 5px;
+        }
+
+        code {
+            background: #eceff1;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c62828;
+        }
+
+        .highlight {
+            display: inline-block;
+            background: #fff9c4;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        /* 判断题 */
+        .judge-box {
+            background: #e8eaf6;
+            border-left: 4px solid #3949ab;
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .judge-box .judge-title {
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 8px;
+        }
+
+        /* KPI仪表盘区域 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .kpi-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0277bd;
+            font-family: Consolas, monospace;
+        }
+
+        .kpi-card .kpi-formula {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            font-family: Consolas, monospace;
+        }
+
+        .kpi-card.fill {
+            border-color: #90caf9;
+            background: #e3f2fd;
+        }
+
+        .kpi-card.fill .kpi-value {
+            color: #555;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Banner ===== -->
+    <div class="banner">
+        <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+        <h1>3.2.3 条件统计函数</h1>
+        <div class="subtitle">SUMIF · COUNTIF · AVERAGEIF · SUMIFS · COUNTIFS · MAX · MIN</div>
+        <div class="meta">
+            <span>📁 配套文件：3.2.3_练习数据.xlsx</span>
+            <span>🎯 三个难度等级</span>
+            <span>🏢 情景：星途电商有限公司</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 情景 -->
+        <div class="scenario-card">
+            <h2>📋 背景情景</h2>
+            <p>
+                星途电商有限公司运营主管要求数据分析员小赵每周提交一份销售与推广数据的
+                <strong>关键指标汇总报告</strong>。小赵需要从原始订单数据和推广数据中，
+                使用 Excel 函数快速提取各类别、各渠道的统计指标，
+                避免手动筛选计算带来的错误。请协助小赵完成各难度的函数练习任务。
+            </p>
+        </div>
+
+        <!-- 函数速览 -->
+        <div class="section-title" style="margin-top:0;">📖 核心函数速览</div>
+        <div class="func-grid">
+            <div class="func-card">
+                <div class="func-name">SUMIF</div>
+                <div class="func-syntax">=SUMIF(条件区域, 条件, 求和区域)</div>
+                <div class="func-desc">按单个条件对指定区域求和。<br>例：统计某类别的总销售额。</div>
+            </div>
+            <div class="func-card">
+                <div class="func-name">COUNTIF</div>
+                <div class="func-syntax">=COUNTIF(条件区域, 条件)</div>
+                <div class="func-desc">按单个条件计算符合条件的单元格数量。<br>例：统计某类别的订单数。</div>
+            </div>
+            <div class="func-card avg">
+                <div class="func-name">AVERAGEIF</div>
+                <div class="func-syntax">=AVERAGEIF(条件区域, 条件, 均值区域)</div>
+                <div class="func-desc">按单个条件计算平均值。<br>例：某类别的平均销售额（客单价）。</div>
+            </div>
+            <div class="func-card maxmin">
+                <div class="func-name">MAX / MIN</div>
+                <div class="func-syntax">=MAX(区域) / =MIN(区域)</div>
+                <div class="func-desc">返回区域中的最大值/最小值。<br>例：最高订单金额、最低推广花费。</div>
+            </div>
+            <div class="func-card sumifs">
+                <div class="func-name">SUMIFS</div>
+                <div class="func-syntax">=SUMIFS(求和区域, 条件区域1, 条件1, 条件区域2, 条件2, …)</div>
+                <div class="func-desc">按<strong>多个条件</strong>求和。<br>例：某渠道某类别的总花费。</div>
+            </div>
+            <div class="func-card countifs">
+                <div class="func-name">COUNTIFS</div>
+                <div class="func-syntax">=COUNTIFS(条件区域1, 条件1, 条件区域2, 条件2, …)</div>
+                <div class="func-desc">按<strong>多个条件</strong>计数。<br>例：某渠道某类别的订单数量。</div>
+            </div>
+        </div>
+
+        <!-- ==================== 基础 ==================== -->
+        <div class="level-block">
+            <div class="level-header basic">
+                <span class="level-badge">LEVEL 1</span>
+                <h2>基础练习</h2>
+                <span class="level-desc">适合：函数入门 · 25条订单数据 · 单条件统计</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>25条订单数据</strong>｜字段：商品类别 / 销售省份 / 销售额 / 销售数量｜单条件统计练习
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('basic')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列位置</th>
+                        <th>说明</th>
+                        <th>示例</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A列</td>
+                        <td>唯一订单号</td>
+                        <td>ORD-2024-001</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>B列</td>
+                        <td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td>
+                        <td>充电宝</td>
+                    </tr>
+                    <tr>
+                        <td>销售省份</td>
+                        <td>C列</td>
+                        <td>买家所在省份</td>
+                        <td>广东 / 浙江 / 北京 / 上海 / 江苏</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>D列</td>
+                        <td>本笔订单成交金额</td>
+                        <td>89.00</td>
+                    </tr>
+                    <tr>
+                        <td>销售数量（件）</td>
+                        <td>E列</td>
+                        <td>本笔订单商品数量</td>
+                        <td>2</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <p style="font-size:14px;margin-bottom:16px;">
+                    将数据粘贴到"数据（基础）"Sheet（数据从第2行开始，第1行为标题）。
+                    在同一Sheet右侧空白区域（建议从 G 列开始）建立"答题区"，
+                    按下方题目要求<strong>写出完整公式并展示计算结果</strong>。
+                </p>
+
+                <!-- 题目1-5 -->
+                <div class="question-block">
+                    <div class="q-title">
+                        <span class="q-num">1</span>
+                        计算"充电宝"类别的总销售额
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：SUMIF</div>
+                        <div class="label">在答题区写出完整公式：</div>
+                        <div class="label" style="color:#c62828;font-family:Consolas;">= SUMIF(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; , &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div class="label" style="margin-top:8px;">计算结果（元）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block">
+                    <div class="q-title">
+                        <span class="q-num">2</span>
+                        统计"蓝牙耳机"类别共有多少条订单
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：COUNTIF</div>
+                        <div class="label">在答题区写出完整公式：</div>
+                        <div class="label" style="color:#c62828;font-family:Consolas;">= COUNTIF(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; , &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div class="label" style="margin-top:8px;">计算结果（条）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block">
+                    <div class="q-title">
+                        <span class="q-num">3</span>
+                        计算"手机壳"类别的平均客单价（平均销售额）
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：AVERAGEIF</div>
+                        <div class="label">在答题区写出完整公式：</div>
+                        <div class="label" style="color:#c62828;font-family:Consolas;">= AVERAGEIF(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; , &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div class="label" style="margin-top:8px;">计算结果（元）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block">
+                    <div class="q-title">
+                        <span class="q-num">4</span>
+                        找出所有订单中销售额最高和最低的金额
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：MAX 和 MIN</div>
+                        <div class="label">最高销售额公式：</div>
+                        <div class="label" style="color:#c62828;font-family:Consolas;">= MAX(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) &nbsp;&nbsp;&nbsp;&nbsp; 结果（元）：＿＿＿＿＿＿</div>
+                        <div class="label" style="margin-top:6px;">最低销售额公式：</div>
+                        <div class="label" style="color:#c62828;font-family:Consolas;">= MIN(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) &nbsp;&nbsp;&nbsp;&nbsp; 结果（元）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block">
+                    <div class="q-title">
+                        <span class="q-num">5</span>
+                        完成以下四个类别的汇总统计表（在答题区用函数填写）
+                    </div>
+                    <div class="q-body">
+                        <table class="answer-table" style="margin-top:8px;">
+                            <tr>
+                                <th>商品类别</th>
+                                <th>总销售额（SUMIF）</th>
+                                <th>订单数量（COUNTIF）</th>
+                                <th>平均客单价（AVERAGEIF）</th>
+                                <th>占总销售额比例</th>
+                            </tr>
+                            <tr>
+                                <td>充电宝</td>
+                                <td class="formula-cell">写公式→填结果</td>
+                                <td class="formula-cell">写公式→填结果</td>
+                                <td class="formula-cell">写公式→填结果</td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>蓝牙耳机</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>手机壳</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>数据线</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td><strong>合计/最高最低</strong></td>
+                                <td class="result-cell">SUM合计：</td>
+                                <td class="result-cell">合计25条</td>
+                                <td class="result-cell">MAX最高：<br>MIN最低：</td>
+                                <td class="result-cell">100%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tip-box green">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li>数据粘贴到 Sheet 后，建议先确认各列位置：A列=订单编号，B列=商品类别，C列=省份，D列=销售额，E列=数量。</li>
+                        <li>SUMIF 公式示例（统计充电宝销售额）：<code>=SUMIF(B2:B26,"充电宝",D2:D26)</code></li>
+                        <li>公式中的"条件"可以直接写文字（加引号），也可以引用单元格。
+                            <br>推荐：在答题区旁边列出类别名称，用单元格引用，便于批量填充公式。
+                        </li>
+                        <li>"占总销售额比例"= 该类别销售额 ÷ SUM(D2:D26)，分母建议加 <code>$</code> 锁定，例如 <code>=G2/SUM($D$2:$D$26)</code>。
+                        </li>
+                        <li>设置百分比格式：选中比例列 → 右键 → 设置单元格格式 → 百分比 → 保留2位小数。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 巩固 ==================== -->
+        <div class="level-block">
+            <div class="level-header medium">
+                <span class="level-badge">LEVEL 2</span>
+                <h2>巩固练习</h2>
+                <span class="level-desc">适合：熟悉单条件函数后 · 30条推广数据 · 多条件统计+判断</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>30条推广数据</strong>｜多渠道多类别｜SUMIFS / COUNTIFS 多条件练习
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('medium')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列位置</th>
+                        <th>说明</th>
+                        <th>示例</th>
+                    </tr>
+                    <tr>
+                        <td>记录编号</td>
+                        <td>A列</td>
+                        <td>数据唯一编号</td>
+                        <td>REC-001</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>B列</td>
+                        <td>投放渠道</td>
+                        <td>直通车 / 超级推荐 / 直播带货 / 自然搜索</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>C列</td>
+                        <td>推广商品大类</td>
+                        <td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>D列</td>
+                        <td>该条记录投放费用</td>
+                        <td>150.00</td>
+                    </tr>
+                    <tr>
+                        <td>带来销售额（元）</td>
+                        <td>E列</td>
+                        <td>该推广带来的成交额</td>
+                        <td>680.00</td>
+                    </tr>
+                    <tr>
+                        <td>点击次数</td>
+                        <td>F列</td>
+                        <td>广告被点击次数</td>
+                        <td>320</td>
+                    </tr>
+                    <tr>
+                        <td>成交订单数</td>
+                        <td>G列</td>
+                        <td>带来的订单数量</td>
+                        <td>8</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <p style="font-size:14px;margin-bottom:16px;">
+                    将数据粘贴到"数据（巩固）"Sheet，在右侧答题区完成以下8道计算题和1道判断题。
+                    <strong>每道题必须写出完整公式，不接受手动计算结果。</strong>
+                </p>
+
+                <!-- 题目1-8 -->
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">1</span>
+                        "直通车"渠道的总推广花费是多少？
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：SUMIF &nbsp;&nbsp; 公式：<span
+                                style="font-family:Consolas;color:#c62828;">=SUMIF( &nbsp;&nbsp;&nbsp;&nbsp; ,
+                                &nbsp;&nbsp;&nbsp;&nbsp; , &nbsp;&nbsp;&nbsp;&nbsp; )</span></div>
+                        <div class="label" style="margin-top:6px;">结果（元）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">2</span>
+                        "超级推荐"渠道共有多少条推广记录？
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：COUNTIF &nbsp;&nbsp; 公式：<span
+                                style="font-family:Consolas;color:#c62828;">=COUNTIF( &nbsp;&nbsp;&nbsp;&nbsp; ,
+                                &nbsp;&nbsp;&nbsp;&nbsp; )</span></div>
+                        <div class="label" style="margin-top:6px;">结果（条）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">3</span>
+                        "直播带货"渠道推广"充电宝"的总销售额是多少？（双条件）
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：SUMIFS</div>
+                        <div class="label">公式：<span style="font-family:Consolas;color:#c62828;">=SUMIFS( 求和区域, 条件区域1,
+                                "直播带货", 条件区域2, "充电宝" )</span></div>
+                        <div class="label" style="margin-top:6px;">结果（元）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">4</span>
+                        "直通车"渠道推广"蓝牙耳机"共有多少条记录？（双条件）
+                    </div>
+                    <div class="q-body">
+                        <div class="label">使用函数：COUNTIFS</div>
+                        <div class="label">公式：<span style="font-family:Consolas;color:#c62828;">=COUNTIFS( 条件区域1, "直通车",
+                                条件区域2, "蓝牙耳机" )</span></div>
+                        <div class="label" style="margin-top:6px;">结果（条）：＿＿＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">5</span>
+                        所有渠道中，单条记录带来的最高销售额和最低销售额分别是多少？
+                    </div>
+                    <div class="q-body">
+                        <div class="label">最高销售额：<span style="font-family:Consolas;color:#c62828;">=MAX(
+                                &nbsp;&nbsp;&nbsp; )</span> &nbsp; 结果：＿＿＿＿</div>
+                        <div class="label" style="margin-top:6px;">最低销售额：<span
+                                style="font-family:Consolas;color:#c62828;">=MIN( &nbsp;&nbsp;&nbsp; )</span> &nbsp;
+                            结果：＿＿＿＿</div>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">6</span>
+                        完成以下各渠道汇总统计表（用 SUMIF / COUNTIF 填写）
+                    </div>
+                    <div class="q-body">
+                        <table class="answer-table orange" style="margin-top:8px;">
+                            <tr>
+                                <th>推广渠道</th>
+                                <th>总花费（元）</th>
+                                <th>总带来销售额（元）</th>
+                                <th>记录条数</th>
+                                <th>总点击次数</th>
+                            </tr>
+                            <tr>
+                                <td>直通车</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>超级推荐</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>直播带货</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>自然搜索</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                            </tr>
+                            <tr>
+                                <td><strong>合计</strong></td>
+                                <td class="result-cell"></td>
+                                <td class="result-cell"></td>
+                                <td class="result-cell">30条</td>
+                                <td class="result-cell"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">7</span>
+                        完成以下各渠道双条件统计表（用 SUMIFS 填写"直播带货"行）
+                    </div>
+                    <div class="q-body">
+                        <table class="answer-table orange" style="margin-top:8px;">
+                            <tr>
+                                <th>渠道 \ 类别</th>
+                                <th>充电宝销售额</th>
+                                <th>蓝牙耳机销售额</th>
+                                <th>手机壳销售额</th>
+                                <th>数据线销售额</th>
+                            </tr>
+                            <tr>
+                                <td>直播带货</td>
+                                <td class="formula-cell">SUMIFS公式</td>
+                                <td class="formula-cell">SUMIFS公式</td>
+                                <td class="formula-cell">SUMIFS公式</td>
+                                <td class="formula-cell">SUMIFS公式</td>
+                            </tr>
+                            <tr>
+                                <td>直通车</td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                                <td class="formula-cell"></td>
+                            </tr>
+                        </table>
+                        <p style="font-size:12.5px;color:#888;margin-top:6px;">
+                            ※ 只要求完成"直播带货"和"直通车"两行，其余行选做。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="question-block orange">
+                    <div class="q-title">
+                        <span class="q-num orange">8</span>
+                        计算各渠道的 ROI（投入产出比 = 带来销售额 ÷ 推广花费）
+                    </div>
+                    <div class="q-body">
+                        <p style="font-size:13.5px;margin-bottom:8px;">
+                            先用题目6的结果，计算各渠道 ROI，填入下表（自然搜索花费为0，ROI 填"—"）：
+                        </p>
+                        <table class="answer-table orange">
+                            <tr>
+                                <th>渠道</th>
+                                <th>ROI计算公式</th>
+                                <th>ROI结果</th>
+                                <th>排名</th>
+                            </tr>
+                            <tr>
+                                <td>直通车</td>
+                                <td class="formula-cell"></td>
+                                <td class="result-cell"></td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>超级推荐</td>
+                                <td class="formula-cell"></td>
+                                <td class="result-cell"></td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>直播带货</td>
+                                <td class="formula-cell"></td>
+                                <td class="result-cell"></td>
+                                <td class="result-cell"></td>
+                            </tr>
+                            <tr>
+                                <td>自然搜索</td>
+                                <td class="formula-cell">—（花费为0）</td>
+                                <td class="result-cell">—</td>
+                                <td class="result-cell">—</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 判断题 -->
+                <div class="judge-box">
+                    <div class="judge-title">🤔 判断题（第9题）：哪个渠道最值得加大投入？</div>
+                    <p style="font-size:13.5px;margin-bottom:10px;">
+                        根据上方统计结果，综合考虑以下三个维度，写出你的判断和理由：
+                    </p>
+                    <table class="answer-table orange">
+                        <tr>
+                            <th>判断维度</th>
+                            <th>你认为最优的渠道</th>
+                            <th>支撑数据</th>
+                        </tr>
+                        <tr>
+                            <td>① ROI 最高（花费少、带来销售额多）</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>② 总销售额贡献最大</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>③ 点击效率最高（销售额÷点击次数）</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <strong>综合建议：</strong>
+                                最值得加大投入的渠道是&nbsp;&nbsp;＿＿＿＿＿＿&nbsp;&nbsp;，
+                                理由是：
+                                <br><br>
+                                （请在此处或 Excel 中填写 2-3 句话的分析）
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="tip-box orange">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>SUMIFS 参数顺序</strong>：第一个参数是"求和区域"，之后是成对的"条件区域+条件"。注意与 SUMIF 参数顺序不同！</li>
+                        <li>SUMIF：<code>=SUMIF(条件区域, 条件, 求和区域)</code></li>
+                        <li>SUMIFS：<code>=SUMIFS(求和区域, 条件区域1, 条件1, 条件区域2, 条件2)</code></li>
+                        <li><strong>建议锁定列区域</strong>：使用 <code>$B$2:$B$31</code> 这样的绝对引用，方便公式向右/向下填充。</li>
+                        <li>自然搜索的推广花费为 0，ROI 无法计算，直接填"—"，不要用 0 除（会报错）。</li>
+                        <li>综合判断没有唯一答案，只要逻辑清晰、数据支撑充分即可。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 进阶 ==================== -->
+        <div class="level-block">
+            <div class="level-header hard">
+                <span class="level-badge">LEVEL 3</span>
+                <h2>进阶练习</h2>
+                <span class="level-desc">适合：综合运用阶段 · 35条综合运营数据 · 函数填满KPI仪表盘</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>35条综合运营数据</strong>｜订单+推广混合｜用函数填满KPI汇总表
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('hard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列位置</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>记录编号</td>
+                        <td>A列</td>
+                        <td>唯一编号</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>B列</td>
+                        <td>直通车 / 超级推荐 / 直播带货 / 自然搜索</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>C列</td>
+                        <td>充电宝 / 蓝牙耳机 / 手机壳 / 数据线 / 磁吸充电器</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>D列</td>
+                        <td>成交金额</td>
+                    </tr>
+                    <tr>
+                        <td>成本（元）</td>
+                        <td>E列</td>
+                        <td>商品成本</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>F列</td>
+                        <td>投放费用（自然搜索为0）</td>
+                    </tr>
+                    <tr>
+                        <td>销售数量（件）</td>
+                        <td>G列</td>
+                        <td>订单数量</td>
+                    </tr>
+                    <tr>
+                        <td>点击次数</td>
+                        <td>H列</td>
+                        <td>广告点击量</td>
+                    </tr>
+                    <tr>
+                        <td>是否退款</td>
+                        <td>I列</td>
+                        <td>是 / 否</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <p style="font-size:14px;margin-bottom:16px;">
+                    在"数据（进阶）"Sheet 旁新建一个"KPI仪表盘"Sheet，
+                    使用函数填满以下所有指标卡。
+                    <strong>所有数值必须由函数公式计算得出，不允许手动输入结果。</strong>
+                </p>
+
+                <!-- KPI仪表盘 -->
+                <div class="section-title">📊 KPI 仪表盘（在"KPI仪表盘"Sheet 中建立并填写公式）</div>
+
+                <p style="font-size:13.5px;margin-bottom:12px;color:#555;">
+                    ▶ 第一区：整体销售概况（用 SUM / MAX / MIN / COUNTIF 等填写）
+                </p>
+                <div class="kpi-grid">
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">总销售额（元）</div>
+                        <div class="kpi-value">用SUM公式</div>
+                        <div class="kpi-formula">=SUM(数据!D:D)</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">总成本（元）</div>
+                        <div class="kpi-value">用SUM公式</div>
+                        <div class="kpi-formula">=SUM(数据!E:E)</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">总推广花费（元）</div>
+                        <div class="kpi-value">用SUM公式</div>
+                        <div class="kpi-formula">=SUM(数据!F:F)</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">总利润（元）</div>
+                        <div class="kpi-value">销售额-成本-花费</div>
+                        <div class="kpi-formula">=总销售额-总成本-总花费</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">总订单数（件）</div>
+                        <div class="kpi-value">用SUM公式</div>
+                        <div class="kpi-formula">=SUM(数据!G:G)</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">退款订单记录数</div>
+                        <div class="kpi-value">用COUNTIF公式</div>
+                        <div class="kpi-formula">=COUNTIF(数据!I:I,"是")</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">最高单笔销售额</div>
+                        <div class="kpi-value">用MAX公式</div>
+                        <div class="kpi-formula">=MAX(数据!D:D)</div>
+                    </div>
+                    <div class="kpi-card fill">
+                        <div class="kpi-label">最低单笔销售额</div>
+                        <div class="kpi-value">用MIN公式</div>
+                        <div class="kpi-formula">=MIN(数据!D:D)</div>
+                    </div>
+                </div>
+
+                <p style="font-size:13.5px;margin:16px 0 12px;color:#555;">
+                    ▶ 第二区：各商品类别汇总（用 SUMIF / COUNTIF / AVERAGEIF 填写完整表格）
+                </p>
+                <table class="answer-table red">
+                    <tr>
+                        <th>商品类别</th>
+                        <th>总销售额<br><small>SUMIF</small></th>
+                        <th>总成本<br><small>SUMIF</small></th>
+                        <th>总花费<br><small>SUMIF</small></th>
+                        <th>利润<br><small>=销售-成本-花费</small></th>
+                        <th>利润率<br><small>=利润/销售额</small></th>
+                        <th>订单数<br><small>SUMIF(数量列)</small></th>
+                        <th>退款记录数<br><small>COUNTIFS</small></th>
+                    </tr>
+                    <tr>
+                        <td>充电宝</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>蓝牙耳机</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>手机壳</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>数据线</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>磁吸充电器</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                    </tr>
+                </table>
+
+                <p style="font-size:13.5px;margin:16px 0 12px;color:#555;">
+                    ▶ 第三区：各渠道汇总（SUMIF / SUMIFS 双条件）
+                </p>
+                <table class="answer-table red">
+                    <tr>
+                        <th>推广渠道</th>
+                        <th>总花费（元）</th>
+                        <th>总带来销售额（元）</th>
+                        <th>总点击次数</th>
+                        <th>ROI<br><small>=销售额/花费</small></th>
+                        <th>CPC点击成本<br><small>=花费/点击次数</small></th>
+                    </tr>
+                    <tr>
+                        <td>直通车</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>超级推荐</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>直播带货</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell"></td>
+                        <td class="result-cell"></td>
+                    </tr>
+                    <tr>
+                        <td>自然搜索</td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="formula-cell"></td>
+                        <td class="result-cell">—</td>
+                        <td class="result-cell">—</td>
+                    </tr>
+                </table>
+
+                <p style="font-size:13.5px;margin:16px 0 12px;color:#555;">
+                    ▶ 第四区：综合结论（在仪表盘下方用文字填写）
+                </p>
+                <table class="answer-table red">
+                    <tr>
+                        <th>分析维度</th>
+                        <th>结论（须引用上方函数计算结果）</th>
+                    </tr>
+                    <tr>
+                        <td>利润率最高的商品类别</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>ROI 最高的推广渠道</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>退款率最高的商品类别及原因推测</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>综合运营建议（2-3条）</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box red">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>跨Sheet引用</strong>：在"KPI仪表盘"Sheet 中引用"数据（进阶）"Sheet 的数据，公式格式为：
+                            <br><code>=SUMIF(数据（进阶）!C:C,"充电宝",数据（进阶）!D:D)</code>
+                            <br>建议先把 Sheet 重命名为简短名称（如"数据"），减少公式长度。
+                        </li>
+                        <li><strong>退款记录数</strong>需要用 COUNTIFS 双条件：商品类别 + 是否退款="是"
+                            <br><code>=COUNTIFS(数据!C:C,"充电宝",数据!I:I,"是")</code>
+                        </li>
+                        <li><strong>利润率</strong>= 利润 ÷ 销售额，设置为百分比格式，保留1位小数。</li>
+                        <li><strong>CPC（每次点击成本）</strong>= 推广花费 ÷ 点击次数，自然搜索花费为0，填"—"。</li>
+                        <li>仪表盘中所有数值单元格建议加上<strong>货币格式</strong>或<strong>千分位分隔符</strong>，提升可读性。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <footer>
+            数据分析基础 · 模块三 · 3.2.3 条件统计函数 · 任务书<br>
+            数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+        </footer>
+
+    </div>
+
+    <!-- ===== CSV 数据 ===== -->
+    <script>
+        const CSV_DATA = {
+
+            basic: `订单编号,商品类别,销售省份,销售额（元）,销售数量（件）
+ORD-2024-001,充电宝,广东,89.00,1
+ORD-2024-002,蓝牙耳机,浙江,129.00,1
+ORD-2024-003,手机壳,广东,19.90,2
+ORD-2024-004,数据线,北京,29.90,2
+ORD-2024-005,充电宝,上海,149.00,1
+ORD-2024-006,蓝牙耳机,广东,299.00,1
+ORD-2024-007,手机壳,江苏,24.90,1
+ORD-2024-008,数据线,广东,15.90,3
+ORD-2024-009,充电宝,浙江,49.00,2
+ORD-2024-010,蓝牙耳机,北京,199.00,1
+ORD-2024-011,手机壳,广东,18.90,3
+ORD-2024-012,数据线,上海,19.90,1
+ORD-2024-013,充电宝,���苏,89.00,1
+ORD-2024-014,蓝牙耳机,广东,99.00,1
+ORD-2024-015,手机壳,浙江,22.90,1
+ORD-2024-016,数据线,广东,29.90,2
+ORD-2024-017,充电宝,北京,149.00,1
+ORD-2024-018,蓝牙耳机,上海,129.00,2
+ORD-2024-019,手机壳,广东,19.90,2
+ORD-2024-020,数据线,江苏,15.90,1
+ORD-2024-021,充电宝,广东,49.00,1
+ORD-2024-022,蓝牙耳机,浙江,259.00,1
+ORD-2024-023,手机壳,北京,24.90,1
+ORD-2024-024,数据线,广东,19.90,2
+ORD-2024-025,充电宝,上海,89.00,1`,
+
+            medium: `记录编号,推广渠道,商品类别,推广花费（元）,带来销售额（元）,点击次数,成交订单数
+REC-001,直通车,数据线,85.00,420.00,380,14
+REC-002,超级推荐,充电宝,120.00,680.00,290,8
+REC-003,直播带货,蓝牙耳机,200.00,1580.00,520,12
+REC-004,自然搜索,手机壳,0.00,210.00,180,11
+REC-005,直通车,充电宝,95.00,510.00,310,6
+REC-006,超级推荐,蓝牙耳机,180.00,990.00,260,8
+REC-007,直播带货,数据线,150.00,720.00,480,24
+REC-008,自然搜索,充电宝,0.00,330.00,150,4
+REC-009,直通车,手机壳,60.00,280.00,220,14
+REC-010,超级推荐,数据线,70.00,380.00,240,13
+REC-011,直播带货,充电宝,220.00,1250.00,560,14
+REC-012,自然搜索,蓝牙耳机,0.00,580.00,200,5
+REC-013,直通车,蓝牙耳机,160.00,850.00,350,7
+REC-014,超级推荐,手机壳,55.00,260.00,190,13
+REC-015,直播带货,手机壳,130.00,590.00,420,30
+REC-016,自然搜索,数据线,0.00,180.00,130,6
+REC-017,直通车,充电宝,110.00,560.00,300,7
+REC-018,超级推荐,充电宝,140.00,750.00,270,9
+REC-019,直播带货,蓝牙耳机,250.00,1820.00,580,14
+REC-020,自然搜索,手机壳,0.00,160.00,110,8
+REC-021,直通车,数据线,75.00,390.00,350,13
+REC-022,超级推荐,蓝牙耳机,165.00,920.00,280,7
+REC-023,直播带货,充电宝,190.00,1100.00,500,13
+REC-024,自然搜索,充电宝,0.00,290.00,140,4
+REC-025,直通车,手机壳,50.00,240.00,200,12
+REC-026,超级推荐,数据线,80.00,410.00,230,14
+REC-027,直播带货,手机壳,145.00,640.00,460,32
+REC-028,自然搜索,蓝牙耳机,0.00,520.00,190,4
+REC-029,直通车,蓝牙耳机,175.00,920.00,370,7
+REC-030,超级推荐,手机壳,65.00,300.00,210,15`,
+
+            hard: `记录编号,推广渠道,商品类别,销售额（元）,成本（元）,推广花费（元）,销售数量（件）,点击次数,是否退款
+REC-001,直通车,充电宝,89.00,45.00,12.00,1,280,否
+REC-002,超级推荐,蓝牙耳机,299.00,150.00,35.00,1,320,否
+REC-003,直播带货,手机壳,59.00,20.00,18.00,3,450,否
+REC-004,自然搜索,数据线,29.90,10.00,0.00,2,160,否
+REC-005,直通车,磁吸充电器,79.00,35.00,15.00,1,240,否
+REC-006,超级推荐,充电宝,149.00,70.00,22.00,1,290,否
+REC-007,直播带货,蓝牙耳机,199.00,95.00,28.00,1,520,是
+REC-008,自然搜索,手机壳,19.90,8.00,0.00,2,140,否
+REC-009,直通车,数据线,49.90,18.00,8.00,3,310,否
+REC-010,超级推荐,磁吸充电器,99.00,42.00,18.00,1,260,否
+REC-011,直播带货,充电宝,89.00,45.00,20.00,1,480,否
+REC-012,自然搜索,蓝牙耳机,129.00,65.00,0.00,1,190,否
+REC-013,直通车,手机壳,29.90,12.00,6.00,2,220,否
+REC-014,超级推荐,数据线,39.90,15.00,9.00,2,240,是
+REC-015,直播带货,磁吸充电器,79.00,35.00,22.00,1,560,否
+REC-016,自然搜索,充电宝,49.00,28.00,0.00,1,150,否
+REC-017,直通车,蓝牙耳机,259.00,125.00,32.00,1,350,否
+REC-018,超级推荐,手机壳,24.90,10.00,7.00,1,200,否
+REC-019,直播带货,数据线,29.90,10.00,10.00,2,420,否
+REC-020,自然搜索,磁吸充电器,59.00,28.00,0.00,1,130,否
+REC-021,直通车,充电宝,149.00,70.00,20.00,1,300,是
+REC-022,超级推荐,蓝牙耳机,199.00,95.00,30.00,1,270,否
+REC-023,直播带货,手机壳,49.90,18.00,15.00,3,500,否
+REC-024,自然搜索,数据线,19.90,8.00,0.00,1,120,否
+REC-025,直通车,磁吸充电器,99.00,42.00,18.00,1,260,否
+REC-026,超级推荐,充电宝,89.00,45.00,15.00,1,250,否
+REC-027,直播带货,蓝牙耳机,329.00,160.00,45.00,1,580,否
+REC-028,自然搜索,手机壳,22.90,9.00,0.00,2,135,是
+REC-029,直通车,数据线,29.90,10.00,7.00,2,290,否
+REC-030,超级推荐,磁吸充电器,79.00,35.00,16.00,1,230,否
+REC-031,直播带货,充电宝,149.00,70.00,25.00,1,460,否
+REC-032,自然搜索,蓝牙耳机,99.00,50.00,0.00,1,175,否
+REC-033,直通车,手机壳,19.90,8.00,5.00,2,210,否
+REC-034,超级推荐,数据线,29.90,10.00,8.00,2,220,否
+REC-035,直播带货,磁吸充电器,99.00,42.00,28.00,1,540,否`
+
+        };
+
+        function downloadCSV(level) {
+            const nameMap = {
+                basic: '基础_订单数据',
+                medium: '巩固_推广数据',
+                hard: '进阶_综合运营数据'
+            };
+            const filename = `3.2.3_条件统计函数_${nameMap[level]}.csv`;
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>

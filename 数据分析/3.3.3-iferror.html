@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.3.3 IFERROR · 任务书</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            line-height: 1.7;
+        }
+
+        /* ===== Banner ===== */
+        .banner {
+            background: linear-gradient(135deg, #e65100 0%, #bf360c 100%);
+            color: #fff;
+            padding: 36px 48px 28px;
+        }
+
+        .banner .course-tag {
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: .75;
+            margin-bottom: 8px;
+        }
+
+        .banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .banner .subtitle {
+            font-size: 14px;
+            opacity: .85;
+        }
+
+        .banner .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        /* ===== 主体 ===== */
+        .container {
+            max-width: 980px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ===== 情景卡片 ===== */
+        .scenario-card {
+            background: #fff;
+            border-left: 5px solid #e65100;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+        }
+
+        .scenario-card h2 {
+            font-size: 15px;
+            color: #e65100;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card p {
+            font-size: 14px;
+        }
+
+        /* ===== 知识点速览 ===== */
+        .knowledge-card {
+            background: #fbe9e7;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+        }
+
+        .knowledge-card h3 {
+            color: #bf360c;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .knowledge-card .warn {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #fff8e1;
+            border-left: 3px solid #ffa000;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #5d4037;
+        }
+
+        /* 错误类型展示 */
+        .error-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .error-card {
+            background: #fff;
+            border-radius: 6px;
+            padding: 10px 14px;
+            border-left: 4px solid #e65100;
+            font-size: 13px;
+        }
+
+        .error-card .e-code {
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: #c62828;
+            margin-bottom: 4px;
+        }
+
+        .error-card .e-cause {
+            color: #555;
+            font-size: 12px;
+        }
+
+        /* 语法展示盒 */
+        .syntax-box {
+            background: #fff;
+            border: 2px solid #e65100;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 14px 0;
+            font-size: 13.5px;
+        }
+
+        .syntax-box .syntax-title {
+            font-weight: 700;
+            color: #e65100;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .syntax-box .syntax-formula {
+            font-family: Consolas, monospace;
+            font-size: 15px;
+            color: #0277bd;
+            background: #e3f2fd;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .syntax-box .syntax-params {
+            font-size: 13px;
+        }
+
+        .syntax-box .syntax-params li {
+            margin-bottom: 5px;
+        }
+
+        /* ===== 难度块 ===== */
+        .level-block {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 28px;
+            color: #fff;
+        }
+
+        .level-header.basic {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .level-header.medium {
+            background: linear-gradient(90deg, #fb8c00, #ffa726);
+        }
+
+        .level-header.hard {
+            background: linear-gradient(90deg, #e53935, #ef5350);
+        }
+
+        .level-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, .25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .level-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .level-header .level-desc {
+            font-size: 13px;
+            opacity: .9;
+            margin-left: auto;
+        }
+
+        .level-body {
+            padding: 24px 28px;
+        }
+
+        /* ===== 下载区 ===== */
+        .download-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #fbe9e7;
+            border: 1px dashed #ffab91;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+
+        .download-bar .dl-info {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .download-bar .dl-info strong {
+            color: #e65100;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e65100;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-download:hover {
+            background: #bf360c;
+        }
+
+        .btn-download svg {
+            width: 15px;
+            height: 15px;
+            fill: #fff;
+        }
+
+        /* ===== 通用 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-left: 4px solid #e65100;
+            padding-left: 10px;
+            margin: 22px 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        th {
+            background: #fbe9e7;
+            color: #bf360c;
+            font-weight: 700;
+            padding: 9px 14px;
+            text-align: left;
+            border: 1px solid #ffab91;
+        }
+
+        td {
+            padding: 8px 14px;
+            border: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .task-list {
+            padding-left: 0;
+            list-style: none;
+            counter-reset: task;
+        }
+
+        .task-list li {
+            counter-increment: task;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            align-items: flex-start;
+        }
+
+        .task-list li::before {
+            content: counter(task);
+            min-width: 26px;
+            height: 26px;
+            background: #e65100;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .task-list.orange li::before {
+            background: #fb8c00;
+        }
+
+        .task-list.red li::before {
+            background: #e53935;
+        }
+
+        /* 公式对比展示 */
+        .formula-compare {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: start;
+            margin: 14px 0;
+        }
+
+        .fc-before,
+        .fc-after {
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 13px;
+        }
+
+        .fc-before {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+        }
+
+        .fc-after {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+        }
+
+        .fc-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .fc-before .fc-label {
+            color: #c62828;
+        }
+
+        .fc-after .fc-label {
+            color: #2e7d32;
+        }
+
+        .fc-formula {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .fc-before .fc-formula {
+            color: #c62828;
+        }
+
+        .fc-after .fc-formula {
+            color: #1b5e20;
+        }
+
+        .fc-result {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .fc-arrow {
+            font-size: 24px;
+            color: #e65100;
+            font-weight: 700;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        /* 填空题样式 */
+        .fill-block {
+            background: #fff8f5;
+            border: 1px solid #ffccbc;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+        }
+
+        .fill-block .fb-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #e65100;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .fill-block .fb-num.orange {
+            background: #fb8c00;
+        }
+
+        .fill-block .fb-num.red {
+            background: #e53935;
+        }
+
+        .fill-block .fb-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .fill-block .fb-body {
+            font-size: 13.5px;
+        }
+
+        .fill-block .fb-original {
+            background: #ffebee;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c62828;
+            margin: 6px 0;
+        }
+
+        .fill-block .fb-answer {
+            background: #f1f8e9;
+            border: 1px dashed #aed581;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #33691e;
+            margin: 6px 0;
+            min-height: 34px;
+        }
+
+        .fill-block .fb-note {
+            font-size: 12px;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        /* 场景判断表 */
+        .scene-table th {
+            background: #fce4ec;
+            color: #880e4f;
+            border-color: #f48fb1;
+        }
+
+        .scene-table td.scene-good {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .scene-table td.scene-bad {
+            background: #ffebee;
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .scene-table td.scene-maybe {
+            background: #fff9c4;
+            color: #f57f17;
+            font-weight: 600;
+        }
+
+        .tip-box {
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            margin-top: 16px;
+        }
+
+        .tip-box.green {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+
+        .tip-box.orange {
+            background: #fff3e0;
+            border-left: 4px solid #fb8c00;
+        }
+
+        .tip-box.red {
+            background: #fce4ec;
+            border-left: 4px solid #e53935;
+        }
+
+        .tip-box.blue {
+            background: #e3f2fd;
+            border-left: 4px solid #0277bd;
+        }
+
+        .tip-box .tip-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tip-box.green .tip-title {
+            color: #2e7d32;
+        }
+
+        .tip-box.orange .tip-title {
+            color: #e65100;
+        }
+
+        .tip-box.red .tip-title {
+            color: #b71c1c;
+        }
+
+        .tip-box.blue .tip-title {
+            color: #01579b;
+        }
+
+        .tip-box ul {
+            padding-left: 18px;
+        }
+
+        .tip-box ul li {
+            margin-bottom: 5px;
+        }
+
+        /* 记录填写表 */
+        .record-table th {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
+        }
+
+        .record-table.orange th {
+            background: #fff3e0;
+            color: #bf360c;
+            border-color: #ffcc80;
+        }
+
+        .record-table.red th {
+            background: #fce4ec;
+            color: #880e4f;
+            border-color: #f48fb1;
+        }
+
+        code {
+            background: #eceff1;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c62828;
+        }
+
+        .highlight {
+            display: inline-block;
+            background: #fff9c4;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        /* 替代值标签 */
+        .val-tag {
+            display: inline-block;
+            font-family: Consolas, monospace;
+            background: #e8eaf6;
+            color: #1a237e;
+            font-size: 12px;
+            padding: 1px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-weight: 700;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Banner ===== -->
+    <div class="banner">
+        <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+        <h1>3.3.3 IFERROR 函数</h1>
+        <div class="subtitle">捕获公式错误，用合适的替代值保持表格整洁与计算连续性</div>
+        <div class="meta">
+            <span>📁 配套文件：3.3.3_练习数据.xlsx</span>
+            <span>🎯 三个难度等级</span>
+            <span>🏢 情景：星途电商有限公司</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 情景 -->
+        <div class="scenario-card">
+            <h2>📋 背景情景</h2>
+            <p>
+                星途电商有限公司运营团队每周汇总各推广渠道的数据报表，
+                需要计算转化率、UV 价值、ROI 等指标。
+                但数据中存在访客数为 0、推广花费为 0 等情况，
+                导致公式计算时出现 <strong style="color:#c62828;">#DIV/0!</strong>
+                等错误值，影响报表的美观和后续汇总。
+                运营助理小吴需要用 <strong>IFERROR</strong> 函数批量修复这些报错公式。
+                请协助小吴完成各难度的练习任务。
+            </p>
+        </div>
+
+        <!-- 知识点速览 -->
+        <div class="knowledge-card">
+            <h3>📖 知识点速览：IFERROR 函数</h3>
+
+            <div class="syntax-box">
+                <div class="syntax-title">📐 函数语法</div>
+                <div class="syntax-formula">=IFERROR( 原公式或值, 出错时显示的内容 )</div>
+                <ul class="syntax-params" style="padding-left:20px;">
+                    <li><strong>第1参数</strong>：要计算的公式（如 <code>=A2/B2</code>），当此公式正常时，返回计算结果</li>
+                    <li><strong>第2参数</strong>：当第1参数出错时，显示的替代内容
+                        <br>· 文字替代：加引号，如 <code>"--"</code>、<code>"无数据"</code>、<code>"/"</code>
+                        <br>· 数字替代：不加引号，如 <code>0</code>
+                        <br>· 空白替代：两个引号，如 <code>""</code>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="error-grid">
+                <div class="error-card">
+                    <div class="e-code">#DIV/0!</div>
+                    <div class="e-cause">除数为零或空白<br>最常见的错误</div>
+                </div>
+                <div class="error-card">
+                    <div class="e-code">#VALUE!</div>
+                    <div class="e-cause">数据类型错误<br>如文本参与数值运算</div>
+                </div>
+                <div class="error-card">
+                    <div class="e-code">#N/A</div>
+                    <div class="e-cause">VLOOKUP找不到匹配值<br>常见于查找函数</div>
+                </div>
+                <div class="error-card">
+                    <div class="e-code">#REF!</div>
+                    <div class="e-cause">引用了无效的单元格<br>如删除了被引用的行</div>
+                </div>
+                <div class="error-card">
+                    <div class="e-code">#NAME?</div>
+                    <div class="e-cause">函数名称拼写错误<br>或未识别的名称</div>
+                </div>
+                <div class="error-card">
+                    <div class="e-code">#NUM!</div>
+                    <div class="e-cause">数值超出范围<br>或无效数值运算</div>
+                </div>
+            </div>
+
+            <div class="warn">
+                ⚠️ IFERROR 能捕获<strong>所有类型</strong>的公式错误（#DIV/0! / #VALUE! / #N/A 等）。
+                使用时注意：替代值要根据业务含义选择，
+                不能所有错误都用 0 代替（如转化率出错替代为 0 会误导分析）。
+            </div>
+        </div>
+
+        <!-- ==================== 基础 ==================== -->
+        <div class="level-block">
+            <div class="level-header basic">
+                <span class="level-badge">LEVEL 1</span>
+                <h2>基础练习</h2>
+                <span class="level-desc">适合：第一次使用 IFERROR · 25条推广数据 · 转化率列报错修复</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>25条推广数据</strong>｜访客数部分为0导致转化率列报错｜
+                        改写公式使出错时显示 <span class="val-tag">"--"</span>
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('basic')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>特殊情况</th>
+                    </tr>
+                    <tr>
+                        <td>记录编号</td>
+                        <td>A列</td>
+                        <td>唯一编号</td>
+                        <td>无</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>B列</td>
+                        <td>直通车/超级推荐/直播带货/自然搜索</td>
+                        <td>无</td>
+                    </tr>
+                    <tr>
+                        <td>访客数（UV）</td>
+                        <td>C列</td>
+                        <td>该渠道带来的访客数量</td>
+                        <td style="color:#c62828;">⚠️ 部分行为 0（导致除法报错）</td>
+                    </tr>
+                    <tr>
+                        <td>成交订单数</td>
+                        <td>D列</td>
+                        <td>该渠道带来的订单数量</td>
+                        <td>无</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>E列</td>
+                        <td>该渠道投放费用</td>
+                        <td>自然搜索为 0</td>
+                    </tr>
+                    <tr>
+                        <td>带来销售额（元）</td>
+                        <td>F列</td>
+                        <td>该渠道带来的成交额</td>
+                        <td>无</td>
+                    </tr>
+                    <tr>
+                        <td>转化率（%）</td>
+                        <td>G列</td>
+                        <td>= 成交订单数 ÷ 访客数，应为百分比</td>
+                        <td style="color:#c62828;">⚠️ 访客数为0时显示 #DIV/0!</td>
+                    </tr>
+                </table>
+
+                <!-- 公式对比 -->
+                <div class="section-title">🔍 公式修改示例</div>
+                <div class="formula-compare">
+                    <div class="fc-before">
+                        <div class="fc-label">❌ 原始公式（会报错）</div>
+                        <div class="fc-formula">=D2/C2</div>
+                        <div class="fc-result">当 C2=0 时：显示 <strong style="color:#c62828;">#DIV/0!</strong></div>
+                        <div class="fc-result">当 C2≠0 时：正常显示转化率</div>
+                    </div>
+                    <div class="fc-arrow">→</div>
+                    <div class="fc-after">
+                        <div class="fc-label">✓ 修改后（IFERROR保护）</div>
+                        <div class="fc-formula">=IFERROR(D2/C2, "--")</div>
+                        <div class="fc-result">当 C2=0 时：显示 <strong style="color:#2e7d32;">"--"</strong></div>
+                        <div class="fc-result">当 C2≠0 时：正常显示转化率</div>
+                    </div>
+                </div>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list">
+                    <li>将 CSV 数据粘贴到"数据（基础）"Sheet 中，观察 G 列（转化率）的报错情况。</li>
+                    <li>
+                        <div>统计 G 列中有多少个 <code>#DIV/0!</code> 错误，填入下方记录表。
+                            <br>（提示：可用 <code>=COUNTIF(G2:G26,"#DIV/0!")</code> 统计）
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            在 H 列新建"转化率（修复后）"列，
+                            在 H2 单元格输入修复后的公式：
+                            <br><code>=IFERROR(D2/C2, "--")</code>
+                            <br>向下填充到 H26。
+                        </div>
+                    </li>
+                    <li>
+                        将 H 列格式设置为<span class="highlight">百分比格式，保留2位小数</span>
+                        （注意：显示"--"的行不受格式影响）。
+                    </li>
+                    <li>对比 G 列（原始）和 H 列（修复后）的显示效果，填写对比记录表。</li>
+                    <li>思考并回答：为什么出错时选择显示"--"而不是显示 0？</li>
+                </ol>
+
+                <!-- 填空练习 -->
+                <div class="section-title">✏️ 公式填写练习</div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">1</span>
+                        修复转化率公式（出错显示"--"）
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">原始公式：</div>
+                        <div class="fb-original">=D2/C2</div>
+                        <div class="fb-note">修复后公式（在下方横线处填写完整公式）：</div>
+                        <div class="fb-answer">= IFERROR(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">2</span>
+                        如果想让出错时显示 0（而不是"--"），公式应怎么写？
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-answer">= IFERROR(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div class="fb-note">注意：数字 0 不需要加引号</div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num">3</span>
+                        如果想让出错时显示空白（什么都不显示），公式应怎么写？
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-answer">= IFERROR(
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div class="fb-note">提示：空白用两个英文引号表示 ""</div>
+                    </div>
+                </div>
+
+                <div class="section-title">📝 结果记录表（在 Excel 中填写）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>统计项目</th>
+                        <th>数量/内容</th>
+                    </tr>
+                    <tr>
+                        <td>G 列中 #DIV/0! 错误的数量</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>这些错误对应的推广渠道是？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>H 列修复后，这些行显示的内容是？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>非报错行的转化率范围（最高/最低）</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">💬 思考题（在 Excel 中文字回答）</div>
+                <table class="record-table">
+                    <tr>
+                        <th>问题</th>
+                        <th>回答</th>
+                    </tr>
+                    <tr>
+                        <td>① 转化率出错时，为什么应该显示"--"而不是 0？<br>
+                            （提示：如果显示 0，对数据分析有什么影响？）</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>② 访客数为 0 是数据错误，还是正常的业务情况？<br>
+                            应该如何处理这些访客数为 0 的行？</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box green">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>IFERROR 结构口诀</strong>：
+                            "先算再判，出错换值"——先写原来的公式，出错了再换成你想显示的内容。</li>
+                        <li><strong>填充公式</strong>：在 H2 输入公式后，选中 H2，
+                            双击右下角的填充柄（小方块），公式会自动填充到最后一行有数据的位置。</li>
+                        <li><strong>设置百分比格式</strong>：选中 H 列 → 右键 → 设置单元格格式
+                            → 数字 → 百分比 → 小数位数设为 2 → 确定。
+                            显示"--"的单元格不会受影响（文本不会被格式化为百分比）。</li>
+                        <li><strong>验证修复效果</strong>：用 <code>=COUNTIF(H2:H26,"#*")</code>，
+                            结果应为 0，说明没有残留错误值。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 巩固 ==================== -->
+        <div class="level-block">
+            <div class="level-header medium">
+                <span class="level-badge">LEVEL 2</span>
+                <h2>巩固练习</h2>
+                <span class="level-desc">适合：熟悉基本用法后 · 30条数据 · 多列公式批量修复</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>30条多渠道推广数据</strong>｜转化率/UV价值/ROI三列公式均有报错｜
+                        批量修复所有公式列
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('medium')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>计算公式</th>
+                        <th>报错原因</th>
+                    </tr>
+                    <tr>
+                        <td>记录编号</td>
+                        <td>A</td>
+                        <td>唯一编号</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>推广渠道</td>
+                        <td>B</td>
+                        <td>4种渠道</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>商品类别</td>
+                        <td>C</td>
+                        <td>5种类别</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>访客数（UV）</td>
+                        <td>D</td>
+                        <td>带来的访客</td>
+                        <td>—</td>
+                        <td style="color:#c62828;">部分为0</td>
+                    </tr>
+                    <tr>
+                        <td>成交订单数</td>
+                        <td>E</td>
+                        <td>带来的订单</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>F</td>
+                        <td>投放费用</td>
+                        <td>—</td>
+                        <td style="color:#c62828;">自然搜索为0</td>
+                    </tr>
+                    <tr>
+                        <td>带来销售额（元）</td>
+                        <td>G</td>
+                        <td>成交金额</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>转化率</td>
+                        <td>H</td>
+                        <td>成交率</td>
+                        <td><code>=E/D</code></td>
+                        <td style="color:#c62828;">D为0时 #DIV/0!</td>
+                    </tr>
+                    <tr>
+                        <td>UV价值（元）</td>
+                        <td>I</td>
+                        <td>每个访客带来的销售额</td>
+                        <td><code>=G/D</code></td>
+                        <td style="color:#c62828;">D为0时 #DIV/0!</td>
+                    </tr>
+                    <tr>
+                        <td>ROI</td>
+                        <td>J</td>
+                        <td>投入产出比</td>
+                        <td><code>=G/F</code></td>
+                        <td style="color:#c62828;">F为0时 #DIV/0!</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list orange">
+                    <li>将数据粘贴到"数据（巩固）"Sheet，观察 H、I、J 三列的报错情况，统计各列报错数量。</li>
+                    <li>
+                        <div>
+                            <strong>逐列修复公式</strong>，在各列旁边新增"（修复后）"列：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>H 列（转化率）→ K 列：出错显示 <span class="val-tag">"--"</span></li>
+                                <li>I 列（UV价值）→ L 列：出错显示 <span class="val-tag">"--"</span></li>
+                                <li>J 列（ROI）→ M 列：出错显示 <span class="val-tag">"--"</span></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>设置各修复列的数字格式：转化率设为百分比，UV价值和ROI设为数值保留2位小数。</li>
+                    <li>
+                        <div>
+                            完成后，对有效数据（非"--"行）进行渠道汇总，
+                            使用 <code>AVERAGEIF</code> 计算各渠道的平均转化率、平均UV价值、平均ROI，
+                            填入下方汇总表。
+                        </div>
+                    </li>
+                    <li>根据汇总结果，判断哪个渠道整体表现最优，写出分析结论。</li>
+                </ol>
+
+                <!-- 公式填写区 -->
+                <div class="section-title">✏️ 三列修复公式填写</div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num orange">1</span>
+                        转化率修复（K列）：出错时显示 "--"
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">原始公式（H列）：<code>=E2/D2</code></div>
+                        <div class="fb-note">K2 修复公式：</div>
+                        <div class="fb-answer"></div>
+                        <div class="fb-note">格式设置：百分比，保留2位小数</div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num orange">2</span>
+                        UV价值修复（L列）：出错时显示 "--"
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">原始公式（I列）：<code>=G2/D2</code></div>
+                        <div class="fb-note">L2 修复公式：</div>
+                        <div class="fb-answer"></div>
+                        <div class="fb-note">格式设置：数值，保留2位小数，单位：元</div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num orange">3</span>
+                        ROI修复（M列）：出错时显示 "--"
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">原始公式（J列）：<code>=G2/F2</code></div>
+                        <div class="fb-note">M2 修复公式：</div>
+                        <div class="fb-answer"></div>
+                        <div class="fb-note">格式设置：数值，保留2位小数（如 5.23 表示ROI为5.23倍）</div>
+                    </div>
+                </div>
+
+                <div class="section-title">📝 各渠道指标汇总表（用 AVERAGEIF 填写，跳过"--"行）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>推广渠道</th>
+                        <th>有效记录数<br><small>COUNTIF</small></th>
+                        <th>平均转化率<br><small>AVERAGEIF（K列）</small></th>
+                        <th>平均UV价值<br><small>AVERAGEIF（L列）</small></th>
+                        <th>平均ROI<br><small>AVERAGEIF（M列）</small></th>
+                        <th>综合排名</th>
+                    </tr>
+                    <tr>
+                        <td>直通车</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>超级推荐</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>直播带货</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>自然搜索</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td style="color:#888;">（ROI无法计算）</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">💬 分析结论（在 Excel 中填写）</div>
+                <table class="record-table orange">
+                    <tr>
+                        <th>问题</th>
+                        <th>回答（须引用表格中的数据）</th>
+                    </tr>
+                    <tr>
+                        <td>① 哪个渠道转化率最高？说明什么？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>② 哪个渠道UV价值最高？对选品有什么启示？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>③ 综合三个指标，最值得加大投入的渠道是？理由是？</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box orange">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>AVERAGEIF 跳过"--"的问题</strong>：
+                            AVERAGEIF 统计数值型数据时会自动忽略文本（包括"--"），
+                            所以直接对 K/L/M 列用 AVERAGEIF 即可，无需额外处理。
+                            <br>公式示例：<code>=AVERAGEIF($B$2:$B$31,"直通车",K$2:K$31)</code>
+                        </li>
+                        <li><strong>自然搜索的ROI</strong>：自然搜索推广花费为0，ROI无法计算，
+                            在汇总表中填"—"，不要强行填0（会误导比较）。</li>
+                        <li><strong>三列一起修复的效率技巧</strong>：
+                            先在 K2 写好公式并确认正确，然后选中 K2，向右拖一格到 L2、M2，
+                            修改 L2 和 M2 中的被除数列引用即可（C→D 改为 G→D，G→F）。</li>
+                        <li>AVERAGEIF 计算平均值时，<strong>结果单元格格式要与原列一致</strong>，
+                            转化率用百分比，UV价值和ROI用数值保留2位小数。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== 进阶 ==================== -->
+        <div class="level-block">
+            <div class="level-header hard">
+                <span class="level-badge">LEVEL 3</span>
+                <h2>进阶练习</h2>
+                <span class="level-desc">适合：综合运用阶段 · 35条混合数据 · IFERROR嵌套 IF/DATEDIF，根据业务场景设计替代值</span>
+            </div>
+            <div class="level-body">
+
+                <div class="download-bar">
+                    <div class="dl-info">
+                        📊 数据说明：<strong>35条综合数据</strong>｜多类型报错｜
+                        需根据业务场景判断用 0、"/" 还是文字说明作为替代值
+                    </div>
+                    <button class="btn-download" onclick="downloadCSV('hard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        下载 CSV 数据
+                    </button>
+                </div>
+
+                <div class="section-title">📌 数据字段说明</div>
+                <table>
+                    <tr>
+                        <th>字段名</th>
+                        <th>列</th>
+                        <th>说明</th>
+                        <th>计算公式</th>
+                        <th>报错情况</th>
+                    </tr>
+                    <tr>
+                        <td>订单编号</td>
+                        <td>A</td>
+                        <td>唯一编号</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>下单日期</td>
+                        <td>B</td>
+                        <td>客户下单时间</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>发货日期</td>
+                        <td>C</td>
+                        <td>实际发货时间，部分未发货为空</td>
+                        <td>—</td>
+                        <td style="color:#c62828;">部分为空</td>
+                    </tr>
+                    <tr>
+                        <td>签收日期</td>
+                        <td>D</td>
+                        <td>买家签收时间，未签收为空</td>
+                        <td>—</td>
+                        <td style="color:#c62828;">部分为空</td>
+                    </tr>
+                    <tr>
+                        <td>销售额（元）</td>
+                        <td>E</td>
+                        <td>成交金额</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>推广花费（元）</td>
+                        <td>F</td>
+                        <td>投放费用，自然搜索为0</td>
+                        <td>—</td>
+                        <td style="color:#c62828;">部分为0</td>
+                    </tr>
+                    <tr>
+                        <td>发货时效（天）</td>
+                        <td>G</td>
+                        <td>发货日-下单日的天数</td>
+                        <td><code>=DATEDIF(B,C,"D")</code></td>
+                        <td style="color:#c62828;">C为空时报错</td>
+                    </tr>
+                    <tr>
+                        <td>签收时效（天）</td>
+                        <td>H</td>
+                        <td>签收日-发货日的天数</td>
+                        <td><code>=DATEDIF(C,D,"D")</code></td>
+                        <td style="color:#c62828;">C或D为空时报错</td>
+                    </tr>
+                    <tr>
+                        <td>ROI</td>
+                        <td>I</td>
+                        <td>销售额÷推广花费</td>
+                        <td><code>=E/F</code></td>
+                        <td style="color:#c62828;">F为0时 #DIV/0!</td>
+                    </tr>
+                    <tr>
+                        <td>是否退款</td>
+                        <td>J</td>
+                        <td>是/否</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                </table>
+
+                <!-- 核心挑战：替代值选择 -->
+                <div class="section-title">🎯 核心挑战：替代值应该选什么？</div>
+                <table class="scene-table">
+                    <tr>
+                        <th>报错字段</th>
+                        <th>报错原因</th>
+                        <th>业务含义</th>
+                        <th>替代值选 0</th>
+                        <th>替代值选"/"</th>
+                        <th>替代值选文字说明</th>
+                        <th>最佳选择</th>
+                    </tr>
+                    <tr>
+                        <td>发货时效（G列）</td>
+                        <td>发货日期为空（未发货）</td>
+                        <td>订单尚未发货，时效不存在</td>
+                        <td class="scene-bad">❌ 误以为0天发货</td>
+                        <td class="scene-good">✓ 表示"无数据"</td>
+                        <td class="scene-good">✓ "未发货"更清晰</td>
+                        <td><span class="val-tag">"未发货"</span></td>
+                    </tr>
+                    <tr>
+                        <td>签收时效（H列）</td>
+                        <td>签收日期为空（在途）</td>
+                        <td>包裹仍在配送中</td>
+                        <td class="scene-bad">❌ 误以为当天签收</td>
+                        <td class="scene-maybe">△ 可接受</td>
+                        <td class="scene-good">✓ "配送中"</td>
+                        <td><span class="val-tag">"配送中"</span></td>
+                    </tr>
+                    <tr>
+                        <td>ROI（I列）</td>
+                        <td>推广花费为0（自然流量）</td>
+                        <td>该订单无推广成本，ROI理论上∞</td>
+                        <td class="scene-bad">❌ 误以为亏损</td>
+                        <td class="scene-good">✓ 表示不适用</td>
+                        <td class="scene-good">✓ "自然流量"</td>
+                        <td><span class="val-tag">"自然流量"</span></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">✅ 任务要求</div>
+                <ol class="task-list red">
+                    <li>将数据粘贴到"数据（进阶）"Sheet，统计 G、H、I 三列各有多少报错。</li>
+                    <li>
+                        <div>
+                            <strong>修复发货时效（G列）</strong>：
+                            用 IFERROR 包裹 DATEDIF 公式，出错时显示<span class="val-tag">"未发货"</span>，
+                            结果写入 K 列。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>修复签收时效（H列）</strong>：
+                            出错时显示<span class="val-tag">"配送中"</span>，结果写入 L 列。
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>修复ROI（I列）</strong>：
+                            需要用 <strong>IFERROR + IF 嵌套</strong>，实现：
+                            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+                                <li>推广花费为 0 → 显示 <span class="val-tag">"自然流量"</span></li>
+                                <li>推广花费不为 0 但公式报错 → 显示 <span class="val-tag">"/"</span></li>
+                                <li>正常计算 → 显示 ROI 数值</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>新增"是否超时发货"列（M列）</strong>：
+                            判断发货时效是否超过 2 天（即 K 列数值 &gt; 2），
+                            需处理 K 列中"未发货"文字导致的 IF 判断报错：
+                            <br><code>=IFERROR(IF(K2>2,"超时","正常"), "未发货")</code>
+                        </div>
+                    </li>
+                    <li>完成后填写下方设计说明表，解释每个替代值的选择理由。</li>
+                </ol>
+
+                <!-- 进阶公式填写 -->
+                <div class="section-title">✏️ 进阶公式填写练习</div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num red">1</span>
+                        发货时效修复（K列）：IFERROR + DATEDIF
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">原始公式：<code>=DATEDIF(B2,C2,"D")</code></div>
+                        <div class="fb-note">K2 修复公式（出错时显示"未发货"）：</div>
+                        <div class="fb-answer">= IFERROR( DATEDIF(B2,C2,"D"), &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num red">2</span>
+                        签收时效修复（L列）：IFERROR + DATEDIF
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">原始公式：<code>=DATEDIF(C2,D2,"D")</code></div>
+                        <div class="fb-note">L2 修复公式（出错时显示"配送中"）：</div>
+                        <div class="fb-answer"></div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num red">3</span>
+                        ROI修复（M列）：IFERROR + IF 嵌套
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">需要实现：花费为0→"自然流量"，其他报错→"/"，正常→显示数值</div>
+                        <div class="fb-note">M2 修复公式：</div>
+                        <div class="fb-answer">= IF( F2=0, "自然流量", IFERROR( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ,
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) )</div>
+                        <div class="fb-note">思路：先用 IF 判断花费是否为0，不为0时再用 IFERROR 计算ROI</div>
+                    </div>
+                </div>
+
+                <div class="fill-block">
+                    <div class="fb-title">
+                        <span class="fb-num red">4</span>
+                        是否超时发货（N列）：IFERROR + IF 嵌套
+                    </div>
+                    <div class="fb-body">
+                        <div class="fb-note">判断逻辑：K列数值&gt;2为"超时"，≤2为"正常"，"未发货"时不判断</div>
+                        <div class="fb-note">N2 修复公式：</div>
+                        <div class="fb-answer">= IFERROR( IF(K2&gt;2, "超时", "正常"), &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            )</div>
+                        <div class="fb-note">思路：K列若为"未发货"文字，IF(K2&gt;2)会报错，用IFERROR捕获后显示"未发货"</div>
+                    </div>
+                </div>
+
+                <div class="section-title">📝 替代值设计说明表（在 Excel 中填写）</div>
+                <table class="record-table red">
+                    <tr>
+                        <th>字段</th>
+                        <th>报错原因</th>
+                        <th>选择的替代值</th>
+                        <th>选择理由（业务角度）</th>
+                        <th>为什么不用 0 代替？</th>
+                    </tr>
+                    <tr>
+                        <td>发货时效</td>
+                        <td>发货日期为空</td>
+                        <td><span class="val-tag">"未发货"</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>签收时效</td>
+                        <td>签收日期为空</td>
+                        <td><span class="val-tag">"配送中"</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>ROI（花费为0）</td>
+                        <td>推广花费为0</td>
+                        <td><span class="val-tag">"自然流量"</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>ROI（其他报错）</td>
+                        <td>其他异常</td>
+                        <td><span class="val-tag">"/"</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>是否超时</td>
+                        <td>K列为文本</td>
+                        <td><span class="val-tag">"未发货"</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">📊 数据分析结论（在 Excel 中填写）</div>
+                <table class="record-table red">
+                    <tr>
+                        <th>分析问题</th>
+                        <th>结论（须引用数据）</th>
+                    </tr>
+                    <tr>
+                        <td>① 共有多少订单超时发货（发货时效&gt;2天）？占比多少？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>② 有多少订单目前仍在配送中（未签收）？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>③ 自然流量订单占总订单比例是多少？</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>④ 针对超时发货问题，提出1条改进建议</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <div class="tip-box red">
+                    <div class="tip-title">💡 操作提示</div>
+                    <ul>
+                        <li><strong>DATEDIF 函数语法</strong>：
+                            <code>=DATEDIF(开始日期, 结束日期, "D")</code>，
+                            "D"表示计算天数差。注意：开始日期必须早于结束日期，否则也会报错，
+                            此时 IFERROR 同样能捕获。
+                        </li>
+                        <li><strong>IF + IFERROR 嵌套的写法顺序</strong>：
+                            <br>先判断特殊情况（花费为0）→ 再计算正常值 → 最后用IFERROR捕获剩余错误
+                            <br><code>=IF(F2=0, "自然流量", IFERROR(E2/F2, "/"))</code>
+                        </li>
+                        <li><strong>"未发货"替代值的 IF 判断报错原理</strong>：
+                            当 K 列显示"未发货"（文本）时，<code>K2&gt;2</code> 这个比较操作
+                            对文本无效，Excel 会返回 #VALUE! 错误，
+                            此时外层的 IFERROR 捕获这个错误，显示"未发货"。</li>
+                        <li><strong>统计超时订单数量</strong>：
+                            <code>=COUNTIF(N2:N36,"超时")</code>；
+                            <br>统计配送中：<code>=COUNTIF(L2:L36,"配送中")</code>；
+                            <br>统计自然流量：<code>=COUNTIF(M2:M36,"自然流量")</code>。
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tip-box blue">
+                    <div class="tip-title">📌 进阶思考：IFERROR 的使用原则</div>
+                    <ul>
+                        <li><strong>不要滥用 IFERROR</strong>：
+                            IFERROR 会掩盖所有错误，包括你不希望掩盖的错误（如公式写错）。
+                            建议先确保公式本身逻辑正确，再加 IFERROR 处理预期的边界情况。</li>
+                        <li><strong>替代值要有业务含义</strong>：
+                            "未发货""配送中""自然流量"这些替代值让阅读者一眼明白原因，
+                            比空白或 0 更有信息价值。</li>
+                        <li><strong>IFERROR vs IF(ISERROR())</strong>：
+                            两者效果相同，但 IFERROR 更简洁。
+                            旧版 Excel（2003及以前）不支持 IFERROR，需用 IF(ISERROR()) 替代。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <footer>
+            数据分析基础 · 模块三 · 3.3.3 IFERROR 函数 · 任务书<br>
+            数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+        </footer>
+
+    </div>
+
+    <!-- ===== CSV 数据 ===== -->
+    <script>
+        const CSV_DATA = {
+
+            basic: `记录编号,推广渠道,访客数（UV）,成交订单数,推广花费（元）,带来销售额（元）,转化率（%）
+ADV-001,直通车,380,14,85.00,420.00,#DIV/0!
+ADV-002,超级推荐,290,8,120.00,680.00,#DIV/0!
+ADV-003,直播带货,520,12,200.00,1580.00,#DIV/0!
+ADV-004,自然搜索,0,0,0.00,210.00,#DIV/0!
+ADV-005,直通车,310,6,95.00,510.00,#DIV/0!
+ADV-006,超级推荐,260,8,180.00,990.00,#DIV/0!
+ADV-007,直播带货,480,24,150.00,720.00,#DIV/0!
+ADV-008,自然搜索,0,0,0.00,330.00,#DIV/0!
+ADV-009,直通车,220,14,60.00,280.00,#DIV/0!
+ADV-010,超级推荐,240,13,70.00,380.00,#DIV/0!
+ADV-011,直播带货,560,14,220.00,1250.00,#DIV/0!
+ADV-012,自然搜索,200,5,0.00,580.00,#DIV/0!
+ADV-013,直通车,350,7,160.00,850.00,#DIV/0!
+ADV-014,超级推荐,190,13,55.00,260.00,#DIV/0!
+ADV-015,直播带货,0,0,130.00,590.00,#DIV/0!
+ADV-016,自然搜索,130,6,0.00,180.00,#DIV/0!
+ADV-017,直通车,300,7,110.00,560.00,#DIV/0!
+ADV-018,超级推荐,270,9,140.00,750.00,#DIV/0!
+ADV-019,直播带货,580,14,250.00,1820.00,#DIV/0!
+ADV-020,自然搜索,110,8,0.00,160.00,#DIV/0!
+ADV-021,直通车,350,13,75.00,390.00,#DIV/0!
+ADV-022,超级推荐,280,7,165.00,920.00,#DIV/0!
+ADV-023,直播带货,500,13,190.00,1100.00,#DIV/0!
+ADV-024,自然搜索,0,0,0.00,290.00,#DIV/0!
+ADV-025,直通车,200,12,50.00,240.00,#DIV/0!`,
+
+            medium: `记录编号,推广渠道,商品类别,访客数（UV）,成交订单数,推广花费（元）,带来销售额（元）,转化率,UV价值（元）,ROI
+ADV-001,直通车,数据线,380,14,85.00,420.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-002,超级推荐,充电宝,290,8,120.00,680.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-003,直播带货,蓝牙耳机,520,12,200.00,1580.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-004,自然搜索,手机壳,0,0,0.00,210.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-005,直通车,充电宝,310,6,95.00,510.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-006,超级推荐,蓝牙耳机,260,8,180.00,990.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-007,直播带货,数据线,480,24,150.00,720.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-008,自然搜索,充电宝,0,0,0.00,330.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-009,直通车,手机壳,220,14,60.00,280.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-010,超级推荐,数据线,240,13,70.00,380.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-011,直播带货,充电宝,560,14,220.00,1250.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-012,自然搜索,蓝牙耳机,200,5,0.00,580.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-013,直通车,蓝牙耳机,350,7,160.00,850.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-014,超级推荐,手机壳,190,13,55.00,260.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-015,直播带货,手机壳,0,0,130.00,590.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-016,自然搜索,数据线,130,6,0.00,180.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-017,直通车,充电宝,300,7,110.00,560.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-018,超级推荐,充电宝,270,9,140.00,750.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-019,直播带货,蓝牙耳机,580,14,250.00,1820.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-020,自然搜索,手机壳,110,8,0.00,160.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-021,直通车,数据线,350,13,75.00,390.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-022,超级推荐,蓝牙耳机,280,7,165.00,920.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-023,直播带货,充电宝,500,13,190.00,1100.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-024,自然搜索,充电宝,140,4,0.00,290.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-025,直通车,手机壳,200,12,50.00,240.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-026,超级推荐,数据线,230,14,80.00,410.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-027,直播带货,手机壳,460,32,145.00,640.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-028,自然搜索,蓝牙耳机,190,4,0.00,520.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-029,直通车,蓝牙耳机,370,7,175.00,920.00,#DIV/0!,#DIV/0!,#DIV/0!
+ADV-030,超级推荐,手机壳,210,15,65.00,300.00,#DIV/0!,#DIV/0!,#DIV/0!`,
+
+            hard: `订单编号,下单日期,发货日期,签收日期,销售额（元）,推广花费（元）,发货时效（天）,签收时效（天）,ROI,是否退款
+ORD-2024-001,2024-03-01,2024-03-02,2024-03-05,89.00,12.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-002,2024-03-01,2024-03-03,2024-03-07,299.00,35.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-003,2024-03-02,,，59.00,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-004,2024-03-02,2024-03-04,2024-03-08,29.90,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-005,2024-03-03,2024-03-04,2024-03-07,79.00,15.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-006,2024-03-03,2024-03-06,,149.00,22.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-007,2024-03-04,2024-03-05,2024-03-09,199.00,28.00,#DIV/0!,#DIV/0!,#DIV/0!,是
+ORD-2024-008,2024-03-04,,，19.90,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-009,2024-03-05,2024-03-06,2024-03-10,49.90,8.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-010,2024-03-05,2024-03-07,2024-03-11,99.00,18.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-011,2024-03-06,2024-03-07,2024-03-10,89.00,20.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-012,2024-03-06,2024-03-08,,129.00,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-013,2024-03-07,2024-03-08,2024-03-12,29.90,6.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-014,2024-03-07,2024-03-10,2024-03-14,39.90,9.00,#DIV/0!,#DIV/0!,#DIV/0!,是
+ORD-2024-015,2024-03-08,,，79.00,22.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-016,2024-03-08,2024-03-09,2024-03-12,49.00,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-017,2024-03-09,2024-03-10,2024-03-14,259.00,32.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-018,2024-03-09,2024-03-11,,24.90,7.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-019,2024-03-10,2024-03-11,2024-03-14,29.90,10.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-020,2024-03-10,2024-03-11,2024-03-15,59.00,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-021,2024-03-11,2024-03-13,2024-03-17,149.00,20.00,#DIV/0!,#DIV/0!,#DIV/0!,是
+ORD-2024-022,2024-03-11,2024-03-12,2024-03-16,199.00,30.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-023,2024-03-12,2024-03-13,2024-03-17,49.90,15.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-024,2024-03-12,,，19.90,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-025,2024-03-13,2024-03-14,2024-03-18,99.00,18.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-026,2024-03-13,2024-03-15,,89.00,15.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-027,2024-03-14,2024-03-15,2024-03-19,329.00,45.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-028,2024-03-14,2024-03-16,2024-03-20,22.90,0.00,#DIV/0!,#DIV/0!,#DIV/0!,是
+ORD-2024-029,2024-03-15,2024-03-16,2024-03-20,29.90,7.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-030,2024-03-15,2024-03-17,,79.00,16.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-031,2024-03-16,2024-03-17,2024-03-21,149.00,25.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-032,2024-03-16,,，99.00,0.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-033,2024-03-17,2024-03-18,2024-03-22,19.90,5.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-034,2024-03-17,2024-03-19,2024-03-23,29.90,8.00,#DIV/0!,#DIV/0!,#DIV/0!,否
+ORD-2024-035,2024-03-18,2024-03-19,2024-03-23,99.00,28.00,#DIV/0!,#DIV/0!,#DIV/0!,否`
+
+        };
+
+        function downloadCSV(level) {
+            const nameMap = {
+                basic: '基础_推广数据',
+                medium: '巩固_多渠道推广数据',
+                hard: '进阶_订单物流数据'
+            };
+            const filename = `3.3.3_IFERROR_${nameMap[level]}.csv`;
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + CSV_DATA[level]], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>

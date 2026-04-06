@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3.3.4 重复数据清洗 · 任务书</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #f4f6f9;
+      color: #2c3e50;
+      line-height: 1.7;
+    }
+
+    /* ===== Banner ===== */
+    .banner {
+      background: linear-gradient(135deg, #4527a0 0%, #311b92 100%);
+      color: #fff;
+      padding: 36px 48px 28px;
+    }
+    .banner .course-tag {
+      font-size: 12px;
+      letter-spacing: 2px;
+      opacity: .75;
+      margin-bottom: 8px;
+    }
+    .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .banner .subtitle { font-size: 14px; opacity: .85; }
+    .banner .meta {
+      margin-top: 18px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    /* ===== 主体 ===== */
+    .container {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ===== 情景卡片 ===== */
+    .scenario-card {
+      background: #fff;
+      border-left: 5px solid #4527a0;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .scenario-card h2 { font-size: 15px; color: #4527a0; margin-bottom: 8px; }
+    .scenario-card p { font-size: 14px; }
+
+    /* ===== 知识点速览 ===== */
+    .knowledge-card {
+      background: #ede7f6;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      font-size: 13.5px;
+    }
+    .knowledge-card h3 {
+      color: #311b92;
+      font-size: 14px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .knowledge-card .warn {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #fff8e1;
+      border-left: 3px solid #ffa000;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #5d4037;
+    }
+
+    /* 重复类型卡片 */
+    .dup-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .dup-type-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 14px 16px;
+      border-top: 4px solid #4527a0;
+      font-size: 13px;
+    }
+    .dup-type-card .dt-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: #4527a0;
+      margin-bottom: 8px;
+    }
+    .dup-type-card .dt-desc { color: #555; margin-bottom: 8px; }
+    .dup-type-card .dt-example {
+      background: #ede7f6;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: Consolas, monospace;
+      color: #4527a0;
+    }
+    .dup-type-card.complete { border-top-color: #c62828; }
+    .dup-type-card.complete .dt-name { color: #c62828; }
+    .dup-type-card.complete .dt-example { background: #ffebee; color: #c62828; }
+    .dup-type-card.near { border-top-color: #e65100; }
+    .dup-type-card.near .dt-name { color: #e65100; }
+    .dup-type-card.near .dt-example { background: #fff3e0; color: #e65100; }
+    .dup-type-card.normal { border-top-color: #2e7d32; }
+    .dup-type-card.normal .dt-name { color: #2e7d32; }
+    .dup-type-card.normal .dt-example { background: #e8f5e9; color: #2e7d32; }
+
+    /* ===== 难度块 ===== */
+    .level-block {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      margin-bottom: 36px;
+      overflow: hidden;
+    }
+    .level-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 28px;
+      color: #fff;
+    }
+    .level-header.basic  { background: linear-gradient(90deg,#43a047,#66bb6a); }
+    .level-header.medium { background: linear-gradient(90deg,#fb8c00,#ffa726); }
+    .level-header.hard   { background: linear-gradient(90deg,#e53935,#ef5350); }
+    .level-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: rgba(255,255,255,.25);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+    .level-header h2 { font-size: 18px; font-weight: 700; }
+    .level-header .level-desc { font-size: 13px; opacity: .9; margin-left: auto; }
+
+    .level-body { padding: 24px 28px; }
+
+    /* ===== 下载区 ===== */
+    .download-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #ede7f6;
+      border: 1px dashed #b39ddb;
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+    }
+    .download-bar .dl-info { font-size: 13px; color: #444; }
+    .download-bar .dl-info strong { color: #4527a0; }
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #4527a0;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-download:hover { background: #311b92; }
+    .btn-download svg { width: 15px; height: 15px; fill: #fff; }
+
+    /* ===== 通用 ===== */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      border-left: 4px solid #4527a0;
+      padding-left: 10px;
+      margin: 22px 0 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-bottom: 16px;
+    }
+    th {
+      background: #ede7f6;
+      color: #311b92;
+      font-weight: 700;
+      padding: 9px 14px;
+      text-align: left;
+      border: 1px solid #b39ddb;
+    }
+    td {
+      padding: 8px 14px;
+      border: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+    .task-list li {
+      counter-increment: task;
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      align-items: flex-start;
+    }
+    .task-list li::before {
+      content: counter(task);
+      min-width: 26px;
+      height: 26px;
+      background: #4527a0;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .task-list.orange li::before { background: #fb8c00; }
+    .task-list.red    li::before { background: #e53935; }
+
+    .tip-box {
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13.5px;
+      margin-top: 16px;
+    }
+    .tip-box.green  { background: #e8f5e9; border-left: 4px solid #43a047; }
+    .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+    .tip-box.red    { background: #fce4ec; border-left: 4px solid #e53935; }
+    .tip-box.blue   { background: #e3f2fd; border-left: 4px solid #0277bd; }
+    .tip-box.purple { background: #ede7f6; border-left: 4px solid #4527a0; }
+    .tip-box .tip-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .tip-box.green  .tip-title { color: #2e7d32; }
+    .tip-box.orange .tip-title { color: #e65100; }
+    .tip-box.red    .tip-title { color: #b71c1c; }
+    .tip-box.blue   .tip-title { color: #01579b; }
+    .tip-box.purple .tip-title { color: #311b92; }
+    .tip-box ul { padding-left: 18px; }
+    .tip-box ul li { margin-bottom: 5px; }
+
+    /* 记录填写表 */
+    .record-table th {
+      background: #e8f5e9;
+      color: #1b5e20;
+      border-color: #a5d6a7;
+    }
+    .record-table.orange th {
+      background: #fff3e0;
+      color: #bf360c;
+      border-color: #ffcc80;
+    }
+    .record-table.red th {
+      background: #fce4ec;
+      color: #880e4f;
+      border-color: #f48fb1;
+    }
+    .record-table.purple th {
+      background: #ede7f6;
+      color: #311b92;
+      border-color: #b39ddb;
+    }
+
+    /* 数据示例展示 */
+    .data-example {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+    .data-example .de-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .data-example table th {
+      background: #4527a0;
+      color: #fff;
+      border-color: #311b92;
+      font-size: 12px;
+      text-align: center;
+    }
+    .data-example table td {
+      font-size: 12px;
+      text-align: center;
+    }
+    .row-dup    { background: #ffebee !important; }
+    .row-near   { background: #fff3e0 !important; }
+    .row-normal { background: #e8f5e9 !important; }
+    .row-ok     { background: #fff !important; }
+
+    /* 操作步骤盒 */
+    .step-box {
+      background: #f9fbe7;
+      border: 1px solid #dce775;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+    .step-box .step-title {
+      font-weight: 700;
+      color: #827717;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .step-box ol { padding-left: 20px; }
+    .step-box ol li { margin-bottom: 6px; }
+
+    /* 判断矩阵 */
+    .judge-matrix {
+      background: #e8eaf6;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+    .judge-matrix .jm-title {
+      font-weight: 700;
+      color: #1a237e;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .judge-matrix table th {
+      background: #3949ab;
+      color: #fff;
+      border-color: #283593;
+      text-align: center;
+    }
+    .judge-matrix table td { text-align: center; }
+    .jm-true  { color: #2e7d32; font-weight: 700; }
+    .jm-false { color: #c62828; font-weight: 700; }
+    .jm-maybe { color: #e65100; font-weight: 700; }
+
+    /* 勾选说明框 */
+    .check-box {
+      background: #fff;
+      border: 2px solid #4527a0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+    .check-box .cb-title {
+      font-weight: 700;
+      color: #4527a0;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13.5px;
+    }
+    .check-item .ci-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #4527a0;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .check-item .ci-box.checked {
+      background: #4527a0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+    }
+    .check-item .ci-label { flex: 1; }
+    .check-item .ci-note {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    code {
+      background: #eceff1;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+      color: #c62828;
+    }
+    .highlight {
+      display: inline-block;
+      background: #fff9c4;
+      border-radius: 3px;
+      padding: 0 5px;
+      font-weight: 600;
+    }
+
+    /* 标签 */
+    .tag-full { display:inline-block; background:#ffcdd2; color:#c62828;
+                font-size:11px; font-weight:700; padding:1px 8px;
+                border-radius:10px; margin:2px; }
+    .tag-near { display:inline-block; background:#ffe0b2; color:#e65100;
+                font-size:11px; font-weight:700; padding:1px 8px;
+                border-radius:10px; margin:2px; }
+    .tag-ok   { display:inline-block; background:#c8e6c9; color:#2e7d32;
+                font-size:11px; font-weight:700; padding:1px 8px;
+                border-radius:10px; margin:2px; }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== Banner ===== -->
+<div class="banner">
+  <div class="course-tag">数据分析基础 · 模块三 · 数据处理</div>
+  <h1>3.3.4 重复数据清洗</h1>
+  <div class="subtitle">识别并处理完全重复、近似重复与正常重复，保障数据唯一性</div>
+  <div class="meta">
+    <span>📁 配套文件：3.3.4_练习数据.xlsx</span>
+    <span>🎯 三个难度等级</span>
+    <span>🏢 情景：星途电商有限公司</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 情景 -->
+  <div class="scenario-card">
+    <h2>📋 背景情景</h2>
+    <p>
+      星途电商有限公司运营部每月从平台后台导出订单数据，
+      但由于系统导出时可能重复勾选、多人操作时的数据合并，
+      以及跨平台数据整合等原因，导出的数据中往往存在重复记录。
+      数据分析员小钱需要在正式统计前，清洗掉所有不应存在的重复数据，
+      同时判断哪些"重复"其实是正常的业务数据。
+      请协助小钱完成各难度的重复数据清洗任务。
+    </p>
+  </div>
+
+  <!-- 知识点速览 -->
+  <div class="knowledge-card">
+    <h3>📖 知识点速览：重复数据的三种类型</h3>
+    <div class="dup-type-grid">
+      <div class="dup-type-card complete">
+        <div class="dt-name">🔴 完全重复</div>
+        <div class="dt-desc">所有字段的值完全相同的两行（或多行），是明确的错误数据，必须删除。</div>
+        <div class="dt-example">
+          ORD-001 | 充电宝 | 89元 | 2024-03-01<br>
+          ORD-001 | 充电宝 | 89元 | 2024-03-01 ← 删除
+        </div>
+      </div>
+      <div class="dup-type-card near">
+        <div class="dt-name">🟡 近似重复</div>
+        <div class="dt-desc">订单编号相同但部分字段不同（如金额不一致），需要人工判断保留哪条。</div>
+        <div class="dt-example">
+          ORD-002 | 充电宝 | 89元 | 2024-03-01<br>
+          ORD-002 | 充电宝 | 99元 | 2024-03-01 ← 哪条对？
+        </div>
+      </div>
+      <div class="dup-type-card normal">
+        <div class="dt-name">🟢 正常重复</div>
+        <div class="dt-desc">看起来相似但实际是不同订单（如同一客户在不同日期购买相同商品），不应删除。</div>
+        <div class="dt-example">
+          客户A | 充电宝 | 89元 | 2024-03-01<br>
+          客户A | 充电宝 | 89元 | 2024-03-15 ← 保留（不同日期）
+        </div>
+      </div>
+    </div>
+    <div class="warn">
+      ⚠️ 操作入口：【数据】选项卡 → 【数据工具】组 → 【删除重复值】。
+      弹出对话框后，勾选用于判断"重复"的列——<strong>勾选的列越多，判断越严格</strong>（完全重复）；
+      勾选的列越少，判断越宽松（可能误删正常数据）。
+    </div>
+  </div>
+
+  <!-- ==================== 基础 ==================== -->
+  <div class="level-block">
+    <div class="level-header basic">
+      <span class="level-badge">LEVEL 1</span>
+      <h2>基础练习</h2>
+      <span class="level-desc">适合：第一次操作删除重复值 · 25条数据 · 5条完全重复，操作简单</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>25条订单数据</strong>（含5条完全重复）｜
+          所有字段相同｜用"删除重复项"功能一键清洗
+        </div>
+        <button class="btn-download" onclick="downloadCSV('basic')">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>示例</th></tr>
+        <tr><td>订单编号</td><td>A</td><td>平台唯一订单号</td><td>ORD-2024-001</td></tr>
+        <tr><td>商品类别</td><td>B</td><td>充电宝/数据线/手机壳/蓝牙耳机</td><td>充电宝</td></tr>
+        <tr><td>销售省份</td><td>C</td><td>买家所在省份</td><td>广东</td></tr>
+        <tr><td>销售额（元）</td><td>D</td><td>成交金额</td><td>89.00</td></tr>
+        <tr><td>下单日期</td><td>E</td><td>下单时间</td><td>2024-03-01</td></tr>
+      </table>
+
+      <!-- 数据示例 -->
+      <div class="section-title">🔍 完全重复数据示例</div>
+      <div class="data-example">
+        <div class="de-title">以下是数据中完全重复的一组示例（两行完全相同，应保留一条删除另一条）：</div>
+        <table>
+          <tr>
+            <th>订单编号</th>
+            <th>商品类别</th>
+            <th>销售省份</th>
+            <th>销售额（元）</th>
+            <th>下单日期</th>
+            <th>状态</th>
+          </tr>
+          <tr class="row-ok">
+            <td>ORD-2024-003</td>
+            <td>手机壳</td><td>广东</td>
+            <td>19.90</td><td>2024-03-02</td>
+            <td><span class="tag-ok">✓ 保留</span></td>
+          </tr>
+          <tr class="row-dup">
+            <td>ORD-2024-003</td>
+            <td>手机壳</td><td>广东</td>
+            <td>19.90</td><td>2024-03-02</td>
+            <td><span class="tag-full">× 删除</span></td>
+          </tr>
+          <tr class="row-ok">
+            <td>ORD-2024-007</td>
+            <td>蓝牙耳机</td><td>北京</td>
+            <td>299.00</td><td>2024-03-04</td>
+            <td><span class="tag-ok">✓ 保留</span></td>
+          </tr>
+          <tr class="row-dup">
+            <td>ORD-2024-007</td>
+            <td>蓝牙耳机</td><td>北京</td>
+            <td>299.00</td><td>2024-03-04</td>
+            <td><span class="tag-full">× 删除</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li>将数据粘贴到"数据（基础）"Sheet，<strong>先复制一份原始数据到"备份"Sheet</strong>（防止误操作）。</li>
+        <li>
+          <div>
+            使用<span class="highlight">条件格式</span>高亮重复值：
+            选中订单编号列（A列）→ 开始 → 条件格式 → 突出显示单元格规则 → 重复值，
+            设置为红色填充，观察有哪些行被标记。
+          </div>
+        </li>
+        <li>记录下哪些订单编号是重复的，填入下方"重复订单记录表"。</li>
+        <li>
+          <div>
+            使用"删除重复值"功能：
+            点击数据区域任意单元格 → 【数据】→ 【删除重复值】→
+            在弹出对话框中<span class="highlight">勾选所有列</span>→ 确定。
+          </div>
+        </li>
+        <li>记录 Excel 提示的"删除了多少个重复值，保留了多少个唯一值"，填入记录表。</li>
+        <li>删除后与备份数据对比，验证结果是否正确。</li>
+      </ol>
+
+      <div class="step-box">
+        <div class="step-title">🔧 删除重复值操作路径</div>
+        <ol>
+          <li>点击数据区域内任意单元格（如 A2）</li>
+          <li>点击菜单栏【数据】选项卡</li>
+          <li>在【数据工具】组中点击【删除重复值】</li>
+          <li>弹出对话框：确认"我的数据包含标题"已勾选</li>
+          <li>勾选所有列：☑ 订单编号 ☑ 商品类别 ☑ 销售省份 ☑ 销售额 ☑ 下单日期</li>
+          <li>点击【确定】</li>
+          <li>Excel 弹出提示：记录"删除了X个重复值，保留了Y个唯一值"</li>
+        </ol>
+      </div>
+
+      <div class="section-title">📝 重复订单记录表（操作前填写）</div>
+      <table class="record-table">
+        <tr>
+          <th>重复的订单编号</th>
+          <th>重复出现次数</th>
+          <th>重复类型</th>
+          <th>备注</th>
+        </tr>
+        <tr><td></td><td></td><td><span class="tag-full">完全重复</span></td><td></td></tr>
+        <tr><td></td><td></td><td><span class="tag-full">完全重复</span></td><td></td></tr>
+        <tr><td></td><td></td><td><span class="tag-full">完全重复</span></td><td></td></tr>
+        <tr><td></td><td></td><td><span class="tag-full">完全重复</span></td><td></td></tr>
+        <tr><td></td><td></td><td><span class="tag-full">完全重复</span></td><td></td></tr>
+      </table>
+
+      <div class="section-title">📝 操作结果记录（操作后填写）</div>
+      <table class="record-table">
+        <tr><th>记录项目</th><th>数值</th></tr>
+        <tr><td>操作前总行数（含标题行）</td><td></td></tr>
+        <tr><td>操作前数据行数（不含标题）</td><td>25</td></tr>
+        <tr><td>Excel提示：删除了多少个重复值</td><td></td></tr>
+        <tr><td>Excel提示：保留了多少个唯一值</td><td></td></tr>
+        <tr><td>操作后数据行数</td><td></td></tr>
+        <tr><td>操作后总销售额（SUM验证）</td><td></td></tr>
+      </table>
+
+      <div class="section-title">💬 思考题（在 Excel 中填写）</div>
+      <table class="record-table">
+        <tr><th>问题</th><th>回答</th></tr>
+        <tr>
+          <td>① 为什么要勾选"所有列"而不是只勾选"订单编号"？<br>
+            （提示：只勾选订单编号会有什么风险？）</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>② 如果不提前备份数据，误删了正常数据，怎么恢复？</td>
+          <td></td>
+        </tr>
+      </table>
+
+      <div class="tip-box green">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>条件格式标记重复值</strong>：这一步是为了让你直观地看到哪些行是重复的，
+            并不会自动删除。标记后要手动记录，再执行删除操作。</li>
+          <li><strong>勾选所有列的含义</strong>：Excel会比较每行的所有勾选列的值，
+            只有所有列的值都相同的行，才会被判定为重复。
+            这是最严格的判断方式，适合处理"完全重复"。</li>
+          <li><strong>Excel的弹出提示很重要</strong>：
+            "删除了X个重复值"中的X，就是被删除的行数（不含保留的那一行）。
+            例如5条记录各重复1次，则X=5。</li>
+          <li><strong>验证方式</strong>：删除前后分别用 <code>=COUNTA(A:A)-1</code> 
+            统计数据行数，差值应等于删除数量。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 巩固 ==================== -->
+  <div class="level-block">
+    <div class="level-header medium">
+      <span class="level-badge">LEVEL 2</span>
+      <h2>巩固练习</h2>
+      <span class="level-desc">适合：熟悉基本操作后 · 30条数据 · 完全重复+近似重复混合，需制定策略</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>30条订单数据</strong>｜含完全重复 + 同订单号但金额不同的近似重复｜
+          需区分两种情况分别处理
+        </div>
+        <button class="btn-download" onclick="downloadCSV('medium')">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>示例</th></tr>
+        <tr><td>订单编号</td><td>A</td><td>平台唯一订单号</td><td>ORD-2024-101</td></tr>
+        <tr><td>商品类别</td><td>B</td><td>商品大类</td><td>充电宝</td></tr>
+        <tr><td>商品名称</td><td>C</td><td>商品具体名称</td><td>充电宝 10000mAh</td></tr>
+        <tr><td>销售额（元）</td><td>D</td><td>成交金额</td><td>89.00</td></tr>
+        <tr><td>下单日期</td><td>E</td><td>下单时间</td><td>2024-03-01</td></tr>
+        <tr><td>客户ID</td><td>F</td><td>买家账号ID</td><td>CUS-10001</td></tr>
+        <tr><td>订单状态</td><td>G</td><td>已完成/已退款/待发货</td><td>已完成</td></tr>
+      </table>
+
+      <!-- 两种重复示例 -->
+      <div class="section-title">🔍 两种重复数据示例对比</div>
+      <div class="data-example">
+        <div class="de-title">
+          <span class="tag-full">完全重复</span> vs
+          <span class="tag-near">近似重复（同订单号但金额不同）</span>
+        </div>
+        <table>
+          <tr>
+            <th>订单编号</th><th>商品类别</th><th>商品名称</th>
+            <th>销售额</th><th>下单日期</th><th>客户ID</th>
+            <th>订单状态</th><th>类型</th>
+          </tr>
+          <tr class="row-ok">
+            <td>ORD-2024-105</td><td>充电宝</td>
+            <td>充电宝 10000mAh</td>
+            <td>89.00</td><td>2024-03-05</td>
+            <td>CUS-10005</td><td>已完成</td>
+            <td><span class="tag-ok">原始</span></td>
+          </tr>
+          <tr class="row-dup">
+            <td>ORD-2024-105</td><td>充电宝</td>
+            <td>充电宝 10000mAh</td>
+            <td>89.00</td><td>2024-03-05</td>
+            <td>CUS-10005</td><td>已完成</td>
+            <td><span class="tag-full">完全重复→删除</span></td>
+          </tr>
+          <tr class="row-ok" style="margin-top:8px;">
+            <td>ORD-2024-112</td><td>蓝牙耳机</td>
+            <td>蓝牙耳机入耳式</td>
+            <td>129.00</td><td>2024-03-08</td>
+            <td>CUS-10012</td><td>已完成</td>
+            <td><span class="tag-ok">原始</span></td>
+          </tr>
+          <tr class="row-near">
+            <td>ORD-2024-112</td><td>蓝牙耳机</td>
+            <td>蓝牙耳机入耳式</td>
+            <td>99.00</td><td>2024-03-08</td>
+            <td>CUS-10012</td><td>已退款</td>
+            <td><span class="tag-near">近似重复→需判断</span></td>
+          </tr>
+        </table>
+        <p style="font-size:12px;color:#888;margin-top:8px;">
+          ※ 近似重复中金额129元与99元不同、状态也不同，
+          可能是退款修改了金额，需要根据业务判断保留哪条。
+        </p>
+      </div>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list orange">
+        <li>将数据粘贴到"数据（巩固）"Sheet，<strong>先备份到"备份"Sheet</strong>。</li>
+        <li>
+          <div>
+            <strong>Step 1：识别所有重复</strong>。
+            用 COUNTIF 公式标记订单编号出现次数：
+            在 H 列新增"重复次数"列，输入：
+            <br><code>=COUNTIF($A$2:$A$31,A2)</code>，向下填充。
+            结果 &gt; 1 的行均为重复数据（包括完全重复和近似重复）。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Step 2：区分完全重复与近似重复</strong>。
+            筛选出 H 列 &gt; 1 的行，逐行对比：
+            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+              <li>所有字段完全相同 → 标记为 <span class="tag-full">完全重复</span></li>
+              <li>订单编号相同但有字段不同 → 标记为 <span class="tag-near">近似重复</span></li>
+            </ul>
+            在 I 列新增"重复类型"列，填写对应标记。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Step 3：分别处理</strong>。
+            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+              <li><span class="tag-full">完全重复</span>：使用"删除重复值"功能，勾选所有列删除</li>
+              <li><span class="tag-near">近似重复</span>：手动判断，根据业务逻辑保留正确的一条，
+                在 J 列"处理决定"中说明理由，然后手动删除错误的那条</li>
+            </ul>
+          </div>
+        </li>
+        <li>完成后填写处理记录表，并回答分析问题。</li>
+      </ol>
+
+      <!-- 近似重复判断标准 -->
+      <div class="section-title">🤔 近似重复的判断参考标准</div>
+      <div class="judge-matrix">
+        <div class="jm-title">如何判断近似重复中哪条数据是正确的？</div>
+        <table>
+          <tr>
+            <th>情况</th>
+            <th>两条数据的差异</th>
+            <th>判断建议</th>
+          </tr>
+          <tr>
+            <td>金额不同，状态一条"已完成"一条"已退款"</td>
+            <td>退款金额和原始金额</td>
+            <td class="jm-maybe">业务上可能都是对的（一正一退），
+              需看退款金额是否等于原金额</td>
+          </tr>
+          <tr>
+            <td>金额不同，状态相同（都是已完成）</td>
+            <td>录入错误</td>
+            <td class="jm-false">核实哪个金额正确，删除错误的</td>
+          </tr>
+          <tr>
+            <td>日期不同，其他字段相同</td>
+            <td>时间录入错误</td>
+            <td class="jm-false">一般保留日期更早的（原始下单时间）</td>
+          </tr>
+          <tr>
+            <td>状态不同，金额相同</td>
+            <td>状态更新不同步</td>
+            <td class="jm-maybe">保留状态更新的版本（如"已完成"优先于"待发货"）</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section-title">📝 重复数据处理记录表（在 Excel 中填写）</div>
+      <table class="record-table orange">
+        <tr>
+          <th>订单编号</th>
+          <th>重复类型</th>
+          <th>两条数据的差异描述</th>
+          <th>处理决定</th>
+          <th>处理理由</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td><span class="tag-full">完全重复</span></td>
+          <td>所有字段相同</td>
+          <td>删除重复行</td>
+          <td>完全相同，直接删除</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><span class="tag-full">完全重复</span></td>
+          <td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><span class="tag-near">近似重复</span></td>
+          <td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><span class="tag-near">近似重复</span></td>
+          <td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><span class="tag-near">近似重复</span></td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+
+      <div class="section-title">📊 处理结果统计（在 Excel 中填写）</div>
+      <table class="record-table orange">
+        <tr><th>统计项目</th><th>数量</th></tr>
+        <tr><td>处理前总数据行数</td><td>30</td></tr>
+        <tr><td>完全重复（删除后保留1条）的组数</td><td></td></tr>
+        <tr><td>完全重复删除的行数</td><td></td></tr>
+        <tr><td>近似重复发现的组数</td><td></td></tr>
+        <tr><td>近似重复删除的行数</td><td></td></tr>
+        <tr><td>处理后剩余数据行数</td><td></td></tr>
+        <tr><td>处理后总销售额变化（处理前后SUM对比）</td><td></td></tr>
+      </table>
+
+      <div class="tip-box orange">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>COUNTIF标记重复</strong>：
+            <code>=COUNTIF($A$2:$A$31,A2)</code> 中，
+            <code>$A$2:$A$31</code> 用绝对引用锁定查找范围，
+            <code>A2</code> 用相对引用表示当前行的值。
+            向下填充时，查找范围不变，但比较的值会随行变化。</li>
+          <li><strong>区分完全重复和近似重复的快捷方法</strong>：
+            筛选出重复次数 &gt; 1 的行后，
+            再用条件格式对 D 列（销售额）高亮不同值，可以快速发现金额差异。</li>
+          <li><strong>近似重复不能用"删除重复值"功能处理</strong>：
+            因为两条数据有字段不同，Excel的"删除重复值"功能（勾选所有列时）不会认为它们是重复的。
+            必须手动识别后手动删除。</li>
+          <li><strong>处理顺序建议</strong>：先处理完全重复（用功能一键删除），
+            再手动处理近似重复（逐条判断），避免相互干扰。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 进阶 ==================== -->
+  <div class="level-block">
+    <div class="level-header hard">
+      <span class="level-badge">LEVEL 3</span>
+      <h2>进阶练习</h2>
+      <span class="level-desc">适合：综合运用阶段 · 35条跨平台数据 · 多列组合判断，有些重复是正常的</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>35条跨平台订单数据</strong>｜含完全重复/近似重复/正常重复三种情况｜
+          需设计多列组合判断方案
+        </div>
+        <button class="btn-download" onclick="downloadCSV('hard')">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>注意事项</th></tr>
+        <tr>
+          <td>平台订单号</td><td>A</td>
+          <td>各平台的订单编号</td>
+          <td style="color:#c62828;">⚠️ 不同平台订单号格式不同，不能单独用此列判断重复</td>
+        </tr>
+        <tr>
+          <td>来源平台</td><td>B</td>
+          <td>淘宝/京东/拼多多/抖音</td>
+          <td>同一订单可能在多平台显示（跨平台数据合并）</td>
+        </tr>
+        <tr>
+          <td>客户ID</td><td>C</td>
+          <td>买家账号（跨平台不统一）</td>
+          <td>同一买家在不同平台ID不同</td>
+        </tr>
+        <tr>
+          <td>商品名称</td><td>D</td>
+          <td>购买商品全名</td>
+          <td>相同商品在不同平台名称可能略有差异</td>
+        </tr>
+        <tr>
+          <td>销售额（元）</td><td>E</td>
+          <td>成交金额</td>
+          <td>无</td>
+        </tr>
+        <tr>
+          <td>下单时间</td><td>F</td>
+          <td>精确到小时的下单时间</td>
+          <td>同一客户同一商品不同时间=正常不同订单</td>
+        </tr>
+        <tr>
+          <td>收货地址</td><td>G</td>
+          <td>买家收货地址</td>
+          <td>相同地址+相同商品+相近时间≈可疑重复</td>
+        </tr>
+        <tr>
+          <td>联系电话</td><td>H</td>
+          <td>买家联系电话（脱敏）</td>
+          <td>跨平台同一买家电话相同，可作为识别依据</td>
+        </tr>
+      </table>
+
+      <!-- 三种情况示例 -->
+      <div class="section-title">🔍 三种重复情况示例</div>
+      <div class="data-example">
+        <div class="de-title">进阶数据中同时存在三种情况，需要逐一识别</div>
+        <table>
+          <tr>
+            <th>平台订单号</th><th>来源平台</th><th>联系电话</th>
+            <th>商品名称</th><th>销售额</th><th>下单时间</th>
+            <th>类型判断</th>
+          </tr>
+          <tr class="row-dup">
+            <td>TB20240301001</td><td>淘宝</td><td>138****0001</td>
+            <td>充电宝10000mAh</td><td>89.00</td><td>2024-03-01 09:15</td>
+            <td><span class="tag-full">完全重复（导出两次）</span></td>
+          </tr>
+          <tr class="row-dup">
+            <td>TB20240301001</td><td>淘宝</td><td>138****0001</td>
+            <td>充电宝10000mAh</td><td>89.00</td><td>2024-03-01 09:15</td>
+            <td><span class="tag-full">→ 删除</span></td>
+          </tr>
+          <tr class="row-near">
+            <td>JD20240305008</td><td>京东</td><td>139****0008</td>
+            <td>数据线Type-C</td><td>29.90</td><td>2024-03-05 14:20</td>
+            <td><span class="tag-near">近似重复（金额不同）</span></td>
+          </tr>
+          <tr class="row-near">
+            <td>JD20240305008</td><td>京东</td><td>139****0008</td>
+            <td>数据线Type-C</td><td>25.90</td><td>2024-03-05 14:20</td>
+            <td><span class="tag-near">→ 需判断保留哪条</span></td>
+          </tr>
+          <tr class="row-normal">
+            <td>TB20240301015</td><td>淘宝</td><td>136****0015</td>
+            <td>手机壳iPhone15</td><td>19.90</td><td>2024-03-01 10:30</td>
+            <td><span class="tag-ok">正常重复（同客户不同日期）</span></td>
+          </tr>
+          <tr class="row-normal">
+            <td>TB20240315015</td><td>淘宝</td><td>136****0015</td>
+            <td>手机壳iPhone15</td><td>19.90</td><td>2024-03-15 16:45</td>
+            <td><span class="tag-ok">→ 保留（二次购买）</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list red">
+        <li>将数据粘贴到"数据（进阶）"Sheet，先备份到"备份"Sheet。</li>
+        <li>
+          <div>
+            <strong>设计多列组合判断方案</strong>（先填写下方"判断方案设计表"，再操作）：
+            根据数据特点，决定用哪几列的组合来判断"真正的重复"。
+          </div>
+        </li>
+        <li>
+          <div>
+            在 I 列新增辅助列"组合键"，将判断依据的字段用"&amp;"连接，
+            例如：<code>=H2&amp;D2&amp;E2&amp;F2</code>（电话+商品+金额+时间的组合），
+            用 COUNTIF 统计该组合键出现的次数。
+          </div>
+        </li>
+        <li>
+          <div>
+            根据统计结果，逐组判断：
+            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+              <li>组合键重复且所有字段相同 → <span class="tag-full">完全重复</span>，删除</li>
+              <li>组合键重复但有字段不同 → <span class="tag-near">近似重复</span>，人工判断</li>
+              <li>电话相同但下单时间相差7天以上 → <span class="tag-ok">正常重复</span>，保留</li>
+            </ul>
+          </div>
+        </li>
+        <li>完成处理后，填写"多列勾选方案说明表"和"处理结果报告"。</li>
+      </ol>
+
+      <!-- 判断方案设计 -->
+      <div class="section-title">📝 判断方案设计表（操作前先填写）</div>
+
+      <div class="check-box">
+        <div class="cb-title">
+          🔲 在"删除重复值"对话框中，应该勾选哪些列？（根据你的分析填写）
+        </div>
+
+        <div style="font-size:13px;color:#555;margin-bottom:12px;">
+          说明：只处理<strong>完全重复</strong>时，在对话框中勾选以下列组合。
+          请根据数据特点，在下方勾选你认为合理的列，并说明理由。
+        </div>
+
+        <div class="check-item">
+          <div class="ci-box"></div>
+          <div class="ci-label">
+            <strong>平台订单号</strong>（A列）
+            <div class="ci-note">风险：不同平台的订单号格式不同，单独使用可能误判</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-box checked">✓</div>
+          <div class="ci-label">
+            <strong>来源平台</strong>（B列）
+            <div class="ci-note">建议勾选：同一平台+同一订单号才可能是真正重复</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-box"></div>
+          <div class="ci-label">
+            <strong>客户ID</strong>（C列）
+            <div class="ci-note">风险：同一客户在不同平台ID不同，勾选可能漏掉跨平台重复</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-box checked">✓</div>
+          <div class="ci-label">
+            <strong>商品名称</strong>（D列）
+            <div class="ci-note">建议勾选：相同商品才可能是重复订单</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-box checked">✓</div>
+          <div class="ci-label">
+            <strong>销售额</strong>（E列）
+            <div class="ci-note">建议勾选：金额不同的不算完全重复</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-box checked">✓</div>
+          <div class="ci-label">
+            <strong>下单时间</strong>（F列）
+            <div class="ci-note">建议勾选：同一时间同一商品同一金额才是真正重复</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-box checked">✓</div>
+          <div class="ci-label">
+            <strong>联系电话</strong>（H列）
+            <div class="ci-note">建议勾选：跨平台同一买家的识别依据</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;font-size:13px;background:#f5f5f5;padding:10px;border-radius:6px;">
+          <strong>你的勾选方案理由：</strong><br>
+          （在 Excel 的"处理报告"Sheet 中填写，说明为什么选这几列而不是全选）
+        </div>
+      </div>
+
+      <div class="section-title">📝 多列勾选方案说明表（在 Excel 中填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>判断方案</th>
+          <th>勾选的列</th>
+          <th>能识别的重复类型</th>
+          <th>可能的误判风险</th>
+          <th>适用场景</th>
+        </tr>
+        <tr>
+          <td>方案A：全列勾选</td>
+          <td>所有8列</td>
+          <td>只识别完全重复</td>
+          <td>近似重复会被漏掉</td>
+          <td>只需处理完全重复时</td>
+        </tr>
+        <tr>
+          <td>方案B：关键列组合</td>
+          <td>电话+商品+金额+时间</td>
+          <td>完全重复+部分近似重复</td>
+          <td></td><td></td>
+        </tr>
+        <tr>
+          <td>方案C（你的方案）</td>
+          <td>（填写你选择的列）</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+
+      <div class="section-title">📝 处理结果报告（在"处理报告"Sheet 中完成）</div>
+      <table class="record-table red">
+        <tr><th>报告项目</th><th>内容（须有数据支撑）</th></tr>
+        <tr>
+          <td>① 数据概况</td>
+          <td>总数据行数、来源平台数、涉及的重复类型</td>
+        </tr>
+        <tr>
+          <td>② 完全重复处理</td>
+          <td>发现X组完全重复，删除了X行，使用的判断方案是？</td>
+        </tr>
+        <tr>
+          <td>③ 近似重复处理</td>
+          <td>发现X组近似重复，每组的差异是什么？保留了哪条？理由是？</td>
+        </tr>
+        <tr>
+          <td>④ 正常重复识别</td>
+          <td>发现X组看似重复但实为正常的数据，判断依据是什么？</td>
+        </tr>
+        <tr>
+          <td>⑤ 处理后数据质量</td>
+          <td>处理后剩余X行，销售额总计变化，是否满足分析要求</td>
+        </tr>
+        <tr>
+          <td>⑥ 多列勾选方案总结</td>
+          <td>说明你设计的勾选方案，以及为什么不能简单全选或只选订单号</td>
+        </tr>
+      </table>
+
+      <div class="tip-box red">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>组合键辅助列</strong>：
+            <code>=H2&amp;"|"&amp;D2&amp;"|"&amp;TEXT(E2,"0.00")&amp;"|"&amp;TEXT(F2,"yyyy-mm-dd hh:mm")</code>
+            用"|"分隔各字段，避免不同字段的值拼接后碰巧相同导致误判。</li>
+          <li><strong>正常重复的判断</strong>：同一电话号码、同一商品，
+            但下单时间相差7天以上，基本可认定为客户的二次购买，属于正常数据，不应删除。</li>
+          <li><strong>跨平台数据的特殊情况</strong>：
+            同一买家在淘宝和京东各下了一单同样的商品，
+            这不是重复数据（是两个平台的真实订单），不应删除。
+            判断时需同时考虑"来源平台"字段。</li>
+          <li><strong>进阶练习的核心考察点</strong>：
+            不是会不会操作"删除重复值"功能，
+            而是能不能<strong>设计合理的判断标准</strong>，
+            区分"应该删的重复"和"不应该删的重复"。</li>
+        </ul>
+      </div>
+
+      <div class="tip-box purple">
+        <div class="tip-title">📌 重复数据清洗的核心原则</div>
+        <ul>
+          <li><strong>删除之前必须备份</strong>：删除操作无法撤销（Ctrl+Z只能撤销部分），
+            务必在操作前将原始数据复制到备份Sheet。</li>
+          <li><strong>勾选列越多，删除越保守</strong>：
+            勾选所有列时，只有100%相同的行才会被删除，最安全但会漏掉近似重复。</li>
+          <li><strong>业务理解比工具更重要</strong>：
+            Excel的"删除重复值"是辅助工具，
+            真正的判断需要结合业务场景理解数据的含义。</li>
+          <li><strong>处理结果要验证</strong>：
+            处理前后分别用SUM统计总销售额，
+            确认删除的是真正重复的数据而非有效数据。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    数据分析基础 · 模块三 · 3.3.4 重复数据清洗 · 任务书<br>
+    数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+  </footer>
+
+</div>
+
+<!-- ===== CSV 数据 ===== -->
+<script>
+const CSV_DATA = {
+
+basic: `订单编号,商品类别,销售省份,销售额（元）,下单日期
+ORD-2024-001,充电宝,广东,89.00,2024-03-01
+ORD-2024-002,蓝牙耳机,浙江,129.00,2024-03-01
+ORD-2024-003,手机壳,广东,19.90,2024-03-02
+ORD-2024-003,手机壳,广东,19.90,2024-03-02
+ORD-2024-004,数据线,北京,29.90,2024-03-02
+ORD-2024-005,充电宝,上海,149.00,2024-03-03
+ORD-2024-006,蓝牙耳机,广东,299.00,2024-03-03
+ORD-2024-007,蓝牙耳机,北京,299.00,2024-03-04
+ORD-2024-007,蓝牙耳机,北京,299.00,2024-03-04
+ORD-2024-008,手机壳,江苏,24.90,2024-03-04
+ORD-2024-009,数据线,广东,15.90,2024-03-05
+ORD-2024-010,充电宝,浙江,49.00,2024-03-05
+ORD-2024-011,蓝牙耳机,上海,199.00,2024-03-06
+ORD-2024-012,手机壳,广东,18.90,2024-03-06
+ORD-2024-012,手机壳,广东,18.90,2024-03-06
+ORD-2024-013,数据线,北京,19.90,2024-03-07
+ORD-2024-014,充电宝,江苏,89.00,2024-03-07
+ORD-2024-015,蓝牙耳机,广东,129.00,2024-03-08
+ORD-2024-016,手机壳,浙江,22.90,2024-03-08
+ORD-2024-017,数据线,上海,29.90,2024-03-09
+ORD-2024-017,数据线,上海,29.90,2024-03-09
+ORD-2024-018,充电宝,广东,149.00,2024-03-09
+ORD-2024-019,蓝牙耳机,北京,199.00,2024-03-10
+ORD-2024-020,手机壳,广东,19.90,2024-03-10
+ORD-2024-021,数据线,江苏,15.90,2024-03-11
+ORD-2024-021,数据线,江苏,15.90,2024-03-11`,
+
+medium: `订单编号,商品类别,商品名称,销售额（元）,下单日期,客户ID,订单状态
+ORD-2024-101,充电宝,充电宝 10000mAh,89.00,2024-03-01,CUS-10001,已完成
+ORD-2024-102,蓝牙耳机,蓝牙耳机入耳式,129.00,2024-03-01,CUS-10002,已完成
+ORD-2024-103,手机壳,手机壳 iPhone15,19.90,2024-03-02,CUS-10003,已完成
+ORD-2024-104,数据线,快充数据线 Type-C,29.90,2024-03-02,CUS-10004,已完成
+ORD-2024-105,充电宝,充电宝 20000mAh,149.00,2024-03-03,CUS-10005,已完成
+ORD-2024-105,充电宝,充电宝 20000mAh,149.00,2024-03-03,CUS-10005,已完成
+ORD-2024-106,蓝牙耳机,蓝牙耳机头戴式,299.00,2024-03-03,CUS-10006,已完成
+ORD-2024-107,手机壳,手机壳 华为Mate60,24.90,2024-03-04,CUS-10007,已完成
+ORD-2024-108,数据线,快充数据线 Micro,15.90,2024-03-04,CUS-10008,已完成
+ORD-2024-109,充电宝,充电宝 5000mAh,49.00,2024-03-05,CUS-10009,已完成
+ORD-2024-110,蓝牙耳机,蓝牙耳机入耳式,99.00,2024-03-05,CUS-10010,已完成
+ORD-2024-111,手机壳,手机壳 小米14,18.90,2024-03-06,CUS-10011,已完成
+ORD-2024-112,蓝牙耳机,蓝牙耳机入耳式,129.00,2024-03-06,CUS-10012,已完成
+ORD-2024-112,蓝牙耳机,蓝牙耳机入耳式,99.00,2024-03-06,CUS-10012,已退款
+ORD-2024-113,数据线,快充数据线 Lightning,19.90,2024-03-07,CUS-10013,已完成
+ORD-2024-114,充电宝,充电宝 10000mAh,89.00,2024-03-07,CUS-10014,已完成
+ORD-2024-115,手机壳,手机壳 iPhone14,19.90,2024-03-08,CUS-10015,已完成
+ORD-2024-116,蓝牙耳机,蓝牙耳机头戴式,259.00,2024-03-08,CUS-10016,已完成
+ORD-2024-117,数据线,快充数据线 Type-C,29.90,2024-03-09,CUS-10017,已完成
+ORD-2024-118,充电宝,充电宝 20000mAh,149.00,2024-03-09,CUS-10018,已完成
+ORD-2024-119,手机壳,手机壳 华为P60,22.90,2024-03-10,CUS-10019,已完成
+ORD-2024-119,手机壳,手机壳 华为P60,22.90,2024-03-10,CUS-10019,已完成
+ORD-2024-120,蓝牙耳机,蓝牙耳机入耳式,129.00,2024-03-10,CUS-10020,已完成
+ORD-2024-121,数据线,快充数据线 Micro,15.90,2024-03-11,CUS-10021,已完成
+ORD-2024-122,充电宝,充电宝 5000mAh,49.00,2024-03-11,CUS-10022,已完成
+ORD-2024-123,手机壳,手机壳 小米14,18.90,2024-03-12,CUS-10023,已完成
+ORD-2024-124,蓝牙耳机,蓝牙耳机头戴式,299.00,2024-03-12,CUS-10024,已完成
+ORD-2024-125,数据线,快充数据线 Type-C,29.90,2024-03-13,CUS-10025,已完成
+ORD-2024-125,数据线,快充数据线 Type-C,25.90,2024-03-13,CUS-10025,已完成
+ORD-2024-126,充电宝,充电宝 10000mAh,89.00,2024-03-13,CUS-10026,已完成`,
+
+hard: `平台订单号,来源平台,客户ID,商品名称,销售额（元）,下单时间,收货地址,联系电话
+TB20240301001,淘宝,TB-CUS-001,充电宝10000mAh,89.00,2024-03-01 09:15,广东省广州市天河区XX路1号,138****0001
+TB20240301001,淘宝,TB-CUS-001,充电宝10000mAh,89.00,2024-03-01 09:15,广东省广州市天河区XX路1号,138****0001
+TB20240302002,淘宝,TB-CUS-002,蓝牙耳机入耳式,129.00,2024-03-02 10:30,浙江省杭州市西湖区YY路2号,139****0002
+JD20240302002,京东,JD-CUS-002,蓝牙耳机入耳式,129.00,2024-03-02 10:35,浙江省杭州市西湖区YY路2号,139****0002
+TB20240303003,淘宝,TB-CUS-003,手机壳iPhone15,19.90,2024-03-03 11:20,北京市朝阳区ZZ街3号,136****0003
+TB20240303003,淘宝,TB-CUS-003,手机壳iPhone15,19.90,2024-03-03 11:20,北京市朝阳区ZZ街3号,136****0003
+PDD20240304004,拼多多,PDD-CUS-004,快充数据线TypeC,19.90,2024-03-04 14:10,上海市浦东新区AA大道4号,137****0004
+PDD20240304004,拼多多,PDD-CUS-004,快充数据线TypeC,19.90,2024-03-04 14:10,上海市浦东新区AA大道4号,137****0004
+JD20240305005,京东,JD-CUS-005,充电宝20000mAh,149.00,2024-03-05 09:45,江苏省南京市鼓楼区BB路5号,135****0005
+DY20240305005,抖音,DY-CUS-005,充电宝20000mAh,149.00,2024-03-05 09:50,江苏省南京市鼓楼区BB路5号,135****0005
+TB20240306006,淘宝,TB-CUS-006,蓝牙耳机头戴式,299.00,2024-03-06 16:30,广东省深圳市南山区CC街6号,133****0006
+TB20240306006,淘宝,TB-CUS-006,蓝牙耳机头戴式,299.00,2024-03-06 16:30,广东省深圳市南山区CC街6号,133****0006
+JD20240307007,京东,JD-CUS-007,手机壳华为Mate60,24.90,2024-03-07 10:15,浙江省宁波市鄞州区DD路7号,132****0007
+JD20240307007,京东,JD-CUS-007,手机壳华为Mate60,22.90,2024-03-07 10:15,浙江省宁波市鄞州区DD路7号,132****0007
+TB20240308008,淘宝,TB-CUS-008,快充数据线Micro,15.90,2024-03-08 14:20,北京市海淀区EE街8号,131****0008
+TB20240315008,淘宝,TB-CUS-008,快充数据线Micro,15.90,2024-03-15 11:30,北京市海淀区EE街8号,131****0008
+PDD20240309009,拼多多,PDD-CUS-009,充电宝5000mAh,39.00,2024-03-09 09:30,上海市静安区FF路9号,130****0009
+PDD20240309009,拼多多,PDD-CUS-009,充电宝5000mAh,39.00,2024-03-09 09:30,上海市静安区FF路9号,130****0009
+DY20240310010,抖音,DY-CUS-010,蓝牙耳机入耳式,99.00,2024-03-10 20:15,江苏省苏州市姑苏区GG路10号,159****0010
+DY20240310010,抖音,DY-CUS-010,蓝牙耳机入耳式,99.00,2024-03-10 20:15,江苏省苏州市姑苏区GG路10号,159****0010
+TB20240311011,淘宝,TB-CUS-011,手机壳小米14,18.90,2024-03-11 10:00,广东省广州市越秀区HH街11号,158****0011
+TB20240318011,淘宝,TB-CUS-011,手机壳小米14,18.90,2024-03-18 15:20,广东省广州市越秀区HH街11号,158****0011
+JD20240312012,京东,JD-CUS-012,磁吸充电器15W,59.00,2024-03-12 13:45,浙江省温州市鹿城区II路12号,157****0012
+JD20240312012,京东,JD-CUS-012,磁吸充电器15W,59.00,2024-03-12 13:45,浙江省温州市鹿城区II路12号,157****0012
+TB20240313013,淘宝,TB-CUS-013,快充数据线TypeC,29.90,2024-03-13 09:20,北京市西城区JJ大道13号,156****0013
+TB20240313013,淘宝,TB-CUS-013,快充数据线TypeC,29.90,2024-03-13 09:20,北京市西城区JJ大道13号,156****0013
+DY20240314014,抖音,DY-CUS-014,充电宝10000mAh,89.00,2024-03-14 19:30,上海市黄浦区KK路14号,155****0014
+DY20240314014,抖音,DY-CUS-014,充电宝10000mAh,89.00,2024-03-14 19:30,上海市黄浦区KK路14号,155****0014
+PDD20240315015,拼多多,PDD-CUS-015,手机壳iPhone14,14.90,2024-03-15 10:10,江苏省无锡市梁溪区LL街15号,154****0015
+TB20240315015,淘宝,TB-CUS-015,手机壳iPhone14,19.90,2024-03-15 10:10,江苏省无锡市梁溪区LL街15号,154****0015
+JD20240316016,京东,JD-CUS-016,蓝牙耳机头戴式,259.00,2024-03-16 14:25,广东省佛山市禅城区MM路16号,153****0016
+JD20240316016,京东,JD-CUS-016,蓝牙耳机头戴式,259.00,2024-03-16 14:25,广东省佛山市禅城区MM路16号,153****0016
+TB20240317017,淘宝,TB-CUS-017,快充数据线Micro,15.90,2024-03-17 09:15,浙江省嘉兴市南湖区NN路17号,152****0017
+TB20240317017,淘宝,TB-CUS-017,快充数据线Micro,15.90,2024-03-17 09:15,浙江省嘉兴市南湖区NN路17号,152****0017
+DY20240318018,抖音,DY-CUS-018,磁吸充电器20W,79.00,2024-03-18 21:00,北京市朝阳区OO街18号,151****0018`
+
+};
+
+function downloadCSV(level) {
+  const nameMap = {
+    basic:  '基础_订单数据',
+    medium: '巩固_订单数据',
+    hard:   '进阶_跨平台订单数据'
+  };
+  const filename = `3.3.4_重复数据清洗_${nameMap[level]}.csv`;
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + CSV_DATA[level]], {
+    type: 'text/csv;charset=utf-8;'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
