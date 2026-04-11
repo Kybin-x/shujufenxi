@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3.4.1 销售额 · 利润 · 利润率 · 客单价 · 任务书</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f4f6f9; color: #2c3e50; line-height: 1.7; }
+
+    .banner { background: linear-gradient(135deg, #c62828 0%, #8d1919 100%); color: #fff; padding: 36px 48px 28px; }
+    .banner .course-tag { font-size: 12px; letter-spacing: 2px; opacity: .75; margin-bottom: 8px; }
+    .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .banner .subtitle { font-size: 14px; opacity: .85; }
+    .banner .meta { margin-top: 18px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; opacity: .9; }
+
+    .container { max-width: 960px; margin: 32px auto; padding: 0 24px 60px; }
+
+    .scenario-card { background: #fff; border-left: 5px solid #c62828; border-radius: 8px; padding: 20px 24px; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+    .scenario-card h2 { font-size: 15px; color: #c62828; margin-bottom: 8px; }
+    .scenario-card p { font-size: 14px; }
+
+    .formula-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.07); padding: 20px 24px; margin-bottom: 32px; }
+    .formula-card h3 { font-size: 14px; font-weight: 700; color: #c62828; margin-bottom: 16px; }
+    .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .fi { background: #fff8f8; border: 1px solid #ffcdd2; border-radius: 8px; padding: 12px 14px; }
+    .fi.g { background: #f1f8e9; border-color: #c5e1a5; }
+    .fi.b { background: #e3f2fd; border-color: #90caf9; }
+    .fi.o { background: #fff3e0; border-color: #ffcc80; }
+    .fi .fi-name { font-size: 13px; font-weight: 700; color: #c62828; margin-bottom: 6px; }
+    .fi.g .fi-name { color: #2e7d32; }
+    .fi.b .fi-name { color: #1565c0; }
+    .fi.o .fi-name { color: #e65100; }
+    .fi .fi-formula { font-family: Consolas, monospace; font-size: 12.5px; background: #fff; border-radius: 4px; padding: 5px 8px; color: #333; margin-bottom: 4px; }
+    .fi .fi-note { font-size: 11.5px; color: #888; }
+    .warn-box { margin-top: 14px; padding: 10px 14px; background: #fff8e1; border-left: 3px solid #ffa000; border-radius: 4px; font-size: 13px; color: #5d4037; }
+
+    .level-block { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin-bottom: 36px; overflow: hidden; }
+    .level-header { display: flex; align-items: center; gap: 14px; padding: 18px 28px; color: #fff; }
+    .level-header.basic  { background: linear-gradient(90deg, #43a047, #66bb6a); }
+    .level-header.medium { background: linear-gradient(90deg, #fb8c00, #ffa726); }
+    .level-header.hard   { background: linear-gradient(90deg, #e53935, #ef5350); }
+    .level-badge { font-size: 11px; font-weight: 700; letter-spacing: 1px; background: rgba(255,255,255,.25); padding: 2px 10px; border-radius: 20px; }
+    .level-header h2 { font-size: 18px; font-weight: 700; }
+    .level-header .level-desc { font-size: 13px; opacity: .9; margin-left: auto; }
+    .level-body { padding: 24px 28px; }
+
+    .download-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: #fff8f8; border: 1px dashed #ef9a9a; border-radius: 8px; padding: 14px 20px; margin-bottom: 24px; }
+    .download-bar .dl-info { font-size: 13px; color: #444; }
+    .download-bar .dl-info strong { color: #c62828; }
+    .btn-download { display: inline-flex; align-items: center; gap: 6px; background: #c62828; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .btn-download:hover { background: #8d1919; }
+    .btn-download svg { width: 15px; height: 15px; fill: #fff; }
+
+    .section-title { font-size: 15px; font-weight: 700; color: #2c3e50; border-left: 4px solid #c62828; padding-left: 10px; margin: 22px 0 12px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 16px; }
+    th { background: #ffebee; color: #c62828; font-weight: 700; padding: 9px 14px; text-align: left; border: 1px solid #ef9a9a; }
+    td { padding: 8px 14px; border: 1px solid #e0e0e0; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .record-table th { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+    .record-table.orange th { background: #fff3e0; color: #bf360c; border-color: #ffcc80; }
+    .record-table.red th { background: #fce4ec; color: #880e4f; border-color: #f48fb1; }
+
+    .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+    .task-list li { counter-increment: task; display: flex; gap: 12px; margin-bottom: 14px; font-size: 14px; align-items: flex-start; }
+    .task-list li::before { content: counter(task); min-width: 26px; height: 26px; background: #c62828; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .task-list.orange li::before { background: #fb8c00; }
+    .task-list.red    li::before { background: #e53935; }
+
+    .tip-box { border-radius: 8px; padding: 14px 18px; font-size: 13.5px; margin-top: 16px; }
+    .tip-box.green  { background: #e8f5e9; border-left: 4px solid #43a047; }
+    .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+    .tip-box.red    { background: #fce4ec; border-left: 4px solid #e53935; }
+    .tip-box .tip-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+    .tip-box.green  .tip-title { color: #2e7d32; }
+    .tip-box.orange .tip-title { color: #e65100; }
+    .tip-box.red    .tip-title { color: #b71c1c; }
+    .tip-box ul { padding-left: 18px; }
+    .tip-box ul li { margin-bottom: 5px; }
+
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    .kpi-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; text-align: center; }
+    .kpi-card .kc-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .kpi-card .kc-formula { font-family: Consolas, monospace; font-size: 12px; color: #c62828; }
+    .kpi-card.red    { background: #fff8f8; border-color: #ef9a9a; }
+    .kpi-card.green  { background: #f1f8e9; border-color: #a5d6a7; }
+    .kpi-card.blue   { background: #e3f2fd; border-color: #90caf9; }
+    .kpi-card.orange { background: #fff8e1; border-color: #ffcc80; }
+
+    .alloc-box { background: #fff; border: 2px solid #ef9a9a; border-radius: 8px; padding: 16px 20px; margin: 14px 0; font-size: 13.5px; }
+    .alloc-box .ab-title { font-weight: 700; color: #c62828; margin-bottom: 10px; }
+
+    .step-box { background: #f9fbe7; border: 1px solid #dce775; border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 13.5px; }
+    .step-box .step-title { font-weight: 700; color: #827717; margin-bottom: 8px; font-size: 13px; }
+    .step-box ol { padding-left: 20px; }
+    .step-box ol li { margin-bottom: 5px; }
+
+    code { background: #eceff1; border-radius: 3px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 13px; color: #c62828; }
+    .highlight { display: inline-block; background: #fff9c4; border-radius: 3px; padding: 0 5px; font-weight: 600; }
+
+    footer { text-align: center; font-size: 12px; color: #999; margin-top: 48px; padding-top: 20px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="course-tag">数据分析基础 · 模块三 · 数据处理与计算</div>
+  <h1>3.4.1 销售额 · 利润 · 利润率 · 客单价</h1>
+  <div class="subtitle">掌握电商核心盈利指标的计算逻辑，正确运用 Excel 公式完成经营分析</div>
+  <div class="meta">
+    <span>📁 配套文件：3.4.1_练习数据.xlsx</span>
+    <span>🎯 三个难度等级</span>
+    <span>🏢 情景：飞跃跨境电商有限公司</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="scenario-card">
+    <h2>📋 背景情景</h2>
+    <p>
+      飞跃跨境电商有限公司经营智能家居类产品（智能插座、LED灯泡、无线充电板等）。
+      财务部助理小林每月需要整理商品的销售利润数据，供管理层判断各商品的盈利能力。
+      原始数据只有"售价""成本""数量"等基础字段，小林需要通过公式计算出
+      <strong>销售额、毛利润、毛利润率、客单价</strong>等核心指标，
+      并在存在退款和推广费用的情况下，准确计算<strong>净利润和真实净利润率</strong>。
+    </p>
+  </div>
+
+  <!-- 公式速览 -->
+  <div class="formula-card">
+    <h3>📖 核心指标公式速览</h3>
+    <div class="formula-grid">
+      <div class="fi">
+        <div class="fi-name">销售额</div>
+        <div class="fi-formula">= 售价 × 销售数量</div>
+        <div class="fi-note">最基础的收入指标，也称"营业收入"</div>
+      </div>
+      <div class="fi g">
+        <div class="fi-name">毛利润</div>
+        <div class="fi-formula">= (售价 − 成本) × 数量</div>
+        <div class="fi-note">只扣除商品成本，不含其他费用</div>
+      </div>
+      <div class="fi g">
+        <div class="fi-name">毛利润率</div>
+        <div class="fi-formula">= 毛利润 ÷ 销售额</div>
+        <div class="fi-note">设为百分比格式，保留1-2位小数</div>
+      </div>
+      <div class="fi b">
+        <div class="fi-name">客单价</div>
+        <div class="fi-formula">= 总销售额 ÷ 订单数量</div>
+        <div class="fi-note">反映每笔订单的平均消费金额</div>
+      </div>
+      <div class="fi o">
+        <div class="fi-name">净利润（含推广费）</div>
+        <div class="fi-formula">= 销售额 − 成本 − 推广花费</div>
+        <div class="fi-note">扣除推广投入后的真实利润</div>
+      </div>
+      <div class="fi o">
+        <div class="fi-name">净利润率</div>
+        <div class="fi-formula">= 净利润 ÷ 销售额</div>
+        <div class="fi-note">衡量扣除所有费用后的真实盈利能力</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      ⚠️ <strong>重要区别</strong>：
+      "毛利润率"只扣除商品采购成本；"净利润率"还需扣除推广费、运费等运营成本。
+      两者差距越大，说明运营成本占比越高，需要优化投入效率。
+    </div>
+  </div>
+
+  <!-- ===== 基础 ===== -->
+  <div class="level-block">
+    <div class="level-header basic">
+      <span class="level-badge">LEVEL 1</span>
+      <h2>基础练习</h2>
+      <span class="level-desc">适合：公式入门 · 25条订单 · 计算销售额、毛利润、毛利润率</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>25条商品订单</strong>｜字段：商品名称 / 类别 / 售价 / 成本 / 销售数量｜
+          计算3个基础指标列
+        </div>
+        <button class="btn-download" onclick="downloadCSV('basic')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>示例</th></tr>
+        <tr><td>订单编号</td><td>A列</td><td>唯一订单号</td><td>FY-2024-001</td></tr>
+        <tr><td>商品名称</td><td>B列</td><td>销售商品全称</td><td>智能插座双USB款</td></tr>
+        <tr><td>商品类别</td><td>C列</td><td>商品所属大类</td><td>智能插座 / LED灯泡 / 无线充电板 / 感应夜灯</td></tr>
+        <tr><td>售价（元/件）</td><td>D列</td><td>每件商品的销售单价</td><td>89.00</td></tr>
+        <tr><td>成本（元/件）</td><td>E列</td><td>每件商品的采购成本</td><td>42.00</td></tr>
+        <tr><td>销售数量（件）</td><td>F列</td><td>本笔订单销售件数</td><td>3</td></tr>
+      </table>
+
+      <div class="section-title">🎯 本次需要计算的3个指标</div>
+      <div class="kpi-row">
+        <div class="kpi-card red">
+          <div class="kc-label">① 销售额（G列）</div>
+          <div class="kc-formula">= D × F</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kc-label">② 毛利润（H列）</div>
+          <div class="kc-formula">= (D−E) × F</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kc-label">③ 毛利润率（I列）</div>
+          <div class="kc-formula">= H ÷ G（百分比）</div>
+        </div>
+      </div>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li>将 CSV 数据粘贴到"数据（基础）"Sheet，确认第一行为标题行，数据从第2行开始。</li>
+        <li>在 <strong>G2</strong> 输入销售额公式 <code>=D2*F2</code>，向下填充至 G26。</li>
+        <li>在 <strong>H2</strong> 输入毛利润公式 <code>=(D2-E2)*F2</code>，向下填充至 H26。</li>
+        <li>在 <strong>I2</strong> 输入毛利润率公式 <code>=H2/G2</code>，设置为<span class="highlight">百分比格式、保留1位小数</span>，向下填充。</li>
+        <li>在第 27 行统计行用 SUM / AVERAGE 计算：总销售额、总毛利润、平均毛利润率。</li>
+        <li>用 MAX / MIN 找出毛利润率最高和最低的行，填入下方记录表。</li>
+      </ol>
+
+      <div class="section-title">📝 汇总记录表（在 Excel 中用函数填写）</div>
+      <table class="record-table">
+        <tr><th>统计项目</th><th>使用函数</th><th>结果</th></tr>
+        <tr><td>25笔订单总销售额（元）</td><td><code>=SUM(G2:G26)</code></td><td></td></tr>
+        <tr><td>25笔订单总毛利润（元）</td><td><code>=SUM(H2:H26)</code></td><td></td></tr>
+        <tr><td>平均毛利润率</td><td><code>=AVERAGE(I2:I26)</code></td><td></td></tr>
+        <tr><td>最高毛利润率</td><td><code>=MAX(I2:I26)</code></td><td></td></tr>
+        <tr><td>最低毛利润率</td><td><code>=MIN(I2:I26)</code></td><td></td></tr>
+        <tr><td>利润率最高的商品名称</td><td><code>=INDEX(B2:B26,MATCH(MAX(I2:I26),I2:I26,0))</code></td><td></td></tr>
+      </table>
+
+      <div class="section-title">💬 分析思考（在 Excel 中填写）</div>
+      <table class="record-table">
+        <tr><th>问题</th><th>回答</th></tr>
+        <tr><td>① 哪个商品类别的平均毛利润率最高？说明什么？</td><td></td></tr>
+        <tr><td>② 毛利润率的高低主要取决于哪个因素？（成本占比 vs 售价高低）</td><td></td></tr>
+        <tr><td>③ 如果想提高整体毛利润，是优先提高售价还是降低成本？用数据说明。</td><td></td></tr>
+      </table>
+
+      <div class="tip-box green">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>毛利润的两种等价写法</strong>：<code>=(D2-E2)*F2</code> 和 <code>=D2*F2-E2*F2</code> 结果完全相同，推荐前者更简洁。</li>
+          <li><strong>百分比格式</strong>：选中 I 列 → 右键 → 设置单元格格式 → 百分比 → 小数位数选 1 → 确定。</li>
+          <li><strong>向下填充</strong>：在 G2 输入公式后，选中 G2，双击右下角小方块，自动填充到最后一行。</li>
+          <li>如果 INDEX+MATCH 公式不熟悉，可以先按毛利润率列降序排列，手动读取第一行的商品名。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 巩固 ===== -->
+  <div class="level-block">
+    <div class="level-header medium">
+      <span class="level-badge">LEVEL 2</span>
+      <h2>巩固练习</h2>
+      <span class="level-desc">适合：熟悉基础公式后 · 30条数据含退款 · 用 SUMIF 计算净销售额和净利润率</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>30条订单数据（含退款订单）</strong>｜7个字段｜
+          用 SUMIF 排除退款，按类别计算净利润率
+        </div>
+        <button class="btn-download" onclick="downloadCSV('medium')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>特殊说明</th></tr>
+        <tr><td>订单编号</td><td>A</td><td>唯一订单号</td><td>—</td></tr>
+        <tr><td>商品类别</td><td>B</td><td>智能插座/LED灯泡/无线充电板/感应夜灯</td><td>—</td></tr>
+        <tr><td>售价（元/件）</td><td>C</td><td>商品单价</td><td>—</td></tr>
+        <tr><td>成本（元/件）</td><td>D</td><td>商品采购成本</td><td>—</td></tr>
+        <tr><td>销售数量（件）</td><td>E</td><td>本笔订单件数</td><td>—</td></tr>
+        <tr><td>订单状态</td><td>F</td><td>已完成 / 已退款</td><td style="color:#c62828;">⚠️ 退款订单不计入利润统计</td></tr>
+        <tr><td>退款金额（元）</td><td>G</td><td>退款订单的退款额，未退款为0</td><td>退款=售价×数量</td></tr>
+      </table>
+
+      <div class="section-title">⚠️ 核心难点：退款订单的处理方式</div>
+      <div class="step-box">
+        <div class="step-title">🔍 退款处理思路</div>
+        <ol>
+          <li><strong>不能直接对全部订单求和</strong>：退款订单的钱已退回客户，不应计入实际收入。</li>
+          <li><strong>推荐方法：SUMIFS 双条件</strong>（类别 + 已完成）</li>
+          <li>净销售额：<code>=SUMIFS(H$2:H$31, B$2:B$31, "智能插座", F$2:F$31, "已完成")</code>（H列为各行销售额）</li>
+          <li>净毛利润：同理，条件区域换为毛利润列</li>
+          <li><strong>净毛利润率</strong> = 净毛利润 ÷ 净销售额（注意分母用净销售额，不是全量）</li>
+        </ol>
+      </div>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list orange">
+        <li>粘贴数据后，在 H 列计算"销售额"（<code>=C2*E2</code>），I 列计算"毛利润"（<code>=(C2-D2)*E2</code>），J 列计算"毛利润率"（<code>=IFERROR(I2/H2,"--")</code>）。</li>
+        <li>在数据下方建立"各类别汇总区"，使用 SUMIFS 函数，<span class="highlight">仅统计"已完成"订单</span>，分别计算各类别净销售额和净毛利润。</li>
+        <li>计算各类别的<span class="highlight">净毛利润率</span>（净毛利润 ÷ 净销售额）。</li>
+        <li>计算退款导致的利润损失金额和占总利润的比例。</li>
+        <li>完成分析记录表，回答3个分析问题。</li>
+      </ol>
+
+      <div class="section-title">📝 各类别净利润汇总表（在 Excel 中用 SUMIFS 填写）</div>
+      <table class="record-table orange">
+        <tr>
+          <th>商品类别</th>
+          <th>已完成订单数</th>
+          <th>退款订单数</th>
+          <th>净销售额（元）</th>
+          <th>净毛利润（元）</th>
+          <th>净毛利润率</th>
+        </tr>
+        <tr><td>智能插座</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>LED灯泡</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>无线充电板</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>感应夜灯</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td><strong>合计</strong></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">📝 退款影响分析（在 Excel 中填写）</div>
+      <table class="record-table orange">
+        <tr><th>分析项目</th><th>计算公式</th><th>结果</th></tr>
+        <tr><td>全量订单总毛利润（含退款）</td><td><code>=SUM(I2:I31)</code></td><td></td></tr>
+        <tr><td>仅"已完成"净毛利润</td><td><code>=SUMIF(F2:F31,"已完成",I2:I31)</code></td><td></td></tr>
+        <tr><td>退款导致的利润损失（元）</td><td>两者之差</td><td></td></tr>
+        <tr><td>退款率（退款订单数/总订单数）</td><td><code>=COUNTIF(F2:F31,"已退款")/30</code></td><td></td></tr>
+      </table>
+
+      <div class="section-title">💬 分析问题（在 Excel 中填写）</div>
+      <table class="record-table orange">
+        <tr><th>问题</th><th>回答（须引用具体数据）</th></tr>
+        <tr><td>① 哪个类别净毛利润率最高？哪个类别退款率最高？</td><td></td></tr>
+        <tr><td>② 退款对哪个类别利润影响最大？建议如何降低该类别退款率？</td><td></td></tr>
+        <tr><td>③ 整体退款率是否在可接受范围内（一般行业标准5%以下）？</td><td></td></tr>
+      </table>
+
+      <div class="tip-box orange">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>SUMIFS 参数顺序</strong>：第一个参数是"求和区域"，之后成对出现"条件区域+条件"，注意与 SUMIF 不同。</li>
+          <li><strong>净毛利润率的分母</strong>：一定用"净销售额"（仅已完成），用全量销售额会导致利润率被低估。</li>
+          <li><strong>J列利润率的 IFERROR 保护</strong>：退款订单计算利润率可能出现异常值，用 <code>=IFERROR(I2/H2,"--")</code> 保护。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 进阶 ===== -->
+  <div class="level-block">
+    <div class="level-header hard">
+      <span class="level-badge">LEVEL 3</span>
+      <h2>进阶练习</h2>
+      <span class="level-desc">适合：综合运用阶段 · 35条数据 · 推广费按比例分摊 · 计算真实净利润率</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>35条综合运营数据</strong>｜9个字段｜
+          含推广费按销售额比例分摊，计算各商品真实净利润率
+        </div>
+        <button class="btn-download" onclick="downloadCSV('hard')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th></tr>
+        <tr><td>订单编号</td><td>A</td><td>唯一订单号</td></tr>
+        <tr><td>商品类别</td><td>B</td><td>智能插座/LED灯泡/无线充电板/感应夜灯/智能门锁</td></tr>
+        <tr><td>售价（元/件）</td><td>C</td><td>商品售价</td></tr>
+        <tr><td>成本（元/件）</td><td>D</td><td>商品采购成本</td></tr>
+        <tr><td>销售数量（件）</td><td>E</td><td>本笔订单件数</td></tr>
+        <tr><td>订单状态</td><td>F</td><td>已完成 / 已退款</td></tr>
+        <tr><td>推广渠道</td><td>G</td><td>直通车 / 自然流量 / 直播带货</td></tr>
+        <tr><td>该渠道总推广花费（元）</td><td>H</td><td>所属渠道本月总投入，同渠道各行填相同数值</td></tr>
+        <tr><td>该渠道总销售额（元）</td><td>I</td><td>所属渠道本月总销售额，用于计算分摊比例</td></tr>
+      </table>
+
+      <div class="section-title">🧮 推广费分摊逻辑说明</div>
+      <div class="alloc-box">
+        <div class="ab-title">💡 为什么需要分摊推广费？</div>
+        <p style="font-size:13.5px;margin-bottom:12px;">
+          一个渠道同时推广多个商品，渠道总花费不能全算在某一件商品上，
+          需要<strong>按各商品销售额占该渠道总销售额的比例</strong>分摊，才能得出每笔订单的真实推广成本。
+        </p>
+        <div class="step-box" style="margin:0;">
+          <div class="step-title">📐 分摊公式推导（共4步）</div>
+          <ol>
+            <li>本行销售额 = 售价 × 数量 = <code>C2*E2</code></li>
+            <li>本行占渠道比例 = 本行销售额 ÷ 该渠道总销售额 = <code>(C2*E2)/I2</code></li>
+            <li>本行分摊推广费 = 渠道总花费 × 比例 = <code>H2*(C2*E2)/I2</code></li>
+            <li>自然流量 H=0，用 IFERROR 处理：<code>=IFERROR(H2*(C2*E2)/I2, 0)</code></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list red">
+        <li>
+          <div>粘贴数据后，在右侧新增6个计算列：
+            <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+              <li>J列"销售额（元）"= <code>=C2*E2</code></li>
+              <li>K列"成本总额（元）"= <code>=D2*E2</code></li>
+              <li>L列"毛利润（元）"= <code>=J2-K2</code></li>
+              <li>M列"分摊推广费（元）"= <code>=IFERROR(H2*(J2/I2), 0)</code></li>
+              <li>N列"净利润（元）"= <code>=L2-M2</code></li>
+              <li>O列"净利润率"= <code>=IFERROR(N2/J2,"--")</code>（百分比）</li>
+            </ul>
+          </div>
+        </li>
+        <li>建立"各类别综合分析区"，用 SUMIFS 统计各类别（仅"已完成"）的净销售额、净毛利润、净利润。</li>
+        <li>计算各类别的<span class="highlight">真实净利润率</span>，并与<span class="highlight">毛利润率</span>对比，填入对比表。</li>
+        <li>按推广渠道汇总：统计各渠道销售额、分摊花费、净利润，计算 ROI。</li>
+        <li>撰写盈利分析结论（至少3条，须引用数据）。</li>
+      </ol>
+
+      <div class="section-title">📝 各类别盈利对比表（在 Excel 中用 SUMIFS 填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>商品类别</th>
+          <th>净销售额（元）</th>
+          <th>毛利润（元）</th>
+          <th>毛利润率</th>
+          <th>分摊推广费（元）</th>
+          <th>净利润（元）</th>
+          <th>真实净利润率</th>
+          <th>推广费蚕食利润率</th>
+        </tr>
+        <tr><td>智能插座</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>LED灯泡</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>无线充电板</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>感应夜灯</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>智能门锁</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td><strong>合计</strong></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          <td style="font-size:12px;color:#888;">毛利润率−净利润率</td></tr>
+      </table>
+
+      <div class="section-title">📝 各渠道 ROI 分析（在 Excel 中填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>推广渠道</th>
+          <th>渠道总花费（元）</th>
+          <th>带来净销售额（元）</th>
+          <th>带来净利润（元）</th>
+          <th>ROI（销售额÷花费）</th>
+          <th>利润ROI（净利润÷花费）</th>
+        </tr>
+        <tr><td>直通车</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>直播带货</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>自然流量</td><td>0</td><td></td><td></td><td>—</td><td>—</td></tr>
+      </table>
+
+      <div class="section-title">💬 盈利分析结论（至少3条，须引用数据）</div>
+      <table class="record-table red">
+        <tr><th>分析维度</th><th>结论内容（须附具体数字）</th></tr>
+        <tr><td>① 净利润率最高/最低的商品类别及原因</td><td></td></tr>
+        <tr><td>② 推广费对各类别利润率影响的对比</td><td></td></tr>
+        <tr><td>③ 最值得加大推广的渠道（ROI角度）</td><td></td></tr>
+        <tr><td>④ 综合建议：如何提升整体净利润率（选做）</td><td></td></tr>
+      </table>
+
+      <div class="tip-box red">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>分摊公式中的 IFERROR</strong>：当 I2（渠道总销售额）为0时除以0会报错，自然流量分摊费用直接为0：<code>=IFERROR(H2*(J2/I2), 0)</code></li>
+          <li><strong>"推广费蚕食利润率"</strong> = 毛利润率 − 真实净利润率，反映推广费对利润的负面影响，越大说明推广成本越高。</li>
+          <li><strong>SUMIFS 净利润计算</strong>：需同时满足"类别匹配"+"已完成"两个条件：<code>=SUMIFS(N$2:N$36, B$2:B$36, "智能插座", F$2:F$36, "已完成")</code></li>
+          <li><strong>渠道 ROI 汇总</strong>：H列同渠道数值相同（如直通车每行都是3200），不要直接 SUM H 列（会重复累加），直接用 H 列的固定值即可。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    数据分析基础 · 模块三 · 3.4.1 销售额 / 利润 / 利润率 / 客单价 · 任务书<br>
+    数据均为教学用途虚构数据，情景来源于飞跃跨境电商有限公司教学案例
+  </footer>
+
+</div>
+
+<script>
+const CSV_DATA = {
+basic: `订单编号,商品名称,商品类别,售价（元/件）,成本（元/件）,销售数量（件）
+FY-2024-001,智能插座双USB款,智能插座,89.00,42.00,3
+FY-2024-002,LED球泡灯9W暖白,LED灯泡,12.90,5.50,10
+FY-2024-003,10W无线充电板,无线充电板,69.00,31.00,2
+FY-2024-004,感应小夜灯充电款,感应夜灯,29.90,12.00,5
+FY-2024-005,智能插座四孔排插,智能插座,129.00,58.00,1
+FY-2024-006,LED球泡灯7W白光,LED灯泡,9.90,4.20,12
+FY-2024-007,15W快充无线充电板,无线充电板,99.00,44.00,2
+FY-2024-008,感应夜灯磁吸款,感应夜灯,39.90,16.50,4
+FY-2024-009,智能插座USB-C款,智能插座,109.00,49.00,2
+FY-2024-010,LED灯泡E27螺口12W,LED灯泡,15.90,6.80,8
+FY-2024-011,5W无线充电板超薄,无线充电板,49.00,22.00,3
+FY-2024-012,走廊感应夜灯,感应夜灯,24.90,10.50,6
+FY-2024-013,智能插座防雷排插,智能插座,149.00,67.00,1
+FY-2024-014,LED球泡灯5W节能,LED灯泡,7.90,3.30,15
+FY-2024-015,20W快充无线充电板,无线充电板,139.00,62.00,1
+FY-2024-016,床头感应夜灯,感应夜灯,34.90,14.80,3
+FY-2024-017,智能插座三孔带开关,智能插座,79.00,36.00,4
+FY-2024-018,LED球泡灯15W强光,LED灯泡,19.90,8.50,6
+FY-2024-019,10W无线充电板,无线充电板,69.00,31.00,2
+FY-2024-020,感应小夜灯充电款,感应夜灯,29.90,12.00,4
+FY-2024-021,智能插座双USB款,智能插座,89.00,42.00,2
+FY-2024-022,LED球泡灯9W暖白,LED灯泡,12.90,5.50,8
+FY-2024-023,15W快充无线充电板,无线充电板,99.00,44.00,1
+FY-2024-024,感应夜灯磁吸款,感应夜灯,39.90,16.50,3
+FY-2024-025,智能插座USB-C款,智能插座,109.00,49.00,2`,
+
+medium: `订单编号,商品类别,售价（元/件）,成本（元/件）,销售数量（件）,订单状态,退款金额（元）
+FY-2024-101,智能插座,89.00,42.00,2,已完成,0
+FY-2024-102,LED灯泡,12.90,5.50,10,已完成,0
+FY-2024-103,无线充电板,69.00,31.00,1,已退款,69.00
+FY-2024-104,感应夜灯,29.90,12.00,4,已完成,0
+FY-2024-105,智能插座,129.00,58.00,1,已完成,0
+FY-2024-106,LED灯泡,9.90,4.20,12,已完成,0
+FY-2024-107,无线充电板,99.00,44.00,2,已完成,0
+FY-2024-108,感应夜灯,39.90,16.50,3,已退款,119.70
+FY-2024-109,智能插座,109.00,49.00,1,已完成,0
+FY-2024-110,LED灯泡,15.90,6.80,8,已完成,0
+FY-2024-111,无线充电板,49.00,22.00,2,已完成,0
+FY-2024-112,感应夜灯,24.90,10.50,5,已完成,0
+FY-2024-113,智能插座,149.00,67.00,1,已退款,149.00
+FY-2024-114,LED灯泡,7.90,3.30,15,已完成,0
+FY-2024-115,无线充电板,139.00,62.00,1,已完成,0
+FY-2024-116,感应夜灯,34.90,14.80,2,已完成,0
+FY-2024-117,智能插座,79.00,36.00,3,已完成,0
+FY-2024-118,LED灯泡,19.90,8.50,6,已退款,119.40
+FY-2024-119,无线充电板,69.00,31.00,2,已完成,0
+FY-2024-120,感应夜灯,29.90,12.00,4,已完成,0
+FY-2024-121,智能插座,89.00,42.00,3,已完成,0
+FY-2024-122,LED灯泡,12.90,5.50,10,已完成,0
+FY-2024-123,无线充电板,99.00,44.00,1,已退款,99.00
+FY-2024-124,感应夜灯,39.90,16.50,2,已完成,0
+FY-2024-125,智能插座,109.00,49.00,2,已完成,0
+FY-2024-126,LED灯泡,15.90,6.80,8,已完成,0
+FY-2024-127,无线充电板,49.00,22.00,3,已完成,0
+FY-2024-128,感应夜灯,24.90,10.50,6,已退款,149.40
+FY-2024-129,智能插座,129.00,58.00,1,已完成,0
+FY-2024-130,LED灯泡,9.90,4.20,12,已完成,0`,
+
+hard: `订单编号,商品类别,售价（元/件）,成本（元/件）,销售数量（件）,订单状态,推广渠道,该渠道总推广花费（元）,该渠道总销售额（元）
+FY-2024-201,智能插座,89.00,42.00,2,已完成,直通车,3200.00,18500.00
+FY-2024-202,LED灯泡,12.90,5.50,10,已完成,直通车,3200.00,18500.00
+FY-2024-203,无线充电板,99.00,44.00,1,已完成,直播带货,5800.00,32000.00
+FY-2024-204,感应夜灯,29.90,12.00,4,已退款,直播带货,5800.00,32000.00
+FY-2024-205,智能门锁,459.00,198.00,1,已完成,直通车,3200.00,18500.00
+FY-2024-206,LED灯泡,9.90,4.20,12,已完成,自然流量,0.00,9200.00
+FY-2024-207,无线充电板,69.00,31.00,2,已完成,直通车,3200.00,18500.00
+FY-2024-208,感应夜灯,39.90,16.50,3,已完成,直播带货,5800.00,32000.00
+FY-2024-209,智能门锁,599.00,258.00,1,已退款,直播带货,5800.00,32000.00
+FY-2024-210,智能插座,129.00,58.00,1,已完成,自然流量,0.00,9200.00
+FY-2024-211,LED灯泡,15.90,6.80,8,已完成,直通车,3200.00,18500.00
+FY-2024-212,无线充电板,49.00,22.00,3,已完成,自然流量,0.00,9200.00
+FY-2024-213,感应夜灯,24.90,10.50,5,已完成,直通车,3200.00,18500.00
+FY-2024-214,智能门锁,459.00,198.00,1,已完成,直播带货,5800.00,32000.00
+FY-2024-215,智能插座,109.00,49.00,2,已完成,直播带货,5800.00,32000.00
+FY-2024-216,LED灯泡,7.90,3.30,15,已完成,直通车,3200.00,18500.00
+FY-2024-217,无线充电板,139.00,62.00,1,已完成,直播带货,5800.00,32000.00
+FY-2024-218,感应夜灯,34.90,14.80,2,已完成,自然流量,0.00,9200.00
+FY-2024-219,智能门锁,599.00,258.00,1,已完成,直通车,3200.00,18500.00
+FY-2024-220,智能插座,79.00,36.00,3,已完成,直播带货,5800.00,32000.00
+FY-2024-221,LED灯泡,19.90,8.50,6,已完成,自然流量,0.00,9200.00
+FY-2024-222,无线充电板,99.00,44.00,2,已完成,直通车,3200.00,18500.00
+FY-2024-223,感应夜灯,29.90,12.00,4,已完成,直播带货,5800.00,32000.00
+FY-2024-224,智能门锁,459.00,198.00,1,已退款,自然流量,0.00,9200.00
+FY-2024-225,智能插座,89.00,42.00,2,已完成,直通车,3200.00,18500.00
+FY-2024-226,LED灯泡,12.90,5.50,10,已完成,直播带货,5800.00,32000.00
+FY-2024-227,无线充电板,69.00,31.00,2,已完成,自然流量,0.00,9200.00
+FY-2024-228,感应夜灯,39.90,16.50,3,已完成,直通车,3200.00,18500.00
+FY-2024-229,智能门锁,599.00,258.00,1,已完成,直播带货,5800.00,32000.00
+FY-2024-230,智能插座,129.00,58.00,1,已完成,自然流量,0.00,9200.00
+FY-2024-231,LED灯泡,15.90,6.80,8,已完成,直通车,3200.00,18500.00
+FY-2024-232,无线充电板,49.00,22.00,3,已完成,直播带货,5800.00,32000.00
+FY-2024-233,感应夜灯,24.90,10.50,6,已完成,直通车,3200.00,18500.00
+FY-2024-234,智能门锁,459.00,198.00,1,已完成,直播带货,5800.00,32000.00
+FY-2024-235,智能插座,109.00,49.00,2,已完成,自然流量,0.00,9200.00`
+};
+
+function downloadCSV(level) {
+  const nameMap = { basic: '基础', medium: '巩固', hard: '进阶' };
+  const filename = `3.4.1_销售额利润利润率客单价_${nameMap[level]}数据.csv`;
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

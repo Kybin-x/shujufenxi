@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3.4.3 DATEDIF 日期间隔 · 任务书</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f4f6f9; color: #2c3e50; line-height: 1.7; }
+
+        .banner { background: linear-gradient(135deg, #00695c 0%, #004d40 100%); color: #fff; padding: 36px 48px 28px; }
+        .banner .course-tag { font-size: 12px; letter-spacing: 2px; opacity: .75; margin-bottom: 8px; }
+        .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+        .banner .subtitle { font-size: 14px; opacity: .85; }
+        .banner .meta { margin-top: 18px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; opacity: .9; }
+
+        .container { max-width: 960px; margin: 32px auto; padding: 0 24px 60px; }
+
+        .scenario-card { background: #fff; border-left: 5px solid #00695c; border-radius: 8px; padding: 20px 24px; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+        .scenario-card h2 { font-size: 15px; color: #00695c; margin-bottom: 8px; }
+        .scenario-card p { font-size: 14px; }
+
+        /* DATEDIF语法卡片 */
+        .syntax-card {
+            background: #e0f2f1;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+        }
+        .syntax-card h3 { color: #004d40; font-size: 14px; margin-bottom: 12px; font-weight: 700; }
+        .syntax-formula {
+            font-family: Consolas, monospace;
+            font-size: 15px;
+            background: #fff;
+            border: 2px solid #00695c;
+            border-radius: 8px;
+            padding: 12px 18px;
+            color: #004d40;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+        .unit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .unit-card {
+            background: #fff;
+            border-radius: 6px;
+            padding: 10px 14px;
+            border-left: 4px solid #00695c;
+            font-size: 13px;
+        }
+        .unit-card .uc-code { font-family: Consolas; font-weight: 700; color: #004d40; font-size: 16px; margin-bottom: 4px; }
+        .unit-card .uc-desc { color: #555; }
+        .unit-card .uc-example { font-size: 11.5px; color: #888; margin-top: 3px; font-family: Consolas; }
+        .syntax-card .warn { margin-top: 12px; padding: 8px 12px; background: #fff8e1; border-left: 3px solid #ffa000; border-radius: 4px; font-size: 13px; color: #5d4037; }
+
+        /* 难度块 */
+        .level-block { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin-bottom: 36px; overflow: hidden; }
+        .level-header { display: flex; align-items: center; gap: 14px; padding: 18px 28px; color: #fff; }
+        .level-header.basic  { background: linear-gradient(90deg,#43a047,#66bb6a); }
+        .level-header.medium { background: linear-gradient(90deg,#fb8c00,#ffa726); }
+        .level-header.hard   { background: linear-gradient(90deg,#e53935,#ef5350); }
+        .level-badge { font-size: 11px; font-weight: 700; letter-spacing: 1px; background: rgba(255,255,255,.25); padding: 2px 10px; border-radius: 20px; }
+        .level-header h2 { font-size: 18px; font-weight: 700; }
+        .level-header .level-desc { font-size: 13px; opacity: .9; margin-left: auto; }
+        .level-body { padding: 24px 28px; }
+
+        .download-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: #e0f2f1; border: 1px dashed #80cbc4; border-radius: 8px; padding: 14px 20px; margin-bottom: 24px; }
+        .download-bar .dl-info { font-size: 13px; color: #444; }
+        .download-bar .dl-info strong { color: #00695c; }
+        .btn-download { display: inline-flex; align-items: center; gap: 6px; background: #00695c; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s; }
+        .btn-download:hover { background: #004d40; }
+        .btn-download svg { width: 15px; height: 15px; fill: #fff; }
+
+        .section-title { font-size: 15px; font-weight: 700; color: #2c3e50; border-left: 4px solid #00695c; padding-left: 10px; margin: 22px 0 12px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 16px; }
+        th { background: #e0f2f1; color: #004d40; font-weight: 700; padding: 9px 14px; text-align: left; border: 1px solid #80cbc4; }
+        td { padding: 8px 14px; border: 1px solid #e0e0e0; vertical-align: top; }
+        tr:nth-child(even) td { background: #fafafa; }
+
+        .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+        .task-list li { counter-increment: task; display: flex; gap: 12px; margin-bottom: 14px; font-size: 14px; align-items: flex-start; }
+        .task-list li::before { content: counter(task); min-width: 26px; height: 26px; background: #00695c; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .task-list.orange li::before { background: #fb8c00; }
+        .task-list.red    li::before { background: #e53935; }
+
+        .tip-box { border-radius: 8px; padding: 14px 18px; font-size: 13.5px; margin-top: 16px; }
+        .tip-box.green  { background: #e8f5e9; border-left: 4px solid #43a047; }
+        .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+        .tip-box.red    { background: #fce4ec; border-left: 4px solid #e53935; }
+        .tip-box.teal   { background: #e0f2f1; border-left: 4px solid #00695c; }
+        .tip-box .tip-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+        .tip-box.green  .tip-title { color: #2e7d32; }
+        .tip-box.orange .tip-title { color: #e65100; }
+        .tip-box.red    .tip-title { color: #b71c1c; }
+        .tip-box.teal   .tip-title { color: #006064; }
+        .tip-box ul { padding-left: 18px; }
+        .tip-box ul li { margin-bottom: 5px; }
+
+        .record-table th { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+        .record-table.orange th { background: #fff3e0; color: #bf360c; border-color: #ffcc80; }
+        .record-table.red th { background: #fce4ec; color: #880e4f; border-color: #f48fb1; }
+
+        .formula-block { background: #e0f2f1; border: 1px solid #80cbc4; border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; }
+        .formula-block.orange { background: #fffaf5; border-color: #ffcc80; }
+        .formula-block.red    { background: #fff8f8; border-color: #ffcdd2; }
+        .formula-block .fb-title { font-weight: 600; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .formula-block .fb-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #00695c; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .formula-block .fb-num.orange { background: #fb8c00; }
+        .formula-block .fb-num.red    { background: #e53935; }
+        .formula-block .fb-desc { font-size: 13.5px; color: #555; margin-bottom: 6px; }
+        .formula-block .fb-formula { font-family: Consolas, monospace; font-size: 13px; background: #fff; border: 1px dashed #80cbc4; border-radius: 4px; padding: 6px 12px; color: #004d40; min-height: 32px; margin: 4px 0; }
+        .formula-block.orange .fb-formula { border-color: #ffcc80; color: #e65100; }
+        .formula-block.red    .fb-formula { border-color: #ffcdd2; color: #c62828; }
+        .formula-block .fb-note { font-size: 12.5px; color: #888; margin-top: 5px; }
+
+        /* 客户分级标签 */
+        .tag-high { display:inline-block; background:#c8e6c9; color:#1b5e20; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
+        .tag-mid  { display:inline-block; background:#fff9c4; color:#f57f17; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
+        .tag-low  { display:inline-block; background:#ffccbc; color:#bf360c; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
+        .tag-lost { display:inline-block; background:#ffcdd2; color:#c62828; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
+
+        code { background: #eceff1; border-radius: 3px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 13px; color: #c62828; }
+        .highlight { display: inline-block; background: #fff9c4; border-radius: 3px; padding: 0 5px; font-weight: 600; }
+
+        footer { text-align: center; font-size: 12px; color: #999; margin-top: 48px; padding-top: 20px; border-top: 1px solid #eee; }
+    </style>
+</head>
+
+<body>
+
+<div class="banner">
+    <div class="course-tag">数据分析基础 · 模块三 · 数据计算</div>
+    <h1>3.4.3 DATEDIF 日期间隔计算</h1>
+    <div class="subtitle">计算会员复购间隔、物流时效、客户活跃度，实现客户分层管理</div>
+    <div class="meta">
+        <span>📁 配套文件：3.4.3_练习数据.xlsx</span>
+        <span>🎯 三个难度等级</span>
+        <span>🏢 情景：飞跃跨境电商有限公司</span>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="scenario-card">
+        <h2>📋 背景情景</h2>
+        <p>
+            飞跃跨境电商有限公司客服部和运营部需要从时间维度分析业务数据：
+            ① 会员多久购买一次（复购间隔）？② 订单从下单到签收用了多少天（物流时效）？
+            ③ 某位客户有多长时间没来购买了（流失风险）？
+            这些都需要计算<strong>日期之间的间隔</strong>，Excel 中最适合的工具就是 <strong>DATEDIF</strong> 函数。
+        </p>
+    </div>
+
+    <!-- DATEDIF语法 -->
+    <div class="syntax-card">
+        <h3>📖 知识点速览：DATEDIF 函数</h3>
+        <div class="syntax-formula">=DATEDIF( 开始日期, 结束日期, "单位" )</div>
+        <p style="font-size:13px;color:#555;margin-bottom:12px;">
+            计算两个日期之间的间隔，结果为整数。注意：<strong>开始日期必须早于结束日期</strong>，否则报错。
+        </p>
+        <div class="unit-grid">
+            <div class="unit-card">
+                <div class="uc-code">"D"</div>
+                <div class="uc-desc">间隔天数（最常用）</div>
+                <div class="uc-example">=DATEDIF(A2,B2,"D") → 30</div>
+            </div>
+            <div class="unit-card">
+                <div class="uc-code">"M"</div>
+                <div class="uc-desc">间隔完整月数</div>
+                <div class="uc-example">=DATEDIF(A2,B2,"M") → 2</div>
+            </div>
+            <div class="unit-card">
+                <div class="uc-code">"Y"</div>
+                <div class="uc-desc">间隔完整年数</div>
+                <div class="uc-example">=DATEDIF(A2,B2,"Y") → 1</div>
+            </div>
+            <div class="unit-card">
+                <div class="uc-code">"MD"</div>
+                <div class="uc-desc">不足一月的天数（余天）</div>
+                <div class="uc-example">忽略月份差</div>
+            </div>
+            <div class="unit-card">
+                <div class="uc-code">"YM"</div>
+                <div class="uc-desc">不足一年的月数（余月）</div>
+                <div class="uc-example">忽略年份差</div>
+            </div>
+        </div>
+        <div style="margin-top:14px;font-size:13.5px;">
+            <strong>TODAY() 函数</strong>：返回今天的日期，配合 DATEDIF 可计算"距今"多少天：
+            <br><code>=DATEDIF(A2, TODAY(), "D")</code> → 计算从 A2 的日期到今天的天数
+        </div>
+        <div class="warn">
+            ⚠️ 注意：DATEDIF 不会出现在 Excel 的函数自动补全列表中，但可以正常使用，直接输入即可。
+            开始日期必须≤结束日期，否则返回 #NUM! 错误，请用 IFERROR 保护。
+        </div>
+    </div>
+
+    <!-- ==================== 基础 ==================== -->
+    <div class="level-block">
+        <div class="level-header basic">
+            <span class="level-badge">LEVEL 1</span>
+            <h2>基础练习</h2>
+            <span class="level-desc">适合：第一次使用DATEDIF · 25条会员记录 · 计算复购间隔月数并分级</span>
+        </div>
+        <div class="level-body">
+
+            <div class="download-bar">
+                <div class="dl-info">
+                    📊 数据说明：<strong>25条会员购买记录</strong>｜已有：首次下单时间 / 最近下单时间 / 累计消费额｜
+                    需计算：复购间隔月数，并按间隔长短分级
+                </div>
+                <button class="btn-download" onclick="downloadCSV('basic')">
+                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    下载 CSV 数据
+                </button>
+            </div>
+
+            <div class="section-title">📌 数据字段说明</div>
+            <table>
+                <tr><th>字段名</th><th>列</th><th>说明</th><th>示例</th></tr>
+                <tr><td>客户ID</td><td>A</td><td>会员唯一编号</td><td>CUS-001</td></tr>
+                <tr><td>客户姓名</td><td>B</td><td>会员姓名</td><td>张三丰</td></tr>
+                <tr><td>首次下单时间</td><td>C</td><td>第一次购买日期</td><td>2023-06-01</td></tr>
+                <tr><td>最近下单时间</td><td>D</td><td>最后一次购买日期</td><td>2024-02-15</td></tr>
+                <tr><td>累计消费额（元）</td><td>E</td><td>历史总消费金额</td><td>1580.00</td></tr>
+                <tr><td>会员等级</td><td>F</td><td>普通/银牌/金牌/钻石</td><td>金牌</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">复购间隔（月）</td><td>G</td><td style="color:#00695c;">【待计算】首次到最近的月数</td><td>8</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">购买频级</td><td>H</td><td style="color:#00695c;">【待计算，IF分级】</td><td>高频</td></tr>
+            </table>
+
+            <div class="section-title">🎯 复购频级分级标准</div>
+            <table>
+                <tr><th>频级</th><th>判断条件</th><th>含义</th></tr>
+                <tr><td><span class="tag-high">高频客户</span></td><td>复购间隔 ≤ 3个月</td><td>忠实客户，优先维护</td></tr>
+                <tr><td><span class="tag-mid">中频客户</span></td><td>3个月 &lt; 复购间隔 ≤ 6个月</td><td>偶尔购买，需要激活</td></tr>
+                <tr><td><span class="tag-low">低频客户</span></td><td>复购间隔 &gt; 6个月</td><td>长时间才购买一次，需关注</td></tr>
+            </table>
+
+            <div class="section-title">✅ 任务要求</div>
+            <ol class="task-list">
+                <li>将 CSV 数据粘贴到"数据（基础）"Sheet，在 G、H 列建立计算列。</li>
+                <li>在 G2 输入公式计算复购间隔月数，向下填充：<code>=DATEDIF(C2, D2, "M")</code></li>
+                <li>在 H2 输入 IF 嵌套公式，根据 G 列的月数判断频级，向下填充。</li>
+                <li>统计三个频级各有多少人，填入统计表。</li>
+                <li>回答分析问题。</li>
+            </ol>
+
+            <div class="section-title">✏️ 公式填写练习</div>
+
+            <div class="formula-block">
+                <div class="fb-title"><span class="fb-num">1</span>计算复购间隔月数（G列）</div>
+                <div class="fb-desc">首次下单时间（C列）到最近下单时间（D列）的完整月数</div>
+                <div class="fb-formula">= DATEDIF( C2, _____ , "M" )</div>
+                <div class="fb-note">结束日期为 D2（最近下单时间）；"M"=完整月数</div>
+            </div>
+
+            <div class="formula-block">
+                <div class="fb-title"><span class="fb-num">2</span>判断购买频级（H列）：IF嵌套</div>
+                <div class="fb-desc">≤3个月→高频，≤6个月→中频，其余→低频</div>
+                <div class="fb-formula">= IF( G2&lt;=3, "高频", IF( G2&lt;=_____ , "中频", "低频" ) )</div>
+                <div class="fb-note">第二个IF的条件：G2≤6（即6个月以内为中频）</div>
+            </div>
+
+            <div class="section-title">📝 频级统计表（在 Excel 中用 COUNTIF 完成）</div>
+            <table class="record-table">
+                <tr><th>购买频级</th><th>人数（COUNTIF）</th><th>占比</th><th>平均累计消费额（AVERAGEIF）</th></tr>
+                <tr><td><span class="tag-high">高频</span>（≤3个月）</td><td></td><td></td><td></td></tr>
+                <tr><td><span class="tag-mid">中频</span>（4-6个月）</td><td></td><td></td><td></td></tr>
+                <tr><td><span class="tag-low">低频</span>（&gt;6个月）</td><td></td><td></td><td></td></tr>
+                <tr><td><strong>合计</strong></td><td><strong>25</strong></td><td><strong>100%</strong></td><td></td></tr>
+            </table>
+
+            <div class="section-title">💬 分析问题</div>
+            <table class="record-table">
+                <tr><th>问题</th><th>回答</th></tr>
+                <tr><td>① 哪个频级的平均消费额最高？说明什么？</td><td></td></tr>
+                <tr><td>② 低频客户中，哪些会员等级最多？这合理吗？</td><td></td></tr>
+                <tr><td>③ 针对"低频客户"，你会建议运营部门采取什么措施？</td><td></td></tr>
+            </table>
+
+            <div class="tip-box green">
+                <div class="tip-title">💡 操作提示</div>
+                <ul>
+                    <li><strong>DATEDIF 计算月数（"M"）说明</strong>：结果是完整的月数，不足1个月的部分截去。例如"2023-06-01"到"2024-02-15"之间是8个完整月。</li>
+                    <li><strong>IF嵌套的逻辑顺序</strong>：先判断最严格的条件（≤3），再判断次严格的（≤6），最后是剩余情况，这样逻辑最清晰。</li>
+                    <li><strong>COUNTIF统计频级</strong>：<code>=COUNTIF(H2:H26,"高频")</code></li>
+                    <li><strong>验证</strong>：三个频级人数之和应等于25。</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==================== 巩固 ==================== -->
+    <div class="level-block">
+        <div class="level-header medium">
+            <span class="level-badge">LEVEL 2</span>
+            <h2>巩固练习</h2>
+            <span class="level-desc">适合：熟悉基本函数后 · 28条订单数据 · 计算发货时效+签收时效+是否超时</span>
+        </div>
+        <div class="level-body">
+
+            <div class="download-bar">
+                <div class="dl-info">
+                    📊 数据说明：<strong>28条订单物流数据</strong>｜含下单/发货/签收三个时间点｜
+                    计算发货时效+签收时效+是否超时，统计超时率
+                </div>
+                <button class="btn-download" onclick="downloadCSV('medium')">
+                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    下载 CSV 数据
+                </button>
+            </div>
+
+            <div class="section-title">📌 数据字段说明</div>
+            <table>
+                <tr><th>字段名</th><th>列</th><th>说明</th><th>特殊情况</th></tr>
+                <tr><td>订单编号</td><td>A</td><td>唯一订单号</td><td>—</td></tr>
+                <tr><td>商品类别</td><td>B</td><td>商品大类</td><td>—</td></tr>
+                <tr><td>下单日期</td><td>C</td><td>客户下单时间</td><td>—</td></tr>
+                <tr><td>发货日期</td><td>D</td><td>商家发货时间</td><td>部分未发货，为空</td></tr>
+                <tr><td>签收日期</td><td>E</td><td>买家签收时间</td><td>部分在途/未收，为空</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">发货时效（天）</td><td>F</td><td style="color:#00695c;">【待计算】下单→发货天数</td><td>发货日为空时显示"未发货"</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">签收时效（天）</td><td>G</td><td style="color:#00695c;">【待计算】发货→签收天数</td><td>签收日为空时显示"配送中"</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">全程时效（天）</td><td>H</td><td style="color:#00695c;">【待计算】下单→签收总天数</td><td>未签收时显示"待完成"</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">发货是否超时</td><td>I</td><td style="color:#00695c;">【待计算】发货时效&gt;2天为超时</td><td>—</td></tr>
+            </table>
+
+            <div class="section-title">✅ 任务要求</div>
+            <ol class="task-list orange">
+                <li>将数据粘贴到"数据（巩固）"Sheet，在 F、G、H、I 列建立计算列。</li>
+                <li>
+                    <div>
+                        <strong>发货时效（F列）</strong>：用 IFERROR 包裹 DATEDIF，发货日为空时显示"未发货"：
+                        <br><code>=IFERROR(DATEDIF(C2,D2,"D"), "未发货")</code>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>签收时效（G列）</strong>：发货→签收，签收日为空时显示"配送中"：
+                        <br><code>=IFERROR(DATEDIF(D2,E2,"D"), "配送中")</code>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>全程时效（H列）</strong>：下单→签收，未签收时显示"待完成"：
+                        <br><code>=IFERROR(DATEDIF(C2,E2,"D"), "待完成")</code>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>发货是否超时（I列）</strong>：发货时效&gt;2天为"超时"，≤2天为"正常"，未发货为"未发货"：
+                        <br><code>=IFERROR(IF(F2&gt;2,"超时","正常"), "未发货")</code>
+                    </div>
+                </li>
+                <li>统计超时率，填写分析表，并分类别分析超时情况。</li>
+            </ol>
+
+            <div class="section-title">✏️ 关键公式填写</div>
+
+            <div class="formula-block orange">
+                <div class="fb-title"><span class="fb-num orange">1</span>发货时效（F列）：下单→发货天数</div>
+                <div class="fb-desc">D列（发货日期）为空时，DATEDIF报错，IFERROR捕获显示"未发货"</div>
+                <div class="fb-formula">= IFERROR( DATEDIF( C2, D2, "_____" ), "未发货" )</div>
+                <div class="fb-note">单位用"D"表示天数</div>
+            </div>
+
+            <div class="formula-block orange">
+                <div class="fb-title"><span class="fb-num orange">2</span>签收时效（G列）：发货→签收天数</div>
+                <div class="fb-formula">= IFERROR( DATEDIF( D2, _____ , "D" ), "配送中" )</div>
+                <div class="fb-note">结束日期为 E2（签收日期）；E列为空时显示"配送中"</div>
+            </div>
+
+            <div class="formula-block orange">
+                <div class="fb-title"><span class="fb-num orange">3</span>发货是否超时（I列）：IFERROR + IF嵌套</div>
+                <div class="fb-desc">F列为"未发货"（文本）时，F2>2的比较会报错，IFERROR捕获显示"未发货"</div>
+                <div class="fb-formula">= IFERROR( IF( F2 > _____ , "超时", "正常" ), "未发货" )</div>
+                <div class="fb-note">超时阈值为2天（发货时效&gt;2天即超时）</div>
+            </div>
+
+            <div class="section-title">📝 物流时效统计表（在 Excel 中用 COUNTIF 完成）</div>
+            <table class="record-table orange">
+                <tr><th>统计项目</th><th>数量/数值</th><th>公式</th></tr>
+                <tr><td>已发货订单数</td><td></td><td><code>=COUNTIF(F:F,"&lt;&gt;未发货")-1</code></td></tr>
+                <tr><td>超时发货订单数</td><td></td><td><code>=COUNTIF(I:I,"超时")</code></td></tr>
+                <tr><td>超时率</td><td></td><td>超时数÷已发货数</td></tr>
+                <tr><td>配送中订单数</td><td></td><td><code>=COUNTIF(G:G,"配送中")</code></td></tr>
+                <tr><td>平均发货时效（天，已发货）</td><td></td><td>AVERAGEIF跳过"未发货"文本</td></tr>
+                <tr><td>平均全程时效（天，已签收）</td><td></td><td>AVERAGEIF跳过"待完成"文本</td></tr>
+            </table>
+
+            <div class="section-title">📝 各类别超时情况（在 Excel 中完成）</div>
+            <table class="record-table orange">
+                <tr><th>商品类别</th><th>总订单数</th><th>超时发货数</th><th>超时率</th><th>平均发货时效（天）</th></tr>
+                <tr><td>充电宝</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>蓝牙耳机</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>手机壳</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>数据线</td><td></td><td></td><td></td><td></td></tr>
+            </table>
+
+            <div class="tip-box orange">
+                <div class="tip-title">💡 操作提示</div>
+                <ul>
+                    <li><strong>IFERROR捕获顺序</strong>：DATEDIF在开始日期或结束日期为空时会报错，IFERROR统一捕获并显示自定义文字。</li>
+                    <li><strong>I列"超时"判断的报错原因</strong>：F列中有"未发货"（文本），当用 IF(F2>2) 比较文本时Excel会报错，所以需要IFERROR在外层捕获。</li>
+                    <li><strong>AVERAGEIF跳过文本</strong>：<code>=AVERAGEIF(F2:F29,"&lt;未发货")</code> 会忽略文本值，只对数值行求平均。但更精确的方法是：<code>=AVERAGEIF(I2:I29,"&lt;&gt;未发货",F2:F29)</code></li>
+                    <li>超时率 = 超时订单数 ÷ 已发货订单数（不含"未发货"行）。</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==================== 进阶 ==================== -->
+    <div class="level-block">
+        <div class="level-header hard">
+            <span class="level-badge">LEVEL 3</span>
+            <h2>进阶练习</h2>
+            <span class="level-desc">适合：综合运用阶段 · 30条客户数据 · TODAY()动态计算+客户分层+流失预警</span>
+        </div>
+        <div class="level-body">
+
+            <div class="download-bar">
+                <div class="dl-info">
+                    📊 数据说明：<strong>30条客户购买记录</strong>｜含历史购买日期｜
+                    用TODAY()动态计算"距今天数"，结合IF分级，找出流失风险客户
+                </div>
+                <button class="btn-download" onclick="downloadCSV('hard')">
+                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    下载 CSV 数据
+                </button>
+            </div>
+
+            <div class="section-title">📌 数据字段说明</div>
+            <table>
+                <tr><th>字段名</th><th>列</th><th>说明</th></tr>
+                <tr><td>客户ID</td><td>A</td><td>唯一客户编号</td></tr>
+                <tr><td>客户姓名</td><td>B</td><td>姓名</td></tr>
+                <tr><td>首次购买日期</td><td>C</td><td>第一笔订单日期</td></tr>
+                <tr><td>最近购买日期</td><td>D</td><td>最后一笔订单日期</td></tr>
+                <tr><td>历史购买次数</td><td>E</td><td>累计下单笔数</td></tr>
+                <tr><td>累计消费额（元）</td><td>F</td><td>历史总消费</td></tr>
+                <tr><td>客户等级</td><td>G</td><td>普通/银牌/金牌/钻石</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">会员时长（月）</td><td>H</td><td style="color:#00695c;">【待计算】首次购买到今天的月数</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">距上次购买（天）</td><td>I</td><td style="color:#00695c;">【待计算】最近购买到今天的天数</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">平均购买周期（天）</td><td>J</td><td style="color:#00695c;">【待计算】会员时长÷购买次数的平均间隔</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">活跃度分级</td><td>K</td><td style="color:#00695c;">【待计算，基于距上次购买天数】</td></tr>
+                <tr><td style="color:#00695c;font-weight:700;">流失风险标记</td><td>L</td><td style="color:#00695c;">【待计算，综合判断】</td></tr>
+            </table>
+
+            <div class="section-title">🎯 客户活跃度分级标准</div>
+            <table>
+                <tr>
+                    <th>活跃度分级</th>
+                    <th>判断条件（距上次购买天数）</th>
+                    <th>建议策略</th>
+                </tr>
+                <tr><td><span class="tag-high">活跃客户</span></td><td>≤ 30 天</td><td>持续维护，推送新品</td></tr>
+                <tr><td><span class="tag-mid">关注客户</span></td><td>31 ～ 90 天</td><td>发优惠券，激活购买</td></tr>
+                <tr><td><span class="tag-low">沉睡客户</span></td><td>91 ～ 180 天</td><td>重激活营销，定向活动</td></tr>
+                <tr><td><span class="tag-lost">流失客户</span></td><td>&gt; 180 天</td><td>低成本召回，或放弃维护</td></tr>
+            </table>
+
+            <div class="section-title">✅ 任务要求</div>
+            <ol class="task-list red">
+                <li>将数据粘贴到"数据（进阶）"Sheet，在 H-L 列建立五个计算列。</li>
+                <li>
+                    <div>
+                        <strong>会员时长（H列）</strong>：首次购买日期到今天的完整月数：
+                        <br><code>=DATEDIF(C2, TODAY(), "M")</code>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>距上次购买天数（I列）</strong>：最近购买日期到今天的天数：
+                        <br><code>=DATEDIF(D2, TODAY(), "D")</code>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>平均购买周期（J列）</strong>：会员时长内平均多少天买一次：
+                        <br><code>=IFERROR(H2*30/E2, "--")</code>（用月数×30近似换算成天数，再除以购买次数）
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>活跃度分级（K列）</strong>：根据I列天数，用IF嵌套分4级。
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>流失风险标记（L列）</strong>：
+                        综合判断——距上次购买超过"2倍平均购买周期"的客户标记为"⚠️高风险"，
+                        否则标记为"正常"：
+                        <br><code>=IFERROR(IF(I2 > J2*2, "⚠️高风险", "正常"), "正常")</code>
+                    </div>
+                </li>
+                <li>完成下方客户分层分析报告。</li>
+            </ol>
+
+            <div class="section-title">✏️ 关键公式填写</div>
+
+            <div class="formula-block red">
+                <div class="fb-title"><span class="fb-num red">1</span>会员时长（H列）：TODAY() 动态计算</div>
+                <div class="fb-desc">首次购买日期（C列）到今天的完整月数，TODAY()每天自动更新</div>
+                <div class="fb-formula">= DATEDIF( C2, TODAY(), "_____" )</div>
+                <div class="fb-note">单位用"M"（月份）</div>
+            </div>
+
+            <div class="formula-block red">
+                <div class="fb-title"><span class="fb-num red">2</span>距上次购买天数（I列）</div>
+                <div class="fb-formula">= DATEDIF( D2, _____ , "D" )</div>
+                <div class="fb-note">结束日期用 TODAY()；"D"=天数</div>
+            </div>
+
+            <div class="formula-block red">
+                <div class="fb-title"><span class="fb-num red">3</span>活跃度分级（K列）：四级IF嵌套</div>
+                <div class="fb-desc">≤30天→活跃，≤90天→关注，≤180天→沉睡，其余→流失</div>
+                <div class="fb-formula">= IF( I2&lt;=30, "活跃", IF( I2&lt;=90, "关注", IF( I2&lt;=_____ , "沉睡", "流失" ) ) )</div>
+                <div class="fb-note">第三层IF的阈值为180天</div>
+            </div>
+
+            <div class="formula-block red">
+                <div class="fb-title"><span class="fb-num red">4</span>流失风险标记（L列）：超过2倍购买周期</div>
+                <div class="fb-desc">距上次购买天数 > 平均购买周期×2，说明该客户已"沉默"超过预期</div>
+                <div class="fb-formula">= IFERROR( IF( I2 > J2 * _____ , "⚠️高风险", "正常" ), "正常" )</div>
+                <div class="fb-note">阈值为2（即超过2倍购买周期）</div>
+            </div>
+
+            <div class="section-title">📝 客户分层分析报告（在"分析报告"Sheet 完成）</div>
+
+            <p style="font-size:13.5px;margin-bottom:10px;color:#555;">▶ 第一部分：活跃度分层统计</p>
+            <table class="record-table red">
+                <tr>
+                    <th>活跃度分级</th>
+                    <th>客户数<br><small>COUNTIF</small></th>
+                    <th>占比</th>
+                    <th>平均消费额（元）<br><small>AVERAGEIF</small></th>
+                    <th>高风险标记数<br><small>COUNTIFS双条件</small></th>
+                    <th>建议策略</th>
+                </tr>
+                <tr><td><span class="tag-high">活跃</span></td><td></td><td></td><td></td><td></td><td>持续推送新品</td></tr>
+                <tr><td><span class="tag-mid">关注</span></td><td></td><td></td><td></td><td></td><td>发优惠券激活</td></tr>
+                <tr><td><span class="tag-low">沉睡</span></td><td></td><td></td><td></td><td></td><td>定向重激活</td></tr>
+                <tr><td><span class="tag-lost">流失</span></td><td></td><td></td><td></td><td></td><td>低成本召回</td></tr>
+                <tr><td><strong>合计</strong></td><td><strong>30</strong></td><td><strong>100%</strong></td><td></td><td></td><td>—</td></tr>
+            </table>
+
+            <p style="font-size:13.5px;margin:16px 0 10px;color:#555;">▶ 第二部分：高风险客户名单（流失风险=⚠️高风险的客户）</p>
+            <table class="record-table red">
+                <tr><th>客户ID</th><th>客户姓名</th><th>等级</th><th>距上次购买天数</th><th>平均购买周期（天）</th><th>累计消费额</th><th>召回价值</th></tr>
+                <tr><td colspan="7" style="text-align:center;color:#888;font-size:13px;">（筛选 L 列为"⚠️高风险"的客户填入此表）</td></tr>
+            </table>
+
+            <p style="font-size:13.5px;margin:16px 0 10px;color:#555;">▶ 第三部分：分析结论与挽回策略（至少2条）</p>
+            <table class="record-table red">
+                <tr><th>分析结论</th><th>支撑数据</th><th>建议行动</th></tr>
+                <tr><td>结论一</td><td></td><td></td></tr>
+                <tr><td>结论二</td><td></td><td></td></tr>
+                <tr><td>结论三（选做）</td><td></td><td></td></tr>
+            </table>
+
+            <div class="tip-box red">
+                <div class="tip-title">💡 操作提示</div>
+                <ul>
+                    <li><strong>TODAY() 的特性</strong>：每次打开 Excel 文件，TODAY() 都会自动刷新为当天日期，因此计算结果是动态的。这意味着本练习中的"距上次购买天数"每天都在增加。</li>
+                    <li><strong>平均购买周期的近似计算</strong>：<code>=H2*30/E2</code> 用月数×30近似换算为总天数，再除以购买次数，得到平均多少天买一次。这是近似值，精确算法需要用到首末购买日期之差。</li>
+                    <li><strong>COUNTIFS 统计"活跃+高风险"组合</strong>：<code>=COUNTIFS(K:K,"活跃",L:L,"⚠️高风险")</code></li>
+                    <li><strong>筛选高风险客户</strong>：在 L 列上使用筛选器，只显示"⚠️高风险"，然后复制可见行到报告表。</li>
+                    <li>召回价值评估参考：累计消费额越高、购买次数越多的高风险客户，价值越大，优先投入召回资源。</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        数据分析基础 · 模块三 · 3.4.3 DATEDIF 日期间隔 · 任务书<br>
+        数据均为教学用途虚构数据，情景来源于飞跃跨境电商有限公司教学案例
+    </footer>
+
+</div>
+
+<script>
+const CSV_DATA = {
+
+basic: `客户ID,客户姓名,首次下单时间,最近下单时间,累计消费额（元）,会员等级
+CUS-001,张三丰,2023-01-05,2024-03-10,2580.00,金牌
+CUS-002,李小红,2023-03-12,2024-02-20,1280.00,银牌
+CUS-003,王大力,2022-11-08,2024-03-01,3560.00,钻石
+CUS-004,赵美丽,2023-07-20,2024-01-15,890.00,普通
+CUS-005,陈志强,2023-02-28,2024-03-05,1680.00,银牌
+CUS-006,刘晓燕,2022-08-15,2023-12-10,4200.00,钻石
+CUS-007,周建国,2023-09-01,2024-03-08,760.00,普通
+CUS-008,吴秀芬,2023-04-18,2024-02-28,2100.00,金牌
+CUS-009,孙明远,2023-06-22,2024-01-30,1450.00,银牌
+CUS-010,徐国华,2023-10-05,2024-03-12,980.00,普通
+CUS-011,朱丽华,2023-01-20,2024-03-01,3280.00,金牌
+CUS-012,杨志远,2022-12-10,2024-02-15,1860.00,银牌
+CUS-013,郑晓明,2023-08-08,2024-01-08,680.00,普通
+CUS-014,冯美英,2023-03-25,2024-03-10,2950.00,金牌
+CUS-015,蒋建军,2023-05-14,2024-02-01,1120.00,银牌
+CUS-016,韩秀丽,2022-10-30,2024-03-08,5600.00,钻石
+CUS-017,谢明亮,2023-07-07,2023-12-20,830.00,普通
+CUS-018,邓国强,2023-02-11,2024-02-25,1790.00,银牌
+CUS-019,曹志华,2022-09-18,2024-03-05,3100.00,金牌
+CUS-020,彭小燕,2023-09-25,2024-01-20,670.00,普通
+CUS-021,罗建平,2023-01-15,2024-03-02,2460.00,金牌
+CUS-022,梁秀英,2023-06-30,2023-11-15,940.00,普通
+CUS-023,宋明远,2023-04-08,2024-02-10,1580.00,银牌
+CUS-024,唐志强,2022-07-22,2024-03-06,4800.00,钻石
+CUS-025,许美丽,2023-05-20,2024-01-25,1230.00,银牌`,
+
+medium: `订单编号,商品类别,下单日期,发货日期,签收日期
+ORD-W001,充电宝,2024-03-01,2024-03-02,2024-03-05
+ORD-W002,蓝牙耳机,2024-03-01,2024-03-03,2024-03-07
+ORD-W003,手机壳,2024-03-02,,
+ORD-W004,数据线,2024-03-02,2024-03-04,2024-03-08
+ORD-W005,充电宝,2024-03-03,2024-03-04,2024-03-07
+ORD-W006,蓝牙耳机,2024-03-03,2024-03-06,
+ORD-W007,手机壳,2024-03-04,2024-03-05,2024-03-09
+ORD-W008,数据线,2024-03-04,2024-03-04,2024-03-08
+ORD-W009,充电宝,2024-03-05,,
+ORD-W010,蓝牙耳机,2024-03-05,2024-03-07,2024-03-11
+ORD-W011,手机壳,2024-03-06,2024-03-07,2024-03-10
+ORD-W012,数据线,2024-03-06,2024-03-08,2024-03-12
+ORD-W013,充电宝,2024-03-07,2024-03-08,2024-03-11
+ORD-W014,蓝牙耳机,2024-03-07,2024-03-10,
+ORD-W015,手机壳,2024-03-08,2024-03-09,2024-03-13
+ORD-W016,数据线,2024-03-08,2024-03-08,2024-03-12
+ORD-W017,充电宝,2024-03-09,,
+ORD-W018,蓝牙耳机,2024-03-09,2024-03-11,2024-03-15
+ORD-W019,手机壳,2024-03-10,2024-03-11,2024-03-14
+ORD-W020,数据线,2024-03-10,2024-03-12,2024-03-16
+ORD-W021,充电宝,2024-03-11,2024-03-12,2024-03-15
+ORD-W022,蓝牙耳机,2024-03-11,2024-03-14,
+ORD-W023,手机壳,2024-03-12,2024-03-13,2024-03-17
+ORD-W024,数据线,2024-03-12,2024-03-13,2024-03-17
+ORD-W025,充电宝,2024-03-13,2024-03-15,2024-03-19
+ORD-W026,蓝牙耳机,2024-03-13,2024-03-14,2024-03-18
+ORD-W027,手机壳,2024-03-14,,
+ORD-W028,数据线,2024-03-14,2024-03-15,2024-03-19`,
+
+hard: `客户ID,客户姓名,首次购买日期,最近购买日期,历史购买次数,累计消费额（元）,客户等级
+VIP-001,张三丰,2022-03-15,2024-01-20,18,8650.00,钻石
+VIP-002,李小红,2022-06-08,2023-11-05,9,3280.00,金牌
+VIP-003,王大力,2023-01-20,2024-03-01,6,2180.00,金牌
+VIP-004,赵美丽,2022-09-10,2023-06-15,4,1560.00,银牌
+VIP-005,陈志强,2023-03-05,2024-02-28,8,2980.00,金牌
+VIP-006,刘晓燕,2021-11-20,2024-03-05,24,12600.00,钻石
+VIP-007,周建国,2023-05-18,2023-09-22,3,980.00,普通
+VIP-008,吴秀芬,2022-08-25,2024-02-10,12,4580.00,金牌
+VIP-009,孙明远,2023-02-14,2023-08-30,5,1890.00,银牌
+VIP-010,徐国华,2023-07-01,2024-03-08,6,2260.00,银牌
+VIP-011,朱丽华,2022-05-12,2024-01-15,15,6800.00,钻石
+VIP-012,杨志远,2023-04-20,2023-10-18,4,1380.00,普通
+VIP-013,郑晓明,2022-12-08,2024-02-20,10,3960.00,金牌
+VIP-014,冯美英,2023-08-15,2024-01-08,5,1960.00,银牌
+VIP-015,蒋建军,2023-01-10,2024-03-02,7,2580.00,金牌
+VIP-016,韩秀丽,2021-09-05,2024-03-06,28,15800.00,钻石
+VIP-017,谢明亮,2023-06-22,2023-08-10,2,680.00,普通
+VIP-018,邓国强,2022-10-18,2024-02-25,11,4280.00,金牌
+VIP-019,曹志华,2023-03-28,2023-11-20,5,1680.00,银牌
+VIP-020,彭小燕,2023-09-05,2024-03-10,4,1480.00,普通
+VIP-021,罗建平,2022-07-14,2024-01-28,13,5680.00,金牌
+VIP-022,梁秀英,2023-05-08,2023-07-22,3,960.00,普通
+VIP-023,宋明远,2022-11-25,2024-03-04,10,3880.00,金牌
+VIP-024,唐志强,2021-12-10,2024-02-18,20,9980.00,钻石
+VIP-025,许美丽,2023-04-15,2023-09-30,5,1780.00,银牌
+VIP-026,钱小燕,2022-08-02,2024-01-05,12,4960.00,金牌
+VIP-027,孟志远,2023-06-10,2023-08-28,3,860.00,普通
+VIP-028,卢建国,2022-02-20,2024-02-28,22,11200.00,钻石
+VIP-029,苏美丽,2023-07-25,2024-03-09,5,1860.00,银牌
+VIP-030,姜秀芬,2023-01-05,2023-10-15,6,2180.00,银牌`
+
+};
+
+function downloadCSV(level) {
+    const nameMap = { basic: '基础_会员记录', medium: '巩固_物流订单', hard: '进阶_客户数据' };
+    const filename = `3.4.3_DATEDIF日期间隔_${nameMap[level]}.csv`;
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3.4.2 转化率·UV价值·ROI·PPC·点击率 · 任务书</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f4f6f9; color: #2c3e50; line-height: 1.7; }
+
+    .banner { background: linear-gradient(135deg, #00838f 0%, #006064 100%); color: #fff; padding: 36px 48px 28px; }
+    .banner .course-tag { font-size: 12px; letter-spacing: 2px; opacity: .75; margin-bottom: 8px; }
+    .banner h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .banner .subtitle { font-size: 14px; opacity: .85; }
+    .banner .meta { margin-top: 18px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; opacity: .9; }
+
+    .container { max-width: 980px; margin: 32px auto; padding: 0 24px 60px; }
+
+    .scenario-card { background: #fff; border-left: 5px solid #00838f; border-radius: 8px; padding: 20px 24px; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+    .scenario-card h2 { font-size: 15px; color: #00838f; margin-bottom: 8px; }
+    .scenario-card p { font-size: 14px; }
+
+    .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 32px; }
+    .fi { background: #fff; border-radius: 8px; padding: 14px 16px; border-top: 4px solid #00838f; box-shadow: 0 2px 6px rgba(0,0,0,.06); font-size: 13px; }
+    .fi.roi { border-top-color: #1565c0; }
+    .fi.uv  { border-top-color: #6a1b9a; }
+    .fi.ppc { border-top-color: #e65100; }
+    .fi.ctr { border-top-color: #2e7d32; }
+    .fi .fi-name { font-weight: 700; font-size: 14px; color: #00838f; margin-bottom: 4px; }
+    .fi.roi .fi-name { color: #1565c0; }
+    .fi.uv  .fi-name { color: #6a1b9a; }
+    .fi.ppc .fi-name { color: #e65100; }
+    .fi.ctr .fi-name { color: #2e7d32; }
+    .fi .fi-formula { font-family: Consolas, monospace; font-size: 12px; background: #e0f7fa; border-radius: 4px; padding: 4px 8px; margin: 6px 0; color: #006064; }
+    .fi.roi .fi-formula { background: #e3f2fd; color: #0d47a1; }
+    .fi.uv  .fi-formula { background: #f3e5f5; color: #4a148c; }
+    .fi.ppc .fi-formula { background: #fff3e0; color: #bf360c; }
+    .fi.ctr .fi-formula { background: #e8f5e9; color: #1b5e20; }
+    .fi .fi-desc { font-size: 12.5px; color: #555; }
+    .fi .fi-note { font-size: 12px; color: #e65100; margin-top: 4px; font-style: italic; }
+
+    .level-block { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin-bottom: 36px; overflow: hidden; }
+    .level-header { display: flex; align-items: center; gap: 14px; padding: 18px 28px; color: #fff; }
+    .level-header.basic  { background: linear-gradient(90deg,#43a047,#66bb6a); }
+    .level-header.medium { background: linear-gradient(90deg,#fb8c00,#ffa726); }
+    .level-header.hard   { background: linear-gradient(90deg,#e53935,#ef5350); }
+    .level-badge { font-size: 11px; font-weight: 700; letter-spacing: 1px; background: rgba(255,255,255,.25); padding: 2px 10px; border-radius: 20px; }
+    .level-header h2 { font-size: 18px; font-weight: 700; }
+    .level-header .level-desc { font-size: 13px; opacity: .9; margin-left: auto; }
+    .level-body { padding: 24px 28px; }
+
+    .download-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: #e0f7fa; border: 1px dashed #80deea; border-radius: 8px; padding: 14px 20px; margin-bottom: 24px; }
+    .download-bar .dl-info { font-size: 13px; color: #444; }
+    .download-bar .dl-info strong { color: #00838f; }
+    .btn-download { display: inline-flex; align-items: center; gap: 6px; background: #00838f; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-download:hover { background: #006064; }
+    .btn-download svg { width: 15px; height: 15px; fill: #fff; }
+
+    .section-title { font-size: 15px; font-weight: 700; color: #2c3e50; border-left: 4px solid #00838f; padding-left: 10px; margin: 22px 0 12px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 16px; }
+    th { background: #e0f7fa; color: #006064; font-weight: 700; padding: 9px 14px; text-align: left; border: 1px solid #80deea; }
+    td { padding: 8px 14px; border: 1px solid #e0e0e0; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .task-list { padding-left: 0; list-style: none; counter-reset: task; }
+    .task-list li { counter-increment: task; display: flex; gap: 12px; margin-bottom: 14px; font-size: 14px; align-items: flex-start; }
+    .task-list li::before { content: counter(task); min-width: 26px; height: 26px; background: #00838f; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .task-list.orange li::before { background: #fb8c00; }
+    .task-list.red    li::before { background: #e53935; }
+
+    .tip-box { border-radius: 8px; padding: 14px 18px; font-size: 13.5px; margin-top: 16px; }
+    .tip-box.green  { background: #e8f5e9; border-left: 4px solid #43a047; }
+    .tip-box.orange { background: #fff3e0; border-left: 4px solid #fb8c00; }
+    .tip-box.red    { background: #fce4ec; border-left: 4px solid #e53935; }
+    .tip-box .tip-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+    .tip-box.green  .tip-title { color: #2e7d32; }
+    .tip-box.orange .tip-title { color: #e65100; }
+    .tip-box.red    .tip-title { color: #b71c1c; }
+    .tip-box ul { padding-left: 18px; }
+    .tip-box ul li { margin-bottom: 5px; }
+
+    .record-table th { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+    .record-table.orange th { background: #fff3e0; color: #bf360c; border-color: #ffcc80; }
+    .record-table.red th { background: #fce4ec; color: #880e4f; border-color: #f48fb1; }
+
+    .calc-block { background: #f8ffff; border: 1px solid #80deea; border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; }
+    .calc-block .cb-title { font-weight: 600; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .calc-block .cb-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #00838f; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .calc-block .cb-formula { font-family: Consolas, monospace; font-size: 13px; background: #e8f5e9; border: 1px dashed #a5d6a7; border-radius: 4px; padding: 6px 10px; margin: 4px 0; color: #1b5e20; }
+    .calc-block .cb-note { font-size: 12.5px; color: #888; margin-top: 4px; }
+
+    .warn-box { background: #fff8e1; border-left: 4px solid #ffa000; border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #5d4037; }
+
+    code { background: #eceff1; border-radius: 3px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 13px; color: #c62828; }
+    .highlight { display: inline-block; background: #fff9c4; border-radius: 3px; padding: 0 5px; font-weight: 600; }
+
+    footer { text-align: center; font-size: 12px; color: #999; margin-top: 48px; padding-top: 20px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="course-tag">数据分析基础 · 模块三 · 数据处理与计算</div>
+  <h1>3.4.2 转化率 · UV价值 · ROI · PPC · 点击率</h1>
+  <div class="subtitle">掌握电商推广核心效果指标的计算方法，学会用数据评估渠道效率</div>
+  <div class="meta">
+    <span>📁 配套文件：3.4.2_练习数据.xlsx</span>
+    <span>🎯 三个难度等级</span>
+    <span>🏢 情景：星途电商有限公司</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="scenario-card">
+    <h2>📋 背景情景</h2>
+    <p>
+      星途电商有限公司每周召开推广复盘会，运营主管要求数据分析员小赵对各渠道的推广数据进行量化分析：
+      花了多少钱、带来多少流量、有多少人最终下单、每块钱带来多少收入。
+      小赵需要计算<strong>转化率、UV价值、ROI、PPC、点击率</strong>五个核心推广指标，
+      才能客观比较各渠道的投放效率，为下周预算分配提供数据依据。
+    </p>
+  </div>
+
+  <div class="section-title" style="margin-top:0;">📖 五大核心指标公式速览</div>
+  <div class="formula-grid">
+    <div class="fi">
+      <div class="fi-name">① 转化率（CVR）</div>
+      <div class="fi-formula">= 成交订单数 ÷ 访客数（UV）× 100%</div>
+      <div class="fi-desc">衡量流量"变现"能力，越高说明商品/页面吸引力越强。</div>
+      <div class="fi-note">⚠️ UV=0时用IFERROR保护</div>
+    </div>
+    <div class="fi roi">
+      <div class="fi-name">② ROI（投入产出比）</div>
+      <div class="fi-formula">= 带来销售额 ÷ 推广花费</div>
+      <div class="fi-desc">每花1元推广费带来多少元销售额。ROI&gt;1表示有盈利，越高越好。</div>
+      <div class="fi-note">⚠️ 花费=0时用IFERROR保护</div>
+    </div>
+    <div class="fi uv">
+      <div class="fi-name">③ UV价值（元/人）</div>
+      <div class="fi-formula">= 带来销售额 ÷ 访客数（UV）</div>
+      <div class="fi-desc">每个访客平均带来的销售额，衡量流量质量高低。</div>
+      <div class="fi-note">⚠️ UV=0时用IFERROR保护</div>
+    </div>
+    <div class="fi ppc">
+      <div class="fi-name">④ PPC（平均点击成本）</div>
+      <div class="fi-formula">= 推广花费 ÷ 点击次数</div>
+      <div class="fi-desc">每次点击花了多少钱（即CPC）。越低说明流量获取越便宜。</div>
+      <div class="fi-note">⚠️ 点击次数=0时用IFERROR保护</div>
+    </div>
+    <div class="fi ctr">
+      <div class="fi-name">⑤ 点击率（CTR）</div>
+      <div class="fi-formula">= 点击次数 ÷ 展现次数 × 100%</div>
+      <div class="fi-desc">广告被看到后有多少人点击，衡量广告素材的吸引力。</div>
+      <div class="fi-note">⚠️ 展现次数=0时用IFERROR保护</div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    ⚠️ <strong>所有除法指标都需要用 IFERROR 保护</strong>：当分母为 0 时 Excel 会显示 #DIV/0! 错误。
+    统一格式：<code>=IFERROR( 原公式, "--" )</code>，出错时显示"--"而非 0（避免误导分析）。
+  </div>
+
+  <!-- LEVEL 1 -->
+  <div class="level-block">
+    <div class="level-header basic">
+      <span class="level-badge">LEVEL 1</span>
+      <h2>基础练习</h2>
+      <span class="level-desc">适合：指标入门 · 25条推广数据 · 逐列计算5个指标并设置正确格式</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>25条推广记录</strong>｜字段：渠道/展现量/点击量/UV/订单数/花费/销售额｜
+          逐列计算5个指标，设置正确的数字格式
+        </div>
+        <button class="btn-download" onclick="downloadCSV('basic')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>示例</th></tr>
+        <tr><td>记录编号</td><td>A列</td><td>唯一编号</td><td>ADV-001</td></tr>
+        <tr><td>推广渠道</td><td>B列</td><td>直通车/超级推荐/直播带货/自然搜索</td><td>直通车</td></tr>
+        <tr><td>展现次数</td><td>C列</td><td>广告被展示的次数</td><td>8500</td></tr>
+        <tr><td>点击次数</td><td>D列</td><td>广告被点击的次数</td><td>380</td></tr>
+        <tr><td>访客数（UV）</td><td>E列</td><td>带来的独立访客数</td><td>320</td></tr>
+        <tr><td>成交订单数</td><td>F列</td><td>带来的订单数量</td><td>14</td></tr>
+        <tr><td>推广花费（元）</td><td>G列</td><td>投放费用（自然搜索为0）</td><td>85.00</td></tr>
+        <tr><td>带来销售额（元）</td><td>H列</td><td>该推广带来的成交额</td><td>420.00</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list">
+        <li>将数据粘贴到"数据（基础）"Sheet，确认字段列位置无误。</li>
+        <li>在 I 列新建"转化率（CVR）"，J 列"ROI"，K 列"UV价值（元）"，L 列"PPC（元）"，M 列"点击率（CTR）"。</li>
+        <li>在每列第 2 行写入对应公式（含 IFERROR 保护），向下填充到第 26 行。</li>
+        <li>
+          设置正确的数字格式：
+          <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+            <li>转化率（I列）、点击率（M列）：百分比格式，保留 2 位小数</li>
+            <li>ROI（J列）：数值格式，保留 2 位小数（如：4.94）</li>
+            <li>UV价值（K列）、PPC（L列）：数值格式，保留 2 位小数，单位：元</li>
+          </ul>
+        </li>
+        <li>完成后用 AVERAGEIF 汇总各渠道结果，填入下方记录表并回答分析问题。</li>
+      </ol>
+
+      <div class="section-title">✏️ 五列指标公式说明（在 Excel 中照此写入）</div>
+
+      <div class="calc-block">
+        <div class="cb-title"><span class="cb-num">I</span> 转化率（CVR）— I2 单元格</div>
+        <div class="cb-formula">= IFERROR( F2 / E2, "--" )</div>
+        <div class="cb-note">成交订单数 ÷ 访客数；设置百分比格式，保留 2 位小数</div>
+      </div>
+
+      <div class="calc-block">
+        <div class="cb-title"><span class="cb-num">J</span> ROI — J2 单元格</div>
+        <div class="cb-formula">= IFERROR( H2 / G2, "--" )</div>
+        <div class="cb-note">带来销售额 ÷ 推广花费；自然搜索花费为0，显示"--"</div>
+      </div>
+
+      <div class="calc-block">
+        <div class="cb-title"><span class="cb-num">K</span> UV价值（元）— K2 单元格</div>
+        <div class="cb-formula">= IFERROR( H2 / E2, "--" )</div>
+        <div class="cb-note">带来销售额 ÷ 访客数；单位：元/人</div>
+      </div>
+
+      <div class="calc-block">
+        <div class="cb-title"><span class="cb-num">L</span> PPC（元/次）— L2 单元格</div>
+        <div class="cb-formula">= IFERROR( G2 / D2, "--" )</div>
+        <div class="cb-note">推广花费 ÷ 点击次数；自然搜索显示"--"</div>
+      </div>
+
+      <div class="calc-block">
+        <div class="cb-title"><span class="cb-num">M</span> 点击率（CTR）— M2 单元格</div>
+        <div class="cb-formula">= IFERROR( D2 / C2, "--" )</div>
+        <div class="cb-note">点击次数 ÷ 展现次数；设置百分比格式，保留 2 位小数</div>
+      </div>
+
+      <div class="section-title">📝 各渠道指标汇总表（用 AVERAGEIF 填写，在 Excel 中完成）</div>
+      <table class="record-table">
+        <tr>
+          <th>推广渠道</th>
+          <th>平均转化率</th>
+          <th>平均ROI</th>
+          <th>平均UV价值（元）</th>
+          <th>平均PPC（元）</th>
+          <th>平均点击率</th>
+        </tr>
+        <tr><td>直通车</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>超级推荐</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>直播带货</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>自然搜索</td><td></td><td></td><td></td><td style="color:#888;">—</td><td></td></tr>
+      </table>
+
+      <div class="section-title">💬 分析问题（在 Excel 中填写）</div>
+      <table class="record-table">
+        <tr><th>问题</th><th>回答</th></tr>
+        <tr><td>① 哪个渠道的转化率最高？说明什么？</td><td></td></tr>
+        <tr><td>② 为什么自然搜索的 ROI 和 PPC 填"--"而不是 0？</td><td></td></tr>
+        <tr><td>③ 若要降低每次点击成本（PPC），应该从哪个角度优化？</td><td></td></tr>
+      </table>
+
+      <div class="tip-box green">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>AVERAGEIF 汇总各渠道平均值</strong>：
+            <code>=AVERAGEIF($B$2:$B$26,"直通车",I$2:I$26)</code>
+            — 若 I 列含"--"文本，AVERAGEIF 会自动跳过，只对数值计算均值。</li>
+          <li><strong>百分比格式设置</strong>：选中列 → 右键 → 设置单元格格式 → 百分比 → 小数位数 2。
+            公式结果 0.0437 会显示为 4.37%。</li>
+          <li><strong>CTR 通常很小</strong>（点击率一般在 1%-10%），若显示 0.00% 说明小数位数不够，可增加小数位。</li>
+          <li>自然搜索花费为 0，IFERROR 将 ROI 和 PPC 显示为"--"，AVERAGEIF 计算时会自动排除这些行。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LEVEL 2 -->
+  <div class="level-block">
+    <div class="level-header medium">
+      <span class="level-badge">LEVEL 2</span>
+      <h2>巩固练习</h2>
+      <span class="level-desc">适合：熟悉公式后 · 30条多渠道数据 · IFERROR保护+渠道排名+优化建议</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>30条多渠道推广数据</strong>｜部分记录访客数或点击次数为0｜
+          计算全部指标→渠道横向对比→商品类别对比→写渠道优化建议
+        </div>
+        <button class="btn-download" onclick="downloadCSV('medium')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th><th>特殊情况</th></tr>
+        <tr><td>记录编号</td><td>A</td><td>唯一编号</td><td>—</td></tr>
+        <tr><td>推广渠道</td><td>B</td><td>4种渠道</td><td>—</td></tr>
+        <tr><td>商品类别</td><td>C</td><td>充电宝/蓝牙耳机/手机壳/数据线</td><td>—</td></tr>
+        <tr><td>展现次数</td><td>D</td><td>广告展示次数</td><td>—</td></tr>
+        <tr><td>点击次数</td><td>E</td><td>广告点击次数</td><td style="color:#c62828;">⚠️ 部分记录为0</td></tr>
+        <tr><td>访客数（UV）</td><td>F</td><td>独立访客数</td><td style="color:#c62828;">⚠️ 部分记录为0</td></tr>
+        <tr><td>成交订单数</td><td>G</td><td>带来的订单数量</td><td>—</td></tr>
+        <tr><td>推广花费（元）</td><td>H</td><td>投放费用</td><td>自然搜索为0</td></tr>
+        <tr><td>带来销售额（元）</td><td>I</td><td>该推广带来的成交额</td><td>—</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list orange">
+        <li>将数据粘贴到"数据（巩固）"Sheet，在 J-N 列建立5个指标列（含 IFERROR 保护）。</li>
+        <li>完成计算后，用 AVERAGEIF 建立"渠道对比汇总区"（在 Sheet 右侧空白区域），汇总各渠道5个指标的平均值。</li>
+        <li>在汇总区旁边新增"排名"说明列，用文字标注每个指标中哪个渠道排第一（忽略自然搜索的ROI/PPC）。</li>
+        <li>
+          完成下方<strong>双维度分析</strong>：
+          <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+            <li>按渠道汇总各指标均值（横向对比渠道效率）</li>
+            <li>按商品类别汇总转化率和ROI均值（找出哪类商品最适合付费推广）</li>
+          </ul>
+        </li>
+        <li>根据分析结果，写出至少 <strong>2 条</strong>渠道优化建议（填入下方建议表）。</li>
+      </ol>
+
+      <div class="section-title">📝 渠道综合指标汇总表（用 AVERAGEIF 填写）</div>
+      <table class="record-table orange">
+        <tr>
+          <th>推广渠道</th>
+          <th>记录数</th>
+          <th>平均转化率</th>
+          <th>平均ROI</th>
+          <th>平均UV价值（元）</th>
+          <th>平均PPC（元）</th>
+          <th>平均点击率</th>
+        </tr>
+        <tr><td>直通车</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>超级推荐</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>直播带货</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>自然搜索</td><td></td><td></td><td style="color:#888;">—</td><td></td><td style="color:#888;">—</td><td></td></tr>
+      </table>
+
+      <div class="section-title">📝 商品类别×转化率/ROI 分析（AVERAGEIFS 双条件）</div>
+      <table class="record-table orange">
+        <tr>
+          <th>商品类别</th>
+          <th>付费渠道平均转化率</th>
+          <th>付费渠道平均ROI</th>
+          <th>是否值得加大付费推广</th>
+        </tr>
+        <tr><td>充电宝</td><td></td><td></td><td></td></tr>
+        <tr><td>蓝牙耳机</td><td></td><td></td><td></td></tr>
+        <tr><td>手机壳</td><td></td><td></td><td></td></tr>
+        <tr><td>数据线</td><td></td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">💬 渠道优化建议（在 Excel 中填写）</div>
+      <table class="record-table orange">
+        <tr><th>编号</th><th>发现的问题（引用数据）</th><th>优化建议</th></tr>
+        <tr><td>建议一</td><td></td><td></td></tr>
+        <tr><td>建议二</td><td></td><td></td></tr>
+        <tr><td>建议三（选做）</td><td></td><td></td></tr>
+      </table>
+
+      <div class="tip-box orange">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>AVERAGEIFS 双条件示例</strong>（付费渠道+充电宝的平均转化率）：
+            <br><code>=AVERAGEIFS(J$2:J$31, $B$2:$B$31, "&lt;&gt;自然搜索", $C$2:$C$31, "充电宝")</code>
+            <br>第一条件排除自然搜索（无花费），第二条件指定商品类别。</li>
+          <li><strong>排名说明</strong>：不要求精确数值排名，用文字"ROI最高""PPC最低"等标注即可。</li>
+          <li><strong>是否值得加大付费推广的判断标准参考</strong>：ROI &gt; 3 且转化率高于各类别均值，一般可认为值得加大投入。</li>
+          <li>部分记录访客数/点击次数为0，对应指标显示"--"，AVERAGEIF 会自动跳过，不影响均值。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LEVEL 3 -->
+  <div class="level-block">
+    <div class="level-header hard">
+      <span class="level-badge">LEVEL 3</span>
+      <h2>进阶练习</h2>
+      <span class="level-desc">适合：综合运用阶段 · 35条历史推广数据（含3个月） · 月度趋势+最优投放时段+策略报告</span>
+    </div>
+    <div class="level-body">
+
+      <div class="download-bar">
+        <div class="dl-info">
+          📊 数据说明：<strong>35条历史推广数据（横跨3个月）</strong>｜含月份字段｜
+          计算指标→按月汇总趋势→找最优投放时段→写投放策略报告
+        </div>
+        <button class="btn-download" onclick="downloadCSV('hard')">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          下载 CSV 数据
+        </button>
+      </div>
+
+      <div class="section-title">📌 数据字段说明</div>
+      <table>
+        <tr><th>字段名</th><th>列</th><th>说明</th></tr>
+        <tr><td>记录编号</td><td>A</td><td>唯一编号</td></tr>
+        <tr><td>月份</td><td>B</td><td>1月/2月/3月</td></tr>
+        <tr><td>推广渠道</td><td>C</td><td>直通车/超级推荐/直播带货/自然搜索</td></tr>
+        <tr><td>商品类别</td><td>D</td><td>充电宝/蓝牙耳机/手机壳/数据线/磁吸充电器</td></tr>
+        <tr><td>展现次数</td><td>E</td><td>广告展示次数</td></tr>
+        <tr><td>点击次数</td><td>F</td><td>广告点击次数</td></tr>
+        <tr><td>访客数（UV）</td><td>G</td><td>独立访客数</td></tr>
+        <tr><td>成交订单数</td><td>H</td><td>带来的订单数量</td></tr>
+        <tr><td>推广花费（元）</td><td>I</td><td>投放费用</td></tr>
+        <tr><td>带来销售额（元）</td><td>J</td><td>该推广带来的成交额</td></tr>
+      </table>
+
+      <div class="section-title">✅ 任务要求</div>
+      <ol class="task-list red">
+        <li>将数据粘贴到"数据（进阶）"Sheet，在 K-O 列建立5个指标列（全部含 IFERROR）。</li>
+        <li>
+          <strong>月度趋势分析</strong>：新建"月度分析"Sheet，用 AVERAGEIFS 建立：
+          <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+            <li>月度ROI趋势表：行=月份，列=各渠道，值=该月该渠道的平均ROI</li>
+            <li>月度转化率趋势表：结构相同，值改为平均转化率</li>
+          </ul>
+        </li>
+        <li>
+          <strong>最优投放时段识别</strong>：综合考虑 ROI 和转化率，找出：
+          <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+            <li>哪个月份 × 哪个渠道的组合效率最高？</li>
+            <li>是否有某个渠道在某月表现异常好或差？</li>
+          </ul>
+        </li>
+        <li>
+          <strong>撰写投放策略报告</strong>：在"月度分析"Sheet 底部按以下结构填写：
+          <ul style="padding-left:20px;margin-top:6px;font-size:13.5px;">
+            <li>① 月度ROI趋势总结（哪月最好/最差，趋势上升还是下降）</li>
+            <li>② 月度转化率趋势总结</li>
+            <li>③ 最优渠道×月份组合推荐（须引用数据）</li>
+            <li>④ 下季度预算分配建议（须说明理由）</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="section-title">📝 月度ROI趋势表（用 AVERAGEIFS 填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>月份 \ 渠道</th>
+          <th>直通车 ROI</th>
+          <th>超级推荐 ROI</th>
+          <th>直播带货 ROI</th>
+          <th>自然搜索 ROI</th>
+          <th>当月综合ROI<br><small>（付费渠道均值）</small></th>
+        </tr>
+        <tr><td>1月</td><td></td><td></td><td></td><td style="color:#888;">—</td><td></td></tr>
+        <tr><td>2月</td><td></td><td></td><td></td><td style="color:#888;">—</td><td></td></tr>
+        <tr><td>3月</td><td></td><td></td><td></td><td style="color:#888;">—</td><td></td></tr>
+        <tr>
+          <td><strong>环比变化（3月 vs 2月）</strong></td>
+          <td colspan="5" style="font-size:12px;color:#888;">
+            填写：↑上升 / ↓下降 / →持平（可计算增幅 %，也可文字描述）
+          </td>
+        </tr>
+      </table>
+
+      <div class="section-title">📝 月度转化率趋势表（用 AVERAGEIFS 填写）</div>
+      <table class="record-table red">
+        <tr>
+          <th>月份 \ 渠道</th>
+          <th>直通车 CVR</th>
+          <th>超级推荐 CVR</th>
+          <th>直播带货 CVR</th>
+          <th>自然搜索 CVR</th>
+        </tr>
+        <tr><td>1月</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>2月</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>3月</td><td></td><td></td><td></td><td></td></tr>
+      </table>
+
+      <div class="section-title">📝 投放策略报告（在 Excel 中填写，须引用具体数字）</div>
+      <table class="record-table red">
+        <tr><th>报告项目</th><th>内容（须引用具体数字）</th></tr>
+        <tr><td>① 月度ROI趋势总结</td><td></td></tr>
+        <tr><td>② 月度转化率趋势总结</td><td></td></tr>
+        <tr><td>③ 最优渠道×月份组合推荐</td><td></td></tr>
+        <tr><td>④ 下季度预算分配建议</td><td></td></tr>
+      </table>
+
+      <div class="tip-box red">
+        <div class="tip-title">💡 操作提示</div>
+        <ul>
+          <li><strong>月度渠道ROI的AVERAGEIFS公式示例</strong>（1月直通车平均ROI）：
+            <br><code>=AVERAGEIFS(K$2:K$36, $B$2:$B$36, "1月", $C$2:$C$36, "直通车")</code></li>
+          <li><strong>当月综合ROI</strong>（该月所有付费渠道）：
+            <br><code>=AVERAGEIFS(K$2:K$36, $B$2:$B$36, "1月", $C$2:$C$36, "&lt;&gt;自然搜索")</code></li>
+          <li><strong>环比变化的判断参考</strong>：增幅 &gt;10% 为"↑上升"；&lt;-10% 为"↓下降"；其余为"→持平"。</li>
+          <li><strong>策略报告不要求长篇大论</strong>，每条 2-3 句话，重点是数据有依据、建议可执行。</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    数据分析基础 · 模块三 · 3.4.2 转化率·UV价值·ROI·PPC·点击率 · 任务书<br>
+    数据均为教学用途虚构数据，情景来源于星途电商有限公司教学案例
+  </footer>
+
+</div>
+
+<script>
+const CSV_DATA = {
+
+basic: `记录编号,推广渠道,展现次数,点击次数,访客数（UV）,成交订单数,推广花费（元）,带来销售额（元）
+ADV-001,直通车,8500,380,320,14,85.00,420.00
+ADV-002,超级推荐,6200,290,248,8,120.00,680.00
+ADV-003,直播带货,15000,520,460,12,200.00,1580.00
+ADV-004,自然搜索,3200,180,160,6,0.00,210.00
+ADV-005,直通车,7800,310,265,6,95.00,510.00
+ADV-006,超级推荐,5800,260,220,8,180.00,990.00
+ADV-007,直播带货,12000,480,420,24,150.00,720.00
+ADV-008,自然搜索,2800,150,130,4,0.00,330.00
+ADV-009,直通车,4200,220,190,14,60.00,280.00
+ADV-010,超级推荐,5500,240,205,13,70.00,380.00
+ADV-011,直播带货,18000,560,490,14,220.00,1250.00
+ADV-012,自然搜索,4500,200,178,5,0.00,580.00
+ADV-013,直通车,7200,350,298,7,160.00,850.00
+ADV-014,超级推荐,3800,190,162,13,55.00,260.00
+ADV-015,直播带货,14000,420,368,30,130.00,590.00
+ADV-016,自然搜索,2800,130,115,6,0.00,180.00
+ADV-017,直通车,6500,300,256,7,110.00,560.00
+ADV-018,超级推荐,6200,270,231,9,140.00,750.00
+ADV-019,直播带货,16000,580,508,14,250.00,1820.00
+ADV-020,自然搜索,2400,110,98,8,0.00,160.00
+ADV-021,直通车,7800,350,298,13,75.00,390.00
+ADV-022,超级推荐,5200,280,239,7,165.00,920.00
+ADV-023,直播带货,17000,500,438,13,190.00,1100.00
+ADV-024,自然搜索,3100,140,124,4,0.00,290.00
+ADV-025,直通车,4200,200,170,12,50.00,240.00`,
+
+medium: `记录编号,推广渠道,商品类别,展现次数,点击次数,访客数（UV）,成交订单数,推广花费（元）,带来销售额（元）
+ADV-101,直通车,数据线,8500,380,320,14,85.00,420.00
+ADV-102,超级推荐,充电宝,6200,290,248,8,120.00,680.00
+ADV-103,直播带货,蓝牙耳机,15000,520,460,12,200.00,1580.00
+ADV-104,自然搜索,手机壳,3200,180,160,6,0.00,210.00
+ADV-105,直通车,充电宝,7800,310,265,6,95.00,510.00
+ADV-106,超级推荐,蓝牙耳机,5800,260,220,8,180.00,990.00
+ADV-107,直播带货,数据线,12000,480,420,24,150.00,720.00
+ADV-108,自然搜索,充电宝,2800,0,0,0,0.00,330.00
+ADV-109,直通车,手机壳,4200,220,190,14,60.00,280.00
+ADV-110,超级推荐,数据线,5500,240,205,13,70.00,380.00
+ADV-111,直播带货,充电宝,18000,560,490,14,220.00,1250.00
+ADV-112,自然搜索,蓝牙耳机,4500,200,178,5,0.00,580.00
+ADV-113,直通车,蓝牙耳机,7200,350,298,7,160.00,850.00
+ADV-114,超级推荐,手机壳,3800,190,162,13,55.00,260.00
+ADV-115,直播带货,手机壳,14000,420,368,30,130.00,590.00
+ADV-116,自然搜索,数据线,2800,130,0,0,0.00,180.00
+ADV-117,直通车,充电宝,6500,300,256,7,110.00,560.00
+ADV-118,超级推荐,充电宝,6200,270,231,9,140.00,750.00
+ADV-119,直播带货,蓝牙耳机,16000,580,508,14,250.00,1820.00
+ADV-120,自然搜索,手机壳,2400,110,98,8,0.00,160.00
+ADV-121,直通车,数据线,7800,350,298,13,75.00,390.00
+ADV-122,超级推荐,蓝牙耳机,5200,280,239,7,165.00,920.00
+ADV-123,直播带货,充电宝,17000,500,438,13,190.00,1100.00
+ADV-124,自然搜索,充电宝,3100,140,124,4,0.00,290.00
+ADV-125,直通车,手机壳,4200,200,170,12,50.00,240.00
+ADV-126,超级推荐,数据线,4600,230,196,14,80.00,410.00
+ADV-127,直播带货,手机壳,15500,460,403,32,145.00,640.00
+ADV-128,自然搜索,蓝牙耳机,4200,190,0,0,0.00,520.00
+ADV-129,直通车,蓝牙耳机,7500,370,315,7,175.00,920.00
+ADV-130,超级推荐,手机壳,4000,210,179,15,65.00,300.00`,
+
+hard: `记录编号,月份,推广渠道,商品类别,展现次数,点击次数,访客数（UV）,成交订单数,推广花费（元）,带来销售额（元）
+ADV-201,1月,直通车,数据线,8200,360,305,12,82.00,390.00
+ADV-202,1月,超级推荐,充电宝,5900,275,234,7,115.00,640.00
+ADV-203,1月,直播带货,蓝牙耳机,14200,490,432,10,188.00,1420.00
+ADV-204,1月,自然搜索,手机壳,3100,170,152,5,0.00,195.00
+ADV-205,1月,直通车,充电宝,7500,295,251,5,90.00,480.00
+ADV-206,1月,超级推荐,蓝牙耳机,5600,248,211,7,172.00,940.00
+ADV-207,1月,直播带货,数据线,11500,455,400,22,142.00,680.00
+ADV-208,1月,自然搜索,充电宝,2700,142,124,3,0.00,310.00
+ADV-209,2月,直通车,数据线,8500,375,318,13,85.00,420.00
+ADV-210,2月,超级推荐,充电宝,6100,282,240,8,118.00,660.00
+ADV-211,2月,直播带货,蓝牙耳机,15500,510,450,13,195.00,1620.00
+ADV-212,2月,自然搜索,手机壳,3300,182,163,6,0.00,220.00
+ADV-213,2月,直通车,充电宝,7900,308,262,6,93.00,520.00
+ADV-214,2月,超级推荐,蓝牙耳机,5900,255,217,8,176.00,975.00
+ADV-215,2月,直播带货,数据线,12200,472,415,25,148.00,710.00
+ADV-216,2月,自然搜索,充电宝,2850,148,132,4,0.00,340.00
+ADV-217,2月,直通车,磁吸充电器,5800,265,225,9,75.00,380.00
+ADV-218,2月,超级推荐,手机壳,3900,192,163,14,57.00,272.00
+ADV-219,3月,直通车,数据线,9200,408,346,16,92.00,480.00
+ADV-220,3月,超级推荐,充电宝,6800,318,270,10,128.00,740.00
+ADV-221,3月,直播带货,蓝牙耳机,17200,568,500,16,218.00,1860.00
+ADV-222,3月,自然搜索,手机壳,3600,198,177,7,0.00,248.00
+ADV-223,3月,直通车,充电宝,8500,335,285,8,102.00,580.00
+ADV-224,3月,超级推荐,蓝牙耳机,6400,278,237,9,190.00,1060.00
+ADV-225,3月,直播带货,数据线,13500,518,455,28,162.00,785.00
+ADV-226,3月,自然搜索,充电宝,3200,162,145,5,0.00,380.00
+ADV-227,3月,直通车,磁吸充电器,6500,298,253,11,85.00,440.00
+ADV-228,3月,超级推荐,手机壳,4200,205,174,16,62.00,295.00
+ADV-229,3月,直播带货,充电宝,16800,545,480,18,208.00,1380.00
+ADV-230,3月,自然搜索,蓝牙耳机,4800,215,192,6,0.00,620.00
+ADV-231,3月,直通车,蓝牙耳机,8200,385,328,8,182.00,980.00
+ADV-232,3月,超级推荐,数据线,5000,252,214,15,88.00,450.00
+ADV-233,3月,直播带货,手机壳,16200,488,430,35,158.00,680.00
+ADV-234,3月,直通车,手机壳,4600,218,185,14,55.00,265.00
+ADV-235,3月,超级推荐,磁吸充电器,3800,185,157,8,72.00,320.00`
+};
+
+function downloadCSV(level) {
+  const nameMap = { basic: '基础_推广数据', medium: '巩固_推广数据', hard: '进阶_历史推广数据' };
+  const filename = `3.4.2_转化率UV价值ROI_${nameMap[level]}.csv`;
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + CSV_DATA[level]], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
