@@ -785,7 +785,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
     <div class="card-head"><div class="ch-icon">📝</div><div class="ch-title">练习二 · 选择题</div><div class="ch-sub">每题 +8 XP</div></div>
     <div class="card-body">
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q1">
         <div class="quiz-q">1. 以下哪种情况属于"逻辑错误"？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q1',0,1,'商品名称为空属于缺失值，不是逻辑错误。')">A. 商品名称为空</button>
@@ -796,7 +796,7 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
         <div class="quiz-fb" id="q1-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q2">
         <div class="quiz-q">2. 某单元格中的订单号显示为 5.69835E+17，需要将其转换为完整显示。应将数据类型转换为？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q2',0,1,'转换为数值仍然可能以科学计数法显示，且可能丢失精度。订单号等长数字应转为文本格式。')">A. 数值</button>
@@ -807,24 +807,24 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
         <div class="quiz-fb" id="q2-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q3">
         <div class="quiz-q">3. 要从 A1="广东省深圳市南山区" 中提取"深圳市"（3个字，从第4个字符开始），应使用哪个公式？</div>
         <div class="quiz-opts">
-          <button class="qopt" onclick="ansQ('q3',0,1,'LEFT(A1,3) 会提取最左边3个字，结果是"广东省"，不是"深圳市"。')">A. =LEFT(A1,3)</button>
-          <button class="qopt" onclick="ansQ('q3',1,1,'✅ 正确！MID(A1,4,3) 表示从第4个字符（"深"）开始，提取3个字符，结果是"深圳市"。"广东省"占了前3个字符，所以深圳市从第4个字符开始。')">B. =MID(A1,4,3)</button>
-          <button class="qopt" onclick="ansQ('q3',2,1,'RIGHT(A1,3) 会提取最右边3个字，结果是"南山区"，不是"深圳市"。')">C. =RIGHT(A1,3)</button>
-          <button class="qopt" onclick="ansQ('q3',3,1,'MID(A1,3,3) 从第3个字符（"省"）开始提取3个字，结果是"省深圳"，不正确。')">D. =MID(A1,3,3)</button>
+          <button class="qopt" onclick="ansQ('q3',0,1,'LEFT(A1,3) 会提取最左边3个字，结果是&quot;广东省&quot;，不是&quot;深圳市&quot;。')">A. =LEFT(A1,3)</button>
+          <button class="qopt" onclick="ansQ('q3',1,1,'✅ 正确！MID(A1,4,3) 表示从第4个字符（&quot;深&quot;）开始，提取3个字符，结果是&quot;深圳市&quot;。&quot;广东省&quot;占了前3个字符，所以深圳市从第4个字符开始。')">B. =MID(A1,4,3)</button>
+          <button class="qopt" onclick="ansQ('q3',2,1,'RIGHT(A1,3) 会提取最右边3个字，结果是&quot;南山区&quot;，不是&quot;深圳市&quot;。')">C. =RIGHT(A1,3)</button>
+          <button class="qopt" onclick="ansQ('q3',3,1,'MID(A1,3,3) 从第3个字符（&quot;省&quot;）开始提取3个字，结果是&quot;省深圳&quot;，不正确。')">D. =MID(A1,3,3)</button>
         </div>
         <div class="quiz-fb" id="q3-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q4">
         <div class="quiz-q">4. 某运营人员排序后发现数据错位——商品名和销售额对不上了。他最可能犯了什么错误？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q4',0,3,'降序方向本身没有问题，不会造成数据错位。')">A. 选择了升序而不是降序</button>
           <button class="qopt" onclick="ansQ('q4',1,3,'先做筛选不会导致排序后数据错位。')">B. 排序前没有先做筛选</button>
           <button class="qopt" onclick="ansQ('q4',2,3,'定位空值是查找缺失数据的操作，和排序错位无关。')">C. 排序前没有定位空值</button>
-          <button class="qopt" onclick="ansQ('q4',3,3,'✅ 正确！选择"以当前选定区域排序"时，Excel 只移动那一列的数据，其他列保持不变，导致各行数据错位混乱。正确做法是选择"扩展选定区域"，让整行数据一起移动。')">D. 排序时选择了"以当前选定区域排序"而不是"扩展选定区域"</button>
+          <button class="qopt" onclick="ansQ('q4',3,3,'✅ 正确！选择&quot;以当前选定区域排序&quot;时，Excel 只移动那一列的数据，其他列保持不变，导致各行数据错位混乱。正确做法是选择&quot;扩展选定区域&quot;，让整行数据一起移动。')">D. 排序时选择了"以当前选定区域排序"而不是"扩展选定区域"</button>
         </div>
         <div class="quiz-fb" id="q4-fb"></div>
       </div>
