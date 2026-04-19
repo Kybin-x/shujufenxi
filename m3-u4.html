@@ -811,29 +811,29 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
   <div class="card">
     <div class="card-head"><div class="ch-icon">📝</div><div class="ch-title">练习四 · 选择题</div><div class="ch-sub">每题 +8 XP</div></div>
     <div class="card-body">
-      <div class="quiz-box">
+      <div class="quiz-box" id="q1">
         <div class="quiz-q">1. DATEDIF(C2,D2,"M") 中，代码 "M" 表示计算两个日期相差的什么？</div>
         <div class="quiz-opts">
-          <button class="qopt" onclick="ansQ('q1',0,2,'"Y" 代码表示相差的完整年数，不是"M"。')">A. 年数</button>
-          <button class="qopt" onclick="ansQ('q1',1,2,'"D" 代码表示相差的总天数，不是"M"。')">B. 天数</button>
-          <button class="qopt" onclick="ansQ('q1',2,2,'✅ 正确！"M" 代码表示计算两个日期相差的完整月数。"Y"=年，"M"=月，"D"=天，记住这三个最常用的代码。')">C. 月数</button>
-          <button class="qopt" onclick="ansQ('q1',3,2,'"YM" 才是不足一年的月份差，"M"是总月数。')">D. 不足一年的月份差</button>
+          <button class="qopt" onclick="ansQ('q1',0,2,'&quot;Y&quot; 代码表示相差的完整年数，不是&quot;M&quot;。')">A. 年数</button>
+          <button class="qopt" onclick="ansQ('q1',1,2,'&quot;D&quot; 代码表示相差的总天数，不是&quot;M&quot;。')">B. 天数</button>
+          <button class="qopt" onclick="ansQ('q1',2,2,'✅ 正确！&quot;M&quot; 代码表示计算两个日期相差的完整月数。&quot;Y&quot;=年，&quot;M&quot;=月，&quot;D&quot;=天，记住这三个最常用的代码。')">C. 月数</button>
+          <button class="qopt" onclick="ansQ('q1',3,2,'&quot;YM&quot; 才是不足一年的月份差，&quot;M&quot;是总月数。')">D. 不足一年的月份差</button>
         </div>
         <div class="quiz-fb" id="q1-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q2">
         <div class="quiz-q">2. 在公式 =SUMPRODUCT(B2:E2,I$2:L$2) 中，权重区域用了 I$2:L$2 而不是 I2:L2，原因是？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q2',0,2,'$符号不是为了让计算更快，而是固定行号的引用方式。')">A. 使用 $ 可以让公式计算更快</button>
           <button class="qopt" onclick="ansQ('q2',1,2,'$ 符号在行号前面是锁住行，不是列。I$2 表示I列可变但第2行被锁住。')">B. $ 可以锁住列号，避免列移动</button>
-          <button class="qopt" onclick="ansQ('q2',2,2,'✅ 正确！$ 放在行号前面叫"绝对引用行"。当向下拖动填充柄计算其他渠道时，权重的行号始终固定为第2行，不会随着拖动变成第3行、第4行，确保每次都引用正确的权重。')">C. 向下拖动填充柄时，权重的行号始终固定为第2行不变</button>
+          <button class="qopt" onclick="ansQ('q2',2,2,'✅ 正确！$ 放在行号前面叫&quot;绝对引用行&quot;。当向下拖动填充柄计算其他渠道时，权重的行号始终固定为第2行，不会随着拖动变成第3行、第4行，确保每次都引用正确的权重。')">C. 向下拖动填充柄时，权重的行号始终固定为第2行不变</button>
           <button class="qopt" onclick="ansQ('q2',3,2,'$符号不是防止报错的，IFERROR才是用来处理错误的函数。')">D. 防止公式计算出错报 #VALUE!</button>
         </div>
         <div class="quiz-fb" id="q2-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q3">
         <div class="quiz-q">3. 某推广计划：展现次数10万次，点击次数2000次，推广花费1000元，成交5000元。请问ROI是多少？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q3',0,2,'2是点击率（2000÷100000=2%），不是ROI。ROI=成交额÷推广费。')">A. 2</button>
@@ -844,12 +844,12 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
         <div class="quiz-fb" id="q3-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q4">
         <div class="quiz-q">4. 以下哪个描述最准确地说明了 SUMPRODUCT 函数的作用？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q4',0,2,'SUM是对一组数求和，SUMPRODUCT是先对应相乘再求和，功能不一样。')">A. 对一组数据中的所有数字求和</button>
           <button class="qopt" onclick="ansQ('q4',1,2,'SUMIF是按条件求和，SUMPRODUCT是加权计算，功能不同。')">B. 按条件对数据中满足条件的数字求和</button>
-          <button class="qopt" onclick="ansQ('q4',2,2,'✅ 正确！SUMPRODUCT = 先把两组数据"对应相乘"（第一个乘第一个，第二个乘第二个……），再把所有乘积"加起来"。这正是加权计算的核心步骤。')">C. 将两组数据对应相乘后，再把所有乘积加起来</button>
+          <button class="qopt" onclick="ansQ('q4',2,2,'✅ 正确！SUMPRODUCT = 先把两组数据&quot;对应相乘&quot;（第一个乘第一个，第二个乘第二个……），再把所有乘积&quot;加起来&quot;。这正是加权计算的核心步骤。')">C. 将两组数据对应相乘后，再把所有乘积加起来</button>
           <button class="qopt" onclick="ansQ('q4',3,2,'AVERAGE是求平均值，SUMPRODUCT不是求平均值。')">D. 计算一组数据的平均值</button>
         </div>
         <div class="quiz-fb" id="q4-fb"></div>
