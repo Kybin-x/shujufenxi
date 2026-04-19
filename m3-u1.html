@@ -608,25 +608,25 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
   </div>
 
   <!-- 选择题 -->
-  <div class="card">
+ <div class="card">
     <div class="card-head"><div class="ch-icon">📝</div><div class="ch-title">练习三 · 选择题</div><div class="ch-sub">每题 +8 XP</div></div>
     <div class="card-body">
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q1">
         <div class="quiz-q">1. 以下哪项最准确地描述了数据分类与处理在数据分析流程中的位置？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q1',0,2,'数据采集是第一步，数据分析是第三步，数据分类与处理是连接两者的关键中间环节。')">A. 数据分类与处理是数据分析的最后一步</button>
           <button class="qopt" onclick="ansQ('q1',1,2,'数据采集是第一步，数据分析是第三步，数据分类与处理是连接两者的关键中间环节。')">B. 数据分类与处理和数据采集是同一回事</button>
-          <button class="qopt" onclick="ansQ('q1',2,2,'✅ 正确！数据分类与处理处于"数据采集"之后、"数据分析"之前，起承前启后的关键作用。')">C. 数据分类与处理在数据采集之后、数据分析之前</button>
+          <button class="qopt" onclick="ansQ('q1',2,2,'✅ 正确！数据分类与处理处于&quot;数据采集&quot;之后、&quot;数据分析&quot;之前，起承前启后的关键作用。')">C. 数据分类与处理在数据采集之后、数据分析之前</button>
           <button class="qopt" onclick="ansQ('q1',3,2,'数据分类与处理是数据分析前的必要准备，不是最后一步，也不是可以跳过的环节。')">D. 数据分类与处理可以跳过，直接分析原始数据</button>
         </div>
         <div class="quiz-fb" id="q1-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q2">
         <div class="quiz-q">2. 某运营人员统计月度销售额时，为了让数据好看，故意将退款订单也计入销售额。这违反了哪项原则？</div>
         <div class="quiz-opts">
-          <button class="qopt" onclick="ansQ('q2',0,0,'✅ 正确！客观性原则要求数据处理结果真实反映实际情况，不能为了让数据"好看"而人为修改。')">A. 客观性原则</button>
+          <button class="qopt" onclick="ansQ('q2',0,0,'✅ 正确！客观性原则要求数据处理结果真实反映实际情况，不能为了让数据&quot;好看&quot;而人为修改。')">A. 客观性原则</button>
           <button class="qopt" onclick="ansQ('q2',1,0,'完整性原则指的是数据不缺不漏、字段齐全，此案例违反的是不篡改数据的客观性要求。')">B. 完整性原则</button>
           <button class="qopt" onclick="ansQ('q2',2,0,'严谨性原则指的是细心操作、减少出错，此案例是故意修改，违反的是客观性原则。')">C. 严谨性原则</button>
           <button class="qopt" onclick="ansQ('q2',3,0,'便捷性原则指的是处理结果方便后续调用，此案例违反的是客观性原则。')">D. 便捷性原则</button>
@@ -634,18 +634,18 @@ body{font-family:"Noto Sans SC","PingFang SC",sans-serif;background:var(--bg);co
         <div class="quiz-fb" id="q2-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q3">
         <div class="quiz-q">3. 小林发现数据中有一列"单价"字段，有些行写的是数字，有些行写的是汉字"三十五"，她需要用哪种方法来处理？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q3',0,1,'数据清洗主要处理缺失值、重复值等问题。汉字变成数字属于格式转换，用数据转化更合适。')">A. 数据清洗</button>
-          <button class="qopt" onclick="ansQ('q3',1,1,'✅ 正确！将汉字"三十五"统一转换为数字格式35，属于将数据格式/结构进行转换的"数据转化"方法。')">B. 数据转化</button>
+          <button class="qopt" onclick="ansQ('q3',1,1,'✅ 正确！将汉字&quot;三十五&quot;统一转换为数字格式35，属于将数据格式/结构进行转换的&quot;数据转化&quot;方法。')">B. 数据转化</button>
           <button class="qopt" onclick="ansQ('q3',2,1,'数据排序是对数据进行大小排列，不能解决格式不统一的问题。')">C. 数据排序</button>
           <button class="qopt" onclick="ansQ('q3',3,1,'分类统计是汇总统计，不能解决格式转换问题。')">D. 分类统计</button>
         </div>
         <div class="quiz-fb" id="q3-fb"></div>
       </div>
 
-      <div class="quiz-box">
+      <div class="quiz-box" id="q4">
         <div class="quiz-q">4. 数据分类与处理通常占整个数据分析工作量的多少比例，提醒我们必须保持严谨性？</div>
         <div class="quiz-opts">
           <button class="qopt" onclick="ansQ('q4',0,2,'实际占比远高于10%-20%，数据清洗是最耗时耗力的环节。')">A. 10%~20%</button>
