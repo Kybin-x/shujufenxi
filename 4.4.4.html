@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>其他分析方法 · 电子商务数据分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00b4a0;
+            --primary-dark: #007a6e;
+            --secondary: #ff6b6b;
+            --accent: #ffd93d;
+            --purple: #6c5ce7;
+            --orange: #fd9644;
+            --dark: #2d3436;
+            --light-bg: #f0fafa;
+            --text: #333;
+            --text-light: #666;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f9f7 0%, #f5f5f5 50%, #eef4ff 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ===== 导航 ===== */
+        .top-nav {
+            background: linear-gradient(135deg, #005f56, #00b4a0);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 180, 160, 0.35);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        .nav-logo {
+            color: #fff;
+            font-size: 17px;
+            font-weight: bold;
+            padding: 14px 0;
+            margin-right: 20px;
+            white-space: nowrap;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 14px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            color: #fff;
+            border-bottom: 3px solid #ffd93d;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== 英雄区 ===== */
+        .hero {
+            background: linear-gradient(135deg, #005f56 0%, #00b4a0 60%, #26d0ce 100%);
+            color: #fff;
+            padding: 44px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255, 255, 255, 0.03) 40px, rgba(255, 255, 255, 0.03) 80px);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 640px;
+            margin: 0 auto 28px;
+            line-height: 1.8;
+        }
+
+        .hero-methods {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-method {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            padding: 10px 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .hero-method:hover {
+            background: rgba(255, 255, 255, 0.32);
+            transform: translateY(-3px);
+        }
+
+        .hero-method .m-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* ===== 主内容 ===== */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 16px;
+        }
+
+        /* ===== 进度 ===== */
+        .progress-bar-wrap {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 9px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007a6e, #00b4a0, #26d0ce);
+            border-radius: 10px;
+            width: 5%;
+            transition: width 1.2s ease;
+        }
+
+        /* ===== 区块头 ===== */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            margin-top: 44px;
+        }
+
+        .section-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0, 180, 160, 0.35);
+        }
+
+        .si-green {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+        }
+
+        .si-orange {
+            background: linear-gradient(135deg, #e67e22, #fd9644);
+        }
+
+        .si-purple {
+            background: linear-gradient(135deg, #5f27cd, #6c5ce7);
+        }
+
+        .si-red {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+        }
+
+        .si-blue {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+        }
+
+        .si-teal {
+            background: linear-gradient(135deg, #00838f, #26c6da);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .section-title span {
+            color: var(--primary);
+        }
+
+        .section-sub {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 18px;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #f0fafa, #e8f9f7);
+            border: 2px solid #b2e8e2;
+            border-radius: var(--radius);
+            padding: 26px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .concept-card::before {
+            content: '"';
+            position: absolute;
+            top: -15px;
+            left: 14px;
+            font-size: 100px;
+            color: rgba(0, 180, 160, 0.1);
+            font-family: serif;
+        }
+
+        .concept-card p {
+            font-size: 15px;
+            line-height: 2;
+            color: var(--text);
+            position: relative;
+            z-index: 1;
+        }
+
+        .concept-card .hl {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .tip-bubble {
+            background: linear-gradient(135deg, #5f27cd, #a29bfe);
+            color: #fff;
+            border-radius: 14px;
+            padding: 14px 20px;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+
+        .tip-bubble::before {
+            content: '💡 ';
+        }
+
+        /* ===== 步骤 ===== */
+        .step-item {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .sn-green {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+            box-shadow: 0 3px 10px rgba(0, 180, 160, 0.3);
+        }
+
+        .sn-orange {
+            background: linear-gradient(135deg, #e67e22, #fd9644);
+            box-shadow: 0 3px 10px rgba(253, 150, 68, 0.3);
+        }
+
+        .step-body {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 13px 16px;
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.75;
+            color: var(--text);
+        }
+
+        .step-body strong {
+            color: var(--primary-dark);
+        }
+
+        /* ===== 方法选项卡 ===== */
+        .method-tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 22px;
+            gap: 0;
+        }
+
+        .method-tab {
+            flex: 1;
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .method-tab.active {
+            background: #fff;
+            color: var(--primary-dark);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .method-content {
+            display: none;
+        }
+
+        .method-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 频数图类型卡片 ===== */
+        .chart-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .chart-type-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-top: 4px solid var(--primary);
+        }
+
+        .chart-type-card:nth-child(1) {
+            border-top-color: #00b4a0;
+        }
+
+        .chart-type-card:nth-child(2) {
+            border-top-color: #fd9644;
+        }
+
+        .chart-type-card:nth-child(3) {
+            border-top-color: #6c5ce7;
+        }
+
+        .chart-type-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+        }
+
+        .chart-type-card .ct-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .chart-type-card .ct-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .chart-type-card .ct-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ===== SVG频数图演示 ===== */
+        .svg-demo {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .svg-demo .demo-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 14px;
+        }
+
+        /* ===== 数据表 ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+            margin-bottom: 18px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+            color: #fff;
+            padding: 10px 14px;
+            text-align: center;
+        }
+
+        .data-table td {
+            padding: 9px 14px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table tr:hover td {
+            background: #f0fafa;
+        }
+
+        .data-table td.hl {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .data-table td.pos {
+            color: #00b894;
+            font-weight: bold;
+        }
+
+        /* ===== 公式盒子 ===== */
+        .formula-box {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+            border-radius: 14px;
+            padding: 22px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .formula-box.orange {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+        }
+
+        .formula-box.purple {
+            background: linear-gradient(135deg, #5f27cd, #6c5ce7);
+        }
+
+        .formula-box.blue {
+            background: linear-gradient(135deg, #1a6fb3, #3498db);
+        }
+
+        .formula-label {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-bottom: 8px;
+        }
+
+        .formula-main {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 例题 ===== */
+        .example-box {
+            background: linear-gradient(135deg, #fff9e0, #fff3cc);
+            border: 2px solid #ffd93d;
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .example-badge {
+            display: inline-block;
+            background: #ffd93d;
+            color: #5a4000;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .example-calc {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 12px;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        .example-calc .eq {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        /* ===== 分组类型卡片 ===== */
+        .group-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .group-type-card {
+            border-radius: var(--radius);
+            padding: 22px;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .group-type-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .gtc-1 {
+            background: linear-gradient(135deg, #e8f9f7, #d0f2ee);
+            border: 2px solid #00b4a0;
+        }
+
+        .gtc-2 {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 2px solid #fd9644;
+        }
+
+        .gtc-3 {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9);
+            border: 2px solid #6c5ce7;
+        }
+
+        .group-type-card .gt-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .group-type-card .gt-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .gtc-1 .gt-name {
+            color: #007a6e;
+        }
+
+        .gtc-2 .gt-name {
+            color: #c0690a;
+        }
+
+        .gtc-3 .gt-name {
+            color: #5f27cd;
+        }
+
+        .group-type-card .gt-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ===== 原则卡片 ===== */
+        .principle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .principle-card {
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .pc-green {
+            background: linear-gradient(135deg, #e8f9f7, #d0f2ee);
+            border-left: 5px solid #00b4a0;
+        }
+
+        .pc-orange {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 5px solid #fd9644;
+        }
+
+        .principle-card .pc-title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .pc-green .pc-title {
+            color: #007a6e;
+        }
+
+        .pc-orange .pc-title {
+            color: #c0690a;
+        }
+
+        .principle-card .pc-desc {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* ===== 组距计算器 ===== */
+        .calculator {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 26px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 18px;
+        }
+
+        .calc-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .calc-field label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .calc-field input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .calc-field input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 180, 160, 0.12);
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cb-green {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+            color: #fff;
+        }
+
+        .cb-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 180, 160, 0.4);
+        }
+
+        .cb-orange {
+            background: linear-gradient(135deg, #c0390a, #e74c3c);
+            color: #fff;
+        }
+
+        .cb-orange:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(231, 76, 60, 0.4);
+        }
+
+        .calc-result {
+            margin-top: 14px;
+            padding: 14px;
+            background: #f0fafa;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .calc-result.show {
+            display: block;
+        }
+
+        .result-big {
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-dark);
+        }
+
+        .result-tip {
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        /* ===== 漏斗图SVG ===== */
+        .funnel-container {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 18px;
+        }
+
+        .funnel-title {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .funnel-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .funnel-row:hover .funnel-bar {
+            filter: brightness(1.1);
+        }
+
+        .funnel-label {
+            width: 80px;
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: right;
+            padding-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .funnel-bar-wrap {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .funnel-bar {
+            height: 36px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .funnel-right {
+            width: 100px;
+            font-size: 12px;
+            color: var(--text-light);
+            padding-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .funnel-tooltip {
+            display: none;
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .funnel-bar:hover .funnel-tooltip {
+            display: block;
+        }
+
+        /* ===== 交叉表 ===== */
+        .cross-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .cross-table th {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+            color: #fff;
+            padding: 10px 14px;
+            text-align: center;
+        }
+
+        .cross-table td {
+            padding: 9px 14px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .cross-table tr:hover td {
+            background: #f0fafa;
+        }
+
+        .cross-table td.max-val {
+            background: #e8f9f7;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .cross-table td.min-val {
+            background: #fff5f5;
+            color: #e17055;
+            font-weight: bold;
+        }
+
+        .cross-table td.total-col {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .cross-table tr.total-row td {
+            background: #e8f9f7;
+            font-weight: bold;
+        }
+
+        /* ===== 平均数类型树 ===== */
+        .avg-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 16px;
+        }
+
+        .avg-root {
+            background: linear-gradient(135deg, #007a6e, #00b4a0);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 14px rgba(0, 180, 160, 0.3);
+        }
+
+        .avg-level1 {
+            display: flex;
+            gap: 40px;
+        }
+
+        .avg-branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avg-node {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .an-blue {
+            background: #e3f2fd;
+            color: #1a6fb3;
+            border: 2px solid #3498db;
+        }
+
+        .an-green {
+            background: #e8f9f7;
+            color: #007a6e;
+            border: 2px solid #00b4a0;
+        }
+
+        .an-orange {
+            background: #fff3e0;
+            color: #c0690a;
+            border: 2px solid #fd9644;
+        }
+
+        .an-purple {
+            background: #ede7f6;
+            color: #5f27cd;
+            border: 2px solid #6c5ce7;
+        }
+
+        .avg-children {
+            display: flex;
+            gap: 14px;
+        }
+
+        .avg-connector {
+            width: 2px;
+            height: 18px;
+            background: #ccc;
+        }
+
+        /* ===== 结构分析饼图 ===== */
+        .pie-demo {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 16px;
+        }
+
+        .pie-legend {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ===== 测验 ===== */
+        .quiz-section {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 26px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .quiz-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-q {
+            font-size: 15px;
+            color: var(--text);
+            margin-bottom: 16px;
+            line-height: 1.8;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .quiz-opt {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .quiz-opt:hover {
+            border-color: var(--primary);
+            background: #f0fafa;
+        }
+
+        .quiz-opt.correct {
+            border-color: #00b894;
+            background: #e8f8f5;
+            color: #00b894;
+        }
+
+        .quiz-opt.wrong {
+            border-color: #e17055;
+            background: #ffeee9;
+            color: #e17055;
+        }
+
+        .quiz-feedback {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+            line-height: 1.7;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .quiz-feedback.correct {
+            background: #e8f8f5;
+            color: #00b894;
+            border: 1px solid #00b894;
+        }
+
+        .quiz-feedback.wrong {
+            background: #ffeee9;
+            color: #e17055;
+            border: 1px solid #e17055;
+        }
+
+        /* ===== 漏斗计算器 ===== */
+        .funnel-calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        /* ===== 维度卡片 ===== */
+        .dim-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .dim-card {
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .dim-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .dc-1 {
+            background: linear-gradient(135deg, #e8f9f7, #d0f2ee);
+            border-left: 4px solid #00b4a0;
+        }
+
+        .dc-2 {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 4px solid #fd9644;
+        }
+
+        .dc-3 {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9);
+            border-left: 4px solid #6c5ce7;
+        }
+
+        .dc-4 {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 4px solid #3498db;
+        }
+
+        .dim-icon {
+            font-size: 30px;
+            flex-shrink: 0;
+        }
+
+        .dim-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .dc-1 .dim-title {
+            color: #007a6e;
+        }
+
+        .dc-2 .dim-title {
+            color: #c0690a;
+        }
+
+        .dc-3 .dim-title {
+            color: #5f27cd;
+        }
+
+        .dc-4 .dim-title {
+            color: #1a6fb3;
+        }
+
+        .dim-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ===== 滚动动画 ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== 响应式 ===== */
+        @media(max-width:768px) {
+            .hero h1 {
+                font-size: 26px;
+            }
+
+            .chart-type-grid,
+            .group-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .principle-grid,
+            .dim-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calc-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .quiz-options {
+                grid-template-columns: 1fr;
+            }
+
+            .avg-level1 {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        /* ===== 页脚 ===== */
+        .footer {
+            background: var(--dark);
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            padding: 22px;
+            font-size: 13px;
+            margin-top: 40px;
+        }
+
+        .footer span {
+            color: var(--primary);
+        }
+
+        /* ===== 知识地图 ===== */
+        .method-map {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .map-card {
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .map-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+        }
+
+        .mc-1 {
+            background: linear-gradient(135deg, #e8f9f7, #d0f2ee);
+            border: 2px solid #00b4a0;
+        }
+
+        .mc-2 {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 2px solid #fd9644;
+        }
+
+        .mc-3 {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #3498db;
+        }
+
+        .mc-4 {
+            background: linear-gradient(135deg, #ede7f6, #d1c4e9);
+            border: 2px solid #6c5ce7;
+        }
+
+        .mc-5 {
+            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+            border: 2px solid #e91e63;
+        }
+
+        .mc-6 {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+        }
+
+        .map-icon {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .map-name {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .mc-1 .map-name {
+            color: #007a6e;
+        }
+
+        .mc-2 .map-name {
+            color: #c0690a;
+        }
+
+        .mc-3 .map-name {
+            color: #1a6fb3;
+        }
+
+        .mc-4 .map-name {
+            color: #5f27cd;
+        }
+
+        .mc-5 .map-name {
+            color: #880e4f;
+        }
+
+        .mc-6 .map-name {
+            color: #1b5e20;
+        }
+
+        .map-sub {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 导航 -->
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📊 数据分析</div>
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="scrollTo(0,0)">首页</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-freq')">频数分析</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-group')">分组分析</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-struct')">结构分析</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-avg')">平均分析</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-cross')">交叉分析</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-funnel')">漏斗图</div>
+                <div class="nav-tab" onclick="scrollToSec('sec-quiz')">练习测验</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区 -->
+    <div class="hero">
+        <div class="hero-badge">模块四 · 单元四</div>
+        <h1>🔬 其他分析方法</h1>
+        <p>掌握六大数据分析利器，从频数到漏斗图<br>让你的数据分析能力全面升级！</p>
+        <div class="hero-methods">
+            <div class="hero-method" onclick="scrollToSec('sec-freq')"><span class="m-icon">📊</span>频数分析</div>
+            <div class="hero-method" onclick="scrollToSec('sec-group')"><span class="m-icon">🗂️</span>分组分析</div>
+            <div class="hero-method" onclick="scrollToSec('sec-struct')"><span class="m-icon">🥧</span>结构分析</div>
+            <div class="hero-method" onclick="scrollToSec('sec-avg')"><span class="m-icon">📐</span>平均分析</div>
+            <div class="hero-method" onclick="scrollToSec('sec-cross')"><span class="m-icon">🔀</span>交叉分析</div>
+            <div class="hero-method" onclick="scrollToSec('sec-funnel')"><span class="m-icon">🔽</span>漏斗图</div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- 进度条 -->
+        <div class="card reveal" style="padding:16px 20px; margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-light); margin-bottom:8px;">📚 本节学习进度</div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="pfill"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:#aaa; margin-top:6px;">
+                <span>频数</span><span>分组</span><span>结构</span><span>平均</span><span>交叉</span><span>漏斗</span>
+            </div>
+        </div>
+
+        <!-- 知识地图 -->
+        <div class="section-header reveal">
+            <div class="section-icon si-green">🗺️</div>
+            <div>
+                <div class="section-title">本单元<span>知识地图</span></div>
+                <div class="section-sub">点击卡片快速跳转对应知识点</div>
+            </div>
+        </div>
+        <div class="method-map reveal">
+            <div class="map-card mc-1" onclick="scrollToSec('sec-freq')">
+                <div class="map-icon">📊</div>
+                <div class="map-name">频数分析法</div>
+                <div class="map-sub">数据出现次数统计</div>
+            </div>
+            <div class="map-card mc-2" onclick="scrollToSec('sec-group')">
+                <div class="map-icon">🗂️</div>
+                <div class="map-name">分组分析法</div>
+                <div class="map-sub">按特征分类研究</div>
+            </div>
+            <div class="map-card mc-3" onclick="scrollToSec('sec-struct')">
+                <div class="map-icon">🥧</div>
+                <div class="map-name">结构分析法</div>
+                <div class="map-sub">占比与比重分析</div>
+            </div>
+            <div class="map-card mc-4" onclick="scrollToSec('sec-avg')">
+                <div class="map-icon">📐</div>
+                <div class="map-name">平均分析法</div>
+                <div class="map-sub">平均数计算分析</div>
+            </div>
+            <div class="map-card mc-5" onclick="scrollToSec('sec-cross')">
+                <div class="map-icon">🔀</div>
+                <div class="map-name">交叉分析法</div>
+                <div class="map-sub">多维变量关系分析</div>
+            </div>
+            <div class="map-card mc-6" onclick="scrollToSec('sec-funnel')">
+                <div class="map-icon">🔽</div>
+                <div class="map-name">漏斗图分析法</div>
+                <div class="map-sub">业务转化流程分析</div>
+            </div>
+        </div>
+
+        <!-- ========== 一、频数分析 ========== -->
+        <div id="sec-freq">
+            <div class="section-header reveal">
+                <div class="section-icon si-green">📊</div>
+                <div>
+                    <div class="section-title">一、<span>频数分析法</span></div>
+                    <div class="section-sub">统计数据出现的次数，了解分布规律</div>
+                </div>
+            </div>
+
+            <div class="concept-card reveal">
+                <p><span class="hl">频数</span>（也叫次数）是指某个数值或类别在数据中出现的次数。<br>
+                    与频数对应的是<span class="hl">频率</span> = 出现次数 ÷ 总次数，用百分比表示。<br>
+                    <span class="hl">频数分析法</span>通过统计各类数据的出现次数，帮助我们了解数据的分布特征。
+                </p>
+            </div>
+
+            <!-- 生动例子 -->
+            <div class="card reveal" style="border-left: 5px solid #ffd93d;">
+                <div style="font-weight:bold; font-size:16px; margin-bottom:16px;">🛒 生活小例子</div>
+                <div
+                    style="background:#f8f9fa; border-radius:12px; padding:16px; margin-bottom:16px; font-size:15px; line-height:2;">
+                    某企业某天共有 <strong style="color:#007a6e; font-size:20px;">10</strong> 位客户，其中男性 <strong
+                        style="color:#3498db;">6</strong> 人，女性 <strong style="color:#e91e63;">4</strong> 人
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div
+                        style="background: linear-gradient(135deg,#e3f2fd,#bbdefb); border-radius:12px; padding:18px; text-align:center;">
+                        <div style="font-size:40px;">👨</div>
+                        <div style="font-size:15px; font-weight:bold; color:#1a6fb3; margin:8px 0;">男性客户</div>
+                        <div style="font-size:13px; color:#666;">频数：<strong
+                                style="font-size:20px; color:#1a6fb3;">6</strong> 人</div>
+                        <div style="font-size:13px; color:#666;">频率：<strong
+                                style="font-size:20px; color:#1a6fb3;">60%</strong></div>
+                    </div>
+                    <div
+                        style="background: linear-gradient(135deg,#fce4ec,#f8bbd0); border-radius:12px; padding:18px; text-align:center;">
+                        <div style="font-size:40px;">👩</div>
+                        <div style="font-size:15px; font-weight:bold; color:#880e4f; margin:8px 0;">女性客户</div>
+                        <div style="font-size:13px; color:#666;">频数：<strong
+                                style="font-size:20px; color:#880e4f;">4</strong> 人</div>
+                        <div style="font-size:13px; color:#666;">频率：<strong
+                                style="font-size:20px; color:#880e4f;">40%</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 频数图类型 -->
+            <div class="section-header reveal" style="margin-top:24px;">
+                <div style="font-size:17px; font-weight:bold; color:var(--dark);">📈 频数分析常用的三种图形</div>
+            </div>
+            <div class="chart-type-grid reveal">
+                <div class="chart-type-card" onclick="showChartDemo('histogram')">
+                    <div class="ct-icon">📊</div>
+                    <div class="ct-name">直方图</div>
+                    <div class="ct-desc">用矩形面积表示频数分布，常附加频率趋势线，适合连续数据</div>
+                </div>
+                <div class="chart-type-card" onclick="showChartDemo('bar')">
+                    <div class="ct-icon">📉</div>
+                    <div class="ct-name">条形图</div>
+                    <div class="ct-desc">用宽度相同的矩形高低来表示频数，横坐标或纵坐标均可</div>
+                </div>
+                <div class="chart-type-card" onclick="showChartDemo('pie')">
+                    <div class="ct-icon">🥧</div>
+                    <div class="ct-name">饼状图</div>
+                    <div class="ct-desc">用圆形扇面表示频率分布，既可表示频数也可表示频率</div>
+                </div>
+            </div>
+
+            <!-- 图形演示区 -->
+            <div class="card reveal" id="chart-demo-box" style="display:none;">
+                <div id="chart-demo-content"></div>
+            </div>
+
+            <!-- 月度客户频数数据 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:16px; font-size:15px;">📋 某企业全年月度客户频数数据</div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th>1月</th>
+                                <th>2月</th>
+                                <th>3月</th>
+                                <th>4月</th>
+                                <th>5月</th>
+                                <th>6月</th>
+                                <th>7月</th>
+                                <th>8月</th>
+                                <th>9月</th>
+                                <th>10月</th>
+                                <th>11月</th>
+                                <th>12月</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>客户频数</strong></td>
+                                <td>3659</td>
+                                <td class="hl">5648</td>
+                                <td>4568</td>
+                                <td class="hl">4865</td>
+                                <td style="color:#e17055; font-weight:bold;">3214</td>
+                                <td>3658</td>
+                                <td>3921</td>
+                                <td>3756</td>
+                                <td>3966</td>
+                                <td>4087</td>
+                                <td>4681</td>
+                                <td>4921</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tip-bubble" style="margin-top:14px; margin-bottom:0;">
+                    从数据可以看出：客户高峰期集中在1月~4月，5月跌至谷底（3214人），随后缓慢回升！这对制定营销策略非常有帮助。
+                </div>
+            </div>
+
+            <!-- 互动频数图 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:16px; font-size:15px;">🎯 交互式客户频数可视化（悬停查看数值）</div>
+                <div style="display:flex; align-items:flex-end; gap:5px; height:180px; border-bottom:2px solid #e0e0e0; border-left:2px solid #e0e0e0; padding:0 8px; position:relative;"
+                    id="freq-bar-chart"></div>
+                <div style="display:flex; gap:0; margin-top:6px; padding:0 10px;" id="freq-bar-labels"></div>
+            </div>
+
+            <!-- Excel频数分析步骤 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:18px; font-size:15px;">💻 在Excel中进行频数分析（7步完成）</div>
+                <div class="step-item">
+                    <div class="step-num sn-green">1</div>
+                    <div class="step-body">在A列输入<strong>日期</strong>，B列输入<strong>购买人数</strong>数据</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">2</div>
+                    <div class="step-body">复制购买人数到C列，选中C列数据 → 右键 → <strong>排序 → 升序</strong>，完成排序</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">3</div>
+                    <div class="step-body">
+                        在D列设置<strong>分组上限</strong>（如99、109、119、129、139、149），在E列设置<strong>分组区间</strong>（如90-100、100-110...）
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">4</div>
+                    <div class="step-body">点击菜单 <strong>「数据」→「数据分析」</strong></div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">5</div>
+                    <div class="step-body">在弹出框选择<strong>「直方图」</strong>，点击确定</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">6</div>
+                    <div class="step-body">
+                        <strong>输入区域</strong>填排序数据，<strong>接收区域</strong>填分组上限，<strong>输出区域</strong>填结果位置，勾选<strong>「累积百分率」和「图表输出」</strong>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">7</div>
+                    <div class="step-body">✅ 自动生成<strong>频数累积统计表</strong>与<strong>直方图</strong>！</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 二、分组分析法 ========== -->
+        <div id="sec-group">
+            <div class="section-header reveal">
+                <div class="section-icon si-orange">🗂️</div>
+                <div>
+                    <div class="section-title">二、<span>分组分析法</span></div>
+                    <div class="section-sub">按特征分类，找出数据内在规律</div>
+                </div>
+            </div>
+
+            <div class="concept-card reveal"
+                style="background:linear-gradient(135deg,#fff8ee,#ffe8cc); border-color:#ffd093;">
+                <p><span class="hl" style="color:#c0690a;">分组分析法</span>是根据分析对象的特征，按照一定的指标，将数据划分为不同类别进行分析的方法。<br>
+                    它能够揭示数据内在的<span class="hl" style="color:#c0690a;">联系和规律</span>。</p>
+                <p style="margin-top:10px;"><strong style="color:#c0690a;">核心思路：</strong>同类性质的放一组 → 不同性质的分开 → 进行对比 →
+                    得出结论</p>
+            </div>
+
+            <!-- 三种类型 -->
+            <div class="group-type-grid reveal">
+                <div class="group-type-card gtc-1">
+                    <div class="gt-icon">🔢</div>
+                    <div class="gt-name">数量分组分析</div>
+                    <div class="gt-desc">研究总体内结构及结构间的相互关系，如按年龄段分组</div>
+                </div>
+                <div class="group-type-card gtc-2">
+                    <div class="gt-icon">🔗</div>
+                    <div class="gt-name">关系分组分析</div>
+                    <div class="gt-desc">分析关系紧密的变量与自变量，得出依存关系，如收入与消费</div>
+                </div>
+                <div class="group-type-card gtc-3">
+                    <div class="gt-icon">⭐</div>
+                    <div class="gt-name">质量分组分析</div>
+                    <div class="gt-desc">将复杂数据按质量分组，常用于分析行业类型特征和相互关系</div>
+                </div>
+            </div>
+
+            <!-- 两大原则 -->
+            <div class="principle-grid reveal">
+                <div class="principle-card pc-green">
+                    <div class="pc-title">✅ 无遗漏原则</div>
+                    <div class="pc-desc">分组时，总体中<strong>每一个单位都必须归属于一组</strong>，不能有遗漏。就像班级同学，每个人都要被分到某一组。</div>
+                </div>
+                <div class="principle-card pc-orange">
+                    <div class="pc-title">🚫 排他性原则</div>
+                    <div class="pc-desc">每个单位<strong>只能属于一个分组</strong>，不能同时属于两个及以上的组。就像一个学生只能在一个班级。</div>
+                </div>
+            </div>
+
+            <!-- 组距计算器 -->
+            <div class="calculator reveal">
+                <div class="calc-title">🧮 组距计算器 <span
+                        style="font-size:13px; color:var(--text-light); font-weight:normal;">— 组距 = （最大值 - 最小值）÷
+                        组数</span></div>
+                <div class="calc-grid">
+                    <div class="calc-field">
+                        <label>最大值</label>
+                        <input type="number" id="gd-max" placeholder="如：60">
+                    </div>
+                    <div class="calc-field">
+                        <label>最小值</label>
+                        <input type="number" id="gd-min" placeholder="如：20">
+                    </div>
+                    <div class="calc-field">
+                        <label>组数</label>
+                        <input type="number" id="gd-n" placeholder="如：8">
+                    </div>
+                </div>
+                <button class="calc-btn cb-green" onclick="calcGroupDist()">计算组距</button>
+                <div class="calc-result" id="gd-result">
+                    <div class="result-big" id="gd-val"></div>
+                    <div class="result-tip" id="gd-tip"></div>
+                </div>
+            </div>
+
+            <!-- VLOOKUP介绍 -->
+            <div class="card reveal" style="border-left:5px solid #6c5ce7;">
+                <div style="font-size:16px; font-weight:bold; color:#5f27cd; margin-bottom:12px;">🔍 VLOOKUP函数 — 自动分组神器
+                </div>
+                <p style="font-size:14px; line-height:1.9; color:var(--text);">
+                    <strong style="color:#5f27cd;">VLOOKUP</strong> 是Excel中的纵向查找函数，可以<strong>按列查找</strong>，返回对应的值。<br>
+                    在分组分析中，它可以<strong>自动将每个数据分配到对应的分组区间</strong>，大大提高效率！
+                </p>
+                <div
+                    style="background:#f0eeff; border-radius:10px; padding:14px; margin-top:14px; font-size:14px; font-family:monospace; color:#5f27cd; font-weight:bold;">
+                    =VLOOKUP(A2, $D$2:$E$6, 2)<br>
+                    <span style="font-size:12px; color:#888; font-weight:normal;">
+                        A2 → 需要分组的数值 | $D$2:$E$6 → 分组对照表 | 2 → 返回第2列（分组名称）
+                    </span>
+                </div>
+            </div>
+
+            <!-- Excel分组步骤 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:18px; font-size:15px;">💻 在Excel中进行分组分析</div>
+                <div class="step-item">
+                    <div class="step-num sn-green">1</div>
+                    <div class="step-body">在A列输入<strong>商品价格</strong>，B列预留给"价格分组"结果</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">2</div>
+                    <div class="step-body">
+                        在D列设置<strong>分组下限</strong>（20、25、30、35），E列设置<strong>分组名称</strong>（20-25、25-30、30-35、35-40），F列设置<strong>价格区间</strong>说明
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">3</div>
+                    <div class="step-body">在B2单元格输入公式：<strong
+                            style="color:#5f27cd;">=VLOOKUP(A2,$D$2:$E$6,2)</strong>，按Enter确认</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">4</div>
+                    <div class="step-body">将鼠标移到B2右下角，出现 <strong>+</strong> 号后，向下拖动到B20，<strong>自动套用公式完成全部分组！</strong>
+                    </div>
+                </div>
+                <div
+                    style="background:#e8f9f7; border-radius:10px; padding:14px; margin-top:14px; font-size:14px; line-height:1.8; color:#007a6e;">
+                    📌 <strong>分析结果示例：</strong><br>
+                    20-25区间：1次 &nbsp;|&nbsp; 25-30区间：<strong>7次</strong> &nbsp;|&nbsp; 30-35区间：<strong>7次</strong>
+                    &nbsp;|&nbsp; 35-40区间：3次<br>
+                    → 商品价格通常集中在<strong>25-30和30-35</strong>这两个区间！
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 三、结构分析法 ========== -->
+        <div id="sec-struct">
+            <div class="section-header reveal">
+                <div class="section-icon si-blue">🥧</div>
+                <div>
+                    <div class="section-title">三、<span>结构分析法</span></div>
+                    <div class="section-sub">也叫比重分析，看各部分在总体中的占比</div>
+                </div>
+            </div>
+
+            <div class="concept-card reveal"
+                style="background:linear-gradient(135deg,#e3f2fd,#bbdefb); border-color:#90caf9;">
+                <p><span class="hl" style="color:#1a6fb3;">结构分析法</span>（又叫比重分析）是测定某指标各个构成部分在总体中占比情况并加以分析的方法。<br>
+                    <strong style="color:#1a6fb3;">占比越大 → 重要程度越高 → 对总体影响越大！</strong>
+                </p>
+            </div>
+
+            <div class="formula-box blue reveal">
+                <div class="formula-label">结构相对占比（比例）公式</div>
+                <div class="formula-main">结构占比 = （某部分数值 ÷ 总体总量）× 100%</div>
+            </div>
+
+            <!-- 市场占有率计算器 -->
+            <div class="calculator reveal">
+                <div class="calc-title">🧮 市场占有率计算器</div>
+                <div style="font-size:13px; color:var(--text-light); margin-bottom:14px;">市场占有率 = （企业产品销量 ÷ 市场总销量）× 100%
+                </div>
+                <div class="funnel-calc-grid">
+                    <div class="calc-field">
+                        <label>企业产品销量（万件）</label>
+                        <input type="number" id="ms-own" placeholder="如：30">
+                    </div>
+                    <div class="calc-field">
+                        <label>市场总销量（万件）</label>
+                        <input type="number" id="ms-total" placeholder="如：93">
+                    </div>
+                </div>
+                <button class="calc-btn cb-green" onclick="calcMarketShare()">计算市场占有率</button>
+                <div class="calc-result" id="ms-result">
+                    <div class="result-big" id="ms-val"></div>
+                    <div class="result-tip" id="ms-tip"></div>
+                </div>
+            </div>
+
+            <!-- 市场占有率案例 -->
+            <div class="example-box reveal">
+                <div class="example-badge">📝 案例：产品A市场占有率计算</div>
+                <p>已知2018年各季度数据如下表，计算产品A的<strong>第一季度市场占有率</strong>和<strong>全年市场占有率</strong>。</p>
+                <div class="table-wrapper" style="margin-top:14px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>年份</th>
+                                <th>时间</th>
+                                <th>企业产品A销量</th>
+                                <th>市场总销量</th>
+                                <th>市场占有率</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="4">2018年</td>
+                                <td>第一季度</td>
+                                <td>30万件</td>
+                                <td>93万件</td>
+                                <td class="hl">32.26%</td>
+                            </tr>
+                            <tr>
+                                <td>第二季度</td>
+                                <td>42万件</td>
+                                <td>96万件</td>
+                                <td class="hl">43.75%</td>
+                            </tr>
+                            <tr>
+                                <td>第三季度</td>
+                                <td>40万件</td>
+                                <td>96万件</td>
+                                <td class="hl">41.67%</td>
+                            </tr>
+                            <tr>
+                                <td>第四季度</td>
+                                <td>38万件</td>
+                                <td>98万件</td>
+                                <td class="hl">38.78%</td>
+                            </tr>
+                            <tr style="background:#e8f9f7; font-weight:bold;">
+                                <td colspan="2">2018年全年</td>
+                                <td>150万件</td>
+                                <td>383万件</td>
+                                <td class="hl">39.16%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="example-calc">
+                    <strong>第一季度计算：</strong><br>
+                    <span class="eq">= (30 ÷ 93) × 100% = 32.26%</span><br><br>
+                    <strong>全年计算：</strong><br>
+                    <span class="eq">= (30+42+40+38) ÷ (93+96+96+98) × 100%</span><br>
+                    <span class="eq">= 150 ÷ 383 × 100% ≈ 39.16%</span>
+                </div>
+            </div>
+
+            <!-- 结构可视化饼图 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:16px; font-size:15px;">🥧 2018年各季度市场占有率可视化</div>
+                <div class="pie-demo">
+                    <svg width="200" height="200" viewBox="0 0 200 200" id="pie-svg"></svg>
+                    <div class="pie-legend" id="pie-legend"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 四、平均分析法 ========== -->
+        <div id="sec-avg">
+            <div class="section-header reveal">
+                <div class="section-icon si-purple">📐</div>
+                <div>
+                    <div class="section-title">四、<span>平均分析法</span></div>
+                    <div class="section-sub">用平均数呈现数据的一般水平</div>
+                </div>
+            </div>
+
+            <div class="concept-card reveal"
+                style="background:linear-gradient(135deg,#f3e5f5,#e1bee7); border-color:#ce93d8;">
+                <p><span class="hl" style="color:#5f27cd;">平均分析法</span>是通过计算平均数，呈现总体在一定时间、特定地点下某一分析指标的<strong
+                        style="color:#5f27cd;">一般水平</strong>的方法。</p>
+            </div>
+
+            <!-- 三大作用 -->
+            <div class="card reveal" style="background:linear-gradient(135deg,#f3e5f5,#ede7f6);">
+                <div style="font-weight:bold; font-size:16px; color:#5f27cd; margin-bottom:16px;">🎯 平均分析法的三大作用</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div
+                        style="display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px;">
+                        <div
+                            style="width:34px; height:34px; border-radius:50%; background:#6c5ce7; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                            1</div>
+                        <span style="font-size:14px; color:var(--text);">比较同类指标在<strong>不同地区、行业、企业</strong>之间的差异</span>
+                    </div>
+                    <div
+                        style="display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px;">
+                        <div
+                            style="width:34px; height:34px; border-radius:50%; background:#a29bfe; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                            2</div>
+                        <span
+                            style="font-size:14px; color:var(--text);">比较某指标在<strong>不同时间</strong>内的情况，说明其发展规律和趋势</span>
+                    </div>
+                    <div
+                        style="display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px;">
+                        <div
+                            style="width:34px; height:34px; border-radius:50%; background:#6c5ce7; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                            3</div>
+                        <span style="font-size:14px; color:var(--text);">分析<strong>指标之间的依存关系</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 平均数树状图 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; font-size:15px; margin-bottom:20px;">🌳 平均分析法分类树</div>
+                <div class="avg-tree">
+                    <div class="avg-root">平均分析法</div>
+                    <div class="avg-connector"></div>
+                    <div class="avg-level1">
+                        <div class="avg-branch">
+                            <div class="avg-node an-blue">数值平均数</div>
+                            <div class="avg-connector"></div>
+                            <div class="avg-children">
+                                <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                                    <div class="avg-node an-green" style="font-size:13px;">算数平均数</div>
+                                    <div class="avg-children" style="gap:8px;">
+                                        <div class="avg-node an-green" style="font-size:12px; padding:7px 12px;">简单算数
+                                        </div>
+                                        <div class="avg-node an-green" style="font-size:12px; padding:7px 12px;">加权算数
+                                        </div>
+                                    </div>
+                                    <div class="avg-node an-orange" style="font-size:13px;">调和平均数</div>
+                                    <div class="avg-node an-orange" style="font-size:13px;">几何平均数</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="avg-branch">
+                            <div class="avg-node an-purple">位置平均数</div>
+                            <div class="avg-connector"></div>
+                            <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                                <div class="avg-node an-purple" style="font-size:13px;">众数（最多的）</div>
+                                <div class="avg-node an-purple" style="font-size:13px;">中位数（中间值）</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 公式 -->
+            <div class="formula-box purple reveal">
+                <div class="formula-label">简单算数平均数</div>
+                <div class="formula-main">平均数 = 各单位数值之和 ÷ 单位个数</div>
+            </div>
+            <div class="formula-box reveal" style="background:linear-gradient(135deg,#1a6fb3,#3498db);">
+                <div class="formula-label">加权算数平均数（适用于已分组的数据）</div>
+                <div class="formula-main" style="font-size:16px;">加权均数 = (A组总和 + B组总和 + ...) ÷ (A组个数 + B组个数 + ...)</div>
+            </div>
+
+            <!-- 平均数计算器 -->
+            <div class="calculator reveal">
+                <div class="calc-title">🧮 简单算数平均数计算器</div>
+                <div class="calc-field" style="margin-bottom:14px;">
+                    <label>输入数据（用逗号隔开，如：80,90,70,85,95）</label>
+                    <input type="text" id="avg-input" placeholder="80,90,70,85,95"
+                        style="width:100%; padding:11px 13px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none;">
+                </div>
+                <button class="calc-btn cb-green" onclick="calcAvg()">计算平均数</button>
+                <div class="calc-result" id="avg-result">
+                    <div class="result-big" id="avg-val"></div>
+                    <div class="result-tip" id="avg-tip"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 五、交叉分析法 ========== -->
+        <div id="sec-cross">
+            <div class="section-header reveal">
+                <div class="section-icon si-red">🔀</div>
+                <div>
+                    <div class="section-title">五、<span>交叉分析法</span></div>
+                    <div class="section-sub">也叫立体分析法，同时分析两个变量的关系</div>
+                </div>
+            </div>
+
+            <div class="concept-card reveal"
+                style="background:linear-gradient(135deg,#fce4ec,#f8bbd0); border-color:#f48fb1;">
+                <p><span class="hl" style="color:#880e4f;">交叉分析法</span>（又叫立体分析法）通常用来分析<strong
+                        style="color:#880e4f;">两个变量之间的关系</strong>，如产品销量与地区的关系。<br>
+                    将两个有关联的变量同时呈现在一个表格内，通过Excel透视表形成<strong style="color:#880e4f;">交叉表</strong>，快速明确变量关系。</p>
+            </div>
+
+            <!-- 四大维度 -->
+            <div class="dim-grid reveal">
+                <div class="dim-card dc-1">
+                    <div class="dim-icon">⏰</div>
+                    <div>
+                        <div class="dim-title">时间维度</div>
+                        <div class="dim-desc">分析指标在不同时间段的变化情况，如月、季、年度对比</div>
+                    </div>
+                </div>
+                <div class="dim-card dc-2">
+                    <div class="dim-icon">👥</div>
+                    <div>
+                        <div class="dim-title">客户维度</div>
+                        <div class="dim-desc">分析指标在不同客户类型中的变化，如新老客户、VIP客户</div>
+                    </div>
+                </div>
+                <div class="dim-card dc-3">
+                    <div class="dim-icon">🗺️</div>
+                    <div>
+                        <div class="dim-title">地区维度</div>
+                        <div class="dim-desc">分析指标在不同地区的变化情况，发现区域差异</div>
+                    </div>
+                </div>
+                <div class="dim-card dc-4">
+                    <div class="dim-icon">📡</div>
+                    <div>
+                        <div class="dim-title">流量来源维度</div>
+                        <div class="dim-desc">分析指标在不同流量渠道（搜索/推荐/直播等）的变化</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交叉表案例 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:16px; font-size:15px;">📋 案例：西安四个县城2019年9月水果销售交叉表（单位：吨）
+                </div>
+                <div class="table-wrapper">
+                    <table class="cross-table">
+                        <thead>
+                            <tr>
+                                <th>地区</th>
+                                <th>核桃</th>
+                                <th>香蕉</th>
+                                <th>苹果</th>
+                                <th>猕猴桃</th>
+                                <th>水蜜桃</th>
+                                <th class="total-col">行总计</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>周至</strong></td>
+                                <td>23</td>
+                                <td>30</td>
+                                <td>21</td>
+                                <td>22</td>
+                                <td>24</td>
+                                <td class="total-col">120</td>
+                            </tr>
+                            <tr>
+                                <td><strong>户县</strong></td>
+                                <td>18</td>
+                                <td>26</td>
+                                <td>19</td>
+                                <td>23</td>
+                                <td>23</td>
+                                <td class="total-col">109</td>
+                            </tr>
+                            <tr>
+                                <td><strong>蓝田</strong></td>
+                                <td style="color:#e17055; font-weight:bold;">9</td>
+                                <td>21</td>
+                                <td>19</td>
+                                <td>21</td>
+                                <td>17</td>
+                                <td class="total-col">87</td>
+                            </tr>
+                            <tr>
+                                <td><strong>高陵</strong></td>
+                                <td>22</td>
+                                <td>23</td>
+                                <td>18</td>
+                                <td>20</td>
+                                <td>19</td>
+                                <td class="total-col">102</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td><strong>列总计</strong></td>
+                                <td>72</td>
+                                <td class="max-val">100</td>
+                                <td>77</td>
+                                <td>86</td>
+                                <td>83</td>
+                                <td class="total-col" style="color:#007a6e; font-size:16px;"><strong>418</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div
+                    style="margin-top:14px; padding:14px; background:#f0fafa; border-radius:10px; font-size:13px; line-height:2; color:#444;">
+                    📌 <strong>从交叉表快速获取信息：</strong><br>
+                    • <strong>总数据</strong>：四个县城五种水果总销量 = <strong>418吨</strong><br>
+                    • <strong>各自总数据</strong>：香蕉总销量最高 = <strong>100吨</strong><br>
+                    • <strong>各自数据</strong>：蓝田核桃最少仅 <strong style="color:#e17055;">9吨</strong>，周至总销量最高
+                    <strong>120吨</strong>
+                </div>
+            </div>
+
+            <!-- Excel交叉分析步骤 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:18px; font-size:15px;">💻 在Excel中进行交叉分析（6步完成）</div>
+                <div class="step-item">
+                    <div class="step-num sn-green">1</div>
+                    <div class="step-body">点击菜单 <strong>「插入」→「数据透视图」</strong></div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">2</div>
+                    <div class="step-body">点击<strong>「数据透视图和数据透视表」</strong>，进入创建编辑框</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">3</div>
+                    <div class="step-body">在"选择一个表或区域"中<strong>输入数据区域</strong></div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">4</div>
+                    <div class="step-body">选择<strong>「现有工作表」</strong>，在"位置"中输入放置新表的位置</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-orange">5</div>
+                    <div class="step-body">在右侧【数据透视图字段】勾选<strong>地区、产品、销量</strong>，自动生成数据透视图</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num sn-green">6</div>
+                    <div class="step-body">将<strong>"产品"字段拖到"列"</strong>的下方，自动更新为<strong>交叉表格式</strong>！</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 六、漏斗图 ========== -->
+        <div id="sec-funnel">
+            <div class="section-header reveal">
+                <div class="section-icon si-teal">🔽</div>
+                <div>
+                    <div class="section-title">六、<span>漏斗图分析法</span></div>
+                    <div class="section-sub">展示业务各环节的转化情况，找出流失问题</div>
+                </div>
+            </div>
+
+            <div class="concept-card reveal"
+                style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2); border-color:#80deea;">
+                <p><span class="hl" style="color:#006064;">漏斗图分析法</span>适合分析<strong
+                        style="color:#006064;">业务周期长、流程规范且环节多</strong>的指标，如网站转化率、销售转化率。<br>
+                    它能展示：进入访次、离开访次、完成访次、<strong style="color:#006064;">每步转化率、总转化率</strong>等7类关键信息。</p>
+            </div>
+
+            <!-- 适用场景 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; font-size:16px; color:var(--dark); margin-bottom:16px;">🎯 漏斗图的三大应用场景
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; gap:14px; background:#e0f7fa; border-radius:12px; padding:16px;">
+                        <div style="font-size:30px;">🛒</div>
+                        <div>
+                            <div style="font-weight:bold; color:#006064; margin-bottom:6px;">电子商务网站和APP</div>
+                            <div style="font-size:13px; color:var(--text-light); line-height:1.7;">
+                                展现客户从进入网站→浏览→加购→下单→支付→完成交易的转化率变化，帮助发现流失环节</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:14px; background:#e8f5e9; border-radius:12px; padding:16px;">
+                        <div style="font-size:30px;">📢</div>
+                        <div>
+                            <div style="font-weight:bold; color:#1b5e20; margin-bottom:6px;">营销推广</div>
+                            <div style="font-size:13px; color:var(--text-light); line-height:1.7;">
+                                展现展现量→点击量→访问量→订单量的各环节转化，分析客户流失并优化</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:14px; background:#fff3e0; border-radius:12px; padding:16px;">
+                        <div style="font-size:30px;">🤝</div>
+                        <div>
+                            <div style="font-weight:bold; color:#c0690a; margin-bottom:6px;">CRM客户管理</div>
+                            <div style="font-size:13px; color:var(--text-light); line-height:1.7;">
+                                展现潜在客户→意向客户→谈判客户→成交客户→签约客户各阶段转化，优化销售流程</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 漏斗图可视化 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:6px; font-size:15px;">🔽 购物转化漏斗图（点击各层查看详情）</div>
+                <div style="font-size:13px; color:var(--text-light); margin-bottom:18px;">某电商平台购物转化漏斗数据</div>
+                <div class="funnel-container" id="funnel-visual"></div>
+                <div style="background:#f0fafa; border-radius:10px; padding:14px; font-size:13px; color:#444; line-height:1.9;"
+                    id="funnel-analysis">
+                    💡 点击上方漏斗各层，查看该环节的分析说明
+                </div>
+            </div>
+
+            <!-- 占位数计算器 -->
+            <div class="calculator reveal">
+                <div class="calc-title">🧮 漏斗图占位数计算器</div>
+                <div style="font-size:13px; color:var(--text-light); margin-bottom:14px;">占位数 = （最初环节数量 - 当前环节数量）÷ 2
+                </div>
+                <div class="funnel-calc-grid">
+                    <div class="calc-field">
+                        <label>最初环节客户数（如：浏览产品人数）</label>
+                        <input type="number" id="fd-init" placeholder="如：2000">
+                    </div>
+                    <div class="calc-field">
+                        <label>当前环节客户数</label>
+                        <input type="number" id="fd-cur" placeholder="如：600">
+                    </div>
+                </div>
+                <button class="calc-btn cb-green" onclick="calcFunnelData()">计算占位数</button>
+                <div class="calc-result" id="fd-result">
+                    <div class="result-big" id="fd-val"></div>
+                    <div class="result-tip" id="fd-tip"></div>
+                </div>
+            </div>
+
+            <!-- Excel漏斗图步骤 -->
+            <div class="card reveal">
+                <div style="font-weight:bold; margin-bottom:18px; font-size:15px;">💻 在Excel中制作漏斗图（12步完成）</div>
+                <div class="method-tabs">
+                    <div class="method-tab active" onclick="switchTab('funnel-prep', this)">📋 数据准备（1-3步）</div>
+                    <div class="method-tab" onclick="switchTab('funnel-chart', this)">📊 图表制作（4-11步）</div>
+                    <div class="method-tab" onclick="switchTab('funnel-beauty', this)">🎨 美化（第12步）</div>
+                </div>
+                <div id="funnel-prep" class="method-content active">
+                    <div class="step-item">
+                        <div class="step-num sn-green">1</div>
+                        <div class="step-body">
+                            准备表格：A列<strong>步骤环节</strong>，B列<strong>占位数据</strong>，C列<strong>客户数</strong>，D列<strong>上一环节转化率</strong>，E列<strong>总体转化率</strong>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-green">2</div>
+                        <div class="step-body">填入各步骤的客户数：浏览产品2000→加入购物车1050→订单生成600→订单支付430→完成交易350</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-green">3</div>
+                        <div class="step-body">计算<strong>占位数据</strong>：<code
+                                style="background:#f0eeff; padding:2px 8px; border-radius:5px; color:#5f27cd;">= (最初数据 - 当前数据) ÷ 2</code>，填入B列
+                        </div>
+                    </div>
+                </div>
+                <div id="funnel-chart" class="method-content">
+                    <div class="step-item">
+                        <div class="step-num sn-orange">4</div>
+                        <div class="step-body">选中A1:C6区域，点击右下角<strong>图表标志</strong></div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-orange">5</div>
+                        <div class="step-body">选择<strong>「堆积条形图」</strong></div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-orange">6</div>
+                        <div class="step-body">选中数据线条 → 右键 →<strong>「设置网格线格式」→「无线条」</strong></div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-orange">7</div>
+                        <div class="step-body">选中<strong>「占位数据」显示条</strong></div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-orange">8</div>
+                        <div class="step-body">右侧"设置数据系列格式" → 填充图标 → <strong>「无填充」</strong>（让占位数透明）</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-orange">9</div>
+                        <div class="step-body">点击图表左侧文字框 → 右键 → <strong>「设置坐标轴格式」</strong></div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-orange">10</div>
+                        <div class="step-body">勾选<strong>「逆序类别」</strong>，标签选"轴旁"→"无"</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num sn-green">11</div>
+                        <div class="step-body">✅ 漏斗图基本成型！</div>
+                    </div>
+                </div>
+                <div id="funnel-beauty" class="method-content">
+                    <div class="step-item">
+                        <div class="step-num sn-green">12</div>
+                        <div class="step-body">使用
+                            <strong>「插入」→「形状」</strong>，用线条连接漏斗各部分，插入文字标注<strong>转化率数值</strong>，使漏斗图更美观清晰！</div>
+                    </div>
+                    <div
+                        style="background:#f0fafa; border-radius:10px; padding:14px; font-size:14px; color:#444; line-height:1.8; margin-top:10px;">
+                        💡 <strong>美化小技巧：</strong>可以用不同颜色区分漏斗各层，转化率用箭头标注，让老板一眼看懂数据！
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 测验 ========== -->
+        <div id="sec-quiz">
+            <div class="section-header reveal">
+                <div class="section-icon si-green">✏️</div>
+                <div>
+                    <div class="section-title">练习<span>测验</span></div>
+                    <div class="section-sub">检验一下，你学会了多少？</div>
+                </div>
+            </div>
+
+            <div class="quiz-section reveal">
+                <div class="quiz-title">
+                    <span
+                        style="background:linear-gradient(135deg,#007a6e,#00b4a0); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">1</span>
+                    判断题
+                </div>
+                <div class="quiz-q">频率就是频数，两个词的意思是一样的。</div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="answerQ('q1', this, false)">✅ 正确</div>
+                    <div class="quiz-opt" onclick="answerQ('q1', this, true)">❌ 错误</div>
+                </div>
+                <div class="quiz-feedback" id="q1-fb"></div>
+            </div>
+
+            <div class="quiz-section reveal">
+                <div class="quiz-title">
+                    <span
+                        style="background:linear-gradient(135deg,#007a6e,#00b4a0); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">2</span>
+                    单选题
+                </div>
+                <div class="quiz-q">分组分析法要求每个数据单位<strong>只能属于一个分组</strong>，这是什么原则？</div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="answerQ('q2', this, false)">A. 无遗漏原则</div>
+                    <div class="quiz-opt" onclick="answerQ('q2', this, true)">B. 排他性原则</div>
+                    <div class="quiz-opt" onclick="answerQ('q2', this, false)">C. 完整性原则</div>
+                    <div class="quiz-opt" onclick="answerQ('q2', this, false)">D. 独立性原则</div>
+                </div>
+                <div class="quiz-feedback" id="q2-fb"></div>
+            </div>
+
+            <div class="quiz-section reveal">
+                <div class="quiz-title">
+                    <span
+                        style="background:linear-gradient(135deg,#007a6e,#00b4a0); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">3</span>
+                    计算题
+                </div>
+                <div class="quiz-q">
+                    某产品企业销量为 <strong>50万件</strong>，市场总销量为 <strong>200万件</strong>，市场占有率是多少？
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="answerQ('q3', this, false)">A. 20%</div>
+                    <div class="quiz-opt" onclick="answerQ('q3', this, true)">B. 25%</div>
+                    <div class="quiz-opt" onclick="answerQ('q3', this, false)">C. 40%</div>
+                    <div class="quiz-opt" onclick="answerQ('q3', this, false)">D. 50%</div>
+                </div>
+                <div class="quiz-feedback" id="q3-fb"></div>
+            </div>
+
+            <div class="quiz-section reveal">
+                <div class="quiz-title">
+                    <span
+                        style="background:linear-gradient(135deg,#007a6e,#00b4a0); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">4</span>
+                    单选题（想一想题目）
+                </div>
+                <div class="quiz-q">
+                    已知浏览产品的客户数为 <strong>1200人</strong>，订单生成数为 <strong>360人</strong>，在进行漏斗图分析时，订单生成对应的占位数是多少？
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="answerQ('q4', this, false)">A. 420</div>
+                    <div class="quiz-opt" onclick="answerQ('q4', this, true)">B. 420</div>
+                    <div class="quiz-opt" onclick="answerQ('q4', this, false)">C. 600</div>
+                    <div class="quiz-opt" onclick="answerQ('q4', this, false)">D. 840</div>
+                </div>
+                <div class="quiz-feedback" id="q4-fb"></div>
+            </div>
+
+            <div class="quiz-section reveal">
+                <div class="quiz-title">
+                    <span
+                        style="background:linear-gradient(135deg,#007a6e,#00b4a0); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">5</span>
+                    单选题
+                </div>
+                <div class="quiz-q">漏斗图分析法最适合分析哪种类型的业务？</div>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="answerQ('q5', this, false)">A. 数据量少的简单统计</div>
+                    <div class="quiz-opt" onclick="answerQ('q5', this, true)">B. 业务周期长、流程规范且环节多的指标</div>
+                    <div class="quiz-opt" onclick="answerQ('q5', this, false)">C. 只有两个变量的分析</div>
+                    <div class="quiz-opt" onclick="answerQ('q5', this, false)">D. 跨年度的历史对比</div>
+                </div>
+                <div class="quiz-feedback" id="q5-fb"></div>
+            </div>
+
+            <div class="tip-bubble reveal">
+                🤔 <strong>综合思考：</strong>如果你是一家淘宝店铺的运营，想分析"不同年龄段客户的平均客单价"，你会选择哪几种分析方法？欢迎和同学讨论！
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>📊 电子商务数据分析基础 · 模块四 · 单元四 <span>其他分析方法</span></p>
+        <p style="margin-top:6px;">六大方法在手，数据分析无敌！</p>
+    </div>
+
+    <script>
+        // ===== 工具函数 =====
+        function scrollToSec(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function switchTab(id, el) {
+            const parent = el.closest('.card');
+            parent.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            parent.querySelectorAll('.method-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ===== 滚动动画 =====
+        function checkReveal() {
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 60) el.classList.add('visible');
+            });
+            const s = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+            const f = document.getElementById('pfill');
+            if (f) f.style.width = Math.max(5, Math.min(100, s * 100)).toFixed(0) + '%';
+        }
+        window.addEventListener('scroll', checkReveal);
+        window.addEventListener('load', () => { checkReveal(); initAll(); });
+
+        // ===== 频数条形图 =====
+        function renderFreqChart() {
+            const months = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+            const vals = [3659, 5648, 4568, 4865, 3214, 3658, 3921, 3756, 3966, 4087, 4681, 4921];
+            const colors = ['#00b4a0', '#26d0ce', '#00b4a0', '#00c9b1', '#e17055', '#00b4a0', '#00b4a0', '#00b4a0', '#00b4a0', '#00b4a0', '#26d0ce', '#007a6e'];
+            const max = Math.max(...vals);
+            const chart = document.getElementById('freq-bar-chart');
+            const labels = document.getElementById('freq-bar-labels');
+            if (!chart) return;
+            chart.innerHTML = ''; labels.innerHTML = '';
+            vals.forEach((v, i) => {
+                const h = (v / max * 160).toFixed(1);
+                const bar = document.createElement('div');
+                bar.style.cssText = `flex:1; height:${h}px; background:${colors[i]}; border-radius:4px 4px 0 0; cursor:pointer; position:relative; transition:all 0.5s; min-width:0;`;
+                bar.title = `${months[i]}月: ${v.toLocaleString()}人`;
+                bar.addEventListener('mouseenter', function () { this.style.filter = 'brightness(1.2)'; });
+                bar.addEventListener('mouseleave', function () { this.style.filter = ''; });
+                const tip = document.createElement('div');
+                tip.style.cssText = 'display:none; position:absolute; top:-36px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:3px 8px; border-radius:6px; font-size:11px; white-space:nowrap; z-index:10;';
+                tip.textContent = v.toLocaleString();
+                bar.appendChild(tip);
+                bar.addEventListener('mouseenter', () => tip.style.display = 'block');
+                bar.addEventListener('mouseleave', () => tip.style.display = 'none');
+                chart.appendChild(bar);
+                const lbl = document.createElement('div');
+                lbl.style.cssText = 'flex:1; text-align:center; font-size:11px; color:#888; min-width:0;';
+                lbl.textContent = months[i] + '月';
+                labels.appendChild(lbl);
+            });
+        }
+
+        // ===== 图表类型演示 =====
+        function showChartDemo(type) {
+            const box = document.getElementById('chart-demo-box');
+            const content = document.getElementById('chart-demo-content');
+            const demos = {
+                histogram: `<div style="font-weight:bold; color:#007a6e; font-size:16px; margin-bottom:14px;">📊 直方图示意</div>
+            <div style="font-size:13px; color:#666; margin-bottom:16px;">用矩形面积表示频数分布，右侧折线为累积频率趋势线</div>
+            <svg width="100%" height="180" viewBox="0 0 400 180">
+                <rect x="20" y="120" width="40" height="50" fill="#00b4a0" opacity="0.8"/>
+                <rect x="70" y="80" width="40" height="90" fill="#00b4a0" opacity="0.8"/>
+                <rect x="120" y="100" width="40" height="70" fill="#00b4a0" opacity="0.8"/>
+                <rect x="170" y="60" width="40" height="110" fill="#00b4a0" opacity="0.8"/>
+                <rect x="220" y="40" width="40" height="130" fill="#00b4a0" opacity="0.8"/>
+                <rect x="270" y="90" width="40" height="80" fill="#00b4a0" opacity="0.8"/>
+                <rect x="320" y="130" width="40" height="40" fill="#00b4a0" opacity="0.8"/>
+                <polyline points="40,120 90,80 140,100 190,60 240,40 290,90 340,130" fill="none" stroke="#fd9644" stroke-width="2.5" stroke-dasharray="5,3"/>
+                <line x1="20" y1="170" x2="380" y2="170" stroke="#ccc" stroke-width="1.5"/>
+                <text x="200" y="178" text-anchor="middle" font-size="12" fill="#888">接收区间</text>
+            </svg>`,
+                bar: `<div style="font-weight:bold; color:#fd9644; font-size:16px; margin-bottom:14px;">📉 条形图示意</div>
+            <div style="font-size:13px; color:#666; margin-bottom:16px;">用矩形高低表示各月客户频数，颜色各异便于区分</div>
+            <div style="display:flex; align-items:flex-end; gap:4px; height:150px; border-bottom:2px solid #e0e0e0; padding:0 10px;">
+            ${[3659, 5648, 4568, 4865, 3214, 3658, 3921, 3756, 3966, 4087, 4681, 4921].map((v, i) => {
+                    const colors = ['#00b4a0', '#fd9644', '#6c5ce7', '#e91e63', '#e17055', '#3498db', '#26d0ce', '#f39c12', '#1abc9c', '#9b59b6', '#e74c3c', '#2ecc71'];
+                    const h = (v / 5648 * 130).toFixed(0);
+                    return `<div style="flex:1; height:${h}px; background:${colors[i]}; border-radius:3px 3px 0 0; min-width:0;" title="${i + 1}月:${v}"></div>`;
+                }).join('')}
+            </div>
+            <div style="display:flex; gap:4px; padding:4px 10px;">
+            ${Array.from({ length: 12 }, (_, i) => `<div style="flex:1; text-align:center; font-size:10px; color:#888;">${i + 1}月</div>`).join('')}
+            </div>`,
+                pie: `<div style="font-weight:bold; color:#6c5ce7; font-size:16px; margin-bottom:14px;">🥧 饼状图示意</div>
+            <div style="font-size:13px; color:#666; margin-bottom:16px;">用扇形面积表示各月占全年客户总数的比例</div>
+            <div style="display:flex; align-items:center; justify-content:center; gap:24px;">
+                <svg width="160" height="160" viewBox="-1 -1 2 2" id="pie-freq-svg" style="transform:rotate(-90deg)"></svg>
+                <div id="pie-freq-legend" style="font-size:12px;"></div>
+            </div>`
+            };
+            content.innerHTML = demos[type];
+            box.style.display = 'block';
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (type === 'pie') renderFreqPie();
+        }
+
+        function renderFreqPie() {
+            const vals = [3659, 5648, 4568, 4865, 3214, 3658, 3921, 3756, 3966, 4087, 4681, 4921];
+            const total = vals.reduce((a, b) => a + b, 0);
+            const colors = ['#00b4a0', '#fd9644', '#6c5ce7', '#e91e63', '#e17055', '#3498db', '#26d0ce', '#f39c12', '#1abc9c', '#9b59b6', '#e74c3c', '#2ecc71'];
+            const svg = document.getElementById('pie-freq-svg');
+            const legend = document.getElementById('pie-freq-legend');
+            if (!svg) return;
+            let startAngle = 0;
+            let svgContent = '';
+            let legendContent = '';
+            vals.forEach((v, i) => {
+                const slice = v / total * Math.PI * 2;
+                const x1 = Math.cos(startAngle), y1 = Math.sin(startAngle);
+                const x2 = Math.cos(startAngle + slice), y2 = Math.sin(startAngle + slice);
+                const large = slice > Math.PI ? 1 : 0;
+                svgContent += `<path d="M0,0 L${x1},${y1} A1,1,0,${large},1,${x2},${y2}Z" fill="${colors[i]}" opacity="0.85"/>`;
+                if (i < 6) legendContent += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:12px;height:12px;border-radius:50%;background:${colors[i]};flex-shrink:0;"></div>${i + 1}月 ${(v / total * 100).toFixed(1)}%</div>`;
+                startAngle += slice;
+            });
+            svg.innerHTML = svgContent;
+            legend.innerHTML = legendContent;
+        }
+
+        // ===== 结构分析饼图 =====
+        function renderStructPie() {
+            const data = [{ label: 'Q1 32.26%', val: 30, color: '#00b4a0' }, { label: 'Q2 43.75%', val: 42, color: '#fd9644' }, { label: 'Q3 41.67%', val: 40, color: '#6c5ce7' }, { label: 'Q4 38.78%', val: 38, color: '#e91e63' }];
+            const total = data.reduce((a, b) => a + b.val, 0);
+            const svg = document.getElementById('pie-svg');
+            const legend = document.getElementById('pie-legend');
+            if (!svg) return;
+            let start = -Math.PI / 2, svgContent = '', legContent = '';
+            data.forEach(d => {
+                const slice = d.val / total * Math.PI * 2;
+                const x1 = 100 + 90 * Math.cos(start), y1 = 100 + 90 * Math.sin(start);
+                const x2 = 100 + 90 * Math.cos(start + slice), y2 = 100 + 90 * Math.sin(start + slice);
+                const large = slice > Math.PI ? 1 : 0;
+                svgContent += `<path d="M100,100 L${x1},${y1} A90,90,0,${large},1,${x2},${y2}Z" fill="${d.color}" opacity="0.85" stroke="#fff" stroke-width="2"/>`;
+                legContent += `<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div><span>${d.label}</span></div>`;
+                start += slice;
+            });
+            svg.innerHTML = svgContent;
+            legend.innerHTML = legContent;
+        }
+
+        // ===== 漏斗图 =====
+        function renderFunnel() {
+            const stages = [
+                { name: '浏览产品', val: 2000, rate: '100%', color: '#00b4a0', analysis: '共有2000位客户浏览了产品页面，这是转化的起点。' },
+                { name: '加入购物车', val: 1050, rate: '52.5%', color: '#26d0ce', analysis: '1050人加入购物车，上一环节转化率52.5%。约一半的浏览用户有购买意向！' },
+                { name: '订单生成', val: 600, rate: '30%', color: '#3498db', analysis: '600人生成订单，总转化率30%。从购物车到下单流失了450人，需关注结算流程。' },
+                { name: '订单支付', val: 430, rate: '21.5%', color: '#6c5ce7', analysis: '430人完成支付，总转化率21.5%。170人在支付环节流失，可能存在支付体验问题。' },
+                { name: '完成交易', val: 350, rate: '17.5%', color: '#fd9644', analysis: '350人完成交易，最终总转化率17.5%。从2000到350，每100个浏览者中约18个成交。' },
+            ];
+            const maxVal = stages[0].val;
+            const maxWidth = 500;
+            let html = `<div class="funnel-title">电商购物转化漏斗（总转化率 17.5%）</div>`;
+            stages.forEach((s, i) => {
+                const w = (s.val / maxVal * maxWidth).toFixed(0);
+                html += `<div class="funnel-row" onclick="showFunnelAnalysis(${i})">
+            <div class="funnel-label">${s.name}</div>
+            <div class="funnel-bar-wrap">
+                <div class="funnel-bar" style="width:${w}px; background:${s.color}; max-width:100%;" data-val="${s.val}人">
+                    <div class="funnel-tooltip">${s.val}人</div>
+                    ${s.val}人
+                </div>
+            </div>
+            <div class="funnel-right">${s.rate}</div>
+        </div>`;
+            });
+            document.getElementById('funnel-visual').innerHTML = html;
+            window._funnelStages = stages;
+        }
+
+        function showFunnelAnalysis(i) {
+            const s = window._funnelStages[i];
+            const el = document.getElementById('funnel-analysis');
+            el.innerHTML = `<strong style="color:#007a6e;">📌 ${s.name} 分析：</strong><br>${s.analysis}`;
+            el.style.background = '#e8f9f7';
+        }
+
+        // ===== 测验 =====
+        const qAnswers = {
+            'q1': '频数是某数值出现的次数（如男性6人），频率是次数与总次数的比值（如6÷10=60%）。两者不同！',
+            'q2': '排他性原则是指每个单位只能属于一个分组，不能同时属于两个及以上分组。无遗漏原则是指不能有单位被遗漏。',
+            'q3': '市场占有率 = (50 ÷ 200) × 100% = 25%',
+            'q4': '占位数 = (最初数据 - 当前数据) ÷ 2 = (1200 - 360) ÷ 2 = 840 ÷ 2 = 420',
+            'q5': '漏斗图分析法适合分析业务周期长、流程规范且环节多的指标，如电商网站转化率、销售漏斗等。'
+        };
+
+        function answerQ(qId, el, isCorrect) {
+            const parent = el.closest('.quiz-section');
+            const opts = parent.querySelectorAll('.quiz-opt');
+            const fb = document.getElementById(qId + '-fb');
+            opts.forEach(o => o.style.pointerEvents = 'none');
+            el.classList.add(isCorrect ? 'correct' : 'wrong');
+            fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct' : 'wrong');
+            fb.innerHTML = (isCorrect ? '✅ 回答正确！' : '❌ 回答有误。') + qAnswers[qId];
+        }
+
+        // ===== 计算器 =====
+        function calcGroupDist() {
+            const max = parseFloat(document.getElementById('gd-max').value);
+            const min = parseFloat(document.getElementById('gd-min').value);
+            const n = parseFloat(document.getElementById('gd-n').value);
+            const res = document.getElementById('gd-result');
+            if (isNaN(max) || isNaN(min) || isNaN(n) || n <= 0 || min >= max) { alert('请正确输入数值！（最大值>最小值，组数>0）'); return; }
+            const dist = ((max - min) / n).toFixed(2);
+            document.getElementById('gd-val').textContent = `组距 = ${dist}`;
+            document.getElementById('gd-tip').textContent = `(${max} - ${min}) ÷ ${n} = ${dist}`;
+            res.classList.add('show');
+        }
+
+        function calcMarketShare() {
+            const own = parseFloat(document.getElementById('ms-own').value);
+            const total = parseFloat(document.getElementById('ms-total').value);
+            const res = document.getElementById('ms-result');
+            if (isNaN(own) || isNaN(total) || total <= 0) { alert('请正确输入数值！'); return; }
+            const rate = (own / total * 100).toFixed(2);
+            document.getElementById('ms-val').textContent = `市场占有率 = ${rate}%`;
+            document.getElementById('ms-val').style.color = rate >= 30 ? '#00b894' : '#e17055';
+            document.getElementById('ms-tip').textContent = `(${own} ÷ ${total}) × 100% = ${rate}%`;
+            res.classList.add('show');
+        }
+
+        function calcAvg() {
+            const input = document.getElementById('avg-input').value;
+            const nums = input.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+            const res = document.getElementById('avg-result');
+            if (nums.length === 0) { alert('请输入有效数字，用英文逗号分隔！'); return; }
+            const sum = nums.reduce((a, b) => a + b, 0);
+            const avg = (sum / nums.length).toFixed(2);
+            document.getElementById('avg-val').textContent = `平均数 = ${avg}`;
+            document.getElementById('avg-tip').textContent = `共${nums.length}个数，总和${sum}，平均值${avg}`;
+            res.classList.add('show');
+        }
+
+        function calcFunnelData() {
+            const init = parseFloat(document.getElementById('fd-init').value);
+            const cur = parseFloat(document.getElementById('fd-cur').value);
+            const res = document.getElementById('fd-result');
+            if (isNaN(init) || isNaN(cur) || init < cur) { alert('请正确输入！（最初数 ≥ 当前数）'); return; }
+            const result = ((init - cur) / 2).toFixed(0);
+            document.getElementById('fd-val').textContent = `占位数 = ${result}`;
+            document.getElementById('fd-tip').textContent = `(${init} - ${cur}) ÷ 2 = ${result}`;
+            res.classList.add('show');
+        }
+
+        // ===== 初始化 =====
+        function initAll() {
+            renderFreqChart();
+            renderStructPie();
+            renderFunnel();
+        }
+    </script>
+</body>
+
+</html>

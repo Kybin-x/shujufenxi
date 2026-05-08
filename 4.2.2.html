@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趋势分析 · 电子商务数据分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #4ECDC4;
+            --accent: #45B7D1;
+            --accent2: #96CEB4;
+            --purple: #A8E6CF;
+            --dark: #2C3E50;
+            --light: #F8FFFE;
+            --card-bg: #FFFFFF;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+            --g1: linear-gradient(135deg, #FF6B35, #FF8E53);
+            --g2: linear-gradient(135deg, #4ECDC4, #44CF6C);
+            --g3: linear-gradient(135deg, #45B7D1, #6C63FF);
+            --g4: linear-gradient(135deg, #F7971E, #FFD200);
+            --g5: linear-gradient(135deg, #FF6584, #FF9A56);
+            --shadow: 0 8px 32px rgba(255, 107, 53, 0.15);
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+            background: #FFF5F0;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* 导航 */
+        .navbar {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 50%, #FF6584 100%);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.35);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .nav-brand .icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-tab {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .nav-tab.active,
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* 区块切换 */
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 英雄区 */
+        .hero {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 40%, #FF6584 100%);
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            right: 100px;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .hero p {
+            font-size: 15px;
+            opacity: 0.9;
+            max-width: 520px;
+            line-height: 1.7;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 12px 20px;
+            text-align: center;
+        }
+
+        .hero-stat .num {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .hero-stat .label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* 通用卡片 */
+        .white-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+            margin-bottom: 24px;
+        }
+
+        .section-hdr {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .section-hdr .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .section-hdr h2 {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* 概念引入 */
+        .concept-box {
+            background: linear-gradient(135deg, #FFF5F0, #FFE8E0);
+            border-radius: 16px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .concept-box p {
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .concept-box .highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 流程图 */
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            background: var(--g2);
+            border-radius: 14px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+            position: relative;
+            box-shadow: 0 4px 14px rgba(78, 205, 196, 0.35);
+        }
+
+        .flow-arrow {
+            font-size: 20px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .flow-step.s1 {
+            background: var(--g1);
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+        }
+
+        .flow-step.s2 {
+            background: var(--g3);
+            box-shadow: 0 4px 14px rgba(69, 183, 209, 0.35);
+        }
+
+        .flow-step.s3 {
+            background: var(--g4);
+            box-shadow: 0 4px 14px rgba(247, 151, 30, 0.35);
+        }
+
+        /* 趋势线类型 */
+        .trendline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .trendline-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .trendline-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 28px rgba(255, 107, 53, 0.2);
+            border-color: var(--primary);
+        }
+
+        .tl-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .tl-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .tl-scene {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .tl-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .tl-warning {
+            background: #FFF3CD;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #856404;
+            margin-top: 8px;
+            display: flex;
+            gap: 4px;
+            align-items: flex-start;
+        }
+
+        /* 可视化趋势线 */
+        .viz-box {
+            background: #F8FFFE;
+            border-radius: 14px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* R平方值 */
+        .r2-visual {
+            background: linear-gradient(135deg, #2C3E50, #4a6080);
+            border-radius: 20px;
+            padding: 28px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .r2-gauge {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+        .r2-bar-wrap {
+            flex: 1;
+        }
+
+        .r2-bar-bg {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            height: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .r2-bar-fill {
+            height: 100%;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #FF6B35, #FFD200, #44CF6C);
+            transition: width 1.5s ease;
+        }
+
+        .r2-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .r2-pointer {
+            position: absolute;
+            top: -6px;
+            width: 2px;
+            height: 32px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        .r2-zones {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .r2-zone {
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .r2-zone.bad {
+            background: rgba(255, 107, 53, 0.2);
+        }
+
+        .r2-zone.ok {
+            background: rgba(255, 210, 0, 0.2);
+        }
+
+        .r2-zone.good {
+            background: rgba(68, 207, 108, 0.15);
+        }
+
+        .r2-zone .zval {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .r2-zone .zlabel {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* 标签页 */
+        .tab-btns {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 9px 18px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: inherit;
+            color: var(--text-light);
+        }
+
+        .tab-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* 操作步骤 */
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 18px;
+        }
+
+        .step-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .step-num {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--g1);
+            color: white;
+            font-size: 17px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+        }
+
+        .step-num.teal {
+            background: var(--g2);
+            box-shadow: 0 4px 14px rgba(78, 205, 196, 0.4);
+        }
+
+        .step-num.blue {
+            background: var(--g3);
+            box-shadow: 0 4px 14px rgba(69, 183, 209, 0.4);
+        }
+
+        .step-num.gold {
+            background: var(--g4);
+            box-shadow: 0 4px 14px rgba(247, 151, 30, 0.4);
+        }
+
+        .step-line {
+            width: 2px;
+            flex: 1;
+            min-height: 16px;
+            background: linear-gradient(to bottom, #FF6B3540, transparent);
+            margin-top: 6px;
+        }
+
+        .step-content {
+            flex: 1;
+            padding-bottom: 6px;
+        }
+
+        .step-content h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .code-block {
+            background: #2C3E50;
+            color: #a3e635;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.9;
+            font-family: Consolas, monospace;
+        }
+
+        .code-block .hl {
+            color: #FFD200;
+        }
+
+        .code-block .op {
+            color: #4ECDC4;
+        }
+
+        /* 时间序列 */
+        .timeline-intro {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .tl-card {
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .tl-card.blue-bg {
+            background: linear-gradient(135deg, #45B7D115, #6C63FF15);
+            border: 2px solid #45B7D130;
+        }
+
+        .tl-card.orange-bg {
+            background: linear-gradient(135deg, #FF6B3515, #FF8E5315);
+            border: 2px solid #FF6B3530;
+        }
+
+        .tl-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .tl-card p {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .pc-card {
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .pc-card.pros {
+            background: #43E97B15;
+            border: 2px solid #43E97B40;
+        }
+
+        .pc-card.cons {
+            background: #FF658415;
+            border: 2px solid #FF658440;
+        }
+
+        .pc-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .pc-card.pros h4 {
+            color: #20c65a;
+        }
+
+        .pc-card.cons h4 {
+            color: #FF6584;
+        }
+
+        .pc-item {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .pc-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 方法卡片 */
+        .method-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .method-card {
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .method-card:hover,
+        .method-card.active {
+            transform: translateY(-4px);
+        }
+
+        .method-card.m1 {
+            background: linear-gradient(135deg, #FF6B3510, #FF8E5310);
+            border-color: #FF6B35;
+        }
+
+        .method-card.m2 {
+            background: linear-gradient(135deg, #4ECDC410, #44CF6C10);
+            border-color: #4ECDC4;
+        }
+
+        .method-card.m3 {
+            background: linear-gradient(135deg, #45B7D110, #6C63FF10);
+            border-color: #45B7D1;
+        }
+
+        .method-card .m-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .method-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .method-card p {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* 公式展示 */
+        .formula-box {
+            background: linear-gradient(135deg, #2C3E50, #34495E);
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+            margin: 16px 0;
+        }
+
+        .formula-title {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 12px;
+        }
+
+        .formula {
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFD200;
+            text-align: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            font-family: Georgia, serif;
+            letter-spacing: 1px;
+        }
+
+        .formula-explain {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .formula-var {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .formula-var .var {
+            font-weight: 700;
+            color: #4ECDC4;
+            margin-right: 6px;
+        }
+
+        .formula-var .def {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        /* 步骤进度 */
+        .season-steps {
+            position: relative;
+        }
+
+        .s-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 14px;
+            background: white;
+            border-radius: 14px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .s-step:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 18px rgba(255, 107, 53, 0.18);
+        }
+
+        .s-step:nth-child(2) {
+            border-color: #4ECDC4;
+        }
+
+        .s-step:nth-child(3) {
+            border-color: #45B7D1;
+        }
+
+        .s-step:nth-child(4) {
+            border-color: #F7971E;
+        }
+
+        .s-step:nth-child(5) {
+            border-color: #A8E6CF;
+        }
+
+        .s-step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--g1);
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .s-step:nth-child(2) .s-step-num {
+            background: var(--g2);
+        }
+
+        .s-step:nth-child(3) .s-step-num {
+            background: var(--g3);
+        }
+
+        .s-step:nth-child(4) .s-step-num {
+            background: var(--g4);
+        }
+
+        .s-step:nth-child(5) .s-step-num {
+            background: var(--g5);
+        }
+
+        .s-step-content h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .s-step-content p {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .s-step-formula {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 700;
+            background: #FFF5F0;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        /* 交互计算器 */
+        .calculator {
+            background: linear-gradient(135deg, #2C3E50, #4a6080);
+            border-radius: 20px;
+            padding: 26px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .calc-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calc-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .calc-input-wrap label {
+            font-size: 12px;
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .calc-input-wrap input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .calc-input-wrap input:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .calc-input-wrap input::placeholder {
+            opacity: 0.5;
+            color: white;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FF6B35, #FF8E53);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .calc-result {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            display: none;
+            margin-top: 14px;
+        }
+
+        .calc-result .result-val {
+            font-size: 32px;
+            font-weight: 800;
+            color: #FFD200;
+        }
+
+        .calc-result .result-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        /* 趋势线可视化Canvas */
+        .trendline-viz {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .viz-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .viz-btn {
+            padding: 7px 14px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: inherit;
+            color: var(--text-light);
+        }
+
+        .viz-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 测试题 */
+        .quiz-section {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .quiz-item {
+            background: #F8FFFE;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .quiz-item h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 8px;
+        }
+
+        .quiz-option {
+            padding: 11px 16px;
+            background: white;
+            border: 2px solid #E8E8F0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+            color: var(--text);
+            text-align: left;
+            width: 100%;
+        }
+
+        .quiz-option .opt-label {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: #E8E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: #FFF5F0;
+        }
+
+        .quiz-option.correct {
+            border-color: #43E97B;
+            background: #43E97B15;
+        }
+
+        .quiz-option.correct .opt-label {
+            background: #43E97B;
+            color: white;
+        }
+
+        .quiz-option.wrong {
+            border-color: #FF6584;
+            background: #FF658415;
+        }
+
+        .quiz-option.wrong .opt-label {
+            background: #FF6584;
+            color: white;
+        }
+
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .quiz-feedback.show-correct {
+            background: #43E97B20;
+            color: #20c65a;
+            display: block;
+        }
+
+        .quiz-feedback.show-wrong {
+            background: #FF658420;
+            color: #FF6584;
+            display: block;
+        }
+
+        .progress-bar {
+            background: #E8E8F0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #FF6B35, #FF8E53);
+            transition: width 1s ease;
+        }
+
+        /* 速查卡 */
+        .cheatsheet {
+            background: linear-gradient(135deg, #2C3E50, #34495E);
+            border-radius: 20px;
+            padding: 28px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .cheat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .cheat-block {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .cheat-block h3 {
+            font-size: 13px;
+            color: #4ECDC4;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cheat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            font-size: 12px;
+        }
+
+        .cheat-row:last-child {
+            border-bottom: none;
+        }
+
+        .cheat-row .cn {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .cheat-row .hint {
+            color: #FFD200;
+        }
+
+        /* 想一想 */
+        .think-box {
+            background: linear-gradient(135deg, #4ECDC415, #44CF6C15);
+            border: 2px solid #4ECDC440;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .think-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #20c65a;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .think-examples {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .think-example {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .think-example:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.25);
+        }
+
+        .think-example .ex-emoji {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .think-example .ex-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .think-example .ex-desc {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .trendline-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-intro,
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .method-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .calc-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .cheat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .think-examples {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .formula-explain {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 22px;
+            }
+
+            .nav-tabs {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="icon">📈</div>
+            电商数据分析 · 模块四
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchSection('intro')">📖 趋势入门</button>
+            <button class="nav-tab" onclick="switchSection('trendline')">📉 趋势线详解</button>
+            <button class="nav-tab" onclick="switchSection('timeseries')">⏰ 时间序列法</button>
+            <button class="nav-tab" onclick="switchSection('quiz')">✅ 练习测试</button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- ========== 趋势入门 ========== -->
+        <div class="section active" id="section-intro">
+
+            <div class="hero">
+                <div class="hero-badge">📊 单元二 · 趋势分析</div>
+                <h1>学会预测未来<br>让数据为你"算命" 🔮</h1>
+                <p>掌握趋势分析，就像给店铺装上"望远镜"——看清过去、把握现在、预测未来！</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="num">2</div>
+                        <div class="label">大分析方法</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">6</div>
+                        <div class="label">种趋势线</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">3</div>
+                        <div class="label">个预测工具</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 概念引入 -->
+            <div class="white-card">
+                <div class="section-hdr">
+                    <div class="dot"></div>
+                    <h2>🤔 什么是趋势分析？先想想这个场景</h2>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+                    <div style="background:#FFF5F0;border-radius:14px;padding:18px;border:2px solid #FF6B3530;">
+                        <div style="font-size:24px;margin-bottom:8px;">🚫 这不叫趋势分析</div>
+                        <div style="font-size:14px;color:var(--text);line-height:1.7;">
+                            老板看了看销量折线图，说："哦，这个月比上个月多了一些。"<br>
+                            <strong style="color:#FF6584;">→ 只是"看图"，没有分析原因，没有预测未来</strong>
+                        </div>
+                    </div>
+                    <div style="background:#F0FFF4;border-radius:14px;padding:18px;border:2px solid #43E97B40;">
+                        <div style="font-size:24px;margin-bottom:8px;">✅ 这才是趋势分析</div>
+                        <div style="font-size:14px;color:var(--text);line-height:1.7;">
+                            数据分析师说："由于双十一活动，11月销量激增，预测12月将达到XXX万元，建议提前备货。"<br>
+                            <strong style="color:#20c65a;">→ 分析原因 + 预测未来 + 给出建议</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="concept-box">
+                    <p>趋势分析 = 在<span class="highlight">已有数据</span>的基础上，利用科学方法，对未来<span
+                            class="highlight">市场需求、发展方向</span>做出判断，为<span class="highlight">营销决策</span>服务。核心是：<span
+                            class="highlight">明确数据变化 + 分析变化原因（内部/外部）</span></p>
+                </div>
+            </div>
+
+            <!-- 图表趋势预测法流程 -->
+            <div class="white-card">
+                <div class="section-hdr">
+                    <div class="dot" style="background:#4ECDC4"></div>
+                    <h2>📊 方法一：图表趋势预测法（3步走）</h2>
+                </div>
+                <p style="color:var(--text-light);font-size:14px;margin-bottom:16px;">💡 就像照镜子——先看数据长什么样，再找规律，再预测未来</p>
+                <div class="flow-steps">
+                    <div class="flow-step s1">
+                        <div style="font-size:20px;margin-bottom:6px;">📊</div>
+                        <div>第一步</div>
+                        <div style="font-size:12px;opacity:0.9;margin-top:4px;">制作散点图或折线图</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step s2">
+                        <div style="font-size:20px;margin-bottom:6px;">🔍</div>
+                        <div>第二步</div>
+                        <div style="font-size:12px;opacity:0.9;margin-top:4px;">观察图形添加趋势线</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step s3">
+                        <div style="font-size:20px;margin-bottom:6px;">🔢</div>
+                        <div>第三步</div>
+                        <div style="font-size:12px;opacity:0.9;margin-top:4px;">用公式计算预测值</div>
+                    </div>
+                </div>
+
+                <!-- 趋势线可视化 -->
+                <div class="trendline-viz">
+                    <div style="font-weight:700;font-size:15px;margin-bottom:12px;color:var(--dark);">🎮 点击查看不同趋势线形状
+                    </div>
+                    <div class="viz-selector">
+                        <button class="viz-btn active" onclick="drawTrend('linear',this)">📏 线性</button>
+                        <button class="viz-btn" onclick="drawTrend('exp',this)">📈 指数</button>
+                        <button class="viz-btn" onclick="drawTrend('log',this)">📉 对数</button>
+                        <button class="viz-btn" onclick="drawTrend('poly',this)">〰️ 多项式</button>
+                        <button class="viz-btn" onclick="drawTrend('ma',this)">〜 移动平均</button>
+                    </div>
+                    <canvas id="trendCanvas" height="180" style="width:100%;"></canvas>
+                    <div id="trendDesc"
+                        style="background:#FFF5F0;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:var(--text);line-height:1.7;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- R平方值理解 -->
+            <div class="white-card">
+                <div class="section-hdr">
+                    <div class="dot" style="background:#45B7D1"></div>
+                    <h2>🎯 怎么判断趋势线准不准？——R²（R平方值）</h2>
+                </div>
+                <div class="r2-visual">
+                    <p style="opacity:0.8;font-size:14px;margin-bottom:8px;">R²越接近1，说明趋势线越能"解释"数据，预测越准确</p>
+                    <div class="r2-gauge">
+                        <div style="font-size:28px;font-weight:800;color:#FF6B35;">0</div>
+                        <div class="r2-bar-wrap">
+                            <div class="r2-bar-bg">
+                                <div class="r2-bar-fill" id="r2Fill" style="width:80%"></div>
+                            </div>
+                            <div class="r2-labels"><span>不准</span><span>一般</span><span>较准</span><span>很准</span></div>
+                        </div>
+                        <div style="font-size:28px;font-weight:800;color:#44CF6C;">1</div>
+                    </div>
+                    <div class="r2-zones">
+                        <div class="r2-zone bad">
+                            <div class="zval" style="color:#FF6B35;">
+                                < 0.5</div>
+                                    <div class="zlabel">❌ 拟合较差，参考价值低</div>
+                            </div>
+                            <div class="r2-zone ok">
+                                <div class="zval" style="color:#FFD200;">0.5~0.8</div>
+                                <div class="zlabel">⚠️ 一般，可用但要注意</div>
+                            </div>
+                            <div class="r2-zone good">
+                                <div class="zval" style="color:#44CF6C;">> 0.8</div>
+                                <div class="zlabel">✅ 优秀！预测可信度高</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        style="background:#FFF5F0;border-radius:14px;padding:16px;border-left:4px solid var(--primary);">
+                        <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">💡 通俗理解
+                        </div>
+                        <div style="font-size:14px;color:var(--text);line-height:1.8;">
+                            比如气象预报：R²=0.9，说明天气预报有90%能被这个模型解释，很准！
+                            R²=0.4，说明模型只能解释40%，预测不太靠谱，需要换模型。
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========== 趋势线详解 ========== -->
+            <div class="section" id="section-trendline">
+
+                <div class="white-card">
+                    <div class="section-hdr">
+                        <div class="dot"></div>
+                        <h2>📉 六种趋势线，如何选择？</h2><span
+                            style="font-size:13px;color:var(--text-light);margin-left:auto;">看数据"长什么样"决定选哪种</span>
+                    </div>
+
+                    <div class="trendline-grid">
+                        <div class="trendline-card" onclick="selectTrend(this)">
+                            <div class="tl-icon" style="background:linear-gradient(135deg,#FF6B3520,#FF8E5320);">📏
+                            </div>
+                            <div class="tl-name">线性趋势线</div>
+                            <div class="tl-scene">🎯 数据近乎直线增长/下降</div>
+                            <div class="tl-desc">增长或降低速度比较平稳，数据点基本构成直线形态。</div>
+                            <div
+                                style="background:#FFF5F0;border-radius:8px;padding:8px;margin-top:10px;font-size:12px;color:var(--primary);">
+                                ✔ 举例：企业年销售额平稳增长</div>
+                        </div>
+                        <div class="trendline-card" onclick="selectTrend(this)">
+                            <div class="tl-icon" style="background:linear-gradient(135deg,#4ECDC420,#44CF6C20);">📈
+                            </div>
+                            <div class="tl-name">指数趋势线</div>
+                            <div class="tl-scene">🎯 增速越来越快（曲线上扬）</div>
+                            <div class="tl-desc">增长幅度越来越大，曲线越来越陡。</div>
+                            <div class="tl-warning">⚠️ 注意：数据中有零或负值时不能用！</div>
+                            <div
+                                style="background:#F0FFF4;border-radius:8px;padding:8px;margin-top:8px;font-size:12px;color:#20c65a;">
+                                ✔ 举例：爆款商品刚上架的销量增长</div>
+                        </div>
+                        <div class="trendline-card" onclick="selectTrend(this)">
+                            <div class="tl-icon" style="background:linear-gradient(135deg,#45B7D120,#6C63FF20);">📉
+                            </div>
+                            <div class="tl-name">对数趋势线</div>
+                            <div class="tl-scene">🎯 先快后慢，逐渐趋于平缓</div>
+                            <div class="tl-desc">增长一开始快，后来越来越慢，最终趋于平稳。</div>
+                            <div
+                                style="background:#EFF6FF;border-radius:8px;padding:8px;margin-top:10px;font-size:12px;color:#45B7D1;">
+                                ✔ 举例：新店初期涨粉快，后来越来越慢</div>
+                        </div>
+                        <div class="trendline-card" onclick="selectTrend(this)">
+                            <div class="tl-icon" style="background:linear-gradient(135deg,#F7971E20,#FFD20020);">〰️
+                            </div>
+                            <div class="tl-name">多项式趋势线</div>
+                            <div class="tl-scene">🎯 数据有明显波动（有峰有谷）</div>
+                            <div class="tl-desc">数据波动大，有高峰和低谷。阶数=波动次数（2阶=1个波峰）。</div>
+                            <div
+                                style="background:#FFFBF0;border-radius:8px;padding:8px;margin-top:10px;font-size:12px;color:#e08010;">
+                                ✔ 举例：电商节日促销—普通日的销售波动</div>
+                        </div>
+                        <div class="trendline-card" onclick="selectTrend(this)">
+                            <div class="tl-icon" style="background:linear-gradient(135deg,#FF658420,#FF9A5620);">⚡</div>
+                            <div class="tl-name">乘幂趋势线</div>
+                            <div class="tl-scene">🎯 增速稳定持续增加</div>
+                            <div class="tl-desc">增长速度持续增加，且增加幅度比较恒定。</div>
+                            <div class="tl-warning">⚠️ 注意：数据含零或负数时不能用！</div>
+                            <div
+                                style="background:#FFF5F0;border-radius:8px;padding:8px;margin-top:8px;font-size:12px;color:#FF6584;">
+                                ✔ 举例：平台用户数量的稳定增长</div>
+                        </div>
+                        <div class="trendline-card" onclick="selectTrend(this)">
+                            <div class="tl-icon" style="background:linear-gradient(135deg,#A8E6CF20,#88D8B020);">〜</div>
+                            <div class="tl-name">移动平均趋势线</div>
+                            <div class="tl-scene">🎯 消除随机波动，看清总体趋势</div>
+                            <div class="tl-desc">取特定期数的平均值，平滑处理数据中的小波动。</div>
+                            <div
+                                style="background:#F0FFF4;border-radius:8px;padding:8px;margin-top:10px;font-size:12px;color:#20c65a;">
+                                ✔ 举例：每日销量忽高忽低，想看整体走向</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 三个实战案例 -->
+                <div class="white-card">
+                    <div class="section-hdr">
+                        <div class="dot" style="background:#4ECDC4"></div>
+                        <h2>🛠️ 三个实战操作案例</h2>
+                    </div>
+                    <div class="tab-btns">
+                        <button class="tab-btn active" onclick="switchTab('t1',this)">📏 线性：预测销售额</button>
+                        <button class="tab-btn" onclick="switchTab('t2',this)">📈 指数：预测销量</button>
+                        <button class="tab-btn" onclick="switchTab('t3',this)">〰️ 多项式：预测费用</button>
+                    </div>
+
+                    <!-- 线性案例 -->
+                    <div class="tab-panel active" id="panel-t1">
+                        <div style="background:#FFF5F0;border-radius:14px;padding:16px;margin-bottom:16px;">
+                            <div style="font-weight:700;font-size:15px;color:var(--primary);margin-bottom:8px;">📦 案例背景
+                            </div>
+                            <div style="font-size:14px;color:var(--text);line-height:1.7;">
+                                某店铺2010-2018年历年销售额数据（单位：万元），需要预测2019年和2020年的销售额。数据变化较平稳，适合用<strong>线性趋势线</strong>。</div>
+                        </div>
+                        <div class="step-list">
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num">1</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>制作折线图</h3>
+                                    <p>打开Excel文件，选择数据区域（A2:B12），插入带数据标记的折线图</p>
+                                    <div class="code-block">选择 <span class="hl">A2:B12</span> → 插入 → 图表 → <span
+                                            class="op">折线图</span> → 带数据标记的折线图</div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num teal">2</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>添加线性趋势线</h3>
+                                    <p>选中图表 → 图表工具 → 设计 → 添加图表元素 → 趋势线 → 线性</p>
+                                    <div class="code-block">选中图表 → <span class="op">设计</span> → 添加图表元素 → 趋势线 → <span
+                                            class="hl">线性(L)</span></div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num blue">3</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>设置格式并获取公式</h3>
+                                    <p>双击趋势线 → 设置趋势线格式 → 向前预测2年 → 勾选"显示公式"</p>
+                                    <div
+                                        style="background:#2C3E50;border-radius:10px;padding:14px;color:white;font-size:14px;margin-top:8px;">
+                                        <div style="opacity:0.7;font-size:12px;margin-bottom:8px;">Excel自动生成的回归公式：</div>
+                                        <div style="font-size:18px;font-weight:700;color:#FFD200;text-align:center;">y =
+                                            187.6x + 334.78</div>
+                                        <div style="opacity:0.7;font-size:12px;margin-top:8px;text-align:center;">x =
+                                            数据点序号，y = 对应年份销售额</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num gold">4</div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>计算预测值</h3>
+                                    <p>2019年是第10个数据点(x=10)，2020年是第11个数据点(x=11)</p>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+                                        <div
+                                            style="background:#FFF5F0;border-radius:12px;padding:14px;border:2px solid #FF6B3540;">
+                                            <div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">📅
+                                                2019年预测</div>
+                                            <div style="font-size:13px;color:var(--text);">y = 187.6×10 + 334.78</div>
+                                            <div
+                                                style="font-size:22px;font-weight:800;color:var(--primary);margin-top:6px;">
+                                                ≈ 2210.78 万元</div>
+                                        </div>
+                                        <div
+                                            style="background:#F0FFF4;border-radius:12px;padding:14px;border:2px solid #43E97B40;">
+                                            <div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">📅
+                                                2020年预测</div>
+                                            <div style="font-size:13px;color:var(--text);">y = 187.6×11 + 334.78</div>
+                                            <div style="font-size:22px;font-weight:800;color:#20c65a;margin-top:6px;">≈
+                                                2398.38 万元</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 交互计算器 -->
+                        <div class="calculator" style="margin-top:20px;">
+                            <div class="calc-title">🔢 自己试试！用线性公式计算预测值</div>
+                            <div
+                                style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;">
+                                公式：<strong style="color:#FFD200;">y = 187.6 × x + 334.78</strong>（x = 数据点序号）
+                            </div>
+                            <div class="calc-inputs">
+                                <div class="calc-input-wrap">
+                                    <label>输入年份序号（x）</label>
+                                    <input type="number" id="linear_x" placeholder="如：12（表示第12年）" min="1" max="20">
+                                </div>
+                                <div class="calc-input-wrap" style="grid-column:2/4">
+                                    <label>对应年份（选填，方便理解）</label>
+                                    <input type="text" id="linear_year" placeholder="如：2021年">
+                                </div>
+                            </div>
+                            <button class="calc-btn" onclick="calcLinear()">🚀 计算预测销售额</button>
+                            <div class="calc-result" id="linear_result">
+                                <div class="result-label" id="linear_result_label"></div>
+                                <div class="result-val" id="linear_result_val"></div>
+                                <div class="result-label">万元（预测销售额）</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 指数案例 -->
+                    <div class="tab-panel" id="panel-t2">
+                        <div style="background:#F0FFF4;border-radius:14px;padding:16px;margin-bottom:16px;">
+                            <div style="font-weight:700;font-size:15px;color:#20c65a;margin-bottom:8px;">📦 案例背景</div>
+                            <div style="font-size:14px;color:var(--text);line-height:1.7;">
+                                某店铺近10个月销量数据（单位：万件），销量呈加速增长态势，适合用<strong>指数趋势线</strong>。需预测11月、12月销量。</div>
+                        </div>
+                        <div class="step-list">
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num">1</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>制作散点图</h3>
+                                    <p>选择A2:B13 → 插入 → 散点图 → 仅带数据标记的散点图</p>
+                                    <div class="code-block">选择 <span class="hl">A2:B13</span> → 插入 → <span
+                                            class="op">散点图</span> → 仅带数据标记</div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num teal">2</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>添加指数趋势线</h3>
+                                    <p>选中图表 → 设计 → 添加图表元素 → 趋势线 → <strong>指数</strong></p>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num blue">3</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>获取指数公式与R²值</h3>
+                                    <p>双击趋势线 → 向前预测2期 → 勾选"显示公式"和"显示R平方值"</p>
+                                    <div
+                                        style="background:#2C3E50;border-radius:10px;padding:14px;color:white;font-size:14px;margin-top:8px;">
+                                        <div style="font-size:18px;font-weight:700;color:#FFD200;text-align:center;">y =
+                                            23.661e^(0.1385x)</div>
+                                        <div
+                                            style="color:#44CF6C;font-size:15px;font-weight:700;text-align:center;margin-top:8px;">
+                                            R² = 0.9279 ✅ 拟合很好！</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num gold">4</div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>计算11月、12月预测销量</h3>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+                                        <div
+                                            style="background:#FFF5F0;border-radius:12px;padding:14px;border:2px solid #FF6B3540;">
+                                            <div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">📅
+                                                11月（第11个数据点）</div>
+                                            <div style="font-size:13px;color:var(--text);">y = 23.661×e^(0.1385×11)
+                                            </div>
+                                            <div
+                                                style="font-size:22px;font-weight:800;color:var(--primary);margin-top:6px;">
+                                                ≈ 108.56 万件</div>
+                                        </div>
+                                        <div
+                                            style="background:#F0FFF4;border-radius:12px;padding:14px;border:2px solid #43E97B40;">
+                                            <div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">📅
+                                                12月（第12个数据点）</div>
+                                            <div style="font-size:13px;color:var(--text);">y = 23.661×e^(0.1385×12)
+                                            </div>
+                                            <div style="font-size:22px;font-weight:800;color:#20c65a;margin-top:6px;">≈
+                                                124.69 万件</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 多项式案例 -->
+                    <div class="tab-panel" id="panel-t3">
+                        <div style="background:#FFFBF0;border-radius:14px;padding:16px;margin-bottom:16px;">
+                            <div style="font-weight:700;font-size:15px;color:#e08010;margin-bottom:8px;">📦 案例背景</div>
+                            <div style="font-size:14px;color:var(--text);line-height:1.7;">
+                                分析某店铺8月份销售额与销售费用的关系，数据呈U形波动，适合用<strong>二阶多项式趋势线</strong>，并预测销售额为300万时的销售费用。</div>
+                        </div>
+                        <div class="formula-box">
+                            <div class="formula-title">最终获得的预测公式（二阶多项式）：</div>
+                            <div class="formula">y = 0.0014x² - 0.6466x + 85.109</div>
+                            <div style="color:#44CF6C;font-size:14px;text-align:center;margin-top:8px;">R² =
+                                0.64（中等，需要注意预测误差）</div>
+                            <div class="formula-explain">
+                                <div class="formula-var"><span class="var">x</span><span class="def">= 销售额（万元）</span>
+                                </div>
+                                <div class="formula-var"><span class="var">y</span><span class="def">= 销售费用（万元）</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background:#FFF5F0;border-radius:14px;padding:16px;border:2px solid #FF6B3540;">
+                            <div style="font-weight:700;font-size:15px;color:var(--primary);margin-bottom:10px;">✍️ 应用计算
+                            </div>
+                            <p style="font-size:14px;color:var(--text);line-height:1.8;">已知8月21日销售额为300万元，代入公式：</p>
+                            <div
+                                style="background:#2C3E50;border-radius:10px;padding:14px;color:white;margin-top:10px;font-size:14px;text-align:center;">
+                                y = 0.0014×300² - 0.6466×300 + 85.109<br>
+                                = 0.0014×90000 - 193.98 + 85.109<br>
+                                = 126 - 193.98 + 85.109<br>
+                                <strong style="color:#FFD200;font-size:18px;">≈ 17.13 万元</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 时间序列 ========== -->
+            <div class="section" id="section-timeseries">
+
+                <div class="white-card">
+                    <div class="section-hdr">
+                        <div class="dot" style="background:#45B7D1"></div>
+                        <h2>⏰ 什么是时间序列？</h2>
+                    </div>
+                    <div class="timeline-intro">
+                        <div class="tl-card blue-bg">
+                            <h4 style="color:#45B7D1;">📋 时间序列的定义</h4>
+                            <p>按时间顺序排列的一组数据，时间间隔相等。</p>
+                            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+                                <span
+                                    style="background:#45B7D120;color:#45B7D1;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;">按年排列</span>
+                                <span
+                                    style="background:#45B7D120;color:#45B7D1;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;">按季度</span>
+                                <span
+                                    style="background:#45B7D120;color:#45B7D1;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;">按月</span>
+                                <span
+                                    style="background:#45B7D120;color:#45B7D1;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;">按天</span>
+                            </div>
+                        </div>
+                        <div class="tl-card orange-bg">
+                            <h4 style="color:var(--primary);">🔬 基本原理</h4>
+                            <p>① <strong>承认延续性：</strong>历史趋势会延伸到未来</p>
+                            <p style="margin-top:8px;">② <strong>消除随机性：</strong>用统计处理消除偶然波动</p>
+                        </div>
+                    </div>
+
+                    <div style="font-weight:700;font-size:15px;color:var(--dark);margin-bottom:12px;">优缺点对比</div>
+                    <div class="pros-cons">
+                        <div class="pc-card pros">
+                            <h4>✅ 优点</h4>
+                            <div class="pc-item">📊 分析过去、现在、未来联系效果好</div>
+                            <div class="pc-item">🔢 数据处理不复杂，操作相对简单</div>
+                            <div class="pc-item">📈 对短期稳定趋势预测准确度高</div>
+                        </div>
+                        <div class="pc-card cons">
+                            <h4>⚠️ 缺点</h4>
+                            <div class="pc-item">📉 只适合预测稳定延续的过程</div>
+                            <div class="pc-item">❌ 不适合长期预测（误差会累积）</div>
+                            <div class="pc-item">🔮 不考虑因果关系，可能遗漏重要因素</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 三种方法 -->
+                <div class="white-card">
+                    <div class="section-hdr">
+                        <div class="dot" style="background:#F7971E"></div>
+                        <h2>🛠️ 三种常用预测方法</h2>
+                    </div>
+                    <div class="method-cards">
+                        <div class="method-card m1 active" onclick="switchMethod('m1',this)">
+                            <div class="m-icon">🌊</div>
+                            <h3>季节波动法</h3>
+                            <p>按季节规律预测，考虑淡旺季影响</p>
+                        </div>
+                        <div class="method-card m2" onclick="switchMethod('m2',this)">
+                            <div class="m-icon">📊</div>
+                            <h3>移动平均法</h3>
+                            <p>用最近几期平均值平滑预测下期</p>
+                        </div>
+                        <div class="method-card m3" onclick="switchMethod('m3',this)">
+                            <div class="m-icon">⚖️</div>
+                            <h3>指数平滑法</h3>
+                            <p>近期数据权重更大，适应趋势变化</p>
+                        </div>
+                    </div>
+
+                    <!-- 季节波动法 -->
+                    <div id="method-m1" style="display:block;">
+                        <div style="background:#FFF5F0;border-radius:14px;padding:16px;margin-bottom:16px;">
+                            <div style="font-weight:700;font-size:15px;color:var(--primary);margin-bottom:8px;">🌊
+                                季节波动法是什么？</div>
+                            <div style="font-size:14px;color:var(--text);line-height:1.8;">
+                                由于季节变化（天气、节假日、消费习惯等）导致销量有规律地忽高忽低。<br>
+                                例如：羽绒服冬天卖得好，防晒霜夏天卖得好。<br>
+                                季节波动法就是利用这种<strong style="color:var(--primary);">规律性</strong>来预测未来各季度的销量。
+                            </div>
+                        </div>
+                        <div style="font-weight:700;font-size:15px;color:var(--dark);margin-bottom:12px;">操作步骤（共5步）：
+                        </div>
+                        <div class="season-steps">
+                            <div class="s-step">
+                                <div class="s-step-num">1</div>
+                                <div class="s-step-content">
+                                    <h4>收集至少3年以上的各季度历史数据</h4>
+                                    <p>数据要完整，如有极端值（如突发疫情影响的季度）需删除</p>
+                                </div>
+                            </div>
+                            <div class="s-step">
+                                <div class="s-step-num">2</div>
+                                <div class="s-step-content">
+                                    <h4>计算各季度的同季平均值（用A表示）</h4>
+                                    <p>把同一季度5年的数据加起来求平均</p>
+                                    <div class="s-step-formula">=AVERAGE(B3:B7) → 计算第一季度5年平均值</div>
+                                </div>
+                            </div>
+                            <div class="s-step">
+                                <div class="s-step-num">3</div>
+                                <div class="s-step-content">
+                                    <h4>计算所有季度的总平均值（用B表示）</h4>
+                                    <div class="s-step-formula">=AVERAGE(B8:E8) → 计算四季度综合平均值</div>
+                                </div>
+                            </div>
+                            <div class="s-step">
+                                <div class="s-step-num">4</div>
+                                <div class="s-step-content">
+                                    <h4>计算季节指数 S = A ÷ B</h4>
+                                    <p>季节指数&gt;1：该季度高于平均水平（旺季）；&lt;1：低于平均（淡季）</p>
+                                    <div class="s-step-formula">=B8/B9 → 第一季度季节比率</div>
+                                </div>
+                            </div>
+                            <div class="s-step">
+                                <div class="s-step-num">5</div>
+                                <div class="s-step-content">
+                                    <h4>计算预测值 = 全年预测均值 × 季节指数</h4>
+                                    <div class="s-step-formula">=F11/4*B10 → 2019年第一季度预测值</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 移动平均法 -->
+                    <div id="method-m2" style="display:none;">
+                        <div style="background:#F0FFF4;border-radius:14px;padding:16px;margin-bottom:16px;">
+                            <div style="font-weight:700;font-size:15px;color:#20c65a;margin-bottom:8px;">📊 移动平均法是什么？
+                            </div>
+                            <div style="font-size:14px;color:var(--text);line-height:1.8;">
+                                用"最近几期"的平均数来预测下一期。每次都取相同数量的数据求平均，"移动"就是随时间推进，去掉最早的，加上最新的。<br>
+                                <strong style="color:#20c65a;">适合：数据既不快速增长也不快速下降，且无明显季节性的场景。</strong>
+                            </div>
+                        </div>
+                        <div style="font-weight:700;font-size:15px;color:var(--dark);margin-bottom:12px;">Excel操作步骤：
+                        </div>
+                        <div class="step-list">
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num">1</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>用公式计算一次移动平均</h3>
+                                    <p>选择D8单元格，输入公式计算前12个月的平均值，然后向下填充</p>
+                                    <div class="code-block">=<span class="hl">AVERAGE</span>(<span
+                                            class="op">C3:C14</span>) → 向下填充至D20</div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num teal">2</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>计算二次移动平均（平滑曲线）</h3>
+                                    <div class="code-block">=<span class="hl">AVERAGE</span>(<span
+                                            class="op">D8:D9</span>) → 向下填充至E20</div>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-left">
+                                    <div class="step-num blue">3</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div class="step-content">
+                                    <h3>或使用"数据分析"工具（更方便！）</h3>
+                                    <div class="code-block">数据 → <span class="op">数据分析</span> → <span
+                                            class="hl">移动平均</span> → 确定
+                                        输入区域：利润列数据
+                                        间隔(N)：<span class="hl">12</span>（取12期移动平均）
+                                        ☑ 图表输出 ☑ 标准误差</div>
+                                    <div
+                                        style="background:#FFF5F0;border-radius:10px;padding:10px;margin-top:8px;font-size:13px;color:var(--text);">
+                                        💡 标准误差越小 = 预测越准确！</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 指数平滑法 -->
+                    <div id="method-m3" style="display:none;">
+                        <div style="background:#EFF6FF;border-radius:14px;padding:16px;margin-bottom:16px;">
+                            <div style="font-weight:700;font-size:15px;color:#45B7D1;margin-bottom:8px;">⚖️ 指数平滑法是什么？
+                            </div>
+                            <div style="font-size:14px;color:var(--text);line-height:1.8;">
+                                给"近期数据"更大权重，"远期数据"权重小。通过平滑系数α来控制权重分配。<br>
+                                注意：α（平滑系数）= 1 - 阻尼系数，Excel中设置的是阻尼系数。
+                            </div>
+                        </div>
+                        <div class="formula-box">
+                            <div class="formula-title">核心公式：</div>
+                            <div class="formula">下期预测数 = 本期实际数 × α + 本期预测数 × (1-α)</div>
+                            <div style="color:rgba(255,255,255,0.7);font-size:12px;text-align:center;margin-top:8px;">α
+                                = 平滑系数（0~1之间）；α越大，近期数据权重越大</div>
+                        </div>
+
+                        <!-- 交互计算器 -->
+                        <div class="calculator">
+                            <div class="calc-title">🔢 指数平滑法在线计算器</div>
+                            <div class="calc-inputs">
+                                <div class="calc-input-wrap">
+                                    <label>本期实际值</label>
+                                    <input type="number" id="exp_actual" placeholder="如：50">
+                                </div>
+                                <div class="calc-input-wrap">
+                                    <label>本期预测值</label>
+                                    <input type="number" id="exp_forecast" placeholder="如：55">
+                                </div>
+                                <div class="calc-input-wrap">
+                                    <label>平滑系数 α（0~1）</label>
+                                    <input type="number" id="exp_alpha" placeholder="如：0.4" step="0.1" min="0.1"
+                                        max="0.9">
+                                </div>
+                            </div>
+                            <button class="calc-btn" onclick="calcExpSmooth()">🚀 计算下期预测值</button>
+                            <div class="calc-result" id="exp_result">
+                                <div class="result-label" id="exp_result_process"></div>
+                                <div class="result-val" id="exp_result_val"></div>
+                                <div class="result-label">（下期预测值）</div>
+                            </div>
+                        </div>
+
+                        <div style="font-weight:700;font-size:15px;color:var(--dark);margin:16px 0 12px;">Excel操作步骤：
+                        </div>
+                        <div class="code-block">数据 → <span class="op">数据分析</span> → <span class="hl">指数平滑</span>
+                            输入区域：<span class="hl">B3:B13</span>（生产量数据列）
+                            阻尼系数：<span class="hl">0.6</span>（即平滑系数α=0.4）
+                            输出区域：<span class="hl">C3</span>
+                            ☑ 图表输出 → 确定</div>
+                        <div
+                            style="background:#FFF5F0;border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:var(--text);line-height:1.7;">
+                            💡 <strong>结果解读：</strong>系统自动生成预测图，12月预测值 = 1122×0.4 + 1105.62×0.6 ≈ <strong
+                                style="color:var(--primary);">1112.17万件</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 想一想 -->
+                <div class="think-box">
+                    <div class="think-title">💭 想一想：生活中哪些商品销量受季节影响大？</div>
+                    <p style="font-size:14px;color:var(--text-light);">这些商品都适合用"季节波动法"来预测销量，点击了解季节规律👇</p>
+                    <div class="think-examples">
+                        <div class="think-example" onclick="showSeasonTip(this,'🏖️ 防晒霜夏季销量是冬季的4-5倍！季节指数约为2.5')">
+                            <div class="ex-emoji">🧴</div>
+                            <div class="ex-name">防晒霜</div>
+                            <div class="ex-desc">夏天 vs 其他季节</div>
+                        </div>
+                        <div class="think-example" onclick="showSeasonTip(this,'❄️ 羽绒服90%的销量集中在10月-次年2月，季节指数约为3.6')">
+                            <div class="ex-emoji">🧥</div>
+                            <div class="ex-name">羽绒服</div>
+                            <div class="ex-desc">冬季旺季明显</div>
+                        </div>
+                        <div class="think-example" onclick="showSeasonTip(this,'🎁 月饼的销量99%集中在中秋节前后15天，是典型的节日波动')">
+                            <div class="ex-emoji">🥮</div>
+                            <div class="ex-name">月饼</div>
+                            <div class="ex-desc">中秋节集中销售</div>
+                        </div>
+                        <div class="think-example" onclick="showSeasonTip(this,'🌊 游泳圈等水上用品夏季季节指数约为4-5，冬季近乎为零')">
+                            <div class="ex-emoji">🩱</div>
+                            <div class="ex-name">泳衣泳圈</div>
+                            <div class="ex-desc">夏季独有旺季</div>
+                        </div>
+                    </div>
+                    <div id="seasonTip"
+                        style="display:none;background:white;border-radius:12px;padding:14px;margin-top:14px;font-size:14px;color:var(--text);line-height:1.7;border:2px solid #4ECDC440;">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========== 练习测试 ========== -->
+            <div class="section" id="section-quiz">
+                <div class="quiz-section">
+                    <div class="section-hdr">
+                        <div class="dot" style="background:var(--primary)"></div>
+                        <h2>✅ 趋势分析知识测试</h2><span
+                            style="font-size:13px;color:var(--text-light);margin-left:auto;">共5题</span>
+                    </div>
+                    <div style="margin-bottom:18px;">
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-light);margin-bottom:6px;">
+                            <span>答题进度</span><span id="q_progress">0 / 5 题</span></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="q_fill" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Q1 -->
+                    <div class="quiz-item" id="q1">
+                        <h4>Q1. 某电商店铺销售额从2018年到2023年逐年平稳增长，数据点近乎构成直线，应该选择哪种趋势线？</h4>
+                        <div class="quiz-options">
+                            <button class="quiz-option" onclick="answerQ(1,'A','A')"><span
+                                    class="opt-label">A</span>线性趋势线</button>
+                            <button class="quiz-option" onclick="answerQ(1,'B','A')"><span
+                                    class="opt-label">B</span>指数趋势线</button>
+                            <button class="quiz-option" onclick="answerQ(1,'C','A')"><span
+                                    class="opt-label">C</span>多项式趋势线</button>
+                            <button class="quiz-option" onclick="answerQ(1,'D','A')"><span
+                                    class="opt-label">D</span>移动平均趋势线</button>
+                        </div>
+                        <div class="quiz-feedback" id="fb1"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="quiz-item" id="q2">
+                        <h4>Q2. 某平台新注册用户数，在前3个月增长极快，之后增速逐渐放缓趋于平稳。最适合用哪种趋势线？</h4>
+                        <div class="quiz-options">
+                            <button class="quiz-option" onclick="answerQ(2,'A','B')"><span
+                                    class="opt-label">A</span>线性趋势线</button>
+                            <button class="quiz-option" onclick="answerQ(2,'B','B')"><span
+                                    class="opt-label">B</span>对数趋势线</button>
+                            <button class="quiz-option" onclick="answerQ(2,'C','B')"><span
+                                    class="opt-label">C</span>指数趋势线</button>
+                            <button class="quiz-option" onclick="answerQ(2,'D','B')"><span
+                                    class="opt-label">D</span>乘幂趋势线</button>
+                        </div>
+                        <div class="quiz-feedback" id="fb2"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="quiz-item" id="q3">
+                        <h4>Q3. R²=0.92的趋势线，说明什么？以下哪个说法是正确的？</h4>
+                        <div class="quiz-options">
+                            <button class="quiz-option" onclick="answerQ(3,'A','C')"><span
+                                    class="opt-label">A</span>R²越小越好，说明误差小</button>
+                            <button class="quiz-option" onclick="answerQ(3,'B','C')"><span
+                                    class="opt-label">B</span>R²=0.92说明预测完全准确</button>
+                            <button class="quiz-option" onclick="answerQ(3,'C','C')"><span
+                                    class="opt-label">C</span>R²=0.92>0.8，拟合优度高，预测效果好</button>
+                            <button class="quiz-option" onclick="answerQ(3,'D','C')"><span
+                                    class="opt-label">D</span>R²的值与预测准确度无关</button>
+                        </div>
+                        <div class="quiz-feedback" id="fb3"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="quiz-item" id="q4">
+                        <h4>Q4. 使用指数平滑法，平滑系数α=0.4，本期实际销量50万件，本期预测值55万件，则下期预测销量为？</h4>
+                        <div class="quiz-options">
+                            <button class="quiz-option" onclick="answerQ(4,'A','B')"><span
+                                    class="opt-label">A</span>52万件</button>
+                            <button class="quiz-option" onclick="answerQ(4,'B','B')"><span
+                                    class="opt-label">B</span>53万件</button>
+                            <button class="quiz-option" onclick="answerQ(4,'C','B')"><span
+                                    class="opt-label">C</span>54万件</button>
+                            <button class="quiz-option" onclick="answerQ(4,'D','B')"><span
+                                    class="opt-label">D</span>50万件</button>
+                        </div>
+                        <div class="quiz-feedback" id="fb4"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="quiz-item" id="q5">
+                        <h4>Q5. 季节波动法中，季节指数 S = A/B，其中A和B分别代表什么？</h4>
+                        <div class="quiz-options">
+                            <button class="quiz-option" onclick="answerQ(5,'A','D')"><span
+                                    class="opt-label">A</span>A=本季度销量，B=去年同季度销量</button>
+                            <button class="quiz-option" onclick="answerQ(5,'B','D')"><span
+                                    class="opt-label">B</span>A=最大值，B=最小值</button>
+                            <button class="quiz-option" onclick="answerQ(5,'C','D')"><span
+                                    class="opt-label">C</span>A=预测值，B=实际值</button>
+                            <button class="quiz-option" onclick="answerQ(5,'D','D')"><span
+                                    class="opt-label">D</span>A=各年同季度平均值，B=历年所有季度总平均值</button>
+                        </div>
+                        <div class="quiz-feedback" id="fb5"></div>
+                    </div>
+
+                    <div id="final_result"
+                        style="display:none;background:linear-gradient(135deg,#FF6B35,#FF8E53);border-radius:16px;padding:24px;color:white;text-align:center;margin-top:20px;">
+                        <div style="font-size:48px;margin-bottom:12px;" id="final_emoji">🎉</div>
+                        <div style="font-size:22px;font-weight:800;margin-bottom:8px;" id="final_score"></div>
+                        <div style="opacity:0.9;font-size:15px;" id="final_msg"></div>
+                        <button onclick="resetQuiz()"
+                            style="margin-top:16px;padding:10px 24px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);border-radius:12px;color:white;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600;">🔄
+                            重新答题</button>
+                    </div>
+                </div>
+
+                <!-- 速查卡 -->
+                <div class="cheatsheet">
+                    <div style="font-size:18px;font-weight:700;margin-bottom:4px;">📋 趋势分析速查卡</div>
+                    <div class="cheat-grid">
+                        <div class="cheat-block">
+                            <h3>📉 六种趋势线选择</h3>
+                            <div class="cheat-row"><span class="cn">线性</span><span class="hint">平稳增减↗</span></div>
+                            <div class="cheat-row"><span class="cn">指数</span><span class="hint">加速增减↑↑</span></div>
+                            <div class="cheat-row"><span class="cn">对数</span><span class="hint">先快后慢→平</span></div>
+                            <div class="cheat-row"><span class="cn">多项式</span><span class="hint">波动有峰谷</span></div>
+                            <div class="cheat-row"><span class="cn">乘幂</span><span class="hint">恒定速率增</span></div>
+                            <div class="cheat-row"><span class="cn">移动平均</span><span class="hint">平滑随机波动</span></div>
+                        </div>
+                        <div class="cheat-block">
+                            <h3>🎯 R²判断标准</h3>
+                            <div class="cheat-row"><span class="cn">R² > 0.8</span><span class="hint">✅优秀，可用</span>
+                            </div>
+                            <div class="cheat-row"><span class="cn">0.5~0.8</span><span class="hint">⚠️一般，谨慎</span>
+                            </div>
+                            <div class="cheat-row"><span class="cn">R² < 0.5</span><span class="hint">❌较差，换模型</span>
+                            </div>
+                            <div class="cheat-row"><span class="cn">指数/乘幂</span><span class="hint">不能含0或负数</span></div>
+                        </div>
+                        <div class="cheat-block">
+                            <h3>⏰ 三种时间序列法</h3>
+                            <div class="cheat-row"><span class="cn">季节波动法</span><span class="hint">S=A/B算比率</span></div>
+                            <div class="cheat-row"><span class="cn">移动平均法</span><span class="hint">AVERAGE函数</span>
+                            </div>
+                            <div class="cheat-row"><span class="cn">指数平滑法</span><span class="hint">近期权重更大</span></div>
+                            <div class="cheat-row"><span class="cn">公式</span><span class="hint">实际×α+预测×(1-α)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end container -->
+
+        <script>
+            // ===== 导航 =====
+            function switchSection(name) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.getElementById('section-' + name).classList.add('active');
+                const tabs = ['intro', 'trendline', 'timeseries', 'quiz'];
+                document.querySelectorAll('.nav-tab')[tabs.indexOf(name)].classList.add('active');
+                if (name === 'intro') setTimeout(() => { drawTrendLine('linear'); }, 100);
+            }
+
+            // ===== 标签页 =====
+            function switchTab(id, btn) {
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('panel-' + id).classList.add('active');
+                btn.classList.add('active');
+            }
+
+            // ===== 方法切换 =====
+            function switchMethod(id, card) {
+                document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                ['m1', 'm2', 'm3'].forEach(m => {
+                    document.getElementById('method-' + m).style.display = m === id ? 'block' : 'none';
+                });
+            }
+
+            // ===== 趋势线可视化 =====
+            const trendDescs = {
+                linear: '📏 <strong>线性趋势线</strong>：数据近乎直线变化，增减速度稳定。适合：年销售额平稳增长、员工数量逐年递增等场景。公式：y = ax + b',
+                exp: '📈 <strong>指数趋势线</strong>：增速越来越快，形成"J"形曲线。适合：爆款商品初期增长、用户口碑传播等。⚠️数据不能含0或负数！公式：y = ae^(bx)',
+                log: '📉 <strong>对数趋势线</strong>：先增长快，后增长慢，最终趋平。适合：新平台用户增长、产品生命周期成熟期等。公式：y = a·ln(x) + b',
+                poly: '〰️ <strong>多项式趋势线</strong>：有波峰波谷的复杂变化。适合：销售额受节日影响忽高忽低。阶数=波动次数（2阶=1个波峰/谷）。公式：y = ax² + bx + c',
+                ma: '〜 <strong>移动平均趋势线</strong>：平滑处理每天的小波动，让总体趋势更清晰。适合：每日访客量波动明显但总体上涨的情况。'
+            };
+
+            function drawTrend(type, btn) {
+                document.querySelectorAll('.viz-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                drawTrendLine(type);
+                document.getElementById('trendDesc').innerHTML = trendDescs[type];
+            }
+
+            function drawTrendLine(type) {
+                const canvas = document.getElementById('trendCanvas');
+                if (!canvas) return;
+                const W = canvas.offsetWidth || 600;
+                const H = 180;
+                canvas.width = W;
+                canvas.height = H;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, W, H);
+
+                const pad = { t: 16, r: 16, b: 30, l: 40 };
+                const cw = W - pad.l - pad.r;
+                const ch = H - pad.t - pad.b;
+
+                // 生成原始数据点
+                let rawData = [];
+                for (let i = 0; i < 12; i++) {
+                    let v;
+                    switch (type) {
+                        case 'linear': v = 20 + i * 8 + (Math.random() - 0.5) * 6; break;
+                        case 'exp': v = 5 * Math.exp(i * 0.25) + (Math.random() - 0.5) * 5; break;
+                        case 'log': v = 10 + 35 * Math.log(i + 1) + (Math.random() - 0.5) * 6; break;
+                        case 'poly': v = 60 + 10 * Math.sin(i * 0.7) - 0.5 * i * i + i * 8 + (Math.random() - 0.5) * 5; break;
+                        case 'ma': v = 40 + (Math.random() - 0.5) * 30 + i * 2; break;
+                    }
+                    rawData.push(Math.max(5, v));
+                }
+
+                const maxV = Math.max(...rawData) * 1.1;
+                const minV = Math.max(0, Math.min(...rawData) * 0.85);
+                const getX = i => pad.l + (i / (rawData.length - 1)) * cw;
+                const getY = v => pad.t + ch * (1 - (v - minV) / (maxV - minV));
+
+                // 网格
+                ctx.strokeStyle = '#F0F0F0';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 4; i++) {
+                    const y = pad.t + ch * (i / 4);
+                    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+                }
+
+                // 散点
+                rawData.forEach((v, i) => {
+                    ctx.beginPath();
+                    ctx.arc(getX(i), getY(v), 5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#45B7D180';
+                    ctx.fill();
+                    ctx.strokeStyle = '#45B7D1';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+
+                // 趋势线
+                ctx.beginPath();
+                ctx.strokeStyle = '#FF6B35';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([]);
+
+                if (type === 'linear') {
+                    // 线性回归
+                    const n = rawData.length;
+                    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+                    rawData.forEach((y, x) => { sumX += x; sumY += y; sumXY += x * y; sumX2 += x * x; });
+                    const a = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                    const b = (sumY - a * sumX) / n;
+                    ctx.moveTo(getX(0), getY(b));
+                    ctx.lineTo(getX(11), getY(a * 11 + b));
+                } else if (type === 'ma') {
+                    const period = 3;
+                    let maData = [];
+                    for (let i = period - 1; i < rawData.length; i++) {
+                        let sum = 0;
+                        for (let j = i - period + 1; j <= i; j++) sum += rawData[j];
+                        maData.push({ x: i, v: sum / period });
+                    }
+                    ctx.moveTo(getX(maData[0].x), getY(maData[0].v));
+                    maData.forEach(p => ctx.lineTo(getX(p.x), getY(p.v)));
+                } else {
+                    // 绘制理论曲线
+                    const steps = 100;
+                    for (let s = 0; s <= steps; s++) {
+                        const xi = s / steps * 11;
+                        let yi;
+                        switch (type) {
+                            case 'exp': yi = 5 * Math.exp(xi * 0.25); break;
+                            case 'log': yi = 10 + 35 * Math.log(xi + 1); break;
+                            case 'poly': yi = 60 + 10 * Math.sin(xi * 0.7) - 0.5 * xi * xi + xi * 8; break;
+                        }
+                        yi = Math.max(minV, Math.min(maxV, yi));
+                        if (s === 0) ctx.moveTo(getX(xi), getY(yi));
+                        else ctx.lineTo(getX(xi), getY(yi));
+                    }
+                }
+                ctx.stroke();
+
+                // 标注
+                ctx.fillStyle = '#FF6B35';
+                ctx.font = 'bold 12px Microsoft YaHei';
+                ctx.textAlign = 'right';
+                const labels = { linear: '线性', exp: '指数', log: '对数', poly: '多项式', ma: '移动平均' };
+                ctx.fillText(labels[type] + '趋势线', W - pad.r - 4, pad.t + 14);
+                ctx.fillStyle = '#999';
+                ctx.font = '11px Microsoft YaHei';
+                ctx.textAlign = 'center';
+                [0, 3, 6, 9, 11].forEach(i => ctx.fillText(`第${i + 1}期`, getX(i), H - pad.b + 14));
+            }
+
+            // ===== 趋势线卡片选中 =====
+            function selectTrend(el) {
+                document.querySelectorAll('.trendline-card').forEach(c => c.style.borderColor = 'transparent');
+                el.style.borderColor = '#FF6B35';
+            }
+
+            // ===== 季节提示 =====
+            function showSeasonTip(el, text) {
+                const tip = document.getElementById('seasonTip');
+                tip.style.display = 'block';
+                tip.innerHTML = '💡 ' + text;
+                document.querySelectorAll('.think-example').forEach(e => e.style.background = 'white');
+                el.style.background = '#F0FFF4';
+            }
+
+            // ===== 线性公式计算器 =====
+            function calcLinear() {
+                const x = parseFloat(document.getElementById('linear_x').value);
+                const year = document.getElementById('linear_year').value;
+                if (isNaN(x) || x < 1) { alert('请输入有效的序号（正整数）'); return; }
+                const y = (187.6 * x + 334.78).toFixed(2);
+                const resultEl = document.getElementById('linear_result');
+                document.getElementById('linear_result_label').textContent = year ? `${year}（第${x}个数据点）预测销售额：` : `第${x}个数据点预测销售额：`;
+                document.getElementById('linear_result_val').textContent = y;
+                resultEl.style.display = 'block';
+            }
+
+            // ===== 指数平滑计算器 =====
+            function calcExpSmooth() {
+                const actual = parseFloat(document.getElementById('exp_actual').value);
+                const forecast = parseFloat(document.getElementById('exp_forecast').value);
+                const alpha = parseFloat(document.getElementById('exp_alpha').value);
+                if (isNaN(actual) || isNaN(forecast) || isNaN(alpha)) { alert('请填写完整参数'); return; }
+                if (alpha <= 0 || alpha >= 1) { alert('平滑系数α必须在0到1之间'); return; }
+                const result = (actual * alpha + forecast * (1 - alpha)).toFixed(2);
+                document.getElementById('exp_result_process').textContent = `${actual}×${alpha} + ${forecast}×${(1 - alpha).toFixed(1)} =`;
+                document.getElementById('exp_result_val').textContent = result;
+                document.getElementById('exp_result').style.display = 'block';
+            }
+
+            // ===== 测试题 =====
+            let answeredQ = {}, correctCountQ = 0;
+            const feedbacksQ = {
+                1: { c: '✅ 正确！数据点近乎直线增长，说明增长平稳，选线性趋势线最合适。', w: '❌ 错误！数据平稳增长近乎直线，应选线性趋势线。' },
+                2: { c: '✅ 正确！先快后慢趋于平稳的增长形态，正是对数趋势线的典型特征。', w: '❌ 错误！先增长快后趋于平缓的形态应选对数趋势线。' },
+                3: { c: '✅ 正确！R²>0.8说明拟合优度高，预测可信度强，是好的预测模型。', w: '❌ 错误！R²越接近1越好，R²=0.92>0.8说明拟合效果优秀。' },
+                4: { c: '✅ 正确！50×0.4 + 55×(1-0.4) = 20 + 33 = 53万件。', w: '❌ 错误！正确计算：50×0.4 + 55×0.6 = 20+33 = 53万件。' },
+                5: { c: '✅ 正确！A=各年同季度平均值（纵向平均），B=所有季度总平均值（全局平均）。', w: '❌ 错误！A是各年同季度平均值，B是历年所有季度的总平均值，S=A/B即为季节指数。' }
+            };
+
+            function answerQ(qNum, selected, correct) {
+                if (answeredQ[qNum]) return;
+                answeredQ[qNum] = true;
+                const opts = document.querySelectorAll(`#q${qNum} .quiz-option`);
+                const letters = ['A', 'B', 'C', 'D'];
+                opts.forEach((btn, idx) => {
+                    btn.disabled = true;
+                    if (letters[idx] === correct) btn.classList.add('correct');
+                    else if (letters[idx] === selected && selected !== correct) btn.classList.add('wrong');
+                });
+                const fb = document.getElementById('fb' + qNum);
+                const isCorrect = selected === correct;
+                if (isCorrect) { correctCountQ++; fb.className = 'quiz-feedback show-correct'; fb.textContent = feedbacksQ[qNum].c; }
+                else { fb.className = 'quiz-feedback show-wrong'; fb.textContent = feedbacksQ[qNum].w; }
+                const total = Object.keys(answeredQ).length;
+                document.getElementById('q_progress').textContent = `${total} / 5 题`;
+                document.getElementById('q_fill').style.width = (total / 5 * 100) + '%';
+                if (total === 5) setTimeout(showFinalQ, 500);
+            }
+
+            function showFinalQ() {
+                const el = document.getElementById('final_result');
+                el.style.display = 'block';
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const emojis = ['😢', '😟', '🙂', '😊', '🎉', '🏆'];
+                const msgs = ['还需要努力！建议重新学习趋势分析部分。', '加油！多看几遍案例操作部分。', '不错！基础知识已经掌握，继续加油！', '很好！对趋势分析理解较深，棒棒的！', '太棒了！你已经是趋势分析小达人了！🎊', '完美满分！未来的数据分析师就是你！'];
+                document.getElementById('final_emoji').textContent = emojis[correctCountQ];
+                document.getElementById('final_score').textContent = `答对了 ${correctCountQ} / 5 题`;
+                document.getElementById('final_msg').textContent = msgs[correctCountQ];
+            }
+
+            function resetQuiz() {
+                answeredQ = {}; correctCountQ = 0;
+                for (let i = 1; i <= 5; i++) {
+                    document.querySelectorAll(`#q${i} .quiz-option`).forEach(b => { b.disabled = false; b.classList.remove('correct', 'wrong'); });
+                    const fb = document.getElementById('fb' + i);
+                    fb.className = 'quiz-feedback'; fb.textContent = '';
+                }
+                document.getElementById('q_progress').textContent = '0 / 5 题';
+                document.getElementById('q_fill').style.width = '0%';
+                document.getElementById('final_result').style.display = 'none';
+            }
+
+            // ===== 初始化 =====
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    drawTrendLine('linear');
+                    document.getElementById('trendDesc').innerHTML = trendDescs['linear'];
+                }, 300);
+                // R²动画
+                setTimeout(() => {
+                    const fill = document.getElementById('r2Fill');
+                    if (fill) fill.style.width = '82%';
+                }, 500);
+            });
+
+            window.addEventListener('resize', () => {
+                const active = document.querySelector('.section.active');
+                if (active && active.id === 'section-intro') {
+                    const activeVizBtn = document.querySelector('.viz-btn.active');
+                    if (activeVizBtn) {
+                        const type = activeVizBtn.textContent.includes('线性') ? 'linear' : activeVizBtn.textContent.includes('指数') ? 'exp' : activeVizBtn.textContent.includes('对数') ? 'log' : activeVizBtn.textContent.includes('多项式') ? 'poly' : 'ma';
+                        drawTrendLine(type);
+                    }
+                }
+            });
+        </script>
+</body>
+
+</html>
