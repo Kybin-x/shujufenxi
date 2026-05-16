@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>4.3 对比分析</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p1:#15803D;--p2:#16A34A;--pL:#F0FDF4;--pM:#BBF7D0;--pD:#14532D;
+  --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
+  --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
+  --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
+  --vi:#7C3AED;--viL:#F5F3FF;--viM:#DDD6FE;
+  --ink:#0F172A;--i2:#334155;--i3:#64748B;
+  --bg:#F2FDF4;--cd:#FFF;--br:#BBF7D0;--r:10px;
+  --sh:0 2px 12px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.05)}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
+.nb{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.nbk{font-size:13px;font-weight:700;color:var(--p1);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}
+.nbk:hover{background:var(--pL)}
+.nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-xp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p1),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
+#prog{height:5px;background:linear-gradient(90deg,var(--p1),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:960px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--p1);color:var(--p1)}
+.pb.active{background:var(--p1);border-color:var(--p1);color:#fff}
+.main{max-width:960px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+.hero{background:linear-gradient(135deg,var(--pL) 0%,var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero h1{font-size:24px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p1)}
+.hero p{font-size:13px;color:var(--i2);line-height:1.8;max-width:580px}
+.htag{display:inline-flex;align-items:center;background:rgba(0,0,0,.08);border:1.5px solid rgba(0,0,0,.15);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hcs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.hc{background:rgba(255,255,255,.75);border:1px solid var(--pM);border-radius:20px;padding:5px 12px;font-size:11.5px;color:var(--i2)}
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:12px 18px;display:flex;align-items:center;gap:8px}
+.chi{font-size:18px;flex-shrink:0}
+.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
+.chb{font-size:10.5px;font-weight:700;background:var(--p1);color:#fff;border-radius:10px;padding:2px 9px;flex-shrink:0}
+.cb{padding:16px 18px}
+.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:22px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
+.tabb{padding:6px 13px;border-radius:18px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tabb.active{background:var(--p1);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.16)}
+.tp{display:none}.tp.active{display:block}
+.sec{font-size:13.5px;font-weight:800;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:7px}
+.sec::before{content:'';width:3px;height:17px;background:linear-gradient(180deg,var(--p1),var(--p2));border-radius:2px;flex-shrink:0}
+.sg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.sg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.sg4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.sc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 14px}
+.scn{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:3px}
+.sce{font-size:10px;color:var(--i3);margin-bottom:6px;letter-spacing:.04em}
+.scf{background:#1E293B;border-radius:5px;padding:3px 8px;font-size:11px;color:#7DD3FC;font-family:monospace;display:inline-block;margin-bottom:5px}
+.scd{font-size:12px;color:var(--i2);line-height:1.6}
+.scg{font-size:11px;color:var(--i3);margin-top:5px;font-style:italic}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.tbl th{background:var(--p1);color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11.5px}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.6;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pL)}
+.tbl td:first-child{font-weight:700;color:var(--ink)}
+.steps{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.si{display:flex;align-items:flex-start;gap:11px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 13px}
+.sn{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb{flex:1}.sbt{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:2px}
+.sbd{font-size:12px;color:var(--i2);line-height:1.65}
+.sbp{background:var(--pL);border:1px solid var(--pM);border-radius:5px;padding:4px 8px;margin-top:4px;font-size:11px;color:var(--pD);font-family:monospace}
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:var(--pD);line-height:1.7;display:flex;gap:6px}
+.warn{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:#78350F;line-height:1.7;display:flex;gap:6px}
+.thk{background:var(--viL);border:1.5px solid var(--viM);border-radius:var(--r);padding:13px 15px;margin:12px 0}
+.thkt{font-size:13px;font-weight:800;color:var(--vi);margin-bottom:6px}
+.fbox{background:#0F172A;border-radius:var(--r);padding:13px 16px;margin:12px 0;font-size:12.5px;color:#DBEAFE;line-height:1.9;font-family:monospace}
+/* ─── QUIZ ─── */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:11px;overflow:hidden}
+.qh{background:linear-gradient(90deg,var(--pL),#fff);padding:11px 15px;display:flex;align-items:flex-start;gap:8px}
+.qn{width:25px;height:25px;min-width:25px;border-radius:50%;background:var(--p1);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qt{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5}
+.qop{padding:11px 15px;display:flex;flex-direction:column;gap:6px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:7px;padding:8px 13px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .16s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p1);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p1)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
+.qfb{margin:0 15px 12px;padding:8px 11px;border-radius:6px;font-size:12px;line-height:1.65;display:none}
+.qfb-ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}
+.qfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* ─── JUDGE ─── */
+.jlist{display:flex;flex-direction:column;gap:9px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 14px}
+.jitop{display:flex;align-items:flex-start;gap:9px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.65}
+.jbs{display:flex;gap:5px;flex-shrink:0;margin-top:2px}
+.jbt{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .16s}
+.jbtt{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}
+.jbtt:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbtf{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}
+.jbtf:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
+.jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
+.jbt.jdim{opacity:.28;cursor:default!important}
+.jfb{font-size:11.5px;margin-top:7px;padding:6px 9px;border-radius:5px;display:none}
+.jfb-ok{display:block;background:var(--gnL);color:#14532D}
+.jfb-ng{display:block;background:var(--rdL);color:var(--rd)}
+/* ─── CALC ─── */
+.cc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--br);border-radius:var(--r);padding:14px 16px;margin-bottom:9px}
+.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:9px;line-height:1.55}
+.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:9px 12px;margin-bottom:9px;font-size:12px;color:var(--i2);line-height:1.8}
+.ccr{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.cci{border:1.5px solid var(--br);border-radius:6px;padding:5px 9px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:120px;transition:border-color .2s}
+.cci:focus{border-color:var(--p1);background:var(--pL)}
+.ccb{background:var(--p1);color:#fff;border:none;border-radius:6px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.cfb{font-size:12px;padding:6px 10px;border-radius:6px;margin-top:5px;display:none}
+.cfb-ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}
+.cfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* ─── SUMMARY ─── */
+.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:12px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:3px}
+.sumv{font-size:18px;font-weight:900;color:var(--p1)}
+.kpl{display:flex;flex-direction:column;gap:6px;margin-top:11px}
+.kp{display:flex;align-items:flex-start;gap:7px;font-size:13px;color:var(--i2);line-height:1.6}
+.kpd{width:19px;height:19px;border-radius:50%;background:var(--p1);color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.btnp{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:9px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(0,0,0,.18);transition:all .2s}
+.btnp:hover{transform:translateY(-1px)}
+.btnd{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:12px 32px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:all .2s;margin-top:16px}
+.btnd:hover{transform:translateY(-2px)}
+#p1d,#p2d,#p3d{display:none;text-align:center;padding:14px 0 4px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;padding:7px 16px;border-radius:18px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp.show{opacity:1;transform:translateY(0)}
+#cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){.sg2,.sg3,.sg4,.sumg{grid-template-columns:1fr}.hero h1{font-size:20px}.tabs{gap:2px}.tabb{padding:4px 8px;font-size:11px}}
+</style>
+</head>
+<body>
+<div id="cft"></div><div id="toast"></div><div id="xpp"></div>
+<nav class="nb">
+  <a class="nbk" href="index.html">← 返回</a>
+  <div class="nbt">4.3 · 对比分析（同比/环比）</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="pw"><div id="prog" style="width:0%"></div></div>
+<div class="pn">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📚 知识讲解</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🎮 互动练习</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🏁 单元完成</button>
+</div>
+<div class="main">
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="htag">M4 · 单元三</div>
+    <h1>学会用数据说话：<em>对比分析</em></h1>
+    <p>掌握同比、环比两大核心技能，找出差距、发现规律，让数字成为有说服力的证据！</p>
+    <div class="hcs"><span class="hc">🎯 4种使用场景</span><span class="hc">📊 2大分析方法</span><span class="hc">📐 6个注意原则</span></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">💬</div><div class="cht">为什么需要对比分析？</div></div>
+    <div class="cb">
+      <div class="sg2">
+        <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:13px 15px">
+          <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:6px">❌ 没有对比</div>
+          <div style="font-size:16px;font-weight:800;color:var(--ink)">今年9月访客数<br>1896人</div>
+          <div style="font-size:12px;color:var(--i3);margin-top:4px">好还是不好？根本无从判断！</div>
+        </div>
+        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:13px 15px">
+          <div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:6px">✅ 有对比</div>
+          <div style="font-size:16px;font-weight:800;color:var(--ink)">同比增长 39.51%！</div>
+          <div style="font-size:12px;color:var(--i3);margin-top:4px">比去年同期(1359人)增长了39.51%，业务在稳步提升！</div>
+        </div>
+      </div>
+      <div class="tip"><span>💡</span><span>对比分析的价值：不只说"今年比去年好"，而是精确地说"今年比去年增长了<strong>39.51%</strong>"，这才是数据驱动的管理！</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">🎯</div><div class="cht">对比分析的四大使用场景</div></div>
+    <div class="cb">
+      <div class="sg2">
+        <div class="sc"><div style="font-size:22px;margin-bottom:6px">🏆</div><div class="scn">竞争对手对比</div><div class="scd">自家数据 VS 竞品数据，了解差距，制定竞争策略</div></div>
+        <div class="sc"><div style="font-size:22px;margin-bottom:6px">🎯</div><div class="scn">目标与结果对比</div><div class="scd">计划目标 VS 实际完成，看差距在哪里，找改进方向</div></div>
+        <div class="sc"><div style="font-size:22px;margin-bottom:6px">📅</div><div class="scn">不同时期对比</div><div class="scd">今年 VS 去年，本月 VS 上月，了解发展趋势（同比/环比）</div></div>
+        <div class="sc"><div style="font-size:22px;margin-bottom:6px">🎪</div><div class="scn">活动效果对比</div><div class="scd">活动前 VS 活动后，评估这场促销活动到底有没有效果</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="thk"><div class="thkt">💭 思考一下</div>
+    <div style="font-size:13px;color:var(--i2);line-height:1.85">你在网购时看到"双十一销售额比上月增长300%"和"比去年双十一增长50%"，哪个数字更有参考价值？这两种对比方式有什么本质区别？</div>
+  </div>
+  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p1go()">已阅读，进入知识讲解 →</button></div>
+  <div id="p1d"><button class="btnp" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
+</div>
+
+<div class="part" id="part2">
+  <div class="tabs">
+    <button class="tabb active" id="tb0" onclick="stab(0,4)">📅 同比分析</button>
+    <button class="tabb" id="tb1" onclick="stab(1,4)">🔄 环比分析</button>
+    <button class="tabb" id="tb2" onclick="stab(2,4)">⚖️ 同比vs环比</button>
+    <button class="tabb" id="tb3" onclick="stab(3,4)">🛠️ Excel操作</button>
+  </div>
+  <div class="tp active" id="tp0">
+    <div class="sec">同比分析法——与去年同期比较</div>
+    <div class="sg2">
+      <div class="sc" style="border-color:var(--pM)">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📅 什么是同比？</div>
+        <div style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:8px">将<strong>本期数据</strong>与<strong>去年同一时期数据</strong>进行比较。<br>例：2019年9月 VS 2018年9月（跨年比同月）</div>
+        <div style="background:#0F172A;border-radius:7px;padding:8px 12px;font-family:monospace;font-size:12px;color:#86EFAC;text-align:center">同比增长率 = (本期数-同期数) ÷ 同期数 × 100%</div>
+      </div>
+      <div class="sc">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">✅ 同比的主要作用</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+          ① <strong>消除季节性因素影响</strong>（双十一每年都有高峰，只有与去年双十一比才有意义）<br>
+          ② 真实反映<strong>年度增长情况</strong><br>
+          ③ 便于<strong>跨年度横向比较</strong>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="ch"><div class="chi">📝</div><div class="cht">同比计算例题</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:10px">某企业2019年9月访客数为<strong>1896人</strong>，2018年9月访客数为<strong>1359人</strong>，求同比增长率。</p>
+        <div style="background:#0F172A;border-radius:var(--r);padding:12px 16px;font-family:monospace;font-size:12.5px;color:#DBEAFE;line-height:2">
+          <div>同比增长率 = (1896 - 1359) ÷ 1359 × 100%</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 537 ÷ 1359 × 100% ≈ <span style="color:#86EFAC;font-weight:700">39.51%</span></div>
+        </div>
+        <div class="tip" style="margin-top:8px"><span>✅</span><span>今年9月的访客数比去年同期增长了39.51%，业务在稳步提升！</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tp" id="tp1">
+    <div class="sec">环比分析法——与上一期比较</div>
+    <div class="sg2">
+      <div class="sc" style="border-color:var(--pM)">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">🔄 什么是环比？</div>
+        <div style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:8px">将<strong>本期数据</strong>与<strong>上一个统计周期的数据</strong>进行比较。<br>例：2019年9月 VS 2019年8月（同年比上月）</div>
+        <div style="background:#0F172A;border-radius:7px;padding:8px 12px;font-family:monospace;font-size:12px;color:#86EFAC;text-align:center">环比增长率 = (本期数-上期数) ÷ 上期数 × 100%</div>
+      </div>
+      <div class="sc">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">✅ 环比的主要作用</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+          ① 反映<strong>短期变化趋势</strong><br>
+          ② <strong>及时发现</strong>运营问题<br>
+          ③ 监控<strong>日常运营节奏</strong>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="ch"><div class="chi">📝</div><div class="cht">环比计算例题</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:10px">某企业2019年9月成交额为<strong>13658元</strong>，2019年8月成交额为<strong>12534元</strong>，求环比增长率。</p>
+        <div style="background:#0F172A;border-radius:var(--r);padding:12px 16px;font-family:monospace;font-size:12.5px;color:#DBEAFE;line-height:2">
+          <div>环比增长率 = (13658 - 12534) ÷ 12534 × 100%</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1124 ÷ 12534 × 100% ≈ <span style="color:#86EFAC;font-weight:700">8.97%</span></div>
+        </div>
+        <div class="tip" style="margin-top:8px"><span>✅</span><span>9月成交额比8月增长了8.97%，环比上涨！</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tp" id="tp2">
+    <div class="sec">同比 vs 环比——核心区别对比</div>
+    <table class="tbl">
+      <tr><th>对比维度</th><th>📅 同比</th><th>🔄 环比</th></tr>
+      <tr><td>比较对象</td><td>去年同期（同月/同季度）</td><td>上一个统计周期（上月/上周）</td></tr>
+      <tr><td>时间关系</td><td>跨年比同期（相差1年）</td><td>相邻周期（相差1期）</td></tr>
+      <tr><td>主要作用</td><td>消除季节性影响，反映年度增长</td><td>反映短期变化趋势，及时发现问题</td></tr>
+      <tr><td>适用场景</td><td>年度报告、活动效果评估</td><td>月度监控、短期决策</td></tr>
+      <tr><td>计算公式</td><td>(本期-同期)÷同期×100%</td><td>(本期-上期)÷上期×100%</td></tr>
+    </table>
+    <div class="warn"><span>⚠️</span><span>对比分析6条原则：①类型一致 ②计量单位一致 ③计算方式一致 ④内涵可比 ⑤时间范围可比 ⑥整体性质可比。违反任何一条，对比结果都没有意义！</span></div>
+  </div>
+  <div class="tp" id="tp3">
+    <div class="sec">Excel中的同比/环比操作</div>
+    <div class="fbox">
+      <div style="font-size:10px;color:#7DD3FC;margin-bottom:6px;font-family:sans-serif">EXCEL FORMULA</div>
+      <div style="color:#86EFAC">同比增长率：</div>
+      <div>=(B2-C2)/C2  &nbsp;&nbsp;<span style="color:#64748B">→ 设为百分比格式</span></div>
+      <div style="color:#94A3B8;font-size:11px"># B2=本期数，C2=去年同期数</div>
+      <div style="margin-top:8px;color:#86EFAC">环比增长率：</div>
+      <div>=(B2-B1)/B1  &nbsp;&nbsp;<span style="color:#64748B">→ 设为百分比格式</span></div>
+      <div style="color:#94A3B8;font-size:11px"># B2=本期数，B1=上期数（数据纵向排列时）</div>
+    </div>
+    <div class="sec">同比分析·数据透视表法</div>
+    <div class="steps">
+      <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">准备数据</div><div class="sbd">A列：时间（年月），B列：销售额，录入2017-2018年共24行数据</div></div></div>
+      <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">插入数据透视图</div><div class="sbp">「插入」→「数据透视图」→ 选数据区域 → 现有工作表</div></div></div>
+      <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">配置字段</div><div class="sbd">销售额→值，季度→行，年→列</div></div></div>
+      <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">设置值显示方式</div><div class="sbp">右键数据 →「值显示方式」→「差异」→ 基本字段=年</div></div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><div class="chi">📊</div><div class="cht">2017-2018年各季度销售额同比对比（万元）</div></div>
+      <div class="cb">
+        <table class="tbl">
+          <tr><th>季度</th><th>2017年</th><th>2018年</th><th>同比增长值</th><th>同比增长率</th></tr>
+          <tr><td>第一季</td><td>531</td><td>858</td><td>+327</td><td style="color:var(--gn);font-weight:700">61.58%</td></tr>
+          <tr><td>第二季</td><td>581</td><td>1059</td><td>+478</td><td style="color:var(--gn);font-weight:700">82.27%</td></tr>
+          <tr><td>第三季</td><td>588</td><td>1013</td><td>+425</td><td style="color:var(--gn);font-weight:700">72.28%</td></tr>
+          <tr><td>第四季</td><td>730</td><td>1057</td><td>+327</td><td style="color:var(--gn);font-weight:700">44.79%</td></tr>
+          <tr><td><strong>全年</strong></td><td><strong>2430</strong></td><td><strong>3987</strong></td><td><strong>+1557</strong></td><td style="color:var(--gn);font-weight:700">64.07%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="p2d"><button class="btnp" onclick="showPart(3)">✅ 知识学完，开始互动练习 →</button></div>
+  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p2go()">已阅读，进入练习 →</button></div>
+</div>
+
+<div class="part" id="part3">
+  <div class="card">
+    <div class="ch"><div class="chi">🧮</div><div class="cht">练习一 · 计算挑战</div><div class="chb">+10 XP</div></div>
+    <div class="cb">
+      <div class="cc">
+        <div class="ccq">某企业2019年9月访客数为1896人，2018年9月访客数为1359人，<strong>同比增长率</strong>是多少？（保留两位小数，如39.51）</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">同比增长率 =</span>
+          <input class="cci" id="ci1" type="number" step="0.01" placeholder="%">
+          <span style="font-size:13px;color:var(--i2)">%</span>
+          <button class="ccb" onclick="doC(1)">提交</button>
+        </div>
+        <div class="cfb" id="cfb1"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">✅</div><div class="cht">练习二 · 判断题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="jlist">
+        <div class="ji" id="ji1"><div class="jitop">
+          <div class="jiq">1. <strong>同比分析</strong>通过与去年同期比较，可以消除季节性因素，真实反映年度业务增长情况。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbtf" id="jf1" onclick="doJ(1,false)">×</button></div>
+        </div><div class="jfb" id="jfb1"></div></div>
+        <div class="ji" id="ji2"><div class="jitop">
+          <div class="jiq">2. <strong>环比</strong>是本期与去年同期比较，<strong>同比</strong>是本期与上一个周期比较。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbtf" id="jf2" onclick="doJ(2,false)">×</button></div>
+        </div><div class="jfb" id="jfb2"></div></div>
+        <div class="ji" id="ji3"><div class="jitop">
+          <div class="jiq">3. 对比分析要求类型、单位、计算方式等6条原则一致，违反任何一条都使对比失去意义。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbtf" id="jf3" onclick="doJ(3,false)">×</button></div>
+        </div><div class="jfb" id="jfb3"></div></div>
+        <div class="ji" id="ji4"><div class="jitop">
+          <div class="jiq">4. 同比增长率的公式中，分母应该用<strong>本期数</strong>（今年的数据）来计算。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbtf" id="jf4" onclick="doJ(4,false)">×</button></div>
+        </div><div class="jfb" id="jfb4"></div></div>
+        <div class="ji" id="ji5"><div class="jitop">
+          <div class="jiq">5. 对比两个店铺的增长率时，可以分别计算各自的同比增长率，再进行横向对比。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbtf" id="jf5" onclick="doJ(5,false)">×</button></div>
+        </div><div class="jfb" id="jfb5"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">📝</div><div class="cht">练习三 · 选择题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="qbox" id="qb1"><div class="qh"><div class="qn">1</div><div class="qt">某店铺今年双十一销售额比上月增长了300%，这种分析属于对比分析的哪种场景？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 竞争对手对比</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 目标与结果对比</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 不同时期对比（环比）</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 活动效果对比</button>
+        </div><div class="qfb" id="qfb1"></div></div>
+      <div class="qbox" id="qb2"><div class="qh"><div class="qn">2</div><div class="qt">2019年9月成交额13658元，2019年8月成交额12534元，环比增长率约为？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. (12534÷13658-1)×100% ≈ -8.23%</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. (13658-12534)÷12534×100% ≈ 8.97%</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. (13658-12534)÷13658×100% ≈ 8.23%</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. (13658+12534)÷2=13096元</button>
+        </div><div class="qfb" id="qfb2"></div></div>
+      <div class="qbox" id="qb3"><div class="qh"><div class="qn">3</div><div class="qt">某企业2019年9月访客数1896人，2018年9月1359人，同比增长率计算正确的是？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. (1896-1359)÷1359×100% ≈ 39.51%</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. (1896-1359)÷1896×100% ≈ 28.32%</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. (1359-1896)÷1359×100% ≈ -39.51%</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. (1896-1359)÷(1896+1359)×100% ≈ 16.5%</button>
+        </div><div class="qfb" id="qfb3"></div></div>
+      <div class="qbox" id="qb4"><div class="qh"><div class="qn">4</div><div class="qt">关于同比分析法，下列说法正确的是？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 同比是将本期数据与上一个月的数据比较</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 同比是本月数据与上月数据比较，反映短期变化</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 同比是本期数据与去年同期数据比较，消除季节性影响</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 同比是本期数据与去年全年平均数据比较</button>
+        </div><div class="qfb" id="qfb4"></div></div>
+    </div>
+  </div>
+  <div id="p3d"><button class="btnp" onclick="showPart(4)">查看单元完成情况 →</button></div>
+</div>
+
+<div class="part" id="part4">
+  <div class="sumc">
+    <div style="font-size:16px;font-weight:900;color:var(--ink);margin-bottom:14px">🏆 单元完成！</div>
+    <div class="sumg">
+      <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
+      <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
+      <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
+    </div>
+    <div class="kpl">
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div>对比分析 = 把相关数据放在一起比较，从数量上说明差距，让数字说话</div></div>
+      <div class="kp"><div class="kpd">2</div><div><strong>同比</strong>：本期 VS 去年同期，消除季节影响，公式：(本期-同期)÷同期×100%</div></div>
+      <div class="kp"><div class="kpd">3</div><div><strong>环比</strong>：本期 VS 上一期，反映短期趋势，公式：(本期-上期)÷上期×100%</div></div>
+      <div class="kp"><div class="kpd">4</div><div>对比分析6原则：类型、单位、计算方式、内涵、时间范围、整体性质必须一致</div></div>
+      <div class="kp"><div class="kpd">5</div><div>Excel公式：同比=(B2-C2)/C2（C2为去年同期），环比=(B2-B1)/B1（B1为上期）</div></div>
+    </div>
+    <div style="text-align:center;margin-top:20px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+  </div>
+</div>
+</div>
+<script>
+
+var _sb=null;
+try{if(window.supabase)_sb=window.supabase.createClient('https://ovinpbddeuxpgouefczs.supabase.co','sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX');}catch(e){}
+var SK='ecommerce_data_analysis_user';
+var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var xp=0,strs=0,cDone={},jDone={},qDone={};
+function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
+function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();
+  if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}
+  localStorage.setItem(SK,JSON.stringify(d));
+  if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;
+    var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);
+    _sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,
+      completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,
+      achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},
+      {onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}
+}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');
+  setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xpop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');
+  setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();
+  document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xpop(a);}
+function confetti(){var c=document.getElementById('cft');
+  var cs=['#0F4C81','#1A6BB5','#3B82F6','#F97316','#10B981','#FBBF24'];c.innerHTML='';
+  for(var i=0;i<60;i++){var p=document.createElement('div');p.className='cp';
+    p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+
+    ';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;'+
+    'animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;'+
+    'border-radius:'+(Math.random()>0.5?'50%':'2px');
+    c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=4;i++){
+    document.getElementById('part'+i).classList.toggle('active',i===n);
+    document.getElementById('btn'+i).classList.toggle('active',i===n);}
+  document.getElementById('prog').style.width=[0,25,55,80,100][n]+'%';
+  window.scrollTo({top:0,behavior:'smooth'});}
+function stab(n,tot){tot=tot||5;for(var i=0;i<tot;i++){
+    var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);
+    if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
+function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
+function p2go(){document.getElementById('p2d').style.display='block';showPart(3);}
+/* ── 判断题（所有答案/反馈存JS对象，onclick只传数字和布尔） ── */
+function doJ(n,v){
+  if(jDone[n])return;jDone[n]=true;
+  var ok=(v===JA[n]);
+  var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);
+  bt.disabled=true;bf.disabled=true;
+  (JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdim');
+  if(!ok)(v?bt:bf).classList.add('jng');
+  var e=document.getElementById('jfb'+n);
+  e.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];
+  e.className='jfb '+(ok?'jfb-ok':'jfb-ng');
+  if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析学习');}
+  chkDone();}
+/* ── 选择题（答案存QC，反馈存QFB[题号][选项索引]） ── */
+function doQ(n,i){
+  if(qDone[n])return;qDone[n]=true;
+  var ok=(i===QC[n]);
+  for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);
+    if(!b)continue;b.disabled=true;
+    if(j===QC[n])b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}
+  var e=document.getElementById('qfb'+n);
+  e.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];
+  e.className='qfb '+(ok?'qfb-ok':'qfb-ng');
+  if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
+/* ── 计算题 ── */
+function doC(n){
+  if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cfb'+n);
+  var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='请输入数字';fb.className='cfb cfb-ng';return;}
+  if(Math.abs(v-CA[n])<0.15){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];
+    fb.className='cfb cfb-ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';
+    addXP(10);toast('✅ 答对！+10 XP');}
+  else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb cfb-ng';toast('❌ 再想想！');}
+  chkDone();}
+function chkDone(){
+  var jT=Object.keys(JA).length,qT=Object.keys(QC).length,cT=Object.keys(CA).length;
+  if(Object.keys(jDone).length>=jT&&Object.keys(qDone).length>=qT&&Object.keys(cDone).length>=cT){
+    document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);
+    setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}
+}
+
+
+var JA={1:true,2:false,3:true,4:false,5:true};
+var JFB={
+  1:'同比分析法通过与去年同期数据比较，排除了季节性因素的影响，能真实反映业务的年度增长情况。',
+  2:'恰好相反！环比是与上一个相邻时期比较（本月vs上月），同比是与去年同期比较（今年9月vs去年9月）。两者方向完全不同。',
+  3:'对比分析的6条原则（类型、单位、计算方式、内涵、时间范围、整体性质一致）是数据有效对比的基础，违反任何一条都会让对比失去意义。',
+  4:'同比增长率公式是（本期数-同期数）÷同期数×100%，分母是同期数（去年同期），不是本期数（今年数据）。',
+  5:'两个店铺分别与各自对应的去年同期数据比较，得出各自的同比增长率，再横向对比这两组增长率，是标准的对比分析做法。'};
+var QC={1:2,2:1,3:0,4:2};
+var QFB={
+  1:{0:'竞争对手对比是拿自家数据与竞品比，了解竞争地位，与时期对比不同。',
+     1:'目标与结果对比是计划目标vs实际完成，与时间段无关。',
+     2:'环比（本月vs上月）和同比（今年vs去年同月）都属于"不同时期对比"，用于了解数据随时间的变化趋势。',
+     3:'活动效果对比是活动前vs活动后，评估促销活动是否有效。'},
+  2:{0:'环比=(13658-12534)÷12534×100%，分母是上期数12534，不是12534÷13658。',
+     1:'环比增长率=(本期-上期)÷上期×100%=(13658-12534)÷12534×100%=1124÷12534×100%≈8.97%，计算完全正确！',
+     2:'分母应该是上期数12534，不是本期数13658。这是用了同比的分母位置（虽然本题没有去年数据）。',
+     3:'差额1124÷两期之和26192不是正确的增长率计算方法。'},
+  3:{0:'同比增长率=(1896-1359)÷1359×100%=537÷1359×100%≈39.51%，分母是去年同期1359，计算正确！',
+     1:'分母用了本期数1896，这是错误的，同比的分母应该是去年同期数1359。',
+     2:'分子应该是本期减同期（1896-1359），而不是同期减本期（1359-1896），否则结果是负数。',
+     3:'分母是去年同期数1359，不是两期数据之和。'},
+  4:{0:'上月数据是环比的基期，同比的基期应该是去年同月数据，不是上月。',
+     1:'与上月比较是环比的定义，不是同比。',
+     2:'同比分析法是将本期数据与去年同期数据比较，主要用于消除季节性因素，真实反映年度增长情况，这是正确的定义。',
+     3:'同比是去年同月，不是去年全年平均。如今年3月与去年3月比，不是今年3月与去年全年平均比。'}};
+var CA={1:39.51};
+var CFBOK={1:'(1896-1359)÷1359×100%=537÷1359×100%≈39.51%'};
+var CFBHINT={1:'公式：(本期数-同期数)÷同期数×100%，代入(1896-1359)÷1359×100%'};
+
+
+function completeUnit(){
+  var u=lu();if(!u){window.location.href='index.html';return;}
+  var sc=Math.min(100,20+Math.round(xp*0.8));
+  var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;
+  var tx=xp+20;var prev=u.units['m4u3']||{};var already=prev.completed&&(prev.xpEarned||0)>0;
+  var ax=already?0:tx;
+  u.units['m4u3']={completed:true,stars:Math.max(prev.stars||0,st),
+    score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};
+  u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;
+  var ach=u.achievements||[];
+  if(!ach.includes('first_unit'))ach.push('first_unit');
+  if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');
+  u.achievements=ach;su(u);
+  document.getElementById('fxp').textContent='+'+(already?0:tx);
+  document.getElementById('fsc').textContent=sc;
+  document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);
+  showPart(4);if(st>=4)confetti();
+  toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);
+  setTimeout(function(){window.location.href='index.html';},2600);
+}
+(function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
+
+</script>
+</body>
+</html>

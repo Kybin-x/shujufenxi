@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>4.4 其他分析方法</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p1:#7C3AED;--p2:#8B5CF6;--pL:#F5F3FF;--pM:#DDD6FE;--pD:#4C1D95;
+  --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
+  --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
+  --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
+  --vi:#7C3AED;--viL:#F5F3FF;--viM:#DDD6FE;
+  --ink:#0F172A;--i2:#334155;--i3:#64748B;
+  --bg:#F5F3FF;--cd:#FFF;--br:#DDD6FE;--r:10px;
+  --sh:0 2px 12px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.05)}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
+.nb{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.nbk{font-size:13px;font-weight:700;color:var(--p1);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}
+.nbk:hover{background:var(--pL)}
+.nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-xp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p1),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
+#prog{height:5px;background:linear-gradient(90deg,var(--p1),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:960px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--p1);color:var(--p1)}
+.pb.active{background:var(--p1);border-color:var(--p1);color:#fff}
+.main{max-width:960px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+.hero{background:linear-gradient(135deg,var(--pL) 0%,var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero h1{font-size:24px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p1)}
+.hero p{font-size:13px;color:var(--i2);line-height:1.8;max-width:580px}
+.htag{display:inline-flex;align-items:center;background:rgba(0,0,0,.08);border:1.5px solid rgba(0,0,0,.15);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hcs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.hc{background:rgba(255,255,255,.75);border:1px solid var(--pM);border-radius:20px;padding:5px 12px;font-size:11.5px;color:var(--i2)}
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:12px 18px;display:flex;align-items:center;gap:8px}
+.chi{font-size:18px;flex-shrink:0}
+.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
+.chb{font-size:10.5px;font-weight:700;background:var(--p1);color:#fff;border-radius:10px;padding:2px 9px;flex-shrink:0}
+.cb{padding:16px 18px}
+.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:22px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
+.tabb{padding:6px 13px;border-radius:18px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tabb.active{background:var(--p1);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.16)}
+.tp{display:none}.tp.active{display:block}
+.sec{font-size:13.5px;font-weight:800;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:7px}
+.sec::before{content:'';width:3px;height:17px;background:linear-gradient(180deg,var(--p1),var(--p2));border-radius:2px;flex-shrink:0}
+.sg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.sg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.sg4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.sc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 14px}
+.scn{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:3px}
+.sce{font-size:10px;color:var(--i3);margin-bottom:6px;letter-spacing:.04em}
+.scf{background:#1E293B;border-radius:5px;padding:3px 8px;font-size:11px;color:#7DD3FC;font-family:monospace;display:inline-block;margin-bottom:5px}
+.scd{font-size:12px;color:var(--i2);line-height:1.6}
+.scg{font-size:11px;color:var(--i3);margin-top:5px;font-style:italic}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.tbl th{background:var(--p1);color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11.5px}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.6;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pL)}
+.tbl td:first-child{font-weight:700;color:var(--ink)}
+.steps{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.si{display:flex;align-items:flex-start;gap:11px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 13px}
+.sn{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb{flex:1}.sbt{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:2px}
+.sbd{font-size:12px;color:var(--i2);line-height:1.65}
+.sbp{background:var(--pL);border:1px solid var(--pM);border-radius:5px;padding:4px 8px;margin-top:4px;font-size:11px;color:var(--pD);font-family:monospace}
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:var(--pD);line-height:1.7;display:flex;gap:6px}
+.warn{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:#78350F;line-height:1.7;display:flex;gap:6px}
+.thk{background:var(--viL);border:1.5px solid var(--viM);border-radius:var(--r);padding:13px 15px;margin:12px 0}
+.thkt{font-size:13px;font-weight:800;color:var(--vi);margin-bottom:6px}
+.fbox{background:#0F172A;border-radius:var(--r);padding:13px 16px;margin:12px 0;font-size:12.5px;color:#DBEAFE;line-height:1.9;font-family:monospace}
+/* ─── QUIZ ─── */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:11px;overflow:hidden}
+.qh{background:linear-gradient(90deg,var(--pL),#fff);padding:11px 15px;display:flex;align-items:flex-start;gap:8px}
+.qn{width:25px;height:25px;min-width:25px;border-radius:50%;background:var(--p1);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qt{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5}
+.qop{padding:11px 15px;display:flex;flex-direction:column;gap:6px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:7px;padding:8px 13px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .16s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p1);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p1)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
+.qfb{margin:0 15px 12px;padding:8px 11px;border-radius:6px;font-size:12px;line-height:1.65;display:none}
+.qfb-ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}
+.qfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* ─── JUDGE ─── */
+.jlist{display:flex;flex-direction:column;gap:9px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 14px}
+.jitop{display:flex;align-items:flex-start;gap:9px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.65}
+.jbs{display:flex;gap:5px;flex-shrink:0;margin-top:2px}
+.jbt{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .16s}
+.jbtt{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}
+.jbtt:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbtf{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}
+.jbtf:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
+.jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
+.jbt.jdim{opacity:.28;cursor:default!important}
+.jfb{font-size:11.5px;margin-top:7px;padding:6px 9px;border-radius:5px;display:none}
+.jfb-ok{display:block;background:var(--gnL);color:#14532D}
+.jfb-ng{display:block;background:var(--rdL);color:var(--rd)}
+/* ─── CALC ─── */
+.cc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--br);border-radius:var(--r);padding:14px 16px;margin-bottom:9px}
+.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:9px;line-height:1.55}
+.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:9px 12px;margin-bottom:9px;font-size:12px;color:var(--i2);line-height:1.8}
+.ccr{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.cci{border:1.5px solid var(--br);border-radius:6px;padding:5px 9px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:120px;transition:border-color .2s}
+.cci:focus{border-color:var(--p1);background:var(--pL)}
+.ccb{background:var(--p1);color:#fff;border:none;border-radius:6px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.cfb{font-size:12px;padding:6px 10px;border-radius:6px;margin-top:5px;display:none}
+.cfb-ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}
+.cfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* ─── SUMMARY ─── */
+.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:12px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:3px}
+.sumv{font-size:18px;font-weight:900;color:var(--p1)}
+.kpl{display:flex;flex-direction:column;gap:6px;margin-top:11px}
+.kp{display:flex;align-items:flex-start;gap:7px;font-size:13px;color:var(--i2);line-height:1.6}
+.kpd{width:19px;height:19px;border-radius:50%;background:var(--p1);color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.btnp{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:9px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(0,0,0,.18);transition:all .2s}
+.btnp:hover{transform:translateY(-1px)}
+.btnd{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:12px 32px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:all .2s;margin-top:16px}
+.btnd:hover{transform:translateY(-2px)}
+#p1d,#p2d,#p3d{display:none;text-align:center;padding:14px 0 4px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;padding:7px 16px;border-radius:18px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp.show{opacity:1;transform:translateY(0)}
+#cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){.sg2,.sg3,.sg4,.sumg{grid-template-columns:1fr}.hero h1{font-size:20px}.tabs{gap:2px}.tabb{padding:4px 8px;font-size:11px}}
+</style>
+</head>
+<body>
+<div id="cft"></div><div id="toast"></div><div id="xpp"></div>
+<nav class="nb">
+  <a class="nbk" href="index.html">← 返回</a>
+  <div class="nbt">4.4 · 其他分析方法（六大利器）</div>
+  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="pw"><div id="prog" style="width:0%"></div></div>
+<div class="pn">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📚 知识讲解</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🎮 互动练习</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🏁 单元完成</button>
+</div>
+<div class="main">
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="htag">M4 · 单元四</div>
+    <h1>六大数据分析利器：<em>其他分析方法</em></h1>
+    <p>掌握频数、分组、结构、平均、交叉、漏斗图六种分析法，让你的数据分析能力全面升级！</p>
+    <div class="hcs"><span class="hc">📊 频数分析</span><span class="hc">🗂️ 分组分析</span><span class="hc">🥧 结构分析</span><span class="hc">📐 平均分析</span><span class="hc">🔀 交叉分析</span><span class="hc">🔽 漏斗图</span></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">🗺️</div><div class="cht">六种分析方法 · 知识地图</div></div>
+    <div class="cb">
+      <table class="tbl">
+        <tr><th>方法</th><th>核心问题</th><th>典型应用</th></tr>
+        <tr><td>📊 频数分析</td><td>各类别出现了几次？</td><td>了解客户性别/年龄分布，商品价格段分布</td></tr>
+        <tr><td>🗂️ 分组分析</td><td>按特征分组后各有什么规律？</td><td>按年龄段、价格段、地区分类分析消费行为</td></tr>
+        <tr><td>🥧 结构分析</td><td>各部分占总体多少比例？</td><td>各品类占总销售额的比重分析</td></tr>
+        <tr><td>📐 平均分析</td><td>平均水平是多少？</td><td>客单价均值、日均访客量、加权平均</td></tr>
+        <tr><td>🔀 交叉分析</td><td>多维度组合下有什么关联？</td><td>不同年龄段×不同品类的消费偏好分析</td></tr>
+        <tr><td>🔽 漏斗图</td><td>各流程环节的转化率是多少？</td><td>电商购物漏斗：浏览→加购→下单→支付</td></tr>
+      </table>
+    </div>
+  </div>
+  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p1go()">已阅读，进入知识讲解 →</button></div>
+  <div id="p1d"><button class="btnp" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
+</div>
+
+<div class="part" id="part2">
+  <div class="tabs">
+    <button class="tabb active" id="tb0" onclick="stab(0,6)">📊 频数</button>
+    <button class="tabb" id="tb1" onclick="stab(1,6)">🗂️ 分组</button>
+    <button class="tabb" id="tb2" onclick="stab(2,6)">🥧 结构</button>
+    <button class="tabb" id="tb3" onclick="stab(3,6)">📐 平均</button>
+    <button class="tabb" id="tb4" onclick="stab(4,6)">🔀 交叉</button>
+    <button class="tabb" id="tb5" onclick="stab(5,6)">🔽 漏斗图</button>
+  </div>
+  <div class="tp active" id="tp0">
+    <div class="sec">频数分析法——统计数据出现的次数</div>
+    <div class="sg2">
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📊 频数 vs 频率</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85"><strong>频数</strong>：某类别/数值出现的次数（绝对值）<br><strong>频率</strong>：出现次数÷总次数（百分比）<br><br>例：10位客户，男6女4<br>男频数=6，频率=60%；女频数=4，频率=40%</div>
+      </div>
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📈 三种常用图形</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85"><strong>直方图</strong>：矩形面积表示频数，最适合连续数据<br><strong>条形图</strong>：矩形高低表示频数，适合离散类别<br><strong>饼状图</strong>：扇形面积表示频率，展示构成比例</div>
+      </div>
+    </div>
+    <div class="sec">Excel频数分析操作（7步）</div>
+    <div class="steps">
+      <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">输入数据</div><div class="sbd">A列：日期，B列：购买人数数据</div></div></div>
+      <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">排序数据</div><div class="sbp">复制B列到C列 → 选中C列 → 右键 → 排序 → 升序</div></div></div>
+      <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">设定分组</div><div class="sbd">D列设置分组上限（如99、109、119……），E列设置区间说明（90-100、100-110……）</div></div></div>
+      <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">打开数据分析工具</div><div class="sbp">「数据」→「数据分析」</div></div></div>
+      <div class="si"><div class="sn">5</div><div class="sb"><div class="sbt">选择直方图</div><div class="sbd">在弹出框选择「直方图」→ 确定</div></div></div>
+      <div class="si"><div class="sn">6</div><div class="sb"><div class="sbt">设置参数</div><div class="sbd">输入区域=排序数据，接收区域=分组上限，输出区域=结果位置<br>勾选「累积百分率」和「图表输出」</div></div></div>
+      <div class="si"><div class="sn">7</div><div class="sb"><div class="sbt">✅ 查看结果</div><div class="sbd">自动生成频数累积统计表和直方图！</div></div></div>
+    </div>
+  </div>
+  <div class="tp" id="tp1">
+    <div class="sec">分组分析法——按特征分类研究</div>
+    <div class="sg3">
+      <div class="sc"><div style="font-size:20px;margin-bottom:6px">🔢</div><div class="scn">数量分组</div><div class="scd">按数值区间分组，研究总体内部结构，如按年龄段(20-30、30-40)分组</div></div>
+      <div class="sc"><div style="font-size:20px;margin-bottom:6px">🔗</div><div class="scn">关系分组</div><div class="scd">分析关联变量，找依存关系，如收入高低与消费金额的对应关系</div></div>
+      <div class="sc"><div style="font-size:20px;margin-bottom:6px">⭐</div><div class="scn">质量分组</div><div class="scd">按质量特征分组，如按行业类型（制造/服务/零售）分组</div></div>
+    </div>
+    <div class="tip"><span>⚠️</span><span>分组两大原则：①<strong>无遗漏</strong>——每个数据都必须归属一组；②<strong>排他性</strong>——每个数据只能属于一组，不能同时属于两组。</span></div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><div class="chi">🔍</div><div class="cht">VLOOKUP函数——自动分组神器</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:10px">VLOOKUP可以根据数值自动查找对应的分组区间，写好B2公式后向下拖动即可批量完成所有数据的分组。</p>
+        <div class="fbox" style="padding:10px 14px">
+          <div style="color:#7DD3FC">=VLOOKUP(A2, $D$2:$E$6, 2)</div>
+          <div style="color:#94A3B8;font-size:11px;margin-top:3px">A2→要分组的数值 | $D$2:$E$6→分组对照表 | 2→返回第2列（分组名称）</div>
+        </div>
+        <div style="background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:10px 13px;margin-top:10px;font-size:12.5px;color:var(--pD)">
+          <strong>组距计算公式：组距 = (最大值 - 最小值) ÷ 组数</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tp" id="tp2">
+    <div class="sec">结构分析法——各部分占总体的比例</div>
+    <div class="sg2">
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">🥧 什么是结构分析？</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">把数据总体分成若干部分，分析各部分的<strong>比重（占比）</strong>，了解构成情况。<br><br>公式：比重 = 各部分 ÷ 总体 × 100%</div>
+      </div>
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📊 常用图表</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85"><strong>饼图</strong>：最直观展示各部分占比<br><strong>环形图</strong>：类似饼图，可叠加多组数据<br><strong>百分比堆积柱形图</strong>：展示不同时期的结构变化</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="ch"><div class="chi">📊</div><div class="cht">结构分析案例：各品类销售额占比</div></div>
+      <div class="cb">
+        <table class="tbl">
+          <tr><th>品类</th><th>销售额（万元）</th><th>占比</th></tr>
+          <tr><td>手机数码</td><td>280</td><td style="color:var(--p1);font-weight:700">40%</td></tr>
+          <tr><td>服装鞋帽</td><td>175</td><td>25%</td></tr>
+          <tr><td>食品生鲜</td><td>140</td><td>20%</td></tr>
+          <tr><td>家居家电</td><td>105</td><td>15%</td></tr>
+          <tr><td><strong>合计</strong></td><td><strong>700</strong></td><td><strong>100%</strong></td></tr>
+        </table>
+        <div class="tip" style="margin-top:8px"><span>💡</span><span>结论：手机数码是主要贡献品类，占40%。提升整体业绩可重点投入手机数码，或找到提升占比低的品类的突破口。</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tp" id="tp3">
+    <div class="sec">平均分析法——用平均数了解整体水平</div>
+    <div class="sg3">
+      <div class="sc"><div style="font-size:20px;margin-bottom:6px">➕</div><div class="scn">算术平均数</div><div class="scf">=AVERAGE()</div><div class="scd">最常用，所有值加起来除以个数。适合数据均匀、无极端值时。</div><div class="scg">日均销售额=月总÷天数</div></div>
+      <div class="sc"><div style="font-size:20px;margin-bottom:6px">⚖️</div><div class="scn">加权平均数</div><div class="scf">=SUMPRODUCT()/SUM()</div><div class="scd">不同数据有不同权重时使用，比算术平均更准确。</div><div class="scg">综合客单价=Σ(品类销售额)÷总订单数</div></div>
+      <div class="sc"><div style="font-size:20px;margin-bottom:6px">📍</div><div class="scn">移动平均</div><div class="scf">=AVERAGE(近N期)</div><div class="scd">取最近N期的平均值，消除短期波动，看清趋势方向。</div><div class="scg">7日移动平均=最近7天日销之和÷7</div></div>
+    </div>
+    <div class="tip"><span>🔑</span><span>选择原则：数据均匀→算术平均；各数据有不同权重→加权平均；消除短期波动看趋势→移动平均。</span></div>
+  </div>
+  <div class="tp" id="tp4">
+    <div class="sec">交叉分析法——多维度组合分析</div>
+    <div class="sg2">
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">🔀 什么是交叉分析？</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">同时对<strong>两个或多个变量</strong>进行交叉对比，发现变量之间的关联关系。通常用<strong>数据透视表</strong>实现。<br><br>单维度：只看男女消费差异<br>单维度：只看各品类销售差异<br><strong>交叉：男女×各品类的消费组合</strong>→精准营销！</div>
+      </div>
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📊 交叉分析案例</div>
+        <div class="tbl" style="margin:0">
+          <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+            <tr style="background:var(--p1);color:#fff"><th style="padding:5px 8px">年龄段</th><th style="padding:5px 8px">数码</th><th style="padding:5px 8px">服装</th><th style="padding:5px 8px">食品</th></tr>
+            <tr><td style="padding:5px 8px;font-weight:700">18-25岁</td><td style="padding:5px 8px;color:var(--p1);font-weight:700">45%</td><td style="padding:5px 8px">30%</td><td style="padding:5px 8px">25%</td></tr>
+            <tr style="background:var(--pL)"><td style="padding:5px 8px;font-weight:700">25-35岁</td><td style="padding:5px 8px">35%</td><td style="padding:5px 8px;color:var(--p1);font-weight:700">40%</td><td style="padding:5px 8px">25%</td></tr>
+            <tr><td style="padding:5px 8px;font-weight:700">35-50岁</td><td style="padding:5px 8px">20%</td><td style="padding:5px 8px">30%</td><td style="padding:5px 8px;color:var(--p1);font-weight:700">50%</td></tr>
+          </table>
+        </div>
+        <div style="font-size:11.5px;color:var(--i3);margin-top:6px">→ 18-25岁偏爱数码，25-35岁偏爱服装，35-50岁偏爱食品！</div>
+      </div>
+    </div>
+  </div>
+  <div class="tp" id="tp5">
+    <div class="sec">漏斗图分析法——业务转化流程分析</div>
+    <div class="sg2">
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">🔽 什么是漏斗图？</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">通过漏斗形状展示业务流程各环节的<strong>数据量和转化率</strong>，直观发现哪个环节"漏"得最严重，从而找到优化重点。</div>
+        <div style="margin-top:10px">
+          <div style="background:var(--pL);border:1px solid var(--pM);border-radius:6px;padding:5px 10px;text-align:center;font-size:12px;margin-bottom:3px;font-weight:700">浏览商品：10000人</div>
+          <div style="background:var(--pL);border:1px solid var(--pM);border-radius:6px;padding:5px 10px;text-align:center;font-size:12px;margin-bottom:3px;width:82%;margin-left:9%">加入购物车：4500人（45%）</div>
+          <div style="background:var(--pL);border:1px solid var(--pM);border-radius:6px;padding:5px 10px;text-align:center;font-size:12px;margin-bottom:3px;width:62%;margin-left:19%">点击下单：2000人（44%）</div>
+          <div style="background:var(--pL);border:1px solid var(--pM);border-radius:6px;padding:5px 10px;text-align:center;font-size:12px;width:42%;margin-left:29%;font-weight:700;color:var(--pD)">完成支付：1500人（75%）</div>
+        </div>
+      </div>
+      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">💡 漏斗图的用途</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85;margin-bottom:8px">① <strong>发现流失环节</strong>：哪个环节转化率最低→那里就是优化重点<br>② <strong>优化转化漏斗</strong>：针对流失最严重的环节制定改进策略<br>③ <strong>对比不同渠道</strong>：找出哪个来源渠道的购买漏斗效率更高</div>
+        <div class="tip" style="margin-top:0"><span>💡</span><span>上图分析：浏览→加购损失55%，这个环节流失最大！需重点优化商品展示页面、价格策略，提升加购率。</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="p2d"><button class="btnp" onclick="showPart(3)">✅ 知识学完，开始互动练习 →</button></div>
+  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p2go()">已阅读，进入练习 →</button></div>
+</div>
+
+<div class="part" id="part3">
+  <div class="card">
+    <div class="ch"><div class="chi">🧮</div><div class="cht">练习一 · 计算挑战</div><div class="chb">+10 XP</div></div>
+    <div class="cb">
+      <div class="cc">
+        <div class="ccq">某数据最大值为149，最小值为90，准备分为6组，<strong>组距</strong>应该是多少？（结果取整数，有小数则向上取整）</div>
+        <div class="ccd">组距 = (最大值 - 最小值) ÷ 组数</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">组距 =</span>
+          <input class="cci" id="ci1" type="number" placeholder="整数">
+          <button class="ccb" onclick="doC(1)">提交</button>
+        </div>
+        <div class="cfb" id="cfb1"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">✅</div><div class="cht">练习二 · 判断题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="jlist">
+        <div class="ji" id="ji1"><div class="jitop">
+          <div class="jiq">1. 频率 = 出现次数 ÷ 总次数，用百分比表示，反映某类别在总体中的相对比例。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbtf" id="jf1" onclick="doJ(1,false)">×</button></div>
+        </div><div class="jfb" id="jfb1"></div></div>
+        <div class="ji" id="ji2"><div class="jitop">
+          <div class="jiq">2. 分组分析中，同一数据可以同时归属于两个分组，以便更全面地分析。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbtf" id="jf2" onclick="doJ(2,false)">×</button></div>
+        </div><div class="jfb" id="jfb2"></div></div>
+        <div class="ji" id="ji3"><div class="jitop">
+          <div class="jiq">3. Excel中的<strong>VLOOKUP函数</strong>可以自动将数据分配到对应的分组区间，提高分组分析效率。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbtf" id="jf3" onclick="doJ(3,false)">×</button></div>
+        </div><div class="jfb" id="jfb3"></div></div>
+        <div class="ji" id="ji4"><div class="jitop">
+          <div class="jiq">4. <strong>漏斗图分析法</strong>主要用于计算各类别的平均值，了解数据的整体平均水平。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbtf" id="jf4" onclick="doJ(4,false)">×</button></div>
+        </div><div class="jfb" id="jfb4"></div></div>
+        <div class="ji" id="ji5"><div class="jitop">
+          <div class="jiq">5. <strong>交叉分析法</strong>通过多维度同时分析，能发现单维度分析看不到的变量间关联关系。</div>
+          <div class="jbs"><button class="jbt jbtt" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbtf" id="jf5" onclick="doJ(5,false)">×</button></div>
+        </div><div class="jfb" id="jfb5"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">📝</div><div class="cht">练习三 · 选择题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="qbox" id="qb1"><div class="qh"><div class="qn">1</div><div class="qt">频数分析中，展示连续数据（如商品价格区间）分布，最适合的图形是？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 条形图</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 直方图</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 饼图</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 折线图</button>
+        </div><div class="qfb" id="qfb1"></div></div>
+      <div class="qbox" id="qb2"><div class="qh"><div class="qn">2</div><div class="qt">在Excel中进行频数分析，使用"数据分析"工具时应选择哪个功能？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 先分组设置，再按升序排序数据</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. 选择"描述统计"，勾选汇总统计</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. 排序数据后，选择"直方图"，设置输入区域和接收区域</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. 使用VLOOKUP函数直接完成频数分析</button>
+        </div><div class="qfb" id="qfb2"></div></div>
+      <div class="qbox" id="qb3"><div class="qh"><div class="qn">3</div><div class="qt">某店铺想分析"各品类销售额占总销售额的比例"，应该用哪种分析方法？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 结构分析法（各部分占总体比重）</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 平均分析法（计算平均销售额）</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 交叉分析法（多维度关联分析）</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 漏斗图分析法（转化率分析）</button>
+        </div><div class="qfb" id="qfb3"></div></div>
+      <div class="qbox" id="qb4"><div class="qh"><div class="qn">4</div><div class="qt">电商运营想分析"浏览→加购→下单→支付"各环节的用户流失情况，最适合哪种方法？</div></div>
+        <div class="qop">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 频数分析法</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 分组分析法</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 漏斗图分析法</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 结构分析法</button>
+        </div><div class="qfb" id="qfb4"></div></div>
+    </div>
+  </div>
+  <div id="p3d"><button class="btnp" onclick="showPart(4)">查看单元完成情况 →</button></div>
+</div>
+
+<div class="part" id="part4">
+  <div class="sumc">
+    <div style="font-size:16px;font-weight:900;color:var(--ink);margin-bottom:14px">🏆 模块四全部完成！</div>
+    <div class="sumg">
+      <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
+      <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
+      <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
+    </div>
+    <div class="kpl">
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div><strong>频数分析</strong>：统计各类别出现次数，直方图最适合连续数据的频率分布展示</div></div>
+      <div class="kp"><div class="kpd">2</div><div><strong>分组分析</strong>：按特征分组规律；组距=(最大-最小)÷组数；VLOOKUP自动分组</div></div>
+      <div class="kp"><div class="kpd">3</div><div><strong>结构分析</strong>：各部分÷总体×100%，常用饼图，分析占比和构成</div></div>
+      <div class="kp"><div class="kpd">4</div><div><strong>平均分析</strong>：算术平均（均匀）、加权平均（有权重）、移动平均（消除波动）</div></div>
+      <div class="kp"><div class="kpd">5</div><div><strong>交叉分析</strong>：多维度组合（数据透视表），发现变量间的关联关系</div></div>
+      <div class="kp"><div class="kpd">6</div><div><strong>漏斗图</strong>：分析各流程环节转化率，找到流失最严重的环节进行优化</div></div>
+    </div>
+    <div style="text-align:center;margin-top:20px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+  </div>
+</div>
+</div>
+<script>
+
+var _sb=null;
+try{if(window.supabase)_sb=window.supabase.createClient('https://ovinpbddeuxpgouefczs.supabase.co','sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX');}catch(e){}
+var SK='ecommerce_data_analysis_user';
+var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var xp=0,strs=0,cDone={},jDone={},qDone={};
+function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
+function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();
+  if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}
+  localStorage.setItem(SK,JSON.stringify(d));
+  if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;
+    var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);
+    _sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,
+      completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,
+      achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},
+      {onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}
+}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');
+  setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xpop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');
+  setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();
+  document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xpop(a);}
+function confetti(){var c=document.getElementById('cft');
+  var cs=['#0F4C81','#1A6BB5','#3B82F6','#F97316','#10B981','#FBBF24'];c.innerHTML='';
+  for(var i=0;i<60;i++){var p=document.createElement('div');p.className='cp';
+    p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+
+    ';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;'+
+    'animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;'+
+    'border-radius:'+(Math.random()>0.5?'50%':'2px');
+    c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=4;i++){
+    document.getElementById('part'+i).classList.toggle('active',i===n);
+    document.getElementById('btn'+i).classList.toggle('active',i===n);}
+  document.getElementById('prog').style.width=[0,25,55,80,100][n]+'%';
+  window.scrollTo({top:0,behavior:'smooth'});}
+function stab(n,tot){tot=tot||5;for(var i=0;i<tot;i++){
+    var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);
+    if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
+function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
+function p2go(){document.getElementById('p2d').style.display='block';showPart(3);}
+/* ── 判断题（所有答案/反馈存JS对象，onclick只传数字和布尔） ── */
+function doJ(n,v){
+  if(jDone[n])return;jDone[n]=true;
+  var ok=(v===JA[n]);
+  var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);
+  bt.disabled=true;bf.disabled=true;
+  (JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdim');
+  if(!ok)(v?bt:bf).classList.add('jng');
+  var e=document.getElementById('jfb'+n);
+  e.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];
+  e.className='jfb '+(ok?'jfb-ok':'jfb-ng');
+  if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析学习');}
+  chkDone();}
+/* ── 选择题（答案存QC，反馈存QFB[题号][选项索引]） ── */
+function doQ(n,i){
+  if(qDone[n])return;qDone[n]=true;
+  var ok=(i===QC[n]);
+  for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);
+    if(!b)continue;b.disabled=true;
+    if(j===QC[n])b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}
+  var e=document.getElementById('qfb'+n);
+  e.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];
+  e.className='qfb '+(ok?'qfb-ok':'qfb-ng');
+  if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
+/* ── 计算题 ── */
+function doC(n){
+  if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cfb'+n);
+  var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='请输入数字';fb.className='cfb cfb-ng';return;}
+  if(Math.abs(v-CA[n])<0.15){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];
+    fb.className='cfb cfb-ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';
+    addXP(10);toast('✅ 答对！+10 XP');}
+  else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb cfb-ng';toast('❌ 再想想！');}
+  chkDone();}
+function chkDone(){
+  var jT=Object.keys(JA).length,qT=Object.keys(QC).length,cT=Object.keys(CA).length;
+  if(Object.keys(jDone).length>=jT&&Object.keys(qDone).length>=qT&&Object.keys(cDone).length>=cT){
+    document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);
+    setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}
+}
+
+
+var JA={1:true,2:false,3:true,4:false,5:true};
+var JFB={
+  1:'频率=出现次数÷总次数，用百分比表示，是频数的相对化，方便比较不同规模数据集中各类别的比例。',
+  2:'分组分析必须遵循排他性原则：每个数据单位只能属于一个分组，不能同时属于两个组。无遗漏原则要求每个单位都必须归属某一组。两条原则缺一不可。',
+  3:'VLOOKUP函数可以根据数值自动查找对应的分组区间，在B列写好公式后向下拖动，即可自动完成所有数据的分组，大大提高效率。',
+  4:'漏斗图分析法专门用于分析业务流程各环节的转化率（浏览→加购→下单→支付），不是用来计算平均值的。平均分析法才是计算平均值的方法。',
+  5:'交叉分析法通过多个维度同时分析（如年龄段×商品类别），能发现单维度分析无法发现的变量间关联关系，如不同年龄的消费品类偏好差异。'};
+var QC={1:1,2:2,3:0,4:2};
+var QFB={
+  1:{0:'条形图用矩形高低表示频数，适合离散类别数据的对比，不是展示连续数据频率分布的最优选择。',
+     1:'直方图用矩形面积表示频数分布，横轴是连续数值区间（如价格段），纵轴是频数，最适合展示连续数据的频率分布规律，是频数分析的标准图形。',
+     2:'饼图展示各类别的占比关系，更适合结构分析，不如直方图直观地展示频率分布。',
+     3:'折线图适合展示数据随时间的变化趋势，不是频数分析的主要图形。'},
+  2:{0:'频数分析在Excel中的正确步骤是先排序数据再设定分组，然后用直方图工具，不是先分组再排序。',
+     1:'应选择"直方图"，不是"描述统计"。描述统计是计算均值、标准差等统计量，与频数分析不同。',
+     2:'正确！Excel频数分析步骤：①输入并排序数据→②设定分组上限→③数据→数据分析→直方图→④设置输入区域、接收区域、勾选累积百分率和图表输出→⑤确定生成。',
+     3:'VLOOKUP是分组分析的核心工具，不是频数分析的操作步骤。'},
+  3:{0:'结构分析法分析各部分占总体的比重（百分比），用于了解构成情况，如各品类销售额占总销售额的百分比，正好对应这个场景。',
+     1:'平均分析法计算各种平均数，分析数据整体水平，不是分析各部分占比。',
+     2:'交叉分析法通过多维度组合分析变量间的关联关系，不是分析单个维度的占比结构。',
+     3:'漏斗图分析法专门分析业务流程转化率，不适合分析静态的品类占比结构。'},
+  4:{0:'频数分析统计各类别出现的次数，了解分布规律，不是分析流程中的转化率。',
+     1:'分组分析把数据按特征分类研究各组规律，不是专门分析流程转化率的方法。',
+     2:'漏斗图分析法专门用于展示业务流程各环节的数据量和转化率（如浏览→加购→下单→支付），直观发现哪个环节流失最严重，是这个场景的最佳选择。',
+     3:'结构分析法分析各部分的比重，不适合流程转化分析。'}};
+var CA={1:10};
+var CFBOK={1:'组距=(149-90)÷6=59÷6≈9.83，向上取整为10，即每组跨度为10'};
+var CFBHINT={1:'公式：组距=(最大值-最小值)÷组数=(149-90)÷6，结果向上取整'};
+
+
+function completeUnit(){
+  var u=lu();if(!u){window.location.href='index.html';return;}
+  var sc=Math.min(100,20+Math.round(xp*0.8));
+  var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;
+  var tx=xp+20;var prev=u.units['m4u4']||{};var already=prev.completed&&(prev.xpEarned||0)>0;
+  var ax=already?0:tx;
+  u.units['m4u4']={completed:true,stars:Math.max(prev.stars||0,st),
+    score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};
+  u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;
+  var ach=u.achievements||[];
+  if(!ach.includes('first_unit'))ach.push('first_unit');
+  if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');
+  u.achievements=ach;su(u);
+  document.getElementById('fxp').textContent='+'+(already?0:tx);
+  document.getElementById('fsc').textContent=sc;
+  document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);
+  showPart(4);if(st>=4)confetti();
+  toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);
+  setTimeout(function(){window.location.href='index.html';},2600);
+}
+(function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
+
+</script>
+</body>
+</html>
