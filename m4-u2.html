@@ -1,144 +1,160 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>4.2 趋势分析</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>4.2 趋势分析 · 电商数据分析</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--p1:#0E7490;--p2:#0891B2;--pL:#ECFEFF;--pM:#A5F3FC;--pD:#0A4B5E;
+:root{
+  --p:#0E7490;--p2:#0891B2;--pL:#ECFEFF;--pM:#A5F3FC;--pD:#0A4B5E;
   --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
   --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
   --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
   --vi:#7C3AED;--viL:#F5F3FF;--viM:#DDD6FE;
   --ink:#0F172A;--i2:#334155;--i3:#64748B;
   --bg:#F0FFFE;--cd:#FFF;--br:#A5F3FC;--r:10px;
-  --sh:0 2px 12px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.05)}
+  --sh:0 2px 12px rgba(14,116,144,.1),0 1px 3px rgba(0,0,0,.06)
+}
 html{scroll-behavior:smooth}
-body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
-.nb{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
-  border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.nbk{font-size:13px;font-weight:700;color:var(--p1);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}
-.nbk:hover{background:var(--pL)}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.nb{position:sticky;top:0;z-index:100;background:rgba(236,254,255,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(14,116,144,.09)}
+.nbk{font-size:13px;font-weight:700;color:var(--p);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}.nbk:hover{background:var(--pL)}
 .nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-xp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p1),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.nxp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
 .pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
-#prog{height:5px;background:linear-gradient(90deg,var(--p1),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
-.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:960px;margin:0 auto;flex-wrap:wrap}
+#pg{height:5px;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
 .pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
-.pb:hover{border-color:var(--p1);color:var(--p1)}
-.pb.active{background:var(--p1);border-color:var(--p1);color:#fff}
-.main{max-width:960px;margin:0 auto;padding:18px 18px 80px}
+.pb:hover{border-color:var(--p);color:var(--p)}.pb.active{background:var(--p);border-color:var(--p);color:#fff}
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
 .part{display:none}.part.active{display:block}
-.hero{background:linear-gradient(135deg,var(--pL) 0%,var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
-.hero h1{font-size:24px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
-.hero h1 em{font-style:normal;color:var(--p1)}
-.hero p{font-size:13px;color:var(--i2);line-height:1.8;max-width:580px}
-.htag{display:inline-flex;align-items:center;background:rgba(0,0,0,.08);border:1.5px solid rgba(0,0,0,.15);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
-.hcs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.hc{background:rgba(255,255,255,.75);border:1px solid var(--pM);border-radius:20px;padding:5px 12px;font-size:11.5px;color:var(--i2)}
-.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
-.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:12px 18px;display:flex;align-items:center;gap:8px}
-.chi{font-size:18px;flex-shrink:0}
-.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
-.chb{font-size:10.5px;font-weight:700;background:var(--p1);color:#fff;border-radius:10px;padding:2px 9px;flex-shrink:0}
-.cb{padding:16px 18px}
-.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:22px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
-.tabb{padding:6px 13px;border-radius:18px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
-.tabb.active{background:var(--p1);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.16)}
+.hero{background:linear-gradient(135deg,var(--pL),var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:30px 32px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'📈';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.09;pointer-events:none}
+.htag{display:inline-flex;align-items:center;background:rgba(14,116,144,.12);border:1.5px solid rgba(14,116,144,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p)}
+.hero-sub{font-size:13.5px;color:var(--i2);line-height:1.8;max-width:600px;margin-bottom:16px}
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hstat{text-align:center}.hstat-n{font-size:28px;font-weight:900;color:var(--p);line-height:1}.hstat-l{font-size:11px;color:var(--i3);margin-top:3px}
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:13px 20px;display:flex;align-items:center;gap:9px}
+.chi{font-size:20px;flex-shrink:0}.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
+.chb{font-size:10.5px;font-weight:700;background:var(--p);color:#fff;border-radius:10px;padding:2px 10px;flex-shrink:0}
+.cb{padding:18px 20px}
+.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:24px;padding:4px;margin-bottom:18px;flex-wrap:wrap}
+.tb{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tb.active{background:var(--p);color:#fff;box-shadow:0 2px 6px rgba(14,116,144,.25)}
 .tp{display:none}.tp.active{display:block}
-.sec{font-size:13.5px;font-weight:800;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:7px}
-.sec::before{content:'';width:3px;height:17px;background:linear-gradient(180deg,var(--p1),var(--p2));border-radius:2px;flex-shrink:0}
-.sg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.sg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
-.sg4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.sc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 14px}
-.scn{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:3px}
-.sce{font-size:10px;color:var(--i3);margin-bottom:6px;letter-spacing:.04em}
-.scf{background:#1E293B;border-radius:5px;padding:3px 8px;font-size:11px;color:#7DD3FC;font-family:monospace;display:inline-block;margin-bottom:5px}
-.scd{font-size:12px;color:var(--i2);line-height:1.6}
-.scg{font-size:11px;color:var(--i3);margin-top:5px;font-style:italic}
-.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
-.tbl th{background:var(--p1);color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11.5px}
-.tbl td{padding:7px 10px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.6;vertical-align:top}
-.tbl tr:nth-child(even) td{background:var(--pL)}
-.tbl td:first-child{font-weight:700;color:var(--ink)}
-.steps{display:flex;flex-direction:column;gap:8px;margin:10px 0}
-.si{display:flex;align-items:flex-start;gap:11px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 13px}
-.sn{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sb{flex:1}.sbt{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:2px}
-.sbd{font-size:12px;color:var(--i2);line-height:1.65}
-.sbp{background:var(--pL);border:1px solid var(--pM);border-radius:5px;padding:4px 8px;margin-top:4px;font-size:11px;color:var(--pD);font-family:monospace}
-.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:var(--pD);line-height:1.7;display:flex;gap:6px}
-.warn{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:#78350F;line-height:1.7;display:flex;gap:6px}
-.thk{background:var(--viL);border:1.5px solid var(--viM);border-radius:var(--r);padding:13px 15px;margin:12px 0}
-.thkt{font-size:13px;font-weight:800;color:var(--vi);margin-bottom:6px}
-.fbox{background:#0F172A;border-radius:var(--r);padding:13px 16px;margin:12px 0;font-size:12.5px;color:#DBEAFE;line-height:1.9;font-family:monospace}
-/* ─── QUIZ ─── */
-.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:11px;overflow:hidden}
-.qh{background:linear-gradient(90deg,var(--pL),#fff);padding:11px 15px;display:flex;align-items:flex-start;gap:8px}
-.qn{width:25px;height:25px;min-width:25px;border-radius:50%;background:var(--p1);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.qt{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5}
-.qop{padding:11px 15px;display:flex;flex-direction:column;gap:6px}
-.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:7px;padding:8px 13px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .16s;font-weight:500;width:100%;display:block}
-.qopt:hover{border-color:var(--p1);background:var(--pL);color:var(--pD)}
-.qopt.qok{background:var(--pL)!important;border-color:var(--p1)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.sec{font-size:14px;font-weight:800;color:var(--ink);margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--p),var(--p2));border-radius:2px;flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.sc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:15px 16px;transition:border-color .2s}.sc:hover{border-color:var(--p2)}
+.sc-ico{font-size:22px;margin-bottom:8px}.sc-name{font-size:13.5px;font-weight:900;color:var(--ink);margin-bottom:3px}
+.sc-en{font-size:10.5px;color:var(--i3);margin-bottom:8px;font-style:italic}
+.sc-desc{font-size:12.5px;color:var(--i2);line-height:1.7}
+.sc-eg{font-size:12px;color:var(--i3);margin-top:7px;padding-top:7px;border-top:1px dashed var(--br);line-height:1.65}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.tbl th{background:var(--p);color:#fff;padding:9px 12px;text-align:left;font-weight:700;font-size:12px}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.65;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pL)}.tbl td:first-child{font-weight:700;color:var(--ink)}
+.tbl .hi{color:var(--p);font-weight:800}.tbl .ok{color:var(--gn);font-weight:700}.tbl .wn{color:var(--am);font-weight:700}.tbl .ng{color:var(--rd)}
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.si{display:flex;align-items:flex-start;gap:13px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 15px;box-shadow:0 1px 4px rgba(14,116,144,.06)}
+.sn{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb{flex:1}.sbt{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px}.sbd{font-size:12.5px;color:var(--i2);line-height:1.7}
+.sbp{background:var(--pL);border:1px solid var(--pM);border-radius:6px;padding:5px 10px;margin-top:5px;font-size:12px;color:var(--pD);font-family:monospace}
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--pD);line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.thk{background:var(--viL);border:1.5px solid var(--viM);border-radius:var(--r);padding:15px 18px;margin:14px 0}
+.thkt{font-size:13px;font-weight:800;color:var(--vi);margin-bottom:8px}
+.fml{background:#0F172A;border-radius:var(--r);padding:16px 20px;margin:14px 0;border-left:3px solid var(--p2)}
+.fml-label{font-size:10.5px;color:#7DD3FC;margin-bottom:8px;letter-spacing:.08em;font-weight:700}
+.fml-body{font-size:13.5px;color:#DBEAFE;font-family:monospace;line-height:2}
+.fml-fn{color:#7DD3FC}.fml-num{color:#FCD34D}.fml-ok{color:#86EFAC}
+.fml-result{font-size:12.5px;color:#86EFAC;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);line-height:1.85}
+/* r2 bar */
+.r2bar{height:14px;border-radius:7px;margin:6px 0;position:relative;overflow:visible}
+.r2fill{height:14px;border-radius:7px;transition:width .8s}
+.r2label{position:absolute;right:-4px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;margin-left:8px}
+/* trend type cards */
+.ttype{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;transition:border-color .2s;cursor:default}
+.ttype:hover{border-color:var(--p)}
+.ttype-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ttype-ico{font-size:24px}
+.ttype-name{font-size:14px;font-weight:900;color:var(--ink)}
+.ttype-tag{font-size:11px;font-weight:700;border-radius:12px;padding:2px 10px}
+.ttype-body{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--i2)}
+.ttype-item{background:var(--pL);border-radius:6px;padding:8px 10px;line-height:1.7}
+.ttype-item strong{color:var(--p);display:block;margin-bottom:3px}
+/* QUIZ */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:13px;overflow:hidden}
+.qhead{background:linear-gradient(90deg,var(--pL),#fff);padding:13px 17px;display:flex;align-items:flex-start;gap:9px}
+.qnum{width:27px;height:27px;min-width:27px;border-radius:50%;background:var(--p);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qtext{font-size:13px;font-weight:700;color:var(--ink);line-height:1.55}
+.qopts{padding:12px 17px;display:flex;flex-direction:column;gap:7px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
 .qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
-.qfb{margin:0 15px 12px;padding:8px 11px;border-radius:6px;font-size:12px;line-height:1.65;display:none}
-.qfb-ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}
-.qfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
-/* ─── JUDGE ─── */
-.jlist{display:flex;flex-direction:column;gap:9px}
-.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 14px}
-.jitop{display:flex;align-items:flex-start;gap:9px}
-.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.65}
-.jbs{display:flex;gap:5px;flex-shrink:0;margin-top:2px}
-.jbt{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .16s}
-.jbtt{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}
-.jbtt:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
-.jbtf{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}
-.jbtf:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.qfb{margin:0 17px 13px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.7;display:none}
+.qfb.ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}.qfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* JUDGE */
+.jl{display:flex;flex-direction:column;gap:10px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 16px}
+.jitop{display:flex;align-items:flex-start;gap:10px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.7}
+.jbs{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbt{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbT{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}.jbT:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbF{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}.jbF:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
 .jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
 .jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
-.jbt.jdim{opacity:.28;cursor:default!important}
-.jfb{font-size:11.5px;margin-top:7px;padding:6px 9px;border-radius:5px;display:none}
-.jfb-ok{display:block;background:var(--gnL);color:#14532D}
-.jfb-ng{display:block;background:var(--rdL);color:var(--rd)}
-/* ─── CALC ─── */
-.cc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--br);border-radius:var(--r);padding:14px 16px;margin-bottom:9px}
-.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:9px;line-height:1.55}
-.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:9px 12px;margin-bottom:9px;font-size:12px;color:var(--i2);line-height:1.8}
-.ccr{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
-.cci{border:1.5px solid var(--br);border-radius:6px;padding:5px 9px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:120px;transition:border-color .2s}
-.cci:focus{border-color:var(--p1);background:var(--pL)}
-.ccb{background:var(--p1);color:#fff;border:none;border-radius:6px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.cfb{font-size:12px;padding:6px 10px;border-radius:6px;margin-top:5px;display:none}
-.cfb-ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}
-.cfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
-/* ─── SUMMARY ─── */
-.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:22px 24px;margin-bottom:16px}
-.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:12px}
-.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:3px}
-.sumv{font-size:18px;font-weight:900;color:var(--p1)}
-.kpl{display:flex;flex-direction:column;gap:6px;margin-top:11px}
-.kp{display:flex;align-items:flex-start;gap:7px;font-size:13px;color:var(--i2);line-height:1.6}
-.kpd{width:19px;height:19px;border-radius:50%;background:var(--p1);color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.btnp{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:9px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(0,0,0,.18);transition:all .2s}
-.btnp:hover{transform:translateY(-1px)}
-.btnd{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:12px 32px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:all .2s;margin-top:16px}
+.jbt.jdm{opacity:.28;cursor:default!important}
+.jfb{font-size:12px;margin-top:8px;padding:7px 10px;border-radius:6px;display:none}
+.jfb.ok{display:block;background:var(--gnL);color:#14532D}.jfb.ng{display:block;background:var(--rdL);color:var(--rd)}
+/* CALC */
+.cc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--br);border-radius:var(--r);padding:16px 18px;margin-bottom:12px}
+.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.6}
+.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:10px 13px;margin-bottom:10px;font-size:12.5px;color:var(--i2);line-height:1.85}
+.ccr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.cci{border:1.5px solid var(--br);border-radius:6px;padding:6px 10px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:130px;transition:border-color .2s}
+.cci:focus{border-color:var(--p);background:var(--pL)}
+.ccb{background:var(--p);color:#fff;border:none;border-radius:6px;padding:6px 15px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.cfb{font-size:12.5px;padding:7px 11px;border-radius:6px;margin-top:6px;display:none}
+.cfb.ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}.cfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* inline calc */
+.ic{background:#fff;border:1.5px solid var(--pM);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+.ic-t{font-size:12.5px;font-weight:800;color:var(--p);margin-bottom:10px}
+.ic-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.ic-lbl{font-size:12px;color:var(--i2);font-weight:600;min-width:100px}
+.ic-inp{border:1.5px solid var(--br);border-radius:6px;padding:5px 10px;font-size:13px;font-family:monospace;width:100px;outline:none;transition:border-color .2s}
+.ic-inp:focus{border-color:var(--p)}.ic-btn{background:var(--p);color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ic-res{margin-top:10px;padding:10px 13px;background:var(--pL);border-radius:6px;font-size:13px;font-family:monospace;color:var(--pD);display:none;line-height:1.8}
+/* SUMMARY */
+.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:24px 26px;margin-bottom:18px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:14px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:4px}.sumv{font-size:20px;font-weight:900;color:var(--p)}
+.kpl{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.kp{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--i2);line-height:1.65}
+.kpd{width:21px;height:21px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.btn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(14,116,144,.28);transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btnd{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(14,116,144,.3);transition:all .2s;margin-top:18px}
 .btnd:hover{transform:translateY(-2px)}
-#p1d,#p2d,#p3d{display:none;text-align:center;padding:14px 0 4px}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#p1d,#p2d,#p3d{display:none;text-align:center;padding:16px 0 4px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;padding:7px 16px;border-radius:18px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
 #xpp.show{opacity:1;transform:translateY(0)}
 #cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
 .cp{position:absolute;top:-10px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
-@media(max-width:640px){.sg2,.sg3,.sg4,.sumg{grid-template-columns:1fr}.hero h1{font-size:20px}.tabs{gap:2px}.tabb{padding:4px 8px;font-size:11px}}
+@media(max-width:640px){.g2,.g3,.sumg{grid-template-columns:1fr}.hero h1{font-size:21px}.tabs{gap:2px}.tb{padding:5px 9px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -146,356 +162,634 @@ body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);co
 <nav class="nb">
   <a class="nbk" href="index.html">← 返回</a>
   <div class="nbt">4.2 · 趋势分析</div>
-  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+  <div class="nxp" id="navXP">⚡ 0 XP</div>
 </nav>
-<div class="pw"><div id="prog" style="width:0%"></div></div>
+<div class="pw"><div id="pg" style="width:0%"></div></div>
 <div class="pn">
   <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
   <button class="pb" id="btn2" onclick="showPart(2)">📚 知识讲解</button>
-  <button class="pb" id="btn3" onclick="showPart(3)">🎮 互动练习</button>
-  <button class="pb" id="btn4" onclick="showPart(4)">🏁 单元完成</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🛠️ 实战案例</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🎮 互动练习</button>
+  <button class="pb" id="btn5" onclick="showPart(5)">🏁 单元完成</button>
 </div>
 <div class="main">
+
+<!-- ══ PART 1 ══ -->
 <div class="part active" id="part1">
   <div class="hero">
     <div class="htag">M4 · 单元二</div>
     <h1>学会预测未来：<em>趋势分析</em></h1>
-    <p>掌握趋势分析，就像给店铺装上"望远镜"——看清过去、把握现在、预测未来！</p>
-    <div class="hcs"><span class="hc">📊 2大分析方法</span><span class="hc">📈 6种趋势线</span><span class="hc">⏰ 3个预测工具</span></div>
+    <p class="hero-sub">掌握趋势分析，就像给店铺装上"望远镜"——看清过去、把握现在、预测未来！</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-n">2</div><div class="hstat-l">大分析方法</div></div>
+      <div class="hstat"><div class="hstat-n">6</div><div class="hstat-l">种趋势线类型</div></div>
+      <div class="hstat"><div class="hstat-n">3</div><div class="hstat-l">个实战操作案例</div></div>
+    </div>
   </div>
+
   <div class="card">
     <div class="ch"><div class="chi">🤔</div><div class="cht">什么是趋势分析？对比这两种情况</div></div>
     <div class="cb">
-      <div class="sg2">
-        <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:13px 15px">
-          <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:8px">❌ 这不叫趋势分析</div>
-          <div style="font-size:13px;color:var(--i2);line-height:1.8">老板看了看折线图说："哦，这个月比上个月多了一些。"<br><span style="font-size:11.5px;color:var(--i3)">→ 只是"看图"，没有分析原因，没有预测未来</span></div>
+      <div class="g2">
+        <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:18px">
+          <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:10px">🚫 这不叫趋势分析</div>
+          <div style="font-size:13.5px;color:var(--i2);line-height:1.9">老板看了看销量折线图，说："哦，这个月比上个月多了一些。"</div>
+          <div style="font-size:12px;color:var(--rd);margin-top:8px;font-weight:600">→ 只是"看图"，没有分析原因，没有预测未来，无法指导决策</div>
         </div>
-        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:13px 15px">
-          <div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:8px">✅ 这才是趋势分析</div>
-          <div style="font-size:13px;color:var(--i2);line-height:1.8">分析师说："由于双十一活动11月销量激增，<strong>预测12月将达到XXX万元，建议提前备货</strong>。"<br><span style="font-size:11.5px;color:var(--i3)">→ 分析原因 + 预测未来 + 给出建议</span></div>
+        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:18px">
+          <div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:10px">✅ 这才是趋势分析</div>
+          <div style="font-size:13.5px;color:var(--i2);line-height:1.9">数据分析师说："由于双十一活动，11月销量激增，预测12月将达到<strong>2398万元</strong>，建议提前备货！"</div>
+          <div style="font-size:12px;color:var(--gn);margin-top:8px;font-weight:600">→ 分析原因 + 科学预测 + 给出具体建议</div>
         </div>
       </div>
-      <div class="tip"><span>💡</span><span>趋势分析 = 在已有数据基础上，利用科学方法对未来市场需求、发展方向做出判断，为<strong>营销决策</strong>服务。</span></div>
+      <div class="tip" style="margin-top:12px"><span>💡</span><span><strong>趋势分析</strong> = 在已有数据的基础上，利用科学方法，对未来市场需求、发展方向做出判断，为<strong>营销决策</strong>服务。核心是：<strong>明确数据变化规律 + 分析变化原因 + 给出未来预测</strong>。</span></div>
     </div>
   </div>
-  <div class="thk"><div class="thkt">💭 思考一下</div>
-    <div style="font-size:13px;color:var(--i2);line-height:1.85">某女装店铺发现"每年10月下旬到11月初，销量会急剧增加"，这是什么原因？如果你是数据分析师，如何利用这个规律预测明年的销量，帮助店长提前备货？</div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🗺️</div><div class="cht">两大分析方法 · 概览</div></div>
+    <div class="cb">
+      <div class="g2">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:18px">
+          <div style="font-size:13px;font-weight:900;color:var(--p);margin-bottom:8px">📊 方法一：图表趋势预测法</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.85;margin-bottom:8px">通过制作折线图/散点图，添加趋势线，用Excel自动生成的回归公式计算预测值</div>
+          <div style="font-size:12px;color:var(--i3)">适合：有明确数值规律的时间序列数据<br>优点：直观、操作简单、可视化好<br>关键：用R²判断趋势线准确性</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:18px">
+          <div style="font-size:13px;font-weight:900;color:var(--p);margin-bottom:8px">⏰ 方法二：时间序列分析法</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.85;margin-bottom:8px">基于时间顺序数据，用季节波动法、移动平均法或指数平滑法进行系统性预测</div>
+          <div style="font-size:12px;color:var(--i3)">适合：有季节规律或短期稳定趋势的数据<br>优点：考虑历史延续性，消除随机波动<br>工具：Excel公式或数据分析加载项</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p1go()">已阅读，进入知识讲解 →</button></div>
-  <div id="p1d"><button class="btnp" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
+
+  <div class="thk">
+    <div class="thkt">💭 思考一个真实场景</div>
+    <div style="font-size:13px;color:var(--i2);line-height:1.85">
+      某女装店铺发现每年10月下旬到11月初，销量会<strong>急剧增加</strong>。这是什么原因？<br>
+      如果你是数据分析师，如何利用这个规律预测明年的销量，帮助店长提前备货？<br>
+      <span style="font-size:12px;color:var(--i3)">→ 学完时间序列法，你就能给出科学答案！</span>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p1go()">已阅读，进入知识讲解 →</button>
+  </div>
+  <div id="p1d"><button class="btn" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
 </div>
 
+<!-- ══ PART 2 知识讲解 ══ -->
 <div class="part" id="part2">
   <div class="tabs">
-    <button class="tabb active" id="tb0" onclick="stab(0,5)">📊 图表趋势法</button>
-    <button class="tabb" id="tb1" onclick="stab(1,5)">📏 6种趋势线</button>
-    <button class="tabb" id="tb2" onclick="stab(2,5)">🎯 R²判断</button>
-    <button class="tabb" id="tb3" onclick="stab(3,5)">⏰ 时间序列法</button>
-    <button class="tabb" id="tb4" onclick="stab(4,5)">🛠️ 实战操作</button>
+    <button class="tb active" id="tb0" onclick="stab(0,5)">📊 图表趋势法</button>
+    <button class="tb" id="tb1" onclick="stab(1,5)">📏 6种趋势线</button>
+    <button class="tb" id="tb2" onclick="stab(2,5)">🎯 R²判断</button>
+    <button class="tb" id="tb3" onclick="stab(3,5)">⏰ 时间序列法</button>
+    <button class="tb" id="tb4" onclick="stab(4,5)">📐 三种预测法</button>
   </div>
+
+  <!-- tab0 图表趋势法 -->
   <div class="tp active" id="tp0">
-    <div class="sec">方法一：图表趋势预测法（3步走）</div>
-    <div class="steps">
-      <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">制作折线图或散点图</div><div class="sbd">选中时间+数值数据区域 → 插入 → 折线图（趋势）或散点图（找关系）</div></div></div>
-      <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">观察图形，添加趋势线</div><div class="sbp">选中图表 → 图表工具/设计 → 添加图表元素 → 趋势线 → 选合适类型</div><div class="sbd" style="margin-top:4px">双击趋势线 → 设置格式 → 勾选"显示公式"和"显示R平方值"</div></div></div>
-      <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">用公式计算预测值</div><div class="sbd">将未来时间点的x值代入Excel自动生成的公式，计算预测结果</div></div></div>
+    <div class="sec">图表趋势预测法——3步走，就像照镜子</div>
+    <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">先看数据长什么样，再找规律，再预测未来——这是最直观的趋势预测方法。</p>
+    <div style="display:flex;align-items:center;gap:0;margin:14px 0;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px;background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+        <div style="font-size:24px;margin-bottom:8px">📊</div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">第一步</div>
+        <div style="font-size:12px;color:var(--p);font-weight:700">制作散点图或折线图</div>
+        <div style="font-size:12px;color:var(--i3);margin-top:5px">选数据区域→插入→图表</div>
+      </div>
+      <div style="font-size:20px;color:var(--i3);padding:0 6px">→</div>
+      <div style="flex:1;min-width:140px;background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+        <div style="font-size:24px;margin-bottom:8px">🔍</div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">第二步</div>
+        <div style="font-size:12px;color:var(--p);font-weight:700">观察图形，添加趋势线</div>
+        <div style="font-size:12px;color:var(--i3);margin-top:5px">选图表→设计→添加趋势线</div>
+      </div>
+      <div style="font-size:20px;color:var(--i3);padding:0 6px">→</div>
+      <div style="flex:1;min-width:140px;background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+        <div style="font-size:24px;margin-bottom:8px">🔢</div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">第三步</div>
+        <div style="font-size:12px;color:var(--p);font-weight:700">用公式计算预测值</div>
+        <div style="font-size:12px;color:var(--i3);margin-top:5px">代入x→得到预测y</div>
+      </div>
     </div>
-    <div class="tip"><span>🔑</span><span>关键评估指标：<strong>R²（R平方值）</strong>越接近1，趋势线越准确。R²&gt;0.8可认为拟合优秀，预测可信。</span></div>
+    <div class="tip"><span>🔑</span><span>关键：添加趋势线后，<strong>双击趋势线→勾选"显示公式"和"显示R平方值"</strong>，Excel会自动生成回归方程，就可以代入x值计算预测结果了！</span></div>
+    <div class="sec">完整操作步骤</div>
+    <div class="steps">
+      <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">选择数据，制作折线图</div><div class="sbd">选中时间列和数值列（如A2:B12）→ 插入 → 图表 → 折线图 → 带数据标记的折线图</div></div></div>
+      <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">添加趋势线</div><div class="sbp">选中图表 → 设计 → 添加图表元素 → 趋势线 → 选合适类型（如线性）</div></div></div>
+      <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">获取公式和R²</div><div class="sbd">双击趋势线 → 右侧"设置趋势线格式" → 勾选<strong>"显示公式"</strong>和<strong>"显示R平方值"</strong> → 在图上可以看到公式和R²值</div></div></div>
+      <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">设置预测期数</div><div class="sbd">在格式面板的"预测"区域：<strong>向前（未来预测）</strong>填入要预测的期数，如"2"（预测未来2年）</div></div></div>
+      <div class="si"><div class="sn">5</div><div class="sb"><div class="sbt">代入公式计算</div><div class="sbd">将未来时间点对应的x值代入Excel生成的公式，计算预测结果</div></div></div>
+    </div>
   </div>
+
+  <!-- tab1 6种趋势线 -->
   <div class="tp" id="tp1">
-    <div class="sec">6种趋势线——看数据形状选类型</div>
-    <table class="tbl">
-      <tr><th>趋势线</th><th>适用数据形状</th><th>注意事项</th><th>电商案例</th></tr>
-      <tr><td>📏 线性</td><td>近乎直线，增长速度平稳</td><td>最简单常用</td><td>企业年销售额平稳增长</td></tr>
-      <tr><td>📈 指数</td><td>增速越来越快，曲线越来越陡</td><td>⚠️ 数据含0或负值时不能用！</td><td>爆款商品上架初期销量</td></tr>
-      <tr><td>📉 对数</td><td>先快后慢，逐渐趋于平稳</td><td>适合增长减速场景</td><td>新店初期涨粉，后来越来越慢</td></tr>
-      <tr><td>〰️ 多项式</td><td>有明显波峰波谷</td><td>阶数=波动次数（2阶=1个波峰）</td><td>节日促销与平日的销量波动</td></tr>
-      <tr><td>⚡ 乘幂</td><td>增速持续稳定增加</td><td>⚠️ 数据含0或负值时不能用！</td><td>平台用户数量稳定增长</td></tr>
-      <tr><td>〜 移动平均</td><td>消除随机波动，看清总体趋势</td><td>需设定"期数"（通常3-5期）</td><td>每日销量忽高忽低时平滑</td></tr>
-    </table>
-    <div class="tip"><span>💡</span><span>选择技巧：先看折线图"长什么形状"——接近直线→线性；越来越陡→指数；先快后慢→对数；有波峰波谷→多项式；想平滑波动→移动平均。</span></div>
+    <div class="sec">六种趋势线——看数据"长什么样"决定选哪种</div>
+    <div class="ttype">
+      <div class="ttype-head"><div class="ttype-ico">📏</div><div class="ttype-name">线性趋势线 Linear</div><div class="ttype-tag" style="background:var(--pL);color:var(--p)">最常用</div></div>
+      <div class="ttype-body">
+        <div class="ttype-item"><strong>适用形状</strong>数据点基本构成直线形态，增长或降低速度比较平稳</div>
+        <div class="ttype-item"><strong>电商案例</strong>企业年销售额平稳增长、用户数量线性增加</div>
+        <div class="ttype-item"><strong>公式形式</strong>y = ax + b（a为斜率，b为截距）</div>
+        <div class="ttype-item"><strong>注意事项</strong>简单好用，是首选趋势线。但数据若有明显弯曲，则不适用</div>
+      </div>
+    </div>
+    <div class="ttype">
+      <div class="ttype-head"><div class="ttype-ico">📈</div><div class="ttype-name">指数趋势线 Exponential</div><div class="ttype-tag" style="background:var(--amL);color:var(--am)">⚠️ 有限制</div></div>
+      <div class="ttype-body">
+        <div class="ttype-item"><strong>适用形状</strong>增速越来越快，曲线越来越陡，像"J形"</div>
+        <div class="ttype-item"><strong>电商案例</strong>爆款商品刚上架初期的销量增长、病毒式传播的曝光量</div>
+        <div class="ttype-item"><strong>公式形式</strong>y = ae^(bx)（e为自然常数，约2.718）</div>
+        <div class="ttype-item"><strong>注意事项</strong>⚠️ 数据中有零值或负值时<strong>不能用！</strong>否则Excel会报错</div>
+      </div>
+    </div>
+    <div class="ttype">
+      <div class="ttype-head"><div class="ttype-ico">📉</div><div class="ttype-name">对数趋势线 Logarithmic</div><div class="ttype-tag" style="background:var(--gnL);color:var(--gn)">适合饱和场景</div></div>
+      <div class="ttype-body">
+        <div class="ttype-item"><strong>适用形状</strong>先增长快，后越来越慢，最终趋于平稳，像"S形"的前半段</div>
+        <div class="ttype-item"><strong>电商案例</strong>新店初期涨粉快后来越来越慢、产品推广初期效果好后期饱和</div>
+        <div class="ttype-item"><strong>公式形式</strong>y = a·ln(x) + b（ln为自然对数）</div>
+        <div class="ttype-item"><strong>注意事项</strong>非常适合"先快后慢趋于平稳"的增长规律，市场趋于饱和时常用</div>
+      </div>
+    </div>
+    <div class="ttype">
+      <div class="ttype-head"><div class="ttype-ico">〰️</div><div class="ttype-name">多项式趋势线 Polynomial</div><div class="ttype-tag" style="background:var(--viL);color:var(--vi)">有波动时用</div></div>
+      <div class="ttype-body">
+        <div class="ttype-item"><strong>适用形状</strong>数据有明显波动，有高峰也有低谷。阶数=波动次数（2阶=1个波峰）</div>
+        <div class="ttype-item"><strong>电商案例</strong>电商节日促销与平日的销量波动、季节性产品的价格波动</div>
+        <div class="ttype-item"><strong>公式形式</strong>y = ax² + bx + c（二阶），可以有更高阶</div>
+        <div class="ttype-item"><strong>注意事项</strong>阶数越高越能拟合波动，但过高容易"过拟合"，预测反而不准</div>
+      </div>
+    </div>
+    <div class="ttype">
+      <div class="ttype-head"><div class="ttype-ico">⚡</div><div class="ttype-name">乘幂趋势线 Power</div><div class="ttype-tag" style="background:var(--amL);color:var(--am)">⚠️ 有限制</div></div>
+      <div class="ttype-body">
+        <div class="ttype-item"><strong>适用形状</strong>增速稳定持续增加，增长幅度比较恒定，类似加速但更平滑</div>
+        <div class="ttype-item"><strong>电商案例</strong>平台用户数量稳定增长、品牌知名度的积累</div>
+        <div class="ttype-item"><strong>公式形式</strong>y = ax^b（x的b次方）</div>
+        <div class="ttype-item"><strong>注意事项</strong>⚠️ 数据含零或负数时<strong>不能用！</strong>数据必须全为正值</div>
+      </div>
+    </div>
+    <div class="ttype">
+      <div class="ttype-head"><div class="ttype-ico">〜</div><div class="ttype-name">移动平均趋势线 Moving Average</div><div class="ttype-tag" style="background:var(--pL);color:var(--p)">消除噪音</div></div>
+      <div class="ttype-body">
+        <div class="ttype-item"><strong>适用形状</strong>数据有很多小波动，想平滑掉随机噪音，看清整体方向</div>
+        <div class="ttype-item"><strong>电商案例</strong>每日销量忽高忽低（受天气、随机事件影响），想看整体趋势</div>
+        <div class="ttype-item"><strong>公式形式</strong>取最近N期数据的平均值（N=设定的期数）</div>
+        <div class="ttype-item"><strong>注意事项</strong>需要设定"期数"（通常3-5期）。注意此趋势线不能给出预测公式</div>
+      </div>
+    </div>
+    <div class="tip" style="margin-top:14px"><span>🔑</span><span>选择口诀：看折线图形状→<strong>直线→线性；越来越陡→指数；先快后慢→对数；有峰有谷→多项式；随机波动→移动平均</strong>。先看再选，不要猜！</span></div>
   </div>
+
+  <!-- tab2 R² -->
   <div class="tp" id="tp2">
-    <div class="sec">R²（R平方值）——判断趋势线准不准</div>
-    <div class="card" style="margin:0 0 12px">
-      <div class="cb">
-        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:12px"><strong>R²</strong>是衡量趋势线"拟合优度"的指标，范围0~1。<strong>R²越接近1，说明趋势线越能解释数据变化，预测越准确。</strong></p>
-        <table class="tbl">
-          <tr><th>R²范围</th><th>评级</th><th>含义</th><th>建议</th></tr>
-          <tr><td>&lt; 0.5</td><td>❌ 拟合差</td><td>趋势线只能解释不到一半的数据变化</td><td>换趋势线类型</td></tr>
-          <tr><td>0.5 ~ 0.8</td><td>⚠️ 一般</td><td>可用，但预测结果要注意误差</td><td>谨慎使用</td></tr>
-          <tr><td>&gt; 0.8</td><td>✅ 优秀</td><td>趋势线能很好地解释数据规律</td><td>预测可信度高</td></tr>
-        </table>
-        <div class="tip" style="margin-top:10px"><span>💡</span><span>类比天气预报：R²=0.9说明这个模型能解释90%的天气变化，非常准；R²=0.4说明只能解释40%，可能遗漏了重要因素，需要换模型。</span></div>
+    <div class="sec">R²（R平方值）——判断趋势线准不准的标准</div>
+    <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">
+      R²（读作"R方"）是衡量趋势线"拟合优度"的指标，范围0~1。<strong>R²越接近1，说明趋势线越能解释数据变化，预测越准确。</strong>
+    </p>
+    <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:14px">
+      <div style="font-size:12.5px;color:var(--i2);margin-bottom:14px">📊 R²值评级（点击图表查看含义）：</div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span style="font-size:12px;color:var(--i2);width:80px">R²=1.0</span>
+          <div class="r2bar" style="flex:1;background:#E2E8F0"><div class="r2fill" style="width:100%;background:linear-gradient(90deg,#15803D,#16A34A)"></div></div>
+          <span style="font-size:11px;font-weight:700;color:var(--gn);width:70px">完美拟合✅</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span style="font-size:12px;color:var(--i2);width:80px">R²&gt;0.8</span>
+          <div class="r2bar" style="flex:1;background:#E2E8F0"><div class="r2fill" style="width:80%;background:linear-gradient(90deg,#16A34A,#65A30D)"></div></div>
+          <span style="font-size:11px;font-weight:700;color:var(--gn);width:70px">优秀✅</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span style="font-size:12px;color:var(--i2);width:80px">0.5~0.8</span>
+          <div class="r2bar" style="flex:1;background:#E2E8F0"><div class="r2fill" style="width:55%;background:linear-gradient(90deg,var(--am),#F59E0B)"></div></div>
+          <span style="font-size:11px;font-weight:700;color:var(--am);width:70px">一般⚠️</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:12px;color:var(--i2);width:80px">R²&lt;0.5</span>
+          <div class="r2bar" style="flex:1;background:#E2E8F0"><div class="r2fill" style="width:30%;background:linear-gradient(90deg,var(--rd),#EF4444)"></div></div>
+          <span style="font-size:11px;font-weight:700;color:var(--rd);width:70px">拟合差❌</span>
+        </div>
       </div>
     </div>
+    <table class="tbl">
+      <tr><th>R²范围</th><th>评级</th><th>含义</th><th>处理建议</th></tr>
+      <tr><td>&gt; 0.8</td><td class="ok">✅ 优秀</td><td>趋势线能很好地解释数据变化，预测可信度高</td><td>可以放心使用此趋势线进行预测</td></tr>
+      <tr><td>0.5 ~ 0.8</td><td class="wn">⚠️ 一般</td><td>趋势线只能解释一半到八成的数据变化</td><td>可以参考，但需注意预测误差较大</td></tr>
+      <tr><td>&lt; 0.5</td><td class="ng">❌ 差</td><td>趋势线解释不了大部分数据变化，模型不适合</td><td>换趋势线类型，或检查数据是否有异常</td></tr>
+    </table>
+    <div class="fml">
+      <div class="fml-label">💡 通俗理解 R²</div>
+      <div class="fml-body" style="font-family:'Noto Sans SC';font-size:13px;line-height:2">
+        好比气象预报：<span class="fml-ok">R²=0.9</span> 说明天气预报有90%能被这个模型解释，很准！<br>
+        <span class="fml-num">R²=0.4</span> 说明模型只能解释40%的天气变化，预测不太靠谱，需要换模型。<br>
+        <span class="fml-fn">案例验证：</span><br>
+        线性预测销售额：R²= <span class="fml-ok">0.9279</span> ✅ 拟合很好，预测可信<br>
+        多项式预测费用：R²= <span class="fml-num">0.64</span> ⚠️ 中等，预测时需注意误差
+      </div>
+      <div class="fml-result">💡 实操提示：如果R²很低，不要强行使用当前趋势线。可以试试其他类型的趋势线，找到R²最高的那个。多种趋势线都试一遍，选R²最大的！</div>
+    </div>
+
+    <!-- 内嵌计算器 -->
+    <div class="ic">
+      <div class="ic-t">🔢 线性趋势线预测计算器（代入公式 y = ax + b）</div>
+      <div class="ic-row">
+        <span class="ic-lbl">斜率 a：</span>
+        <input class="ic-inp" id="ica" type="number" value="187.6" step="0.1" placeholder="斜率">
+      </div>
+      <div class="ic-row">
+        <span class="ic-lbl">截距 b：</span>
+        <input class="ic-inp" id="icb" type="number" value="334.78" step="0.01" placeholder="截距">
+      </div>
+      <div class="ic-row">
+        <span class="ic-lbl">x值（期号）：</span>
+        <input class="ic-inp" id="icx" type="number" value="10" placeholder="期号">
+        <button class="ic-btn" onclick="calcTrend()">计算预测值</button>
+      </div>
+      <div class="ic-res" id="ic-result"></div>
+    </div>
   </div>
+
+  <!-- tab3 时间序列法 -->
   <div class="tp" id="tp3">
-    <div class="sec">方法二：时间序列分析法</div>
-    <div class="card" style="margin:0 0 12px">
-      <div class="cb">
-        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:10px"><strong>时间序列</strong>：按时间顺序、时间间隔相等排列的一组数据（按年、季、月、天等）。</p>
-        <p style="font-size:13px;color:var(--i2);line-height:1.85">基本原理：①<strong>承认延续性</strong>——历史趋势会延伸到未来；②<strong>消除随机性</strong>——用统计方法消除偶然波动。</p>
+    <div class="sec">时间序列分析法——什么是时间序列？</div>
+    <div class="g2" style="margin-bottom:14px">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">📋 时间序列的定义</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">按时间顺序排列的一组数据，且<strong>时间间隔相等</strong>（按年、季度、月、天等）。<br>例：某店铺2018-2022年每年销售额数据，就是一个年度时间序列。</div>
+      </div>
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🔬 基本原理</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+          ①<strong>承认延续性</strong>：历史趋势会延伸到未来（是时间序列预测的核心假设）<br>
+          ②<strong>消除随机性</strong>：用统计方法消除偶然波动，找到真正的规律
+        </div>
       </div>
     </div>
-    <div class="sg3">
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">🌊</div><div class="scn">季节波动法</div><div class="scd">按季节规律预测，考虑淡旺季影响。适合有明显季节性的电商（服装、节日礼品等）。</div><div class="scg">步骤：收集历史数据→计算季节指数→调整预测值</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">📊</div><div class="scn">移动平均法</div><div class="scd">取最近N期平均值作为下期预测值。N越大越平滑，但对最新变化反应越慢。</div><div class="scg">预测值 = 最近N期数据之和 ÷ N</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">⚖️</div><div class="scn">指数平滑法</div><div class="scd">给近期数据更大权重，比移动平均更能反映趋势变化。α值（0~1）控制新旧权重比例。</div><div class="scg">预测值 = α×当期值 + (1-α)×前期预测值</div></div>
+    <div class="g2">
+      <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--gn);margin-bottom:8px">✅ 优点</div>
+        <div style="font-size:12px;color:var(--i2);line-height:1.85">📊 分析过去、现在、未来联系效果好<br>🔢 数据处理不复杂，操作相对简单<br>📈 对短期稳定趋势预测准确度高</div>
+      </div>
+      <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:8px">⚠️ 缺点</div>
+        <div style="font-size:12px;color:var(--i2);line-height:1.85">📉 只适合预测稳定延续的过程<br>❌ 不适合长期预测（误差会累积）<br>🔮 不考虑因果关系，可能遗漏重要因素</div>
+      </div>
     </div>
-    <div class="tip"><span>📌</span><span>三种方法选择：季节性强→<strong>季节波动法</strong>；短期稳定预测→<strong>移动平均法</strong>；数据有趋势变化→<strong>指数平滑法</strong>。</span></div>
   </div>
+
+  <!-- tab4 三种预测法 -->
   <div class="tp" id="tp4">
-    <div class="sec">实战：线性趋势线预测销售额</div>
-    <div style="background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:11px 14px;margin-bottom:10px;font-size:12.5px;color:var(--i2)">
-      <strong>案例背景：</strong>某店铺2010-2018年历年销售额（万元），数据变化平稳，适合线性趋势线。需预测2019年（第10个数据点，x=10）的销售额。
+    <div class="sec">三种时间序列预测方法详解</div>
+    <div class="card" style="margin:0 0 14px">
+      <div class="ch"><div class="chi">🌊</div><div class="cht">方法①：季节波动法——考虑淡旺季规律</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:12px">由于季节变化（天气、节假日、消费习惯等）导致销量有规律地忽高忽低。季节波动法利用这种<strong>规律性</strong>来预测未来各季度的销量。</p>
+        <p style="font-size:13px;color:var(--i2);margin-bottom:10px">例：羽绒服冬天卖得好，防晒霜夏天卖得好——就是典型的季节性规律。</p>
+        <div class="sec" style="margin-top:0">操作步骤（5步）：</div>
+        <div class="steps">
+          <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">收集至少3年以上各季度历史数据</div><div class="sbd">数据要完整，有极端值（如突发事件影响的季度）需删除或标注</div></div></div>
+          <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">计算各季度的同季平均值（用A表示）</div><div class="sbp">=AVERAGE(B3:B7)  → 计算第一季度5年平均值</div><div class="sbd" style="margin-top:4px">把同一季度多年的数据加起来求平均，如5年第一季度的平均值</div></div></div>
+          <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">计算所有季度的总平均值（用B表示）</div><div class="sbp">=AVERAGE(B8:E8)  → 计算四季度综合平均值</div></div></div>
+          <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">计算季节指数 S = A ÷ B</div><div class="sbd">季节指数&gt;1：该季度高于平均水平（旺季）；&lt;1：低于平均（淡季）</div><div class="sbp">=B8/B9  → 计算第一季度季节指数</div></div></div>
+          <div class="si"><div class="sn">5</div><div class="sb"><div class="sbt">计算预测值 = 全年预测均值 × 季节指数</div><div class="sbp">=F11/4*B10  → 2019年第一季度预测值</div></div></div>
+        </div>
+      </div>
     </div>
-    <div class="steps">
-      <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">制作折线图</div><div class="sbp">选择数据区域(A2:B12) → 插入 → 图表 → 折线图 → 带数据标记的折线图</div></div></div>
-      <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">添加线性趋势线</div><div class="sbp">选中图表 → 设计 → 添加图表元素 → 趋势线 → 线性(L)</div></div></div>
-      <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">获取公式</div><div class="sbd">双击趋势线 → 设置趋势线格式 → 向前预测2年 → 勾选"显示公式"</div><div class="fbox" style="margin-top:6px;padding:8px 12px">Excel生成公式：<span style="color:#7DD3FC">y = 187.6x + 334.78</span></div></div></div>
-      <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">计算预测值</div><div class="sbd">2019年是第10个数据点（x=10）：<br>y = 187.6×10 + 334.78 = 1876 + 334.78 ≈ <strong>2210.78万元</strong></div></div></div>
+    <div class="card" style="margin:0 0 14px">
+      <div class="ch"><div class="chi">📊</div><div class="cht">方法②：移动平均法——用最近几期均值预测下一期</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:12px">
+          用"最近几期"的平均数来预测下一期。每次都取相同数量的数据求平均，"移动"就是随时间推进，去掉最早的，加上最新的。<br>
+          <strong>适合：</strong>数据既不快速增长也不快速下降，且无明显季节性的场景。
+        </p>
+        <div class="fml" style="margin-bottom:10px">
+          <div class="fml-label">一次移动平均公式</div>
+          <div class="fml-body" style="font-size:12.5px">
+            <span class="fml-fn">=AVERAGE(C3:C14)</span>  → 取前12个月数据求平均，向下填充<br>
+            <span class="fml-ok">预测值 = (最近N期数据之和) ÷ N</span>
+          </div>
+        </div>
+        <div class="tip"><span>💡</span><span>N越大曲线越平滑，但对最新变化的反应越慢。N越小对最新变化敏感，但平滑效果差。<strong>通常选取12（月数据）或4（季度数据）</strong>。</span></div>
+        <p style="font-size:12.5px;color:var(--i2);margin-top:10px">二次移动平均（在一次均值基础上再做一次）：进一步平滑，用于趋势预测</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="chi">⚖️</div><div class="cht">方法③：指数平滑法——近期数据权重更大</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:12px">
+          不像移动平均法给各期等权重，指数平滑法给<strong>近期数据更大权重</strong>，越近的数据越重要，越旧的数据权重越小（指数衰减）。
+        </p>
+        <div class="fml">
+          <div class="fml-label">指数平滑公式</div>
+          <div class="fml-body" style="font-size:12.5px">
+            <span class="fml-ok">预测值 = α × 当期实际值 + (1-α) × 前期预测值</span><br>
+            <span class="fml-fn">α</span>（平滑系数）：范围0~1，越接近1越重视最新数据，越接近0越重视历史数据<br>
+            <span class="fml-num">通常建议α = 0.2~0.5</span>（电商行业，受促销影响大，可用较大α）
+          </div>
+          <div class="fml-result">📌 在Excel中：数据→数据分析→指数平滑→设置"阻尼系数"（= 1-α）→选输出区域→确定</div>
+        </div>
+        <table class="tbl" style="margin-top:10px">
+          <tr><th>方法</th><th>权重分配</th><th>适用场景</th><th>优缺点</th></tr>
+          <tr><td>移动平均法</td><td>各期等权重</td><td>数据稳定，无明显趋势</td><td>简单直观；但对最新变化反应慢</td></tr>
+          <tr><td>指数平滑法</td><td>近期权重更大</td><td>数据有趋势变化，需快速响应</td><td>能适应趋势；但参数α需要经验设定</td></tr>
+          <tr><td>季节波动法</td><td>按季节调整</td><td>有明显淡旺季规律</td><td>考虑季节规律；但需要多年历史数据</td></tr>
+        </table>
+      </div>
     </div>
   </div>
-  <div id="p2d"><button class="btnp" onclick="showPart(3)">✅ 知识学完，开始互动练习 →</button></div>
-  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p2go()">已阅读，进入练习 →</button></div>
+
+  <div id="p2d"><button class="btn" onclick="showPart(3)">✅ 知识学完，进入实战案例 →</button></div>
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p2go()">已阅读，进入实战案例 →</button>
+  </div>
 </div>
 
+<!-- ══ PART 3 实战案例 ══ -->
 <div class="part" id="part3">
   <div class="card">
-    <div class="ch"><div class="chi">🧮</div><div class="cht">练习一 · 计算挑战</div><div class="chb">+10 XP</div></div>
+    <div class="ch"><div class="chi">📏</div><div class="cht">案例一：线性趋势线预测年度销售额</div></div>
+    <div class="cb">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:8px;padding:12px 15px;margin-bottom:14px;font-size:13px;color:var(--i2);line-height:1.85">
+        <strong>案例背景：</strong>某店铺2010-2018年历年销售额数据（万元），数据变化比较平稳，适合用<strong>线性趋势线</strong>。需预测2019年（第10个数据点，x=10）和2020年（x=11）的销售额。
+      </div>
+      <div class="steps">
+        <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">制作折线图</div><div class="sbp">选择A2:B12 → 插入 → 图表 → 折线图 → 带数据标记的折线图</div></div></div>
+        <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">添加线性趋势线</div><div class="sbp">选中图表 → 设计 → 添加图表元素 → 趋势线 → 线性(L)</div></div></div>
+        <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">设置格式并获取公式</div><div class="sbd">双击趋势线 → 设置趋势线格式 → 向前预测2年 → 勾选"显示公式"和"显示R平方值"</div></div></div>
+        <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">获取公式，计算预测值</div>
+          <div style="background:#0F172A;border-radius:7px;padding:10px 13px;margin-top:6px;font-family:monospace;font-size:13px;color:#7DD3FC">
+            Excel生成公式：y = 187.6x + 334.78
+          </div>
+        </div></div>
+      </div>
+      <div class="fml" style="margin-top:14px">
+        <div class="fml-label">计算预测值</div>
+        <div class="fml-body" style="font-size:13px">
+          <span class="fml-fn">2019年</span> (x=10)：y = 187.6×<span class="fml-num">10</span> + 334.78 = 1876 + 334.78 = <span class="fml-ok">2210.78万元</span><br>
+          <span class="fml-fn">2020年</span> (x=11)：y = 187.6×<span class="fml-num">11</span> + 334.78 = 2063.6 + 334.78 = <span class="fml-ok">2398.38万元</span>
+        </div>
+        <div class="fml-result">✅ R² = 0.9279，拟合优秀！预测结论：2019年销售额约2210.78万元，2020年约2398.38万元，年增幅约187.6万元，增长趋势平稳。建议按此预测值提前做好供货和库存计划。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📈</div><div class="cht">案例二：指数趋势线预测爆款销量</div></div>
+    <div class="cb">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:8px;padding:12px 15px;margin-bottom:14px;font-size:13px;color:var(--i2);line-height:1.85">
+        <strong>案例背景：</strong>某店铺近10个月销量数据（万件），销量呈<strong>加速增长</strong>态势，增速越来越快，适合用<strong>指数趋势线</strong>。需预测11月、12月销量。
+      </div>
+      <div class="fml">
+        <div class="fml-label">指数公式与计算</div>
+        <div class="fml-body" style="font-size:13px">
+          Excel生成公式：y = <span class="fml-fn">23.661</span>e^(<span class="fml-num">0.1385</span>x)<br>
+          R² = <span class="fml-ok">0.9279</span>  → 拟合优秀！<br><br>
+          <span class="fml-fn">11月</span> (x=11)：y = 23.661×e^(0.1385×11) = 23.661×e^1.5235 ≈ <span class="fml-ok">108.56万件</span><br>
+          <span class="fml-fn">12月</span> (x=12)：y = 23.661×e^(0.1385×12) = 23.661×e^1.662 ≈ <span class="fml-ok">124.69万件</span>
+        </div>
+        <div class="fml-result">💡 结论：11月预测约108.56万件，12月约124.69万件，月环比增长约14.8%，增速仍在加快。建议大幅扩大备货量，并提前确认供应商产能是否足够。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">〰️</div><div class="cht">案例三：多项式趋势线预测销售费用</div></div>
+    <div class="cb">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:8px;padding:12px 15px;margin-bottom:14px;font-size:13px;color:var(--i2);line-height:1.85">
+        <strong>案例背景：</strong>分析某店铺8月份销售额与销售费用的关系，数据呈<strong>U形波动</strong>，适合用<strong>二阶多项式趋势线</strong>，并预测销售额为300万元时的销售费用。
+      </div>
+      <div class="fml">
+        <div class="fml-label">多项式公式与计算</div>
+        <div class="fml-body" style="font-size:13px">
+          Excel生成公式：y = <span class="fml-fn">0.0014</span>x² - <span class="fml-fn">0.6466</span>x + <span class="fml-fn">85.109</span><br>
+          R² = <span class="fml-num">0.64</span>  → ⚠️ 中等拟合，预测需注意误差<br><br>
+          已知销售额为<span class="fml-num">300</span>万元（x=300），代入公式：<br>
+          y = 0.0014×<span class="fml-num">300</span>² - 0.6466×<span class="fml-num">300</span> + 85.109<br>
+          y = 0.0014×90000 - 193.98 + 85.109<br>
+          y = 126 - 193.98 + 85.109<br>
+          y = <span class="fml-ok">17.13万元</span>
+        </div>
+        <div class="fml-result">💡 结论：当销售额达到300万元时，预测销售费用约17.13万元（R²=0.64，中等精度，实际可能有±3万元误差）。建议此预测值作参考，结合历史经验和市场情况综合决策。</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(4)">已阅读，进入互动练习 →</button>
+  </div>
+</div>
+
+<!-- ══ PART 4 互动练习 ══ -->
+<div class="part" id="part4">
+  <div class="card">
+    <div class="ch"><div class="chi">🧮</div><div class="cht">练习一 · 计算挑战</div><div class="chb">每题 +10 XP</div></div>
     <div class="cb">
       <div class="cc">
-        <div class="ccq">已知线性趋势线公式 y = 187.6x + 334.78，2019年是第10个数据点（x=10），预测<strong>2019年销售额</strong>是多少万元？（保留两位小数）</div>
+        <div class="ccq">① 已知线性趋势线公式 y = 187.6x + 334.78，2019年是第10个数据点（x=10），<strong>预测2019年销售额</strong>是多少万元？（保留两位小数）</div>
         <div class="ccr">
           <span style="font-size:12px;font-weight:700;color:var(--i2)">预测值 =</span>
           <input class="cci" id="ci1" type="number" step="0.01" placeholder="万元">
           <button class="ccb" onclick="doC(1)">提交</button>
         </div>
-        <div class="cfb" id="cfb1"></div>
+        <div class="cfb" id="cf1"></div>
+      </div>
+      <div class="cc">
+        <div class="ccq">② 已知线性趋势线公式 y = 187.6x + 334.78，2020年是第11个数据点（x=11），<strong>预测2020年销售额</strong>是多少万元？（保留两位小数）</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">预测值 =</span>
+          <input class="cci" id="ci2" type="number" step="0.01" placeholder="万元">
+          <button class="ccb" onclick="doC(2)">提交</button>
+        </div>
+        <div class="cfb" id="cf2"></div>
+      </div>
+      <div class="cc">
+        <div class="ccq">③ 多项式公式 y = 0.0014x² - 0.6466x + 85.109，当x=300时，<strong>y（销售费用）</strong>约为多少万元？（保留两位小数）</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">y =</span>
+          <input class="cci" id="ci3" type="number" step="0.01" placeholder="万元">
+          <button class="ccb" onclick="doC(3)">提交</button>
+        </div>
+        <div class="cfb" id="cf3"></div>
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="ch"><div class="chi">✅</div><div class="cht">练习二 · 判断题</div><div class="chb">每题 +8 XP</div></div>
     <div class="cb">
-      <div class="jlist">
+      <div class="jl">
         <div class="ji" id="ji1"><div class="jitop">
-          <div class="jiq">1. 图表趋势预测法的步骤是：先制作折线图/散点图，再添加趋势线，最后用公式计算预测值。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbtf" id="jf1" onclick="doJ(1,false)">×</button></div>
+          <div class="jiq">1. 图表趋势预测法的第一步是添加趋势线，然后制作折线图，最后用公式计算预测值。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbF" id="jf1" onclick="doJ(1,false)">×</button></div>
         </div><div class="jfb" id="jfb1"></div></div>
+
         <div class="ji" id="ji2"><div class="jitop">
-          <div class="jiq">2. R²值越<strong>小</strong>，说明趋势线拟合越好，预测越准确。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbtf" id="jf2" onclick="doJ(2,false)">×</button></div>
+          <div class="jiq">2. R²值越大，说明趋势线拟合越好，预测越准确；R² &gt; 0.8通常认为拟合优秀。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbF" id="jf2" onclick="doJ(2,false)">×</button></div>
         </div><div class="jfb" id="jfb2"></div></div>
+
         <div class="ji" id="ji3"><div class="jitop">
-          <div class="jiq">3. <strong>指数趋势线</strong>适合描述"增速越来越快"的数据，如爆款商品初期的销量急剧增长。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbtf" id="jf3" onclick="doJ(3,false)">×</button></div>
+          <div class="jiq">3. 指数趋势线和乘幂趋势线在数据包含0或负值时<strong>都不能使用</strong>，否则Excel会出错。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbF" id="jf3" onclick="doJ(3,false)">×</button></div>
         </div><div class="jfb" id="jfb3"></div></div>
+
         <div class="ji" id="ji4"><div class="jitop">
-          <div class="jiq">4. 时间序列分析中，<strong>移动平均法</strong>是唯一的预测方法，其他是辅助工具。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbtf" id="jf4" onclick="doJ(4,false)">×</button></div>
+          <div class="jiq">4. 时间序列分析中，移动平均法给近期数据更大的权重，指数平滑法则给各期数据相等的权重。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbF" id="jf4" onclick="doJ(4,false)">×</button></div>
         </div><div class="jfb" id="jfb4"></div></div>
+
         <div class="ji" id="ji5"><div class="jitop">
-          <div class="jiq">5. <strong>季节波动法</strong>特别适合有明显淡旺季规律的电商数据（如服装、年节礼品类目）。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbtf" id="jf5" onclick="doJ(5,false)">×</button></div>
+          <div class="jiq">5. 季节波动法特别适合有明显淡旺季规律的电商类目（如羽绒服、防晒霜），因为它能考虑季节性影响进行预测。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbF" id="jf5" onclick="doJ(5,false)">×</button></div>
         </div><div class="jfb" id="jfb5"></div></div>
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="ch"><div class="chi">📝</div><div class="cht">练习三 · 选择题</div><div class="chb">每题 +8 XP</div></div>
     <div class="cb">
-      <div class="qbox" id="qb1"><div class="qh"><div class="qn">1</div><div class="qt">图表趋势预测法的正确步骤顺序是？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 计算预测值 → 制作图表 → 添加趋势线</button>
-          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 制作折线图 → 添加趋势线 → 用公式计算预测值</button>
-          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 添加趋势线 → 制作散点图 → 计算R²值</button>
-          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 制作散点图 → 计算R² → 添加趋势线</button>
-        </div><div class="qfb" id="qfb1"></div></div>
-      <div class="qbox" id="qb2"><div class="qh"><div class="qn">2</div><div class="qt">某新店铺涨粉"初期增长很快，后来越来越慢，最终趋于稳定"，应选用哪种趋势线？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 线性趋势线</button>
-          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. 指数趋势线</button>
-          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. 对数趋势线</button>
-          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. 乘幂趋势线</button>
-        </div><div class="qfb" id="qfb2"></div></div>
-      <div class="qbox" id="qb3"><div class="qh"><div class="qn">3</div><div class="qt">某趋势线R²=0.85，说明？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 拟合优秀，该趋势线能解释85%的数据变化，预测可信度高</button>
-          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 拟合一般，预测可参考但需谨慎</button>
-          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 拟合较差，该趋势线不适合这组数据</button>
-          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. R²越小预测越准，0.85说明预测误差大</button>
-        </div><div class="qfb" id="qfb3"></div></div>
-      <div class="qbox" id="qb4"><div class="qh"><div class="qn">4</div><div class="qt">时间序列分析有哪三种预测方法？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 线性法、指数法、对数法</button>
-          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 移动平均法、季节波动法、R²分析法</button>
-          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 散点法、折线法、趋势线法</button>
-          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 季节波动法、移动平均法、指数平滑法</button>
-        </div><div class="qfb" id="qfb4"></div></div>
+      <div class="qbox" id="qb1">
+        <div class="qhead"><div class="qnum">1</div>
+          <div class="qtext">某新店铺涨粉的规律是"初期增长很快，后来越来越慢，最终趋于平稳"，应选用哪种趋势线？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 线性趋势线（适合平稳增长的直线型数据）</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 指数趋势线（适合增速越来越快的数据）</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 对数趋势线（适合先快后慢趋于平稳的数据）</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 多项式趋势线（适合有波峰波谷的数据）</button>
+        </div>
+        <div class="qfb" id="qf1"></div>
+      </div>
+
+      <div class="qbox" id="qb2">
+        <div class="qhead"><div class="qnum">2</div>
+          <div class="qtext">某趋势线R²=0.85，关于这个R²值，以下说法正确的是？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. R²=0.85说明拟合较差，需要换趋势线类型</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. R²=0.85说明拟合优秀，该趋势线能解释85%的数据变化，预测可信度高</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. R²越小越好，R²=0.85太大了，说明过拟合</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. R²=0.85是中等水平，介于可用和不可用之间</button>
+        </div>
+        <div class="qfb" id="qf2"></div>
+      </div>
+
+      <div class="qbox" id="qb3">
+        <div class="qhead"><div class="qnum">3</div>
+          <div class="qtext">使用线性趋势线，公式为 y=187.6x+334.78，第10个数据点对应2019年，第11个对应2020年。以下哪个计算是正确的？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 2019年=187.6×9+334.78=2023.18万元（x用9计算2019年）</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 2019年=187.6×10+334.78=2210.78万元，2020年=187.6×11+334.78=2398.38万元</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 2019年=187.6+334.78=522.38万元（忘记乘以x）</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 2019年=187.6×2019+334.78（x代入年份2019）</button>
+        </div>
+        <div class="qfb" id="qf3"></div>
+      </div>
+
+      <div class="qbox" id="qb4">
+        <div class="qhead"><div class="qnum">4</div>
+          <div class="qtext">关于三种时间序列预测方法，以下说法正确的是？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 三种方法功能完全相同，选任意一种即可</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 季节波动法适合有淡旺季规律的类目；移动平均法适合短期稳定数据；指数平滑法近期数据权重更大，能更快响应趋势变化</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 移动平均法比指数平滑法更先进，应该优先使用</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 季节波动法只需要1年数据就能计算季节指数</button>
+        </div>
+        <div class="qfb" id="qf4"></div>
+      </div>
     </div>
   </div>
-  <div id="p3d"><button class="btnp" onclick="showPart(4)">查看单元完成情况 →</button></div>
+
+  <div id="p3d"><button class="btn" onclick="showPart(5)">查看单元完成情况 →</button></div>
 </div>
 
-<div class="part" id="part4">
+<!-- ══ PART 5 单元完成 ══ -->
+<div class="part" id="part5">
   <div class="sumc">
-    <div style="font-size:16px;font-weight:900;color:var(--ink);margin-bottom:14px">🏆 单元完成！</div>
+    <div style="font-size:17px;font-weight:900;color:var(--ink);margin-bottom:16px">🏆 单元完成！</div>
     <div class="sumg">
       <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
       <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
       <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
     </div>
     <div class="kpl">
-      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">📌 本单元核心要点</div>
-      <div class="kp"><div class="kpd">1</div><div>趋势分析 = 基于历史数据预测未来走势，为决策服务</div></div>
-      <div class="kp"><div class="kpd">2</div><div>图表趋势法3步：<strong>制作图表→添加趋势线→代入公式计算</strong></div></div>
-      <div class="kp"><div class="kpd">3</div><div>6种趋势线选择：直线→线性；越来越陡→指数；先快后慢→对数；有波峰→多项式</div></div>
-      <div class="kp"><div class="kpd">4</div><div><strong>R²&gt;0.8</strong>拟合优秀；R²&lt;0.5需换趋势线类型</div></div>
-      <div class="kp"><div class="kpd">5</div><div>时间序列3法：<strong>季节波动法（有淡旺季）、移动平均法（平滑）、指数平滑法（近期权重大）</strong></div></div>
+      <div style="font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:10px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div>趋势分析 = 基于历史数据规律，科学预测未来，为备货、营销等决策提供依据</div></div>
+      <div class="kp"><div class="kpd">2</div><div>图表趋势法3步：<strong>制作折线图→添加趋势线（勾选显示公式和R²）→代入公式计算预测值</strong></div></div>
+      <div class="kp"><div class="kpd">3</div><div>6种趋势线选择口诀：<strong>直线→线性；越来越陡→指数；先快后慢→对数；有峰有谷→多项式</strong>（指数和乘幂不能有零或负数！）</div></div>
+      <div class="kp"><div class="kpd">4</div><div><strong>R²&gt;0.8拟合优秀；R²&lt;0.5需换趋势线类型</strong>，R²越接近1越准确</div></div>
+      <div class="kp"><div class="kpd">5</div><div>时间序列3法：<strong>季节波动法（淡旺季规律）→移动平均法（短期稳定）→指数平滑法（近期权重更大）</strong></div></div>
+      <div class="kp"><div class="kpd">6</div><div>三个案例公式：线性 y=187.6x+334.78；指数 y=23.661e^(0.1385x)；多项式 y=0.0014x²-0.6466x+85.109</div></div>
     </div>
-    <div style="text-align:center;margin-top:20px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+    <div style="text-align:center;margin-top:22px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
   </div>
 </div>
+
 </div>
 <script>
-
-var _sb=null;
-try{if(window.supabase)_sb=window.supabase.createClient('https://ovinpbddeuxpgouefczs.supabase.co','sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX');}catch(e){}
+var SB_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+var SB_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
 var SK='ecommerce_data_analysis_user';
 var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var _sb=null;try{if(window.supabase)_sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
 var xp=0,strs=0,cDone={},jDone={},qDone={};
 function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}localStorage.setItem(SK,JSON.stringify(d));if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);_sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}}
 function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
-function su(d){var ws=gws();d.lastVisit=new Date().toISOString();
-  if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}
-  localStorage.setItem(SK,JSON.stringify(d));
-  if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;
-    var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);
-    _sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,
-      completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,
-      achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},
-      {onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}
-}
-function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');
-  setTimeout(function(){e.classList.remove('show');},t||2500);}
-function xpop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');
-  setTimeout(function(){e.classList.remove('show');},1900);}
-function addXP(a){xp+=a;var u=lu();
-  document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xpop(a);}
-function confetti(){var c=document.getElementById('cft');
-  var cs=['#0F4C81','#1A6BB5','#3B82F6','#F97316','#10B981','#FBBF24'];c.innerHTML='';
-  for(var i=0;i<60;i++){var p=document.createElement('div');p.className='cp';
-    p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+
-    ';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;'+
-    'animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;'+
-    'border-radius:'+(Math.random()>0.5?'50%':'2px');
-    c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
-function showPart(n){for(var i=1;i<=4;i++){
-    document.getElementById('part'+i).classList.toggle('active',i===n);
-    document.getElementById('btn'+i).classList.toggle('active',i===n);}
-  document.getElementById('prog').style.width=[0,25,55,80,100][n]+'%';
-  window.scrollTo({top:0,behavior:'smooth'});}
-function stab(n,tot){tot=tot||5;for(var i=0;i<tot;i++){
-    var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);
-    if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xppop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xppop(a);}
+function confetti(){var c=document.getElementById('cft'),cs=['#0E7490','#0891B2','#06B6D4','#F97316','#10B981','#FBBF24'];c.innerHTML='';for(var i=0;i<65;i++){var p=document.createElement('div');p.className='cp';p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;border-radius:'+(Math.random()>0.5?'50%':'2px');c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=5;i++){document.getElementById('part'+i).classList.toggle('active',i===n);var b=document.getElementById('btn'+i);if(b)b.classList.toggle('active',i===n);}document.getElementById('pg').style.width=[0,20,45,65,83,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function stab(n,tot){for(var i=0;i<tot;i++){var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
 function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
 function p2go(){document.getElementById('p2d').style.display='block';showPart(3);}
-/* ── 判断题（所有答案/反馈存JS对象，onclick只传数字和布尔） ── */
-function doJ(n,v){
-  if(jDone[n])return;jDone[n]=true;
-  var ok=(v===JA[n]);
-  var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);
-  bt.disabled=true;bf.disabled=true;
-  (JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdim');
-  if(!ok)(v?bt:bf).classList.add('jng');
-  var e=document.getElementById('jfb'+n);
-  e.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];
-  e.className='jfb '+(ok?'jfb-ok':'jfb-ng');
-  if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析学习');}
-  chkDone();}
-/* ── 选择题（答案存QC，反馈存QFB[题号][选项索引]） ── */
-function doQ(n,i){
-  if(qDone[n])return;qDone[n]=true;
-  var ok=(i===QC[n]);
-  for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);
-    if(!b)continue;b.disabled=true;
-    if(j===QC[n])b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}
-  var e=document.getElementById('qfb'+n);
-  e.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];
-  e.className='qfb '+(ok?'qfb-ok':'qfb-ng');
-  if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
-/* ── 计算题 ── */
-function doC(n){
-  if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cfb'+n);
-  var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='请输入数字';fb.className='cfb cfb-ng';return;}
-  if(Math.abs(v-CA[n])<0.15){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];
-    fb.className='cfb cfb-ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';
-    addXP(10);toast('✅ 答对！+10 XP');}
-  else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb cfb-ng';toast('❌ 再想想！');}
-  chkDone();}
-function chkDone(){
-  var jT=Object.keys(JA).length,qT=Object.keys(QC).length,cT=Object.keys(CA).length;
-  if(Object.keys(jDone).length>=jT&&Object.keys(qDone).length>=qT&&Object.keys(cDone).length>=cT){
-    document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);
-    setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}
-}
-
-
-var JA={1:true,2:false,3:true,4:false,5:true};
+function calcTrend(){var a=parseFloat(document.getElementById('ica').value)||0,b=parseFloat(document.getElementById('icb').value)||0,x=parseFloat(document.getElementById('icx').value)||0;var y=(a*x+b).toFixed(2);var r=document.getElementById('ic-result');r.style.display='block';r.textContent='y = '+a+'×'+x+' + '+b+' = '+(a*x).toFixed(2)+' + '+b+' = '+y+' 万元';}
+var JA={1:false,2:true,3:true,4:false,5:true};
 var JFB={
-  1:'图表趋势预测法的3步是：①制作折线图/散点图→②添加趋势线→③用公式计算预测值，这是最直观的趋势分析方法。',
-  2:'恰好相反！R²越接近1说明趋势线越能解释数据，预测越准确。R²>0.8通常认为拟合优秀。',
-  3:'指数趋势线描述增速越来越快的数据（如爆款商品初期销量急剧增长），但数据中有零或负值时不能使用。',
-  4:'时间序列分析有三种预测方法：季节波动法、移动平均法、指数平滑法，这三种是并列的预测工具，没有主次之分。',
-  5:'季节波动法正是考虑了季节性规律（节假日、天气、消费习惯等）的影响，特别适合有明显淡旺季的电商数据预测。'};
-var QC={1:1,2:2,3:0,4:3};
+  1:'图表趋势预测法的正确顺序是：①制作折线图/散点图 → ②添加趋势线（观察图形形状选择合适类型）→ ③用公式计算预测值。是先制作图表，再添加趋势线，不是反过来。',
+  2:'R²越接近1说明趋势线对数据的解释能力越强，预测越准确。R²>0.8是业界公认的"拟合优秀"标准，此时预测结果可以放心参考。',
+  3:'指数趋势线（y=ae^bx）和乘幂趋势线（y=ax^b）都要求数据全为正数。如果数据中包含0或负数，Excel会报错无法生成这两种趋势线。使用前需先检查数据！',
+  4:'恰好相反！指数平滑法（Exponential Smoothing）给近期数据更大的权重（α越大近期权重越大），移动平均法（Moving Average）则给最近N期数据相等的权重。两者权重分配方式相反。',
+  5:'季节波动法是专门为有明显季节性规律设计的。通过计算季节指数（该季度历史平均÷总体平均），可以调整预测值来反映淡旺季差异，非常适合服装、生鲜等季节性强的类目。'
+};
+function doJ(n,v){if(jDone[n])return;jDone[n]=true;var ok=(v===JA[n]);var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);bt.disabled=true;bf.disabled=true;(JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdm');if(!ok)(v?bt:bf).classList.add('jng');var fb=document.getElementById('jfb'+n);fb.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];fb.className='jfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析理解一下');}chkDone();}
+var CA={1:2210.78,2:2398.38,3:17.13};
+var CFBOK={1:'y=187.6×10+334.78=1876+334.78=2210.78万元',2:'y=187.6×11+334.78=2063.6+334.78=2398.38万元',3:'y=0.0014×90000-0.6466×300+85.109=126-193.98+85.109=17.13万元'};
+var CFBHINT={1:'公式y=187.6x+334.78，代入x=10（2019年是第10个数据点）',2:'公式y=187.6x+334.78，代入x=11（2020年是第11个数据点）',3:'公式y=0.0014x²-0.6466x+85.109，代入x=300：先算0.0014×300²=126，再算0.6466×300=193.98，最后126-193.98+85.109'};
+function doC(n){if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cf'+n);var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='请输入数字';fb.className='cfb ng';return;}if(Math.abs(v-CA[n])<0.15){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];fb.className='cfb ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';addXP(10);toast('✅ 答对！+10 XP');}else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb ng';toast('❌ 再想想！');}chkDone();}
+var QC={1:2,2:1,3:1,4:1};
 var QFB={
-  1:{0:'散点图适合查看两变量关系，折线图适合时间趋势，图表趋势法第一步是"制作图表"，但顺序应该是制作图表→添加趋势线→计算预测值。',
-     1:'图表趋势预测法3步走：①制作折线图/散点图→②观察图形添加趋势线→③用公式计算预测值，这是完全正确的步骤顺序。',
-     2:'拟合度R²是评估指标，不是操作步骤，不应排在第二步。',
-     3:'移动平均是时间序列法的一种，不是图表趋势法的第二步。'},
-  2:{0:'线性趋势线适合数据近乎直线增长/下降，如年销售额平稳增长，不适合先快后慢的场景。',
-     1:'指数趋势线描述增速越来越快的曲线（越来越陡），不是先快后慢。',
-     2:'对数趋势线正好描述先快后慢、最终趋于平稳的增长，如新店初期涨粉快后来越来越慢，完全匹配。',
-     3:'乘幂趋势线描述增速持续稳定增加，多项式有明显波峰波谷，都不是先快后慢的特征。'},
-  3:{0:'R²=0.85>0.8，拟合优秀，该趋势线能解释85%的数据变化，预测可信度高，是正确判断。',
-     1:'R²=0.5-0.8属于一般水平，但0.85已超过0.8，应该是"优秀"而不是"一般"。',
-     2:'R²=0.85拟合很好，不能说"拟合较差"，拟合较差通常指R²<0.5。',
-     3:'R²越大越好，不是越小越好。R²越接近1说明模型越准确。'},
-  4:{0:'季节波动法考虑了季节规律（淡旺季），适合季节性强的数据，不是唯一的预测方法。',
-     1:'移动平均法取最近几期均值，主要用于平滑随机波动，不特别强调季节因素。',
-     2:'指数平滑法给近期数据更大权重，能适应趋势变化，三种方法各有侧重，都是有效的预测工具。',
-     3:'时间序列分析的三种方法是：季节波动法、移动平均法、指数平滑法，没有"极差分析法"。'}};
-var CA={1:2210.78};
-var CFBOK={1:'y=187.6×10+334.78=1876+334.78=2210.78，预测2019年销售额约2210.78万元'};
-var CFBHINT={1:'代入线性公式：y=187.6×x+334.78，x=10（2019年是第10个数据点）'};
-
-
-function completeUnit(){
-  var u=lu();if(!u){window.location.href='index.html';return;}
-  var sc=Math.min(100,20+Math.round(xp*0.8));
-  var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;
-  var tx=xp+20;var prev=u.units['m4u2']||{};var already=prev.completed&&(prev.xpEarned||0)>0;
-  var ax=already?0:tx;
-  u.units['m4u2']={completed:true,stars:Math.max(prev.stars||0,st),
-    score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};
-  u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;
-  var ach=u.achievements||[];
-  if(!ach.includes('first_unit'))ach.push('first_unit');
-  if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');
-  u.achievements=ach;su(u);
-  document.getElementById('fxp').textContent='+'+(already?0:tx);
-  document.getElementById('fsc').textContent=sc;
-  document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);
-  showPart(4);if(st>=4)confetti();
-  toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);
-  setTimeout(function(){window.location.href='index.html';},2600);
-}
+  1:{0:'线性趋势线适合增长或下降速度平稳的数据，折线图接近直线，不是先快后慢的场景。',
+     1:'指数趋势线描述"增速越来越快"的J形曲线，与"先快后慢"的规律相反。',
+     2:'对数趋势线正是描述"先快后慢、趋于平稳"的增长规律。店铺初期涨粉快是因为基数小、增长率高，后来粉丝多了新增比例自然下降，符合对数曲线特征。',
+     3:'多项式趋势线适合有明显波峰波谷的数据，不是先快后慢的场景。'},
+  2:{0:'R²=0.85已经超过0.8的"优秀"门槛，不是拟合差。拟合差通常指R²<0.5。',
+     1:'R²=0.85说明这条趋势线能够解释85%的数据变化，只有15%无法解释（可能是随机误差）。R²>0.8属于优秀水平，预测可信度高。',
+     2:'R²越接近1越好（完美拟合），不存在"太大"的问题。"过拟合"是在机器学习中针对复杂模型的概念，在这里不适用。',
+     3:'R²=0.85已经超过0.8，是优秀水平，不是"介于可用和不可用之间"。'},
+  3:{0:'x应该是数据点的序号，2019年是第10个数据点，x=10，不是x=9。序号是从数据开始计算的，不是年份本身。',
+     1:'x是数据点序号，2019年是第10个数据点（x=10），2020年是第11个（x=11），代入公式计算完全正确！',
+     2:'忘记乘以x了！线性公式y=ax+b，需要斜率a乘以序号x，再加截距b，不能只加不乘。',
+     3:'x不是代入年份数字（2019），而是代入该年份对应的数据点序号（10），否则计算结果完全错误。'},
+  4:{0:'三种方法各有特点和适用场景，不能随意互换使用。选择方法需要根据数据特征（是否有季节性、趋势是否稳定等）来决定。',
+     1:'这是对三种方法的完整准确描述：季节波动法考虑淡旺季；移动平均法适合短期稳定的数据；指数平滑法通过α值控制权重，能更快响应最新趋势变化。',
+     2:'两种方法不存在"更先进"的说法，要根据数据特征选择，各有优缺点。移动平均法在数据稳定时效果好，指数平滑法在数据有趋势时更准。',
+     3:'季节指数需要计算至少3-5年的历史数据才有统计意义，只有1年数据无法准确反映季节性规律。'}
+};
+function doQ(n,i){if(qDone[n])return;qDone[n]=true;var c=QC[n],ok=(i===c);for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);if(!b)continue;b.disabled=true;if(j===c)b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}var fb=document.getElementById('qf'+n);fb.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];fb.className='qfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
+function chkDone(){if(Object.keys(jDone).length>=5&&Object.keys(qDone).length>=4&&Object.keys(cDone).length>=3){document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}}
+function completeUnit(){var u=lu();if(!u){window.location.href='index.html';return;}var sc=Math.min(100,20+Math.round(xp*0.8));var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;var tx=xp+20;var prev=u.units['m4u2']||{};var already=prev.completed&&(prev.xpEarned||0)>0;var ax=already?0:tx;u.units['m4u2']={completed:true,stars:Math.max(prev.stars||0,st),score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;var ach=u.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');u.achievements=ach;su(u);document.getElementById('fxp').textContent='+'+(already?0:tx);document.getElementById('fsc').textContent=sc;document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);showPart(5);if(st>=4)confetti();toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);setTimeout(function(){window.location.href='index.html';},2600);}
 (function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
-
 </script>
 </body>
 </html>

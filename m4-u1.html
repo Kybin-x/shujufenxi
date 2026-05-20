@@ -1,144 +1,230 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>4.1 描述性统计分析</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>4.1 描述性统计分析 · 电商数据分析</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--p1:#0F4C81;--p2:#1A6BB5;--pL:#EFF6FF;--pM:#BFDBFE;--pD:#0A2E50;
+:root{
+  --p:#0F4C81;--p2:#1A6BB5;--pL:#EFF6FF;--pM:#BFDBFE;--pD:#0A2E50;
   --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
   --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
   --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
   --vi:#7C3AED;--viL:#F5F3FF;--viM:#DDD6FE;
-  --ink:#0F172A;--i2:#334155;--i3:#64748B;
+  --te:#0891B2;--teL:#ECFEFF;--teM:#A5F3FC;
+  --ink:#0F172A;--i2:#334155;--i3:#64748B;--i4:#94A3B8;
   --bg:#F0F6FF;--cd:#FFF;--br:#DBEAFE;--r:10px;
-  --sh:0 2px 12px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.05)}
+  --sh:0 2px 12px rgba(15,76,129,.1),0 1px 3px rgba(0,0,0,.06)
+}
 html{scroll-behavior:smooth}
-body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.65}
-.nb{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
-  border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.nbk{font-size:13px;font-weight:700;color:var(--p1);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;
+  background-image:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(15,76,129,.07),transparent),
+  radial-gradient(ellipse 50% 40% at 90% 100%,rgba(26,107,181,.05),transparent)}
+.nb{position:sticky;top:0;z-index:100;background:rgba(240,246,255,.97);backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(15,76,129,.09)}
+.nbk{font-size:13px;font-weight:700;color:var(--p);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}
 .nbk:hover{background:var(--pL)}
 .nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-xp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p1),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.nxp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
 .pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
-#prog{height:5px;background:linear-gradient(90deg,var(--p1),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
-.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:960px;margin:0 auto;flex-wrap:wrap}
+#pg{height:5px;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
 .pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
-.pb:hover{border-color:var(--p1);color:var(--p1)}
-.pb.active{background:var(--p1);border-color:var(--p1);color:#fff}
-.main{max-width:960px;margin:0 auto;padding:18px 18px 80px}
+.pb:hover{border-color:var(--p);color:var(--p)}
+.pb.active{background:var(--p);border-color:var(--p);color:#fff}
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
 .part{display:none}.part.active{display:block}
-.hero{background:linear-gradient(135deg,var(--pL) 0%,var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
-.hero h1{font-size:24px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
-.hero h1 em{font-style:normal;color:var(--p1)}
-.hero p{font-size:13px;color:var(--i2);line-height:1.8;max-width:580px}
-.htag{display:inline-flex;align-items:center;background:rgba(0,0,0,.08);border:1.5px solid rgba(0,0,0,.15);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
-.hcs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.hc{background:rgba(255,255,255,.75);border:1px solid var(--pM);border-radius:20px;padding:5px 12px;font-size:11.5px;color:var(--i2)}
-.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
-.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:12px 18px;display:flex;align-items:center;gap:8px}
-.chi{font-size:18px;flex-shrink:0}
+/* HERO */
+.hero{background:linear-gradient(135deg,#DBEAFE 0%,#BFDBFE 40%,#EFF6FF 100%);border:1.5px solid var(--br);border-radius:14px;padding:30px 32px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'📊';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.09;pointer-events:none}
+.htag{display:inline-flex;align-items:center;background:rgba(15,76,129,.12);border:1.5px solid rgba(15,76,129,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p)}
+.hero-sub{font-size:13.5px;color:var(--i2);line-height:1.8;max-width:600px;margin-bottom:16px}
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hstat{text-align:center}
+.hstat-n{font-size:28px;font-weight:900;color:var(--p);line-height:1}
+.hstat-l{font-size:11px;color:var(--i3);margin-top:3px}
+.hchips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.hchip{background:rgba(255,255,255,.7);border:1px solid var(--pM);border-radius:20px;padding:5px 12px;font-size:11.5px;color:var(--i2)}
+/* CARD */
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,#DBEAFE,#EFF6FF);border-bottom:1px solid var(--br);padding:13px 20px;display:flex;align-items:center;gap:9px}
+.chi{font-size:20px;flex-shrink:0}
 .cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
-.chb{font-size:10.5px;font-weight:700;background:var(--p1);color:#fff;border-radius:10px;padding:2px 9px;flex-shrink:0}
-.cb{padding:16px 18px}
-.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:22px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
-.tabb{padding:6px 13px;border-radius:18px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
-.tabb.active{background:var(--p1);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.16)}
+.chb{font-size:10.5px;font-weight:700;background:var(--p);color:#fff;border-radius:10px;padding:2px 10px;flex-shrink:0}
+.cb{padding:18px 20px}
+/* TABS */
+.tabs{display:flex;gap:4px;background:#DBEAFE;border:1.5px solid var(--br);border-radius:24px;padding:4px;margin-bottom:18px;flex-wrap:wrap}
+.tb{padding:7px 15px;border-radius:20px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tb.active{background:var(--p);color:#fff;box-shadow:0 2px 6px rgba(15,76,129,.25)}
 .tp{display:none}.tp.active{display:block}
-.sec{font-size:13.5px;font-weight:800;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:7px}
-.sec::before{content:'';width:3px;height:17px;background:linear-gradient(180deg,var(--p1),var(--p2));border-radius:2px;flex-shrink:0}
-.sg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.sg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
-.sg4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.sc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 14px}
-.scn{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:3px}
-.sce{font-size:10px;color:var(--i3);margin-bottom:6px;letter-spacing:.04em}
-.scf{background:#1E293B;border-radius:5px;padding:3px 8px;font-size:11px;color:#7DD3FC;font-family:monospace;display:inline-block;margin-bottom:5px}
-.scd{font-size:12px;color:var(--i2);line-height:1.6}
-.scg{font-size:11px;color:var(--i3);margin-top:5px;font-style:italic}
-.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
-.tbl th{background:var(--p1);color:#fff;padding:7px 10px;text-align:left;font-weight:700;font-size:11.5px}
-.tbl td{padding:7px 10px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.6;vertical-align:top}
+/* SEC */
+.sec{font-size:14px;font-weight:800;color:var(--ink);margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--p),var(--p2));border-radius:2px;flex-shrink:0}
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:12px 0}
+/* STAT CARDS */
+.sc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:15px 16px;transition:border-color .2s}
+.sc:hover{border-color:var(--p2)}
+.sc-ico{font-size:22px;margin-bottom:8px}
+.sc-name{font-size:13.5px;font-weight:900;color:var(--ink);margin-bottom:3px}
+.sc-en{font-size:10.5px;color:var(--i3);margin-bottom:8px;letter-spacing:.04em;font-style:italic}
+.sc-fn{background:#1E293B;border-radius:5px;padding:4px 10px;font-size:11.5px;color:#7DD3FC;font-family:monospace;display:inline-block;margin-bottom:8px}
+.sc-desc{font-size:12.5px;color:var(--i2);line-height:1.7}
+.sc-eg{font-size:12px;color:var(--i3);margin-top:7px;padding-top:7px;border-top:1px dashed var(--br);line-height:1.65}
+.sc-eg strong{color:var(--p)}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.tbl th{background:var(--p);color:#fff;padding:9px 12px;text-align:left;font-weight:700;font-size:12px}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.65;vertical-align:top}
 .tbl tr:nth-child(even) td{background:var(--pL)}
 .tbl td:first-child{font-weight:700;color:var(--ink)}
-.steps{display:flex;flex-direction:column;gap:8px;margin:10px 0}
-.si{display:flex;align-items:flex-start;gap:11px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 13px}
-.sn{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sb{flex:1}.sbt{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:2px}
-.sbd{font-size:12px;color:var(--i2);line-height:1.65}
-.sbp{background:var(--pL);border:1px solid var(--pM);border-radius:5px;padding:4px 8px;margin-top:4px;font-size:11px;color:var(--pD);font-family:monospace}
-.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:var(--pD);line-height:1.7;display:flex;gap:6px}
-.warn{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:9px 13px;margin:9px 0;font-size:12px;color:#78350F;line-height:1.7;display:flex;gap:6px}
-.thk{background:var(--viL);border:1.5px solid var(--viM);border-radius:var(--r);padding:13px 15px;margin:12px 0}
-.thkt{font-size:13px;font-weight:800;color:var(--vi);margin-bottom:6px}
-.fbox{background:#0F172A;border-radius:var(--r);padding:13px 16px;margin:12px 0;font-size:12.5px;color:#DBEAFE;line-height:1.9;font-family:monospace}
-/* ─── QUIZ ─── */
-.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:11px;overflow:hidden}
-.qh{background:linear-gradient(90deg,var(--pL),#fff);padding:11px 15px;display:flex;align-items:flex-start;gap:8px}
-.qn{width:25px;height:25px;min-width:25px;border-radius:50%;background:var(--p1);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.qt{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5}
-.qop{padding:11px 15px;display:flex;flex-direction:column;gap:6px}
-.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:7px;padding:8px 13px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .16s;font-weight:500;width:100%;display:block}
-.qopt:hover{border-color:var(--p1);background:var(--pL);color:var(--pD)}
-.qopt.qok{background:var(--pL)!important;border-color:var(--p1)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.tbl .hi{color:var(--p);font-weight:800}
+.tbl .ok{color:var(--gn);font-weight:700}
+.tbl .warn{color:var(--am);font-weight:700}
+/* RESULT TABLE */
+.rtbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0;border-radius:8px;overflow:hidden}
+.rtbl th{background:#1E293B;color:#fff;padding:9px 12px;text-align:left;font-weight:700;font-size:12px}
+.rtbl td{padding:9px 12px;border-bottom:1px solid #E2E8F0;color:var(--i2);line-height:1.65}
+.rtbl tr:nth-child(even) td{background:#F8FAFF}
+.rtbl td:first-child{color:var(--te);font-weight:700;font-family:monospace}
+.rtbl td.hi{color:var(--p);font-weight:900;font-size:14px}
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.si{display:flex;align-items:flex-start;gap:13px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 15px;box-shadow:0 1px 4px rgba(15,76,129,.06)}
+.sn{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(15,76,129,.22)}
+.sb{flex:1}
+.sbt{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.sbd{font-size:12.5px;color:var(--i2);line-height:1.7}
+.sbp{background:#F0F6FF;border:1px solid var(--pM);border-radius:6px;padding:5px 10px;margin-top:5px;font-size:12px;color:var(--pD);font-family:monospace}
+.sbp2{background:#1E293B;border-radius:6px;padding:5px 10px;margin-top:5px;font-size:12px;color:#7DD3FC;font-family:monospace}
+/* TIPS */
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--pD);line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.info-box{background:var(--teL);border:1px solid var(--teM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#0A4B5E;line-height:1.75;display:flex;gap:7px}
+.thk{background:var(--viL);border:1.5px solid var(--viM);border-radius:var(--r);padding:15px 18px;margin:14px 0}
+.thkt{font-size:13px;font-weight:800;color:var(--vi);margin-bottom:8px}
+/* FORMULA */
+.fml{background:#0F172A;border-radius:var(--r);padding:16px 20px;margin:14px 0;border-left:3px solid var(--p2)}
+.fml-label{font-size:10.5px;color:#7DD3FC;margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.fml-body{font-size:13.5px;color:#DBEAFE;font-family:monospace;line-height:2}
+.fml-fn{color:#7DD3FC}.fml-num{color:#FCD34D}.fml-ok{color:#86EFAC}
+.fml-result{font-size:12.5px;color:#86EFAC;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);line-height:1.8}
+/* PARAM TABLE */
+.param-tbl{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}
+.param-tbl th{background:var(--pD);color:#fff;padding:8px 11px;text-align:left;font-weight:700}
+.param-tbl td{padding:8px 11px;border-bottom:1px solid var(--br);line-height:1.65;vertical-align:top}
+.param-tbl tr:nth-child(even) td{background:var(--pL)}
+.param-tbl td:first-child{font-family:monospace;color:var(--p);font-weight:700}
+.param-tbl td:nth-child(2){font-weight:700;color:var(--ink)}
+.param-tbl td:nth-child(3){color:var(--i2)}
+/* SALARY DEMO */
+.salary-demo{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:18px 20px;margin:14px 0}
+.salary-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.salary-chip{background:var(--pL);border:1.5px solid var(--pM);border-radius:7px;padding:6px 12px;text-align:center}
+.salary-chip.boss{background:#FEF3C7;border-color:var(--amM)}
+.sc-emp{font-size:11px;color:var(--i3);margin-bottom:2px}
+.sc-val{font-size:13px;font-weight:800;color:var(--p);font-family:monospace}
+.sc-val.boss-val{color:var(--am)}
+.salary-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+/* DIST CARDS */
+.dist-card{text-align:center;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:14px 12px}
+.dist-icon{font-size:28px;margin-bottom:8px}
+.dist-title{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.dist-cond{font-size:11px;font-weight:700;border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:6px}
+.dist-desc{font-size:11.5px;color:var(--i2);line-height:1.6}
+.dist-eg{font-size:11px;color:var(--i3);margin-top:5px;font-style:italic}
+/* QUIZ */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:13px;overflow:hidden}
+.qhead{background:linear-gradient(90deg,#DBEAFE,#EFF6FF);padding:13px 17px;display:flex;align-items:flex-start;gap:9px}
+.qnum{width:27px;height:27px;min-width:27px;border-radius:50%;background:var(--p);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qtext{font-size:13px;font-weight:700;color:var(--ink);line-height:1.55}
+.qopts{padding:12px 17px;display:flex;flex-direction:column;gap:7px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
 .qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
-.qfb{margin:0 15px 12px;padding:8px 11px;border-radius:6px;font-size:12px;line-height:1.65;display:none}
-.qfb-ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}
-.qfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
-/* ─── JUDGE ─── */
-.jlist{display:flex;flex-direction:column;gap:9px}
-.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:11px 14px}
-.jitop{display:flex;align-items:flex-start;gap:9px}
-.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.65}
-.jbs{display:flex;gap:5px;flex-shrink:0;margin-top:2px}
-.jbt{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .16s}
-.jbtt{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}
-.jbtt:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
-.jbtf{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}
-.jbtf:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.qfb{margin:0 17px 13px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.7;display:none}
+.qfb.ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}
+.qfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* JUDGE */
+.jl{display:flex;flex-direction:column;gap:10px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 16px}
+.jitop{display:flex;align-items:flex-start;gap:10px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.7}
+.jbs{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbt{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbT{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}
+.jbT:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbF{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}
+.jbF:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
 .jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
 .jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
-.jbt.jdim{opacity:.28;cursor:default!important}
-.jfb{font-size:11.5px;margin-top:7px;padding:6px 9px;border-radius:5px;display:none}
-.jfb-ok{display:block;background:var(--gnL);color:#14532D}
-.jfb-ng{display:block;background:var(--rdL);color:var(--rd)}
-/* ─── CALC ─── */
-.cc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--br);border-radius:var(--r);padding:14px 16px;margin-bottom:9px}
-.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:9px;line-height:1.55}
-.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:9px 12px;margin-bottom:9px;font-size:12px;color:var(--i2);line-height:1.8}
-.ccr{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
-.cci{border:1.5px solid var(--br);border-radius:6px;padding:5px 9px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:120px;transition:border-color .2s}
-.cci:focus{border-color:var(--p1);background:var(--pL)}
-.ccb{background:var(--p1);color:#fff;border:none;border-radius:6px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.cfb{font-size:12px;padding:6px 10px;border-radius:6px;margin-top:5px;display:none}
-.cfb-ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}
-.cfb-ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
-/* ─── SUMMARY ─── */
-.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:22px 24px;margin-bottom:16px}
-.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:12px}
-.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:3px}
-.sumv{font-size:18px;font-weight:900;color:var(--p1)}
-.kpl{display:flex;flex-direction:column;gap:6px;margin-top:11px}
-.kp{display:flex;align-items:flex-start;gap:7px;font-size:13px;color:var(--i2);line-height:1.6}
-.kpd{width:19px;height:19px;border-radius:50%;background:var(--p1);color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.btnp{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:9px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(0,0,0,.18);transition:all .2s}
-.btnp:hover{transform:translateY(-1px)}
-.btnd{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;border-radius:25px;padding:12px 32px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:all .2s;margin-top:16px}
+.jbt.jdm{opacity:.28;cursor:default!important}
+.jfb{font-size:12px;margin-top:8px;padding:7px 10px;border-radius:6px;display:none}
+.jfb.ok{display:block;background:var(--gnL);color:#14532D}
+.jfb.ng{display:block;background:var(--rdL);color:var(--rd)}
+/* CALC */
+.cc{background:linear-gradient(135deg,var(--pL),#EFF6FF);border:1.5px solid var(--br);border-radius:var(--r);padding:16px 18px;margin-bottom:12px}
+.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.6}
+.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:10px 13px;margin-bottom:10px;font-size:12.5px;color:var(--i2);line-height:1.85}
+.ccr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.cci{border:1.5px solid var(--br);border-radius:6px;padding:6px 10px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:130px;transition:border-color .2s}
+.cci:focus{border-color:var(--p);background:var(--pL)}
+.ccb{background:var(--p);color:#fff;border:none;border-radius:6px;padding:6px 15px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.cfb{font-size:12.5px;padding:7px 11px;border-radius:6px;margin-top:6px;display:none}
+.cfb.ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}
+.cfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+/* INLINE CALC */
+.inline-calc{background:#fff;border:1.5px solid var(--pM);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+.ic-title{font-size:12.5px;font-weight:800;color:var(--p);margin-bottom:10px}
+.ic-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.ic-label{font-size:12px;color:var(--i2);font-weight:600;min-width:80px}
+.ic-inp{border:1.5px solid var(--br);border-radius:6px;padding:5px 10px;font-size:13px;font-family:monospace;width:110px;outline:none;transition:border-color .2s}
+.ic-inp:focus{border-color:var(--p)}
+.ic-btn{background:var(--p);color:#fff;border:none;border-radius:6px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ic-result{margin-top:8px;padding:8px 12px;background:var(--pL);border-radius:6px;font-size:13px;font-family:monospace;color:var(--pD);display:none}
+/* SUMMARY */
+.sumc{background:linear-gradient(135deg,#DBEAFE,#EFF6FF);border:1.5px solid var(--pM);border-radius:14px;padding:24px 26px;margin-bottom:18px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:14px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:4px}
+.sumv{font-size:20px;font-weight:900;color:var(--p)}
+.kpl{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.kp{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--i2);line-height:1.65}
+.kpd{width:21px;height:21px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+/* SPEEDCARD */
+.spd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.spd{background:#fff;border:1.5px solid var(--br);border-radius:8px;padding:10px 12px;text-align:center}
+.spd-cat{font-size:10.5px;font-weight:700;color:var(--p);margin-bottom:4px;letter-spacing:.04em}
+.spd-name{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:2px}
+.spd-fn{font-size:10.5px;color:var(--i3);font-family:monospace}
+.spd-val{font-size:11px;color:var(--i2);margin-top:3px}
+/* BTNS */
+.btn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(15,76,129,.28);transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btnsm{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:20px;padding:7px 18px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.btnd{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(15,76,129,.3);transition:all .2s;margin-top:18px}
 .btnd:hover{transform:translateY(-2px)}
-#p1d,#p2d,#p3d{display:none;text-align:center;padding:14px 0 4px}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#p1d,#p2d,#p3d{display:none;text-align:center;padding:16px 0 4px}
+/* TOAST/XP */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;padding:7px 16px;border-radius:18px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
 #xpp.show{opacity:1;transform:translateY(0)}
 #cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
 .cp{position:absolute;top:-10px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
-@media(max-width:640px){.sg2,.sg3,.sg4,.sumg{grid-template-columns:1fr}.hero h1{font-size:20px}.tabs{gap:2px}.tabb{padding:4px 8px;font-size:11px}}
+@media(max-width:640px){
+  .g2,.g3,.g4,.sumg,.spd-grid,.g2{grid-template-columns:1fr}
+  .hero h1{font-size:21px}.tabs{gap:2px}.tb{padding:5px 9px;font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -146,411 +232,930 @@ body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);co
 <nav class="nb">
   <a class="nbk" href="index.html">← 返回</a>
   <div class="nbt">4.1 · 描述性统计分析</div>
-  <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+  <div class="nxp" id="navXP">⚡ 0 XP</div>
 </nav>
-<div class="pw"><div id="prog" style="width:0%"></div></div>
+<div class="pw"><div id="pg" style="width:0%"></div></div>
 <div class="pn">
   <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
   <button class="pb" id="btn2" onclick="showPart(2)">📚 知识讲解</button>
-  <button class="pb" id="btn3" onclick="showPart(3)">🎮 互动练习</button>
-  <button class="pb" id="btn4" onclick="showPart(4)">🏁 单元完成</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🛠️ Excel实操</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🎮 互动练习</button>
+  <button class="pb" id="btn5" onclick="showPart(5)">🏁 单元完成</button>
 </div>
 <div class="main">
-<!-- ── PART 1 ── -->
+
+<!-- ══ PART 1 情境导入 ══ -->
 <div class="part active" id="part1">
   <div class="hero">
     <div class="htag">M4 · 单元一</div>
     <h1>用数字读懂数据：<em>描述性统计分析</em></h1>
-    <p>不用死记公式，跟着案例一步步学会用 Excel 分析数据，让数据替你说话！</p>
-    <div class="hcs"><span class="hc">🎯 3类统计量</span><span class="hc">📊 9个核心指标</span><span class="hc">🛠️ 1个实战案例</span></div>
+    <p class="hero-sub">不用死记公式，跟着案例一步步学会用 Excel 分析数据，让数据替你说话！</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-n">3</div><div class="hstat-l">类统计量</div></div>
+      <div class="hstat"><div class="hstat-n">9</div><div class="hstat-l">个核心指标</div></div>
+      <div class="hstat"><div class="hstat-n">1</div><div class="hstat-l">个双十一实战案例</div></div>
+    </div>
   </div>
+
+  <!-- 电商场景引入 -->
   <div class="card">
-    <div class="ch"><div class="chi">🤔</div><div class="cht">先想一想：为什么同一组数据，老板和员工得出完全不同的结论？</div></div>
+    <div class="ch"><div class="chi">🛒</div><div class="cht">你在网购时看到这些数字，它们说明了什么？</div></div>
     <div class="cb">
-      <p style="font-size:13px;color:var(--i2);line-height:1.9;margin-bottom:14px">某公司10名员工月薪数据，老板声称"平均工资8000元"，员工说"中位数只有3350元"——两人说的都是真话，为什么差这么多？</p>
-      <div class="sg2">
-        <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:13px 15px">
-          <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:6px">❌ 均值：8000元（被老板拉高了！）</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px">
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3000</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3000</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3200</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3200</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3500</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3500</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3500</span>
-            <span style="background:#fff;border:1px solid var(--rdM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace">3800</span>
-            <span style="background:#FEF3C7;border:1.5px solid var(--amM);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace;font-weight:700">50000 👑</span>
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">🛒</div>
+          <div style="font-size:20px;font-weight:900;color:var(--p)">月销量 2000件</div>
+          <div style="font-size:12px;color:var(--i3);margin-top:6px">这个数字是怎么来的？说明了什么？</div>
+          <div style="font-size:12px;color:var(--i2);margin-top:8px;background:#fff;border-radius:6px;padding:8px;line-height:1.7">这是<strong>总和（Sum）</strong>——把每天的销量加起来，反映一个月的总体销售规模</div>
+        </div>
+        <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">⭐</div>
+          <div style="font-size:20px;font-weight:900;color:var(--am)">好评率 98%</div>
+          <div style="font-size:12px;color:var(--i3);margin-top:6px">为什么不直接告诉你好评有多少条？</div>
+          <div style="font-size:12px;color:var(--i2);margin-top:8px;background:#fff;border-radius:6px;padding:8px;line-height:1.7">用<strong>比率</strong>比原始数量更有对比意义——10条好评中9.8条，和10万条中9.8万条，意义完全不同</div>
+        </div>
+        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">💰</div>
+          <div style="font-size:20px;font-weight:900;color:var(--gn)">客单价均值 ¥128</div>
+          <div style="font-size:12px;color:var(--i3);margin-top:6px">均值真的能代表"大多数"顾客吗？</div>
+          <div style="font-size:12px;color:var(--i2);margin-top:8px;background:#fff;border-radius:6px;padding:8px;line-height:1.7">不一定！如果有人购买了高价商品，<strong>均值</strong>会被拉高，<strong>中位数</strong>更能代表大多数人的实际消费水平</div>
+        </div>
+      </div>
+      <div class="tip"><span>💡</span><span>这些问题的答案，就藏在<strong>描述性统计分析</strong>里。学完本单元，你就能用科学指标精准"画像"任何一组数据！</span></div>
+    </div>
+  </div>
+
+  <!-- 均值 vs 中位数 经典案例 -->
+  <div class="card">
+    <div class="ch"><div class="chi">🔥</div><div class="cht">重点理解：平均数 VS 中位数，哪个更真实？</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">一个公司10名员工的月薪，一起来看看平均数会"骗人"的情况👇</p>
+      <div class="salary-demo">
+        <div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:10px">👥 10名员工月薪（元）：</div>
+        <div class="salary-grid">
+          <div class="salary-chip"><div class="sc-emp">员工A</div><div class="sc-val">3,000</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工B</div><div class="sc-val">3,000</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工C</div><div class="sc-val">3,200</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工D</div><div class="sc-val">3,200</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工E</div><div class="sc-val">3,200</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工F</div><div class="sc-val">3,500</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工G</div><div class="sc-val">3,500</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工H</div><div class="sc-val">3,500</div></div>
+          <div class="salary-chip"><div class="sc-emp">员工I</div><div class="sc-val">3,800</div></div>
+          <div class="salary-chip boss"><div class="sc-emp">老板 👑</div><div class="sc-val boss-val">50,000</div></div>
+        </div>
+        <div class="salary-compare">
+          <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:11px;color:var(--rd);font-weight:700;margin-bottom:6px">❌ 平均工资（均值）</div>
+            <div style="font-size:32px;font-weight:900;color:var(--rd)">8,000元</div>
+            <div style="font-size:12px;color:var(--i3);margin-top:5px">被老板50000的工资严重拉高！</div>
+            <div style="font-size:12px;color:var(--rd);margin-top:6px;font-weight:600">9名员工月薪都不到5000元，均值却显示8000，严重失真！</div>
+          </div>
+          <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:11px;color:var(--gn);font-weight:700;margin-bottom:6px">✅ 中位工资（中位数）</div>
+            <div style="font-size:32px;font-weight:900;color:var(--gn)">3,350元</div>
+            <div style="font-size:12px;color:var(--i3);margin-top:5px">排序后第5、6位的平均值</div>
+            <div style="font-size:12px;color:var(--gn);margin-top:6px;font-weight:600">3350元才是大多数普通员工实际收到的薪资水平！</div>
           </div>
         </div>
-        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:13px 15px">
-          <div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:6px">✅ 中位数：3350元（更真实）</div>
-          <div style="font-size:13px;color:var(--i2);line-height:1.85">排序后正中间的值，完全不受50000这个极端值影响，更能代表大多数员工的实际收入水平。</div>
+      </div>
+      <div class="sec">💡 什么时候用哪个？</div>
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--p);margin-bottom:8px">📊 用平均值，当：</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.8">• 数据比较均匀，没有极端值<br>• 想了解整体平均水平<br>• 如：班级平均成绩、日均气温</div>
+        </div>
+        <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:8px">📊 用中位数，当：</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.8">• 数据有极端值（特别大或特别小）<br>• 想了解"大多数人"的水平<br>• 如：收入水平、房价分析</div>
+        </div>
+        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--gn);margin-bottom:8px">📊 用众数，当：</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.8">• 想知道"最受欢迎"是什么<br>• 想找最普遍的情况<br>• 如：卖得最多的尺码、最热门价格段</div>
         </div>
       </div>
-      <div class="tip"><span>💡</span><span>描述性统计的核心：<strong>选对指标</strong>，让数据说实话。不同统计量会给出不同视角，分析师要懂得在正确场景用正确的指标。</span></div>
     </div>
   </div>
-  <div class="card">
-    <div class="ch"><div class="chi">🗺️</div><div class="cht">三大类统计量 · 总览</div></div>
-    <div class="cb">
-      <table class="tbl">
-        <tr><th>类型</th><th>回答什么问题</th><th>主要指标</th></tr>
-        <tr><td>📍 集中趋势</td><td>数据的"中心"在哪里？典型水平是多少？</td><td>平均值、中位数、众数、总和</td></tr>
-        <tr><td>↔️ 离散程度</td><td>数据波动有多大？稳不稳定？</td><td>标准差、方差、极差、最大/最小值</td></tr>
-        <tr><td>📉 分布情况</td><td>数据是否对称？是尖还是平？</td><td>偏度、峰度</td></tr>
-      </table>
-      <div class="tip"><span>🔑</span><span>口诀：<strong>集中看均值，离散看标准差，形状看偏峰</strong>。三类指标从不同角度描述数据，缺一不可。</span></div>
+
+  <div class="thk">
+    <div class="thkt">💭 带着这个问题继续学习</div>
+    <div style="font-size:13px;color:var(--i2);line-height:1.85">
+      飞跃数码店双十一20天访客量数据，Excel描述统计结果显示：<br>
+      <strong>均值=6345，但中位数=6860，为什么中位数反而比均值大？</strong><br>
+      <span style="font-size:12px;color:var(--i3)">学完知识讲解后，你就能解答这个问题，并写出完整的数据分析结论！</span>
     </div>
   </div>
-  <div class="thk"><div class="thkt">💭 带着这个问题继续学习</div>
-    <div style="font-size:13px;color:var(--i2);line-height:1.85">飞跃数码店11月双十一期间20天日访客量，均值6345，中位数6860，为什么中位数反而比均值大？说明了什么？<br><span style="font-size:12px;color:var(--i3)">学完集中趋势那节你就能回答这个问题了！</span></div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p1go()">已阅读，进入知识讲解 →</button>
   </div>
-  <div style="text-align:right;margin-top:14px">
-    <button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p1go()">已阅读，进入知识讲解 →</button>
-  </div>
-  <div id="p1d"><button class="btnp" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
+  <div id="p1d"><button class="btn" onclick="showPart(2)">✅ 开始学习知识讲解 →</button></div>
 </div>
 
-<!-- ── PART 2 ── -->
+<!-- ══ PART 2 知识讲解 ══ -->
 <div class="part" id="part2">
   <div class="tabs">
-    <button class="tabb active" id="tb0" onclick="stab(0,5)">📍 集中趋势</button>
-    <button class="tabb" id="tb1" onclick="stab(1,5)">↔️ 离散程度</button>
-    <button class="tabb" id="tb2" onclick="stab(2,5)">📉 分布情况</button>
-    <button class="tabb" id="tb3" onclick="stab(3,5)">🔧 Excel操作</button>
-    <button class="tabb" id="tb4" onclick="stab(4,5)">📋 案例解读</button>
+    <button class="tb active" id="tb0" onclick="stab(0,5)">📍 集中趋势</button>
+    <button class="tb" id="tb1" onclick="stab(1,5)">↔️ 离散程度</button>
+    <button class="tb" id="tb2" onclick="stab(2,5)">📉 分布情况</button>
+    <button class="tb" id="tb3" onclick="stab(3,5)">📋 速查手册</button>
+    <button class="tb" id="tb4" onclick="stab(4,5)">📦 案例讲解</button>
   </div>
+
+  <!-- Tab0 集中趋势 -->
   <div class="tp active" id="tp0">
     <div class="sec">集中趋势统计量——数据的"代表值"</div>
-    <div class="sg3">
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">📊</div><div class="scn">平均值（均值）</div><div class="sce">Mean / Average</div><div class="scf">=AVERAGE()</div><div class="scd">所有数据之和除以个数。最常用，但<strong>容易被极端值拉偏</strong>。</div><div class="scg">适合：数据均匀、无极端值时使用</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">🎯</div><div class="scn">中位数</div><div class="sce">Median</div><div class="scf">=MEDIAN()</div><div class="scd">排序后<strong>正中间</strong>的那个数，不受极端值影响，更代表"大多数"。</div><div class="scg">适合：有极端值时（收入、房价、客单价分析）</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">🏆</div><div class="scn">众数</div><div class="sce">Mode</div><div class="scf">=MODE.SNGL()</div><div class="scd">出现次数<strong>最多</strong>的值，反映"最流行"情况。</div><div class="scg">适合：找最畅销尺码、最热门价格段</div></div>
-    </div>
-    <div class="card"><div class="ch"><div class="chi">💡</div><div class="cht">解答开篇问题：为什么UV均值 < 中位数？</div></div><div class="cb">
-      <div class="sg3">
-        <div style="text-align:center;background:var(--pL);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--i3);margin-bottom:3px">均值</div><div style="font-size:22px;font-weight:900;color:var(--p1)">6345</div><div style="font-size:11px;color:var(--i3)">被活动初期低流量拉低</div></div>
-        <div style="text-align:center;background:var(--gnL);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--i3);margin-bottom:3px">中位数</div><div style="font-size:22px;font-weight:900;color:var(--gn)">6860</div><div style="font-size:11px;color:var(--i3)">更代表大多数天的真实流量</div></div>
-        <div style="text-align:center;background:var(--amL);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--i3);margin-bottom:3px">众数</div><div style="font-size:22px;font-weight:900;color:var(--am)">6860</div><div style="font-size:11px;color:var(--i3)">出现次数最多的UV值</div></div>
+    <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">
+      <strong>集中趋势</strong> = 数据集中在哪个水平？就是"大家的整体表现怎样"。用于描述一组数据的"典型值"或"中心位置"。
+    </p>
+    <div class="g2">
+      <div class="sc">
+        <div class="sc-ico">📊</div>
+        <div class="sc-name">平均值（均值）</div>
+        <div class="sc-en">Mean / Average</div>
+        <div class="sc-fn">=AVERAGE(B2:B21)</div>
+        <div class="sc-desc">所有数据相加除以个数。最常用的集中趋势指标，但<strong>容易被极端数据影响</strong>。</div>
+        <div class="sc-eg">
+          <strong>举例：</strong>20天访客量均值 = 全部加起来 ÷ 20 = 126904 ÷ 20 = <strong>6345.2</strong><br>
+          ⚠️ 如果某天有爆款活动带来10923的UV，会把均值拉高
+        </div>
       </div>
-      <div class="tip" style="margin-top:10px"><span>💡</span><span>均值(6345) &lt; 中位数(6860)，说明有少量<strong>极低UV的日子</strong>（活动初期3127）把均值拉低了。中位数6860更能代表大多数天的真实访客量。这正是"有极端值时用中位数"的典型案例！</span></div>
-    </div></div>
+      <div class="sc">
+        <div class="sc-ico">🎯</div>
+        <div class="sc-name">中位数</div>
+        <div class="sc-en">Median</div>
+        <div class="sc-fn">=MEDIAN(B2:B21)</div>
+        <div class="sc-desc">把所有数据从小到大排列后，<strong>最中间那个数</strong>。不受极端值影响，更真实。</div>
+        <div class="sc-eg">
+          <strong>举例：</strong>20个UV数据排序后，取第10、11位的平均值 = <strong>6860</strong><br>
+          ✅ 比均值6345更能代表大多数天的真实流量水平
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-ico">🏆</div>
+        <div class="sc-name">众数</div>
+        <div class="sc-en">Mode</div>
+        <div class="sc-fn">=MODE.SNGL(B2:B21)</div>
+        <div class="sc-desc">出现次数<strong>最多</strong>的数。反映"最普遍"的情况，适合找最流行的值。</div>
+        <div class="sc-eg">
+          <strong>举例：</strong>20天UV数据中，6860出现了2次，是众数<br>
+          📦 用途：找最热销的商品价格段、最常见的下单时间段
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-ico">➕</div>
+        <div class="sc-name">总和</div>
+        <div class="sc-en">Sum</div>
+        <div class="sc-fn">=SUM(B2:B21)</div>
+        <div class="sc-desc">所有数据之和。用于计算总销售额、累计访客量等绝对量指标。</div>
+        <div class="sc-eg">
+          <strong>举例：</strong>20天总访客量 = <strong>126904人次</strong><br>
+          📊 电商常用：月总销售额 = SUM(每天销售额)
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="ch"><div class="chi">🔍</div><div class="cht">解答开篇问题：为什么UV均值(6345) &lt; 中位数(6860)？</div></div>
+      <div class="cb">
+        <div class="g2">
+          <div>
+            <div style="font-size:13px;color:var(--i2);line-height:1.9;margin-bottom:10px">
+              活动初期（1-5日）访客量仅有 <strong>3200～4800</strong>，这些<strong>较低的数值</strong>把均值往下拖。<br>
+              而双十一当天（11日）<strong>10923</strong>虽然很高，但只有1天，对中位数影响不大。
+            </div>
+            <div style="background:var(--pL);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--pD);line-height:1.9">
+              均值受<span style="color:var(--rd);font-weight:700">低流量初期</span>拖累 → 均值被拉低到6345<br>
+              中位数不受极端值影响 → 稳定在6860<br>
+              <strong>→ 中位数6860更能代表"大多数天"的真实流量！</strong>
+            </div>
+          </div>
+          <div>
+            <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:14px">
+              <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">📊 三个集中趋势指标对比</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--pL);border-radius:6px">
+                  <span style="font-size:12px;font-weight:700;color:var(--ink)">均值（AVERAGE）</span>
+                  <span style="font-size:16px;font-weight:900;color:var(--p)">6,345</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--gnL);border-radius:6px">
+                  <span style="font-size:12px;font-weight:700;color:var(--ink)">中位数（MEDIAN）</span>
+                  <span style="font-size:16px;font-weight:900;color:var(--gn)">6,860</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--amL);border-radius:6px">
+                  <span style="font-size:12px;font-weight:700;color:var(--ink)">众数（MODE）</span>
+                  <span style="font-size:16px;font-weight:900;color:var(--am)">6,860</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Tab1 离散程度 -->
   <div class="tp" id="tp1">
-    <div class="sec">离散程度统计量——数据的"稳定性"</div>
-    <div class="sg3">
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">📉</div><div class="scn">标准差</div><div class="sce">Std. Deviation</div><div class="scf">=STDEV.S()</div><div class="scd">每个数据偏离均值的平均程度。<strong>标准差越大，数据越不稳定。</strong></div><div class="scg">案例：标准差2231，说明UV每天波动很大</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">📐</div><div class="scn">方差</div><div class="sce">Variance</div><div class="scf">=VAR.S()</div><div class="scd">标准差的平方，衡量同样的离散程度，但单位不同。<strong>实际分析中更常用标准差。</strong></div><div class="scg">方差=标准差²，记住这个关系即可</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">↔️</div><div class="scn">极差（全距）</div><div class="sce">Range</div><div class="scf">=MAX()-MIN()</div><div class="scd">最大值减最小值，反映数据总体跨度，越大波动越广。</div><div class="scg">案例：10923-3127=7796，流量跨度很大！</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">⬆️</div><div class="scn">最大/最小值</div><div class="sce">Max / Min</div><div class="scf">=MAX() / =MIN()</div><div class="scd">数据的最高点和最低点，帮助发现异常情况。</div><div class="scg">案例：最高10923（双十一），最低3127（活动初期）</div></div>
-      <div class="sc"><div style="font-size:20px;margin-bottom:6px">🎯</div><div class="scn">均值标准误差</div><div class="sce">S.E. Mean</div><div class="scf">Excel自动计算</div><div class="scd">衡量均值估计的可靠性，越小说明均值越准确。</div><div class="scg">案例：498.95，均值估计可靠性较高</div></div>
+    <div class="sec">离散程度统计量——数据的"波动幅度"</div>
+    <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">
+      <strong>离散程度</strong> = 数据波动有多大？差异有多悬殊？越大说明数据越不稳定，越分散。
+    </p>
+    <div class="g2">
+      <div class="sc">
+        <div class="sc-ico">📏</div>
+        <div class="sc-name">极差（全距）</div>
+        <div class="sc-en">Range</div>
+        <div class="sc-fn">=MAX(B2:B21)-MIN(B2:B21)</div>
+        <div class="sc-desc">最大值 − 最小值。反映数据的<strong>总体跨度</strong>，越大说明波动范围越广。</div>
+        <div class="sc-eg">
+          <strong>案例：</strong>10923 − 3127 = <strong>7796</strong><br>
+          说明访客量最高和最低之间相差7796人次，波动范围非常大！<br>
+          ⚠️ 缺点：只看首尾两个数，中间数据情况不考虑
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-ico">📉</div>
+        <div class="sc-name">标准差</div>
+        <div class="sc-en">Standard Deviation</div>
+        <div class="sc-fn">=STDEV.S(B2:B21)</div>
+        <div class="sc-desc">描述数据偏离平均值的程度。<strong>标准差越大，数据越分散、越不稳定</strong>，是最常用的离散程度指标。</div>
+        <div class="sc-eg">
+          <strong>案例：</strong>标准差 = <strong>2231.38</strong><br>
+          说明每天访客量平均偏离均值约2231人，日流量波动非常明显<br>
+          ✅ 优点：考虑了所有数据，最全面
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-ico">📐</div>
+        <div class="sc-name">方差</div>
+        <div class="sc-en">Variance</div>
+        <div class="sc-fn">=VAR.S(B2:B21)</div>
+        <div class="sc-desc">标准差的平方。和标准差一样用于衡量离散程度，但<strong>单位不同（是原单位的平方）</strong>，不直观。</div>
+        <div class="sc-eg">
+          记住：<strong>方差 = 标准差²</strong><br>
+          2231.38² ≈ 4,979,070<br>
+          实际工作中，用标准差更直观，方差用于统计计算
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-ico">⬆️</div>
+        <div class="sc-name">最大值 / 最小值</div>
+        <div class="sc-en">Maximum / Minimum</div>
+        <div class="sc-fn">=MAX() / =MIN()</div>
+        <div class="sc-desc">数据的最高点和最低点。帮助快速<strong>发现异常情况</strong>和数据边界。</div>
+        <div class="sc-eg">
+          最大值：<strong>10923</strong>（双十一当天，活动效果极好）<br>
+          最小值：<strong>3127</strong>（活动初期，预热不足）<br>
+          两者相差3.5倍，说明活动影响力巨大
+        </div>
+      </div>
+      <div class="sc" style="grid-column:span 2">
+        <div class="sc-ico">🎯</div>
+        <div class="sc-name">均值标准误差（S.E. Mean）</div>
+        <div class="sc-en">Standard Error of Mean</div>
+        <div class="sc-fn">Excel描述统计自动输出</div>
+        <div class="sc-desc">反映抽样误差的大小，越小说明<strong>平均值越可靠、越准确</strong>。用20天数据推断整个11月的均值时，这个误差有多大。</div>
+        <div class="sc-eg">
+          <strong>案例：</strong>S.E. Mean = <strong>498.95</strong><br>
+          结合95%置信度：我们有95%的把握认为，11月整体日均UV在 6345 ± 1044 之间，即约 <strong>5301 ～ 7389 人/天</strong>
+        </div>
+      </div>
     </div>
-    <div class="tip"><span>🔑</span><span>核心口诀：<strong>标准差小=稳定；标准差大=波动大</strong>。两组数据均值相同时，标准差小的那组更稳定可预测。</span></div>
+
+    <!-- 标准差理解 -->
+    <div class="card" style="margin-top:14px">
+      <div class="ch"><div class="chi">🎮</div><div class="cht">互动理解：感受"标准差"的含义</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">两个渠道的日均UV都是5000，但稳定性完全不同——</p>
+        <div class="g2">
+          <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:16px">
+            <div style="font-size:12px;font-weight:700;color:var(--gn);margin-bottom:8px">✅ 渠道A（直通车）</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:13px;color:var(--i2)">平均值</span><span style="font-size:16px;font-weight:900;color:var(--gn)">5,000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:13px;color:var(--i2)">标准差</span><span style="font-size:16px;font-weight:900;color:var(--gn)">200</span>
+            </div>
+            <div style="display:flex;gap:3px;margin-bottom:8px">
+              <span style="font-size:14px">⭐⭐⭐⭐⭐</span>
+            </div>
+            <div style="font-size:12px;color:var(--i2);line-height:1.7">每天UV在4800～5200之间波动，非常稳定，可预测，便于预算规划</div>
+          </div>
+          <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:16px">
+            <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:8px">⚠️ 渠道B（达人合作）</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:13px;color:var(--i2)">平均值</span><span style="font-size:16px;font-weight:900;color:var(--am)">5,000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:13px;color:var(--i2)">标准差</span><span style="font-size:16px;font-weight:900;color:var(--am)">3,800</span>
+            </div>
+            <div style="display:flex;gap:3px;margin-bottom:8px">
+              <span style="font-size:14px">⭐⭐</span>
+            </div>
+            <div style="font-size:12px;color:var(--i2);line-height:1.7">某天可能爆发到15000，某天可能只有500，极不稳定，有风险</div>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:10px"><span>🔑</span><span>两个渠道均值相同，但标准差差了19倍！<strong>光看均值会误以为两个渠道一样好</strong>，标准差才能揭示稳定性的本质差异。</span></div>
+      </div>
+    </div>
   </div>
+
+  <!-- Tab2 分布情况 -->
   <div class="tp" id="tp2">
-    <div class="sec">分布情况统计量——数据的"形态"</div>
-    <div class="sg2">
-      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📐 偏度（Skewness）——数据是否对称？</div>
-        <div style="margin-bottom:6px;padding:6px 10px;background:var(--pL);border-radius:6px;font-size:12.5px"><strong>偏度 = 0</strong>：完全对称，正态分布</div>
-        <div style="margin-bottom:6px;padding:6px 10px;background:var(--amL);border-radius:6px;font-size:12.5px"><strong>偏度 &gt; 0（右偏）</strong>：多数数据集中在左边，少数极大值拉向右侧</div>
-        <div style="padding:6px 10px;background:var(--rdL);border-radius:6px;font-size:12.5px"><strong>偏度 &lt; 0（左偏）</strong>：多数数据集中在右边，少数极小值拉向左侧</div>
+    <div class="sec">分布情况统计量——数据的"形态特征"</div>
+    <p style="font-size:13px;color:var(--i2);line-height:1.85;margin-bottom:14px">
+      <strong>分布情况</strong> = 数据是左多右少，还是均匀分布？用<strong>偏度</strong>和<strong>峰度</strong>来描述数据的形态特征。
+    </p>
+
+    <div class="sec">📐 偏度（Skewness）——数据是否对称？</div>
+    <div class="g3">
+      <div class="dist-card">
+        <div class="dist-icon">👈</div>
+        <div class="dist-title">左偏（负偏）</div>
+        <div class="dist-cond" style="background:var(--rdL);color:var(--rd)">偏度 &lt; 0</div>
+        <div class="dist-desc">大多数数据集中在右边（较高值），少数极小值把"尾巴"拉向左边</div>
+        <div class="dist-eg">电商例：大多数订单金额偏高，少数极低价清仓订单拉低左侧</div>
       </div>
-      <div class="sc"><div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:8px">📈 峰度（Kurtosis）——数据集中还是分散？</div>
-        <div style="margin-bottom:6px;padding:6px 10px;background:var(--pL);border-radius:6px;font-size:12.5px"><strong>峰度 = 0</strong>：标准正态分布（钟形曲线）</div>
-        <div style="margin-bottom:6px;padding:6px 10px;background:var(--amL);border-radius:6px;font-size:12.5px"><strong>峰度 &gt; 0（尖峰）</strong>：数据高度集中在均值附近，极端值少</div>
-        <div style="padding:6px 10px;background:var(--rdL);border-radius:6px;font-size:12.5px"><strong>峰度 &lt; 0（平峰）</strong>：数据较分散，分布比较均匀</div>
+      <div class="dist-card" style="border-color:var(--gnM)">
+        <div class="dist-icon">⚖️</div>
+        <div class="dist-title">对称分布</div>
+        <div class="dist-cond" style="background:var(--gnL);color:var(--gn)">偏度 ≈ 0</div>
+        <div class="dist-desc">左右两边数据分布均匀，就是理想的"正态分布"（钟形曲线）</div>
+        <div class="dist-eg">此时均值 = 中位数 = 众数，用均值最准确</div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-icon">👉</div>
+        <div class="dist-title">右偏（正偏）</div>
+        <div class="dist-cond" style="background:var(--amL);color:var(--am)">偏度 &gt; 0</div>
+        <div class="dist-desc">大多数数据集中在左边（较低值），少数极大值把"尾巴"拉向右边</div>
+        <div class="dist-eg">电商例：大多数UV较低，双十一爆发性高流量把右尾拉长</div>
       </div>
     </div>
-    <div class="tip"><span>💡</span><span>判断正态分布：<strong>偏度和峰度都接近0</strong>→数据近似正态分布。实际工作中，偏度在±1、峰度在±2之间，基本可认为近似正态。案例：UV偏度0.23、峰度-0.70，整体接近正态。</span></div>
+
+    <div class="sec">📈 峰度（Kurtosis）——数据集中还是分散？</div>
+    <div class="g3">
+      <div class="dist-card">
+        <div class="dist-icon">🏔️</div>
+        <div class="dist-title">尖顶峰（高峰）</div>
+        <div class="dist-cond" style="background:var(--pL);color:var(--p)">峰度 &gt; 0</div>
+        <div class="dist-desc">数据高度集中在均值附近，极端值少，分布曲线比正态分布更"尖"更细</div>
+        <div class="dist-eg">大多数天UV都集中在某个区间，偶尔的高低波动很少</div>
+      </div>
+      <div class="dist-card" style="border-color:var(--gnM)">
+        <div class="dist-icon">🔔</div>
+        <div class="dist-title">正态（标准）</div>
+        <div class="dist-cond" style="background:var(--gnL);color:var(--gn)">峰度 ≈ 0</div>
+        <div class="dist-desc">标准钟形曲线，是最理想状态。许多统计方法都基于正态分布的假设</div>
+        <div class="dist-eg">判断方法：偏度在±1之间 + 峰度在±2之间 → 基本可认为正态</div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-icon">🏝️</div>
+        <div class="dist-title">平顶峰（低峰）</div>
+        <div class="dist-cond" style="background:var(--teL);color:var(--te)">峰度 &lt; 0</div>
+        <div class="dist-desc">数据较分散，分布比较均匀，曲线顶部比正态分布更"平坦宽阔"</div>
+        <div class="dist-eg">UV数据峰度=-0.70，略平顶，说明数据分布比较均匀分散</div>
+      </div>
+    </div>
+
+    <div class="fml">
+      <div class="fml-label">💡 记忆口诀</div>
+      <div class="fml-body">
+        <span class="fml-ok">偏度峰度都接近0，就是正态分布！</span><br>
+        实际工作中，偏度在 <span class="fml-num">±1</span> 之间、峰度在 <span class="fml-num">±2</span> 之间，基本可认为接近正态分布。<br>
+        <span class="fml-fn">案例验证：</span> 访客UV数据 偏度=<span class="fml-num">0.23</span>，峰度=<span class="fml-num">-0.70</span> → 接近正态 ✅
+      </div>
+      <div class="fml-result">✅ 接近正态分布时，均值、中位数、众数三者很接近，用均值分析最合适。偏离正态越多，越要优先考虑中位数。</div>
+    </div>
   </div>
+
+  <!-- Tab3 速查手册 -->
   <div class="tp" id="tp3">
-    <div class="sec">Excel 描述统计工具——手把手操作</div>
-    <div class="warn"><span>⚠️</span><span>首次使用需先加载分析工具库：<strong>文件→选项→加载项→Excel加载项→转到→勾选"分析工具库"→确定</strong>，之后"数据"菜单右上角出现"数据分析"按钮。</span></div>
-    <div class="steps">
-      <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">打开描述统计工具</div><div class="sbp">「数据」→「数据分析」→ 选择「描述统计」→ 确定</div></div></div>
-      <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">设置输入区域</div><div class="sbd">选中数据列（含标题行，如$B$1:$B$21），勾选"<strong>标志位于第一行</strong>"，分组方式选"逐列"</div></div></div>
-      <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">设置输出位置</div><div class="sbd">选"输出区域"，点击旁边的空白单元格（如D1），避免覆盖原始数据</div></div></div>
-      <div class="si"><div class="sn">4</div><div class="sb"><div class="sbt">勾选"汇总统计"（必须！）</div><div class="sbd">这是最重要的选项，不勾选则均值、标准差等核心指标不会出现在输出结果中</div></div></div>
-      <div class="si"><div class="sn">5</div><div class="sb"><div class="sbt">点击确定，查看结果</div><div class="sbd">Excel自动生成包含所有统计量的结果表，对照"案例解读"标签逐项理解</div></div></div>
+    <div class="sec">📋 统计量速查卡——9个核心指标一览</div>
+    <div class="spd-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="spd" style="border-top:3px solid var(--p)">
+        <div class="spd-cat">📍 集中趋势</div>
+        <div class="spd-name">平均值 Mean</div>
+        <div class="spd-fn">=AVERAGE()</div>
+        <div class="spd-val">总和÷个数</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--p)">
+        <div class="spd-cat">📍 集中趋势</div>
+        <div class="spd-name">中位数 Median</div>
+        <div class="spd-fn">=MEDIAN()</div>
+        <div class="spd-val">排序后中间值</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--p)">
+        <div class="spd-cat">📍 集中趋势</div>
+        <div class="spd-name">众数 Mode</div>
+        <div class="spd-fn">=MODE.SNGL()</div>
+        <div class="spd-val">出现最多的值</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--am)">
+        <div class="spd-cat">↔️ 离散程度</div>
+        <div class="spd-name">极差 Range</div>
+        <div class="spd-fn">=MAX()-MIN()</div>
+        <div class="spd-val">最大减最小</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--am)">
+        <div class="spd-cat">↔️ 离散程度</div>
+        <div class="spd-name">标准差 Std.dev</div>
+        <div class="spd-fn">=STDEV.S()</div>
+        <div class="spd-val">越大越不稳定</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--am)">
+        <div class="spd-cat">↔️ 离散程度</div>
+        <div class="spd-name">方差 Variance</div>
+        <div class="spd-fn">=VAR.S()</div>
+        <div class="spd-val">标准差²</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--am)">
+        <div class="spd-cat">↔️ 离散程度</div>
+        <div class="spd-name">最大/最小值</div>
+        <div class="spd-fn">=MAX() / =MIN()</div>
+        <div class="spd-val">数据边界</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--rd)">
+        <div class="spd-cat">📉 分布情况</div>
+        <div class="spd-name">偏度 Skewness</div>
+        <div class="spd-fn">Excel自动输出</div>
+        <div class="spd-val">≈0为对称分布</div>
+      </div>
+      <div class="spd" style="border-top:3px solid var(--rd)">
+        <div class="spd-cat">📉 分布情况</div>
+        <div class="spd-name">峰度 Kurtosis</div>
+        <div class="spd-fn">Excel自动输出</div>
+        <div class="spd-val">≈0为正态分布</div>
+      </div>
     </div>
-    <div class="tip"><span>📌</span><span>数据必须是<strong>数值型</strong>（单元格左上角无绿色小三角）。若显示绿色小三角，说明是文本型数字，需先转换为数值。</span></div>
-  </div>
-  <div class="tp" id="tp4">
-    <div class="sec">实战案例：飞跃数码店11月UV数据描述统计结果</div>
+    <div class="tip"><span>🔑</span><span>核心记忆口诀：<strong>集中看均值（有极端值用中位数）；离散看标准差（越大越不稳定）；形状看偏峰（都接近0是正态）</strong>。</span></div>
+
+    <div class="sec">如何选择合适的统计量？</div>
     <table class="tbl">
-      <tr><th>输出项</th><th>数值</th><th style="min-width:220px">业务含义解读</th></tr>
-      <tr><td>平均值</td><td style="color:var(--p1);font-weight:800">6345.2</td><td>20天日均UV约6345，整体流量水平</td></tr>
-      <tr><td>中位数</td><td style="color:var(--gn);font-weight:800">6860</td><td>大于均值，说明有少量低流量日把均值拉低</td></tr>
-      <tr><td>众数</td><td>6860</td><td>6860是最常出现的UV值（出现2次）</td></tr>
-      <tr><td>标准差</td><td style="color:var(--am);font-weight:800">2231.38</td><td>较大，每天访客量波动明显，受活动影响显著</td></tr>
-      <tr><td>偏度</td><td>0.23</td><td>轻微右偏，少量高UV天拉向右侧</td></tr>
-      <tr><td>峰度</td><td>-0.70</td><td>略为平峰，数据较分散（接近0属正常）</td></tr>
-      <tr><td>极差</td><td style="color:var(--rd);font-weight:800">7796</td><td>最高与最低相差7796，流量波动范围非常大</td></tr>
-      <tr><td>最小值</td><td>3127</td><td>活动初期冷清，流量最低点</td></tr>
-      <tr><td>最大值</td><td>10923</td><td>双十一当天（11月11日），流量最高峰</td></tr>
-      <tr><td>置信度(95%)</td><td>1044.32</td><td>均值95%置信区间：5301～7389</td></tr>
+      <tr><th>分析目的</th><th>推荐统计量</th><th>原因</th><th>电商应用场景</th></tr>
+      <tr><td>了解整体平均水平（数据均匀）</td><td class="hi">均值</td><td>简单直观，能反映总体中心</td><td>日均销售额、月均转化率</td></tr>
+      <tr><td>了解典型水平（有极端值）</td><td class="ok">中位数</td><td>不受极端值影响，更代表大多数</td><td>客单价分析、房价调研</td></tr>
+      <tr><td>找最受欢迎的值</td><td class="warn">众数</td><td>最高频的值，代表"最流行"</td><td>最热销尺码、最常下单时段</td></tr>
+      <tr><td>评估稳定性/风险</td><td class="hi">标准差</td><td>全面考量所有数据的波动</td><td>日销售额稳定性、广告投放风险</td></tr>
+      <tr><td>快速了解数据范围</td><td>极差</td><td>简单计算，一目了然</td><td>价格区间、季节性波动幅度</td></tr>
+      <tr><td>判断数据是否正态</td><td>偏度+峰度</td><td>两者都接近0则近似正态</td><td>统计检验前的数据质量检查</td></tr>
     </table>
-    <div class="fbox">
-      <div style="font-size:10px;color:#7DD3FC;margin-bottom:5px;font-family:sans-serif">ANALYSIS CONCLUSION</div>
-      <div style="color:#86EFAC">结论：</div>
-      本店11月双十一期间日均UV约<span style="color:#FCD34D">6345</span>，但中位数<span style="color:#FCD34D">6860</span>更能代表典型流量水平。<br>
-      标准差<span style="color:#FCA5A5">2231</span>较大，说明日常流量波动明显，受活动期影响显著。<br>
-      偏度<span style="color:#FCD34D">0.23</span>轻微右偏，峰度<span style="color:#FCD34D">-0.70</span>略平，整体接近正态分布。<br>
-      <span style="color:#86EFAC">建议：分析双十一当天（10923）成功因素，改善活动初期（3127）的预热推广策略。</span>
+  </div>
+
+  <!-- Tab4 案例讲解 -->
+  <div class="tp" id="tp4">
+    <div class="sec">📦 实战案例：双十一店铺访客数据分析</div>
+    <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--i2);line-height:1.85">
+      <strong>背景：</strong>某网店在2023年11月1日—11月20日双十一活动期间，每天记录了店铺的访客量（UV）数据。<br>
+      老板要求分析这20天的访客情况，需要用Excel完成描述性统计分析，并写出结论。
+    </div>
+
+    <div class="g3" style="margin-bottom:16px">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:13px;text-align:center">
+        <div style="font-size:11px;color:var(--i3);margin-bottom:3px">📈 活动前期（1-5日）</div>
+        <div style="font-size:18px;font-weight:900;color:var(--p)">3200～4800</div>
+        <div style="font-size:11.5px;color:var(--i2);margin-top:5px;line-height:1.6">访客量处于较低水平，双十一预热期，流量缓慢增长</div>
+      </div>
+      <div style="background:#FEF3C7;border:1.5px solid var(--amM);border-radius:var(--r);padding:13px;text-align:center">
+        <div style="font-size:11px;color:var(--i3);margin-bottom:3px">🔥 活动高峰（11日）</div>
+        <div style="font-size:18px;font-weight:900;color:var(--am)">10,923</div>
+        <div style="font-size:11.5px;color:var(--i2);margin-top:5px;line-height:1.6">双十一当天达到最高峰，是活动初期的3.4倍！</div>
+      </div>
+      <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:13px;text-align:center">
+        <div style="font-size:11px;color:var(--i3);margin-bottom:3px">📉 活动后期（12-20日）</div>
+        <div style="font-size:18px;font-weight:900;color:var(--gn)">5790～9698</div>
+        <div style="font-size:11.5px;color:var(--i2);margin-top:5px;line-height:1.6">活动结束后回落，但仍高于初期，品牌曝光持续</div>
+      </div>
+    </div>
+
+    <!-- 完整结果表 -->
+    <div class="sec">📊 Excel描述统计输出结果 + 完整解读</div>
+    <table class="rtbl">
+      <tr><th>输出指标</th><th>数值</th><th>业务含义解读</th></tr>
+      <tr><td>平均值</td><td class="hi">6,345.2</td><td>20天日均UV约6345，是整体流量的代表水平</td></tr>
+      <tr><td>标准误差</td><td>498.95</td><td>用20天数据推断整月均值的误差约±499，可靠性较好</td></tr>
+      <tr><td>中位数</td><td style="color:var(--gn);font-weight:900;font-size:14px">6,860</td><td>中位数>均值，说明有几天极低流量把均值拉低，大多数天流量接近6860</td></tr>
+      <tr><td>众数</td><td>6,860</td><td>6860出现次数最多（2次），是最普遍的UV水平</td></tr>
+      <tr><td>标准差</td><td style="color:var(--am);font-weight:900">2,231.38</td><td>较大！每天UV偏离均值约2231人，流量波动明显受活动影响</td></tr>
+      <tr><td>方差</td><td>4,979,070</td><td>标准差的平方，辅助参考</td></tr>
+      <tr><td>峰度</td><td>-0.7006</td><td>略平顶峰，数据较分散（在±2范围内，属正常）</td></tr>
+      <tr><td>偏度</td><td>0.2295</td><td>轻微右偏，活动高峰（10923）把右尾拉长（在±1范围内，属正常）</td></tr>
+      <tr><td>极差</td><td style="color:var(--rd);font-weight:900">7,796</td><td>最高最低相差7796，波动范围非常大，活动效果显著</td></tr>
+      <tr><td>最小值</td><td>3,127</td><td>活动初期冷清，流量最低点，预热策略有待加强</td></tr>
+      <tr><td>最大值</td><td style="color:var(--gn);font-weight:900">10,923</td><td>双十一当天流量最高，是全月最成功的一天</td></tr>
+      <tr><td>总和</td><td>126,904</td><td>20天累计总访客量约12.7万人次</td></tr>
+      <tr><td>置信度(95%)</td><td>1,044.32</td><td>均值95%置信区间：6345±1044 = <strong>5301～7389人/天</strong></td></tr>
+    </table>
+
+    <div class="fml" style="margin-top:14px">
+      <div class="fml-label">📝 完整分析结论（参考写法）</div>
+      <div class="fml-body" style="font-family:'Noto Sans SC';font-size:12.5px;line-height:2.1;color:#DBEAFE">
+        本店2023年11月双十一活动期间（1-20日）日均UV约 <span class="fml-num">6345</span> 人次。<br>
+        中位数 <span class="fml-num">6860 &gt; 均值 6345</span>，说明活动初期（1-5日）的低流量日将均值拉低，<br>
+        大多数天的真实流量水平应以中位数 <span class="fml-ok">6860</span> 为参考。<br>
+        标准差 <span class="fml-num">2231</span> 较大，偏度 <span class="fml-num">0.23</span>（轻微右偏），峰度 <span class="fml-num">-0.70</span>（略平），整体接近正态分布。<br>
+        活动高峰日（11日）UV达到 <span class="fml-ok">10923</span>，是流量最低日（3127）的 <span class="fml-num">3.5</span> 倍，说明双十一活动拉流效果显著。
+      </div>
+      <div class="fml-result">
+        💡 建议：①加强活动初期预热，提升1-5日的流量基础；②分析11日成功经验，在后续大促中复制；③95%置信区间5301~7389，日常运营以此作为流量健康水位参考。
+      </div>
     </div>
   </div>
-  <div id="p2d"><button class="btnp" onclick="showPart(3)">✅ 知识学完，开始互动练习 →</button></div>
-  <div style="text-align:right;margin-top:14px"><button class="btnp" style="font-size:13px;padding:8px 20px" onclick="p2go()">已阅读，进入练习 →</button></div>
+
+  <div id="p2d"><button class="btn" onclick="showPart(3)">✅ 知识学完，进入Excel实操 →</button></div>
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p2go()">已阅读，进入Excel实操 →</button>
+  </div>
 </div>
 
-<!-- ── PART 3 ── -->
+<!-- ══ PART 3 Excel实操 ══ -->
 <div class="part" id="part3">
   <div class="card">
-    <div class="ch"><div class="chi">🧮</div><div class="cht">练习一 · 计算挑战</div><div class="chb">每题 +10 XP</div></div>
+    <div class="ch"><div class="chi">🛠️</div><div class="cht">手把手操作：Excel描述统计分析</div></div>
+    <div class="cb">
+
+      <div class="sec">第一步：添加"数据分析"加载项（只需做一次）</div>
+      <div class="warn-box"><span>⚠️</span><span>如果你的Excel"数据"菜单右上角没有"数据分析"按钮，需要先手动加载！</span></div>
+      <div class="steps">
+        <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">打开加载项设置</div><div class="sbp">文件 → 选项 → 加载项 → 管理(Excel加载项) → 转到</div></div></div>
+        <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">勾选分析工具库</div><div class="sbd">在弹出框中勾选 <strong>【分析工具库】</strong> 和 <strong>【分析工具库-VBA】</strong></div></div></div>
+        <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">确认并验证</div><div class="sbd">点击"确定"→ 返回Excel → 点击"数据"选项卡 → 右上角出现 <strong>"数据分析"</strong> 按钮 🎉</div></div></div>
+      </div>
+
+      <div class="sec">第二步：打开描述统计工具</div>
+      <div class="steps">
+        <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">打开数据文件</div><div class="sbd">打开"活动访问数据.xlsx"，确保UV数据在B列（B1为标题"UV"，B2:B21为20天数据）</div></div></div>
+        <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">启动描述统计</div><div class="sbp">点击顶部【数据】→ 点击【数据分析】→ 在列表中找到【描述统计】→ 点击【确定】</div></div></div>
+      </div>
+
+      <div class="sec">第三步：设置参数（重要！每项都要对！）</div>
+      <table class="param-tbl">
+        <tr><th>参数项</th><th>设置值</th><th>说明</th></tr>
+        <tr><td>📥 输入区域</td><td>$B$1:$B$21</td><td>选择UV那列数据，含标题行（第1行的"UV"）</td></tr>
+        <tr><td>📋 分组方式</td><td>逐列</td><td>数据是竖向排列的，选"逐列"</td></tr>
+        <tr><td>🏷️ 标志位于第一行</td><td>☑ 勾选</td><td>第一行是"UV"标题，需要勾选，否则标题被当成数据</td></tr>
+        <tr><td>📤 输出区域</td><td>$D$2</td><td>结果显示在当前表格D2位置（注意不要覆盖原始数据）</td></tr>
+        <tr><td>📊 汇总统计</td><td>☑ 勾选</td><td>⭐ 最重要！不勾选则均值、标准差等核心指标不会输出</td></tr>
+        <tr><td>🎯 第K大/小值</td><td>☑ 勾选，填"1"</td><td>显示第1大值（最大值）和第1小值（最小值）</td></tr>
+        <tr><td>📏 平均数置信度</td><td>☑ 勾选，填"95%"</td><td>常用95%置信度，表示有95%的把握真实均值在此范围内</td></tr>
+      </table>
+      <div class="tip"><span>📌</span><span>数据必须是<strong>数值型</strong>，若单元格左上角有绿色小三角，说明是文本格式，需先转换为数值（选中→数据→分列→完成）。</span></div>
+
+      <div class="sec">第四步：查看结果并逐项解读</div>
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">点击确定后，Excel在D列自动生成以下结果表，逐项理解每个指标的含义：</p>
+      <table class="rtbl">
+        <tr><th>Excel输出项</th><th>UV数值</th><th>含义及解读</th><th>重要程度</th></tr>
+        <tr><td>平均</td><td class="hi">6345.2</td><td>20天日均UV</td><td>⭐⭐⭐</td></tr>
+        <tr><td>标准误差</td><td>498.95</td><td>推断整月均值的抽样误差</td><td>⭐⭐</td></tr>
+        <tr><td>中位数</td><td class="ok">6860</td><td>排序后正中间的值，大多数天的真实流量</td><td>⭐⭐⭐</td></tr>
+        <tr><td>众数</td><td>6860</td><td>出现次数最多的UV值</td><td>⭐⭐</td></tr>
+        <tr><td>标准差</td><td class="warn">2231.38</td><td>波动幅度（越大越不稳定）</td><td>⭐⭐⭐</td></tr>
+        <tr><td>方差</td><td>4979070</td><td>标准差的平方，辅助参考</td><td>⭐</td></tr>
+        <tr><td>峰度</td><td>-0.7006</td><td>略平顶，±2内属正常</td><td>⭐⭐</td></tr>
+        <tr><td>偏度</td><td>0.2295</td><td>轻微右偏，±1内属正常</td><td>⭐⭐</td></tr>
+        <tr><td>极差</td><td>7796</td><td>最大最小差值，总波动范围</td><td>⭐⭐</td></tr>
+        <tr><td>最小值</td><td>3127</td><td>流量最低点</td><td>⭐⭐⭐</td></tr>
+        <tr><td>最大值</td><td class="ok">10923</td><td>流量最高点（双十一当天）</td><td>⭐⭐⭐</td></tr>
+        <tr><td>求和</td><td>126904</td><td>20天累计总访客量</td><td>⭐⭐</td></tr>
+        <tr><td>观测数</td><td>20</td><td>共20天数据</td><td>⭐</td></tr>
+        <tr><td>最大(1)</td><td>10923</td><td>第1大值（等于最大值）</td><td>⭐</td></tr>
+        <tr><td>最小(1)</td><td>3127</td><td>第1小值（等于最小值）</td><td>⭐</td></tr>
+        <tr><td>置信度(95.0%)</td><td>1044.32</td><td>均值95%置信区间半径，即6345±1044</td><td>⭐⭐</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 内嵌计算器 -->
+  <div class="card">
+    <div class="ch"><div class="chi">🧮</div><div class="cht">互动计算器：自己验证置信区间</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:14px">根据Excel输出结果，计算UV数据的95%置信区间（均值 ± 置信度值）：</p>
+      <div class="inline-calc">
+        <div class="ic-title">🔢 置信区间计算器</div>
+        <div class="ic-row">
+          <span class="ic-label">均值：</span>
+          <input class="ic-inp" id="ica_mean" type="number" value="6345" placeholder="均值">
+        </div>
+        <div class="ic-row">
+          <span class="ic-label">置信度值：</span>
+          <input class="ic-inp" id="ica_conf" type="number" value="1044.32" placeholder="置信度值">
+        </div>
+        <button class="ic-btn" onclick="calcCI()">计算置信区间</button>
+        <div class="ic-result" id="ica_result"></div>
+      </div>
+      <div class="tip"><span>💡</span><span>置信区间含义：我们有95%的把握，飞跃数码店11月的真实日均UV在这个范围内。这可以作为日常流量健康的参考标准。</span></div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(4)">已阅读，进入互动练习 →</button>
+  </div>
+</div>
+
+<!-- ══ PART 4 互动练习 ══ -->
+<div class="part" id="part4">
+
+  <!-- 判断题 -->
+  <div class="card">
+    <div class="ch"><div class="chi">✅</div><div class="cht">练习一 · 判断题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <p style="font-size:12.5px;color:var(--i3);margin-bottom:12px">根据所学知识判断以下说法是否正确：</p>
+      <div class="jl">
+        <div class="ji" id="ji1"><div class="jitop">
+          <div class="jiq">1. 当数据中存在极端值（如超高工资的老板）时，用<strong>中位数</strong>比均值更能代表大多数人的典型水平。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbF" id="jf1" onclick="doJ(1,false)">×</button></div>
+        </div><div class="jfb" id="jfb1"></div></div>
+
+        <div class="ji" id="ji2"><div class="jitop">
+          <div class="jiq">2. 偏度的绝对值越大，说明数据<strong>越接近对称分布</strong>，越接近正态分布。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbF" id="jf2" onclick="doJ(2,false)">×</button></div>
+        </div><div class="jfb" id="jfb2"></div></div>
+
+        <div class="ji" id="ji3"><div class="jitop">
+          <div class="jiq">3. 两组数据均值相同，但A组标准差=200，B组标准差=3800，说明<strong>A组数据更稳定可预测</strong>。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbF" id="jf3" onclick="doJ(3,false)">×</button></div>
+        </div><div class="jfb" id="jfb3"></div></div>
+
+        <div class="ji" id="ji4"><div class="jitop">
+          <div class="jiq">4. Excel的"数据分析"工具库在安装Office时已经默认加载，无需手动操作即可使用。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbF" id="jf4" onclick="doJ(4,false)">×</button></div>
+        </div><div class="jfb" id="jfb4"></div></div>
+
+        <div class="ji" id="ji5"><div class="jitop">
+          <div class="jiq">5. 描述统计中的<strong>均值标准误差（S.E. Mean）越小</strong>，说明用样本均值推断总体均值的可靠性越高。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbF" id="jf5" onclick="doJ(5,false)">×</button></div>
+        </div><div class="jfb" id="jfb5"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 计算题 -->
+  <div class="card">
+    <div class="ch"><div class="chi">🧮</div><div class="cht">练习二 · 计算挑战</div><div class="chb">每题 +10 XP</div></div>
     <div class="cb">
       <div class="cc">
-        <div class="ccq">① 以下7个数的<strong>中位数</strong>是多少？（先从小到大排列，取中间值）</div>
+        <div class="ccq">① 以下7个UV数据，<strong>中位数</strong>是多少？（排序后取中间值）</div>
         <div class="ccd">数据：3127、10923、6860、5480、7410、4512、8900</div>
         <div class="ccr">
           <span style="font-size:12px;font-weight:700;color:var(--i2)">中位数 =</span>
           <input class="cci" id="ci1" type="number" placeholder="数字">
           <button class="ccb" onclick="doC(1)">提交</button>
         </div>
-        <div class="cfb" id="cfb1"></div>
+        <div class="cfb" id="cf1"></div>
       </div>
+
       <div class="cc">
-        <div class="ccq">② 以下数据的<strong>极差</strong>是多少？（最大值 − 最小值）</div>
-        <div class="ccd">最大值：10923，最小值：3127</div>
+        <div class="ccq">② UV数据最大值为10923，最小值为3127，<strong>极差</strong>是多少？</div>
         <div class="ccr">
           <span style="font-size:12px;font-weight:700;color:var(--i2)">极差 =</span>
           <input class="cci" id="ci2" type="number" placeholder="数字">
           <button class="ccb" onclick="doC(2)">提交</button>
         </div>
-        <div class="cfb" id="cfb2"></div>
+        <div class="cfb" id="cf2"></div>
+      </div>
+
+      <div class="cc">
+        <div class="ccq">③ 均值为6345，置信度值（95%）为1044.32，请计算95%<strong>置信区间的下限</strong>（均值 - 置信度值，取整数）。</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">置信区间下限 =</span>
+          <input class="cci" id="ci3" type="number" placeholder="数字">
+          <button class="ccb" onclick="doC(3)">提交</button>
+        </div>
+        <div class="cfb" id="cf3"></div>
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="ch"><div class="chi">✅</div><div class="cht">练习二 · 判断题</div><div class="chb">每题 +8 XP</div></div>
-    <div class="cb">
-      <div class="jlist">
-        <div class="ji" id="ji1"><div class="jitop">
-          <div class="jiq">1. 数据中有极端值时，用<strong>中位数</strong>比均值更能代表大多数数据的典型水平。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbtf" id="jf1" onclick="doJ(1,false)">×</button></div>
-        </div><div class="jfb" id="jfb1"></div></div>
-        <div class="ji" id="ji2"><div class="jitop">
-          <div class="jiq">2. <strong>标准差越大</strong>，说明数据越稳定，波动越小。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbtf" id="jf2" onclick="doJ(2,false)">×</button></div>
-        </div><div class="jfb" id="jfb2"></div></div>
-        <div class="ji" id="ji3"><div class="jitop">
-          <div class="jiq">3. 偏度和峰度都接近0，说明数据接近<strong>正态分布</strong>。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbtf" id="jf3" onclick="doJ(3,false)">×</button></div>
-        </div><div class="jfb" id="jfb3"></div></div>
-        <div class="ji" id="ji4"><div class="jitop">
-          <div class="jiq">4. Excel的"数据分析"功能安装时已默认开启，可以直接使用。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbtf" id="jf4" onclick="doJ(4,false)">×</button></div>
-        </div><div class="jfb" id="jfb4"></div></div>
-        <div class="ji" id="ji5"><div class="jitop">
-          <div class="jiq">5. 使用描述统计工具时，必须勾选"<strong>汇总统计</strong>"，否则核心统计量不会输出。</div>
-          <div class="jbs"><button class="jbt jbtt" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbtf" id="jf5" onclick="doJ(5,false)">×</button></div>
-        </div><div class="jfb" id="jfb5"></div></div>
-      </div>
-    </div>
-  </div>
+
+  <!-- 选择题 -->
   <div class="card">
     <div class="ch"><div class="chi">📝</div><div class="cht">练习三 · 选择题</div><div class="chb">每题 +8 XP</div></div>
     <div class="cb">
-      <div class="qbox" id="qb1"><div class="qh"><div class="qn">1</div><div class="qt">某店铺客单价中99%订单在50-500元，但有少量批发大单超过5000元，描述"典型客单价"最合适的指标是？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 均值（平均客单价）</button>
-          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 极差（最大-最小）</button>
-          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 中位数</button>
-          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 标准差</button>
-        </div><div class="qfb" id="qfb1"></div></div>
-      <div class="qbox" id="qb2"><div class="qh"><div class="qn">2</div><div class="qt">渠道A和B日均UV都是5000，渠道A标准差200，渠道B标准差3800，以下说法正确的是？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 两个渠道表现完全一样</button>
-          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. A渠道流量更稳定，B渠道波动更大</button>
-          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. B渠道流量更稳定，A渠道波动更大</button>
-          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. B渠道标准差更大说明流量质量更高</button>
-        </div><div class="qfb" id="qfb2"></div></div>
-      <div class="qbox" id="qb3"><div class="qh"><div class="qn">3</div><div class="qt">描述统计结果：偏度=0.23，峰度=-0.70，对这组数据分布的正确判断是？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 轻微右偏，略平顶，整体接近正态分布</button>
-          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 完全对称的正态分布，偏度=0</button>
-          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 峰度-0.70说明数据高度集中，是尖顶峰</button>
-          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 偏度0.23为正说明是左偏分布</button>
-        </div><div class="qfb" id="qfb3"></div></div>
-      <div class="qbox" id="qb4"><div class="qh"><div class="qn">4</div><div class="qt">使用Excel描述统计工具，以下哪项操作是必须的？</div></div>
-        <div class="qop">
-          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 勾选"汇总统计"选项</button>
-          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 数据行数必须超过100行才能使用</button>
-          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 必须选择"新工作表"作为输出位置</button>
-          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 必须先对数据排序再使用工具</button>
-        </div><div class="qfb" id="qfb4"></div></div>
+
+      <div class="qbox" id="qb1">
+        <div class="qhead"><div class="qnum">1</div>
+          <div class="qtext">某电商店铺客单价数据中，99%的订单在50-500元，但有少数批发大客户单笔超5000元。描述"大多数普通用户的典型客单价"，最合适的指标是？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 均值（会被5000元大单严重拉高，失真）</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 中位数（不受极端大值影响，代表大多数）</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 极差（反映价格区间，不代表典型水平）</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 标准差（反映波动，不代表典型水平）</button>
+        </div>
+        <div class="qfb" id="qf1"></div>
+      </div>
+
+      <div class="qbox" id="qb2">
+        <div class="qhead"><div class="qnum">2</div>
+          <div class="qtext">双十一结束后，运营总监要评估两个推广渠道哪个"更稳定可预测"。两个渠道日均UV都是5000，A渠道标准差=200，B渠道标准差=3800。以下判断正确的是？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 两个渠道表现一样，因为均值都是5000</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. A渠道更稳定，标准差小说明每天UV接近均值</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. B渠道更稳定，标准差大说明爆发力更强</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. B渠道流量质量更高，因为标准差大</button>
+        </div>
+        <div class="qfb" id="qf2"></div>
+      </div>
+
+      <div class="qbox" id="qb3">
+        <div class="qhead"><div class="qnum">3</div>
+          <div class="qtext">Excel描述统计输出结果中，UV数据偏度=0.23，峰度=-0.70。对这组数据分布的正确判断是？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 偏度0.23为正，是右偏；峰度-0.70为负，是平顶峰；两者均在合理范围，数据接近正态分布</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 偏度0.23说明是左偏，大多数数据在右边</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 峰度-0.70说明是尖顶峰，数据高度集中</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 偏度和峰度不为0，说明数据完全不正态，不能用均值</button>
+        </div>
+        <div class="qfb" id="qf3"></div>
+      </div>
+
+      <div class="qbox" id="qb4">
+        <div class="qhead"><div class="qnum">4</div>
+          <div class="qtext">使用Excel描述统计工具时，以下哪个操作顺序是正确的？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 选数据→勾选汇总统计→设输入区域→点确定</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 数据→数据分析→描述统计→设参数（输入区域+勾选标志第一行+勾选汇总统计+设输出区域）→确定</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 先对数据排序，再用描述统计工具</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 任意选一列输出区域，描述统计工具会自动避开原数据</button>
+        </div>
+        <div class="qfb" id="qf4"></div>
+      </div>
+
+      <div class="qbox" id="qb5">
+        <div class="qhead"><div class="qnum">5</div>
+          <div class="qtext">某服装店想了解"卖得最多的商品尺码"，应该用哪个统计量？</div>
+        </div>
+        <div class="qopts">
+          <button class="qopt" id="q5o0" onclick="doQ(5,0)">A. 均值（尺码的平均值，没有实际意义）</button>
+          <button class="qopt" id="q5o1" onclick="doQ(5,1)">B. 中位数（排序中间的尺码，不代表最多）</button>
+          <button class="qopt" id="q5o2" onclick="doQ(5,2)">C. 众数（出现次数最多的尺码，就是最畅销的）</button>
+          <button class="qopt" id="q5o3" onclick="doQ(5,3)">D. 标准差（反映尺码波动，无法找最畅销）</button>
+        </div>
+        <div class="qfb" id="qf5"></div>
+      </div>
     </div>
   </div>
-  <div id="p3d"><button class="btnp" onclick="showPart(4)">查看单元完成情况 →</button></div>
+
+  <div id="p3d"><button class="btn" onclick="showPart(5)">查看单元完成情况 →</button></div>
 </div>
 
-<!-- ── PART 4 ── -->
-<div class="part" id="part4">
+<!-- ══ PART 5 单元完成 ══ -->
+<div class="part" id="part5">
   <div class="sumc">
-    <div style="font-size:16px;font-weight:900;color:var(--ink);margin-bottom:14px">🏆 单元完成！</div>
+    <div style="font-size:17px;font-weight:900;color:var(--ink);margin-bottom:16px">🏆 单元完成！</div>
     <div class="sumg">
       <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
       <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
       <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
     </div>
     <div class="kpl">
-      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">📌 本单元核心要点</div>
-      <div class="kp"><div class="kpd">1</div><div>三类统计量：<strong>集中趋势</strong>（均值/中位数/众数）、<strong>离散程度</strong>（标准差/方差/极差）、<strong>分布情况</strong>（偏度/峰度）</div></div>
-      <div class="kp"><div class="kpd">2</div><div>有极端值→<strong>中位数</strong>；无极端值→<strong>均值</strong>；找最流行→<strong>众数</strong></div></div>
-      <div class="kp"><div class="kpd">3</div><div><strong>标准差越大→波动越大、越不稳定</strong>，标准差越小→越稳定</div></div>
-      <div class="kp"><div class="kpd">4</div><div><strong>偏度和峰度都接近0</strong>→数据接近正态分布</div></div>
-      <div class="kp"><div class="kpd">5</div><div>Excel路径：数据→数据分析→描述统计→勾选<strong>汇总统计</strong>→确定</div></div>
+      <div style="font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:10px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div>三类统计量：<strong>集中趋势</strong>（均值/中位数/众数/总和）、<strong>离散程度</strong>（标准差/方差/极差/最大最小值）、<strong>分布情况</strong>（偏度/峰度）</div></div>
+      <div class="kp"><div class="kpd">2</div><div>指标选择原则：<strong>有极端值→中位数</strong>；无极端值→均值；找最流行→众数；评稳定性→标准差</div></div>
+      <div class="kp"><div class="kpd">3</div><div>标准差口诀：<strong>标准差小=稳定；标准差大=波动大</strong>。均值相同时，标准差才是区分稳定性的关键</div></div>
+      <div class="kp"><div class="kpd">4</div><div>判断正态分布：<strong>偏度在±1内且峰度在±2内</strong>，基本可认为近似正态分布</div></div>
+      <div class="kp"><div class="kpd">5</div><div>Excel操作路径：<strong>文件→选项→加载项→勾选分析工具库 → 数据→数据分析→描述统计→勾选汇总统计</strong></div></div>
+      <div class="kp"><div class="kpd">6</div><div>中位数>均值说明有<strong>极低值拉低了均值</strong>；中位数&lt;均值说明有极高值拉高了均值</div></div>
     </div>
-    <div style="text-align:center;margin-top:20px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+    <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:15px 18px;margin-top:16px">
+      <div style="font-size:12.5px;color:var(--pD);font-weight:700;margin-bottom:6px">💼 课后实操练习</div>
+      <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+        ① 使用"飞跃数码店双十一访客数据.xlsx"完成描述统计分析，对照本节的结果表验证你的输出是否正确<br>
+        ② 对比活动前期（1-10日）和活动后期（11-20日）两段时间的均值和标准差，分析两段流量有何差异<br>
+        ③ 根据分析结果，撰写一份150字以内的"访客流量分析报告"，结论要提炼数据，给出具体建议
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:22px">
+      <button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button>
+    </div>
   </div>
 </div>
-</div>
-<script>
 
-var _sb=null;
-try{if(window.supabase)_sb=window.supabase.createClient('https://ovinpbddeuxpgouefczs.supabase.co','sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX');}catch(e){}
+</div><!-- /main -->
+
+<script>
+var SB_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+var SB_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
 var SK='ecommerce_data_analysis_user';
 var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var _sb=null;try{if(window.supabase)_sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
 var xp=0,strs=0,cDone={},jDone={},qDone={};
 function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
-function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
-function su(d){var ws=gws();d.lastVisit=new Date().toISOString();
-  if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}
   localStorage.setItem(SK,JSON.stringify(d));
   if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;
     var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);
-    _sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,
-      completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,
-      achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},
-      {onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}
+    _sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}
 }
-function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');
-  setTimeout(function(){e.classList.remove('show');},t||2500);}
-function xpop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');
-  setTimeout(function(){e.classList.remove('show');},1900);}
-function addXP(a){xp+=a;var u=lu();
-  document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xpop(a);}
-function confetti(){var c=document.getElementById('cft');
-  var cs=['#0F4C81','#1A6BB5','#3B82F6','#F97316','#10B981','#FBBF24'];c.innerHTML='';
-  for(var i=0;i<60;i++){var p=document.createElement('div');p.className='cp';
-    p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+
-    ';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;'+
-    'animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;'+
-    'border-radius:'+(Math.random()>0.5?'50%':'2px');
-    c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
-function showPart(n){for(var i=1;i<=4;i++){
-    document.getElementById('part'+i).classList.toggle('active',i===n);
-    document.getElementById('btn'+i).classList.toggle('active',i===n);}
-  document.getElementById('prog').style.width=[0,25,55,80,100][n]+'%';
-  window.scrollTo({top:0,behavior:'smooth'});}
-function stab(n,tot){tot=tot||5;for(var i=0;i<tot;i++){
-    var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);
-    if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
+function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xppop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xppop(a);}
+function confetti(){var c=document.getElementById('cft'),cs=['#0F4C81','#1A6BB5','#3B82F6','#F97316','#10B981','#FBBF24'];c.innerHTML='';
+  for(var i=0;i<65;i++){var p=document.createElement('div');p.className='cp';p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;border-radius:'+(Math.random()>0.5?'50%':'2px');c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=5;i++){document.getElementById('part'+i).classList.toggle('active',i===n);var b=document.getElementById('btn'+i);if(b)b.classList.toggle('active',i===n);}
+  document.getElementById('pg').style.width=[0,20,45,65,83,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function stab(n,tot){for(var i=0;i<tot;i++){var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
 function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
 function p2go(){document.getElementById('p2d').style.display='block';showPart(3);}
-/* ── 判断题（所有答案/反馈存JS对象，onclick只传数字和布尔） ── */
+/* 内嵌计算器 */
+function calcCI(){
+  var mean=parseFloat(document.getElementById('ica_mean').value)||0;
+  var conf=parseFloat(document.getElementById('ica_conf').value)||0;
+  var res=document.getElementById('ica_result');
+  res.style.display='block';
+  res.textContent='95%置信区间：['+Math.round(mean-conf)+', '+Math.round(mean+conf)+']  即 '+(mean-conf).toFixed(2)+' ～ '+(mean+conf).toFixed(2);
+}
+/* 判断题 */
+var JA={1:true,2:false,3:true,4:false,5:true};
+var JFB={
+  1:'中位数只看排序中间的数，不受极端值拉偏影响。有老板50000工资的情况下，中位数3350比均值8000更能真实代表大多数员工的薪资水平。',
+  2:'恰好相反！偏度绝对值越大说明数据越不对称，越偏离正态分布。偏度接近0才说明数据越对称、越接近正态分布。实际工作中偏度在±1内认为基本正态。',
+  3:'标准差反映数据围绕均值的平均偏离程度。A组标准差200，说明每天UV都接近均值5000，非常稳定可预测；B组标准差3800，说明波动极大，有的天可能10000+，有的天可能只有500，完全不稳定。',
+  4:'数据分析工具库不是默认加载的，需要手动操作：文件→选项→加载项→Excel加载项→转到→勾选分析工具库→确定，之后才能在数据菜单中看到"数据分析"按钮。',
+  5:'均值标准误差（S.E. Mean）= 标准差 ÷ √样本量，越小说明样本均值推断总体均值时的误差越小，也就是均值越可靠准确。案例中498.95表示可靠性较好。'
+};
 function doJ(n,v){
   if(jDone[n])return;jDone[n]=true;
   var ok=(v===JA[n]);
   var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);
   bt.disabled=true;bf.disabled=true;
-  (JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdim');
+  (JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdm');
   if(!ok)(v?bt:bf).classList.add('jng');
-  var e=document.getElementById('jfb'+n);
-  e.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];
-  e.className='jfb '+(ok?'jfb-ok':'jfb-ng');
-  if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析学习');}
-  chkDone();}
-/* ── 选择题（答案存QC，反馈存QFB[题号][选项索引]） ── */
+  var fb=document.getElementById('jfb'+n);
+  fb.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];
+  fb.className='jfb '+(ok?'ok':'ng');
+  if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析理解一下');}
+  chkDone();
+}
+/* 计算题 答案: 1=6860 2=7796 3=5301 */
+var CA={1:6860,2:7796,3:5301};
+var CFBOK={1:'排序后：3127、4512、5480、6860、7410、8900、10923，共7个数，中间第4个是6860',2:'10923 - 3127 = 7796，这就是访客量的总波动范围',3:'6345 - 1044 = 5301，即95%置信区间下限约5301人/天'};
+var CFBHINT={1:'提示：先把7个数从小到大排列，然后取第4个（中间位置）',2:'提示：直接用最大值10923减去最小值3127',3:'提示：均值6345减去置信度值1044.32，取整数'};
+function doC(n){
+  if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cf'+n);
+  var v=parseInt(inp.value,10);if(isNaN(v)){fb.textContent='请输入整数';fb.className='cfb ng';return;}
+  if(v===CA[n]){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];fb.className='cfb ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';addXP(10);toast('✅ 答对！+10 XP');}
+  else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb ng';toast('❌ 再想想！');}
+  chkDone();
+}
+/* 选择题 正确索引: q1=1 q2=1 q3=0 q4=1 q5=2 */
+var QC={1:1,2:1,3:0,4:1,5:2};
+var QFB={
+  1:{0:'均值会被5000元以上的批发大单严重拉高，导致显示的"平均客单价"远高于大多数普通用户实际支付的金额，失真严重。',
+     1:'中位数不受极端大值影响，排在中间位置的订单金额才是大多数用户的真实消费水平。有极端值时，中位数是最佳代表指标。',
+     2:'极差反映价格区间的总跨度（最高价-最低价），不能代表大多数用户的客单价水平。',
+     3:'标准差反映价格的波动程度，不能代表典型客单价水平。'},
+  2:{0:'两个渠道均值都是5000，均值相同！但均值只反映平均水平，无法反映稳定性，需要看标准差才能判断哪个更稳定。',
+     1:'标准差是衡量稳定性的核心指标。A渠道标准差200，说明每天UV都在均值5000附近波动很小，非常稳定可预测；B渠道标准差3800，说明某天可能爆发到15000，某天可能只有500，极不稳定。',
+     2:'标准差大恰恰说明波动大、不稳定，不是稳定的意思。B渠道标准差3800远大于A渠道200，所以B渠道更不稳定。',
+     3:'标准差只反映稳定性，不代表流量质量。B渠道标准差大说明波动大，流量质量要看转化率等其他指标。'},
+  3:{0:'偏度0.23为正值（右偏），峰度-0.70为负值（平顶峰）。两者绝对值均在合理范围内（偏度&lt;±1，峰度&lt;±2），数据整体接近正态分布，这是完全正确的判断。',
+     1:'偏度0.23为正值，代表右偏（数据集中在左侧/较低值，少数极高值拉向右侧），不是左偏。左偏的偏度为负值。',
+     2:'峰度-0.70为负值，代表平顶峰（数据较分散，分布比正态更平），不是尖顶峰。尖顶峰的峰度为正值。',
+     3:'偏度和峰度不需要严格等于0，在实际工作中偏度在±1内、峰度在±2内就认为接近正态。0.23和-0.70都在范围内，数据基本正态，均值仍然有代表意义。'},
+  4:{0:'这个顺序不对，且没有设置输入区域等必要参数，无法正常运行描述统计工具。',
+     1:'正确操作路径：数据→数据分析→描述统计→设置输入区域→勾选标志第一行→设置输出区域→勾选汇总统计→点确定。每个步骤都是必须的。',
+     2:'描述统计工具不需要预先对数据排序，工具会自动处理所有数值。排序不影响统计结果。',
+     3:'描述统计工具不会自动避开原数据，需要手动选择一个空白区域作为输出区域，否则会覆盖原始数据！'},
+  5:{0:'服装尺码的均值没有实际意义（M和XL之间的平均尺码是什么？），而且平均尺码不代表卖得最多。',
+     1:'中位数是排序中间的尺码，代表"大约一半人买了比这个尺码小的，一半人买了比这个尺码大的"，不代表销量最多的尺码。',
+     2:'众数是出现次数最多的值。把每笔订单的尺码记录下来，出现次数最多的那个尺码就是众数，也就是最畅销的尺码。',
+     3:'标准差反映尺码的波动分散程度，无法直接找出销量最多的尺码。'}
+};
 function doQ(n,i){
   if(qDone[n])return;qDone[n]=true;
-  var ok=(i===QC[n]);
-  for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);
-    if(!b)continue;b.disabled=true;
-    if(j===QC[n])b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}
-  var e=document.getElementById('qfb'+n);
-  e.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];
-  e.className='qfb '+(ok?'qfb-ok':'qfb-ng');
-  if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
-/* ── 计算题 ── */
-function doC(n){
-  if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cfb'+n);
-  var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='请输入数字';fb.className='cfb cfb-ng';return;}
-  if(Math.abs(v-CA[n])<0.15){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];
-    fb.className='cfb cfb-ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';
-    addXP(10);toast('✅ 答对！+10 XP');}
-  else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb cfb-ng';toast('❌ 再想想！');}
-  chkDone();}
+  var c=QC[n],ok=(i===c);
+  for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);if(!b)continue;b.disabled=true;if(j===c)b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}
+  var fb=document.getElementById('qf'+n);
+  fb.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];fb.className='qfb '+(ok?'ok':'ng');
+  if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}
+  chkDone();
+}
 function chkDone(){
-  var jT=Object.keys(JA).length,qT=Object.keys(QC).length,cT=Object.keys(CA).length;
+  var jT=5,qT=5,cT=3;
   if(Object.keys(jDone).length>=jT&&Object.keys(qDone).length>=qT&&Object.keys(cDone).length>=cT){
     document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);
     setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}
 }
-
-
-var JA={1:true,2:false,3:true,4:false,5:true};
-var JFB={
-  1:'中位数只看排序中间的数，不受极端值影响。有极端值时中位数比均值更能代表大多数数据的真实水平。',
-  2:'恰好相反！标准差越大说明数据越分散、波动越大，越不稳定。标准差小才说明数据稳定。',
-  3:'偏度和峰度都接近0，说明数据左右对称且集中程度接近正态分布，可视为近似正态分布。',
-  4:'数据分析工具库不是默认加载的，需手动操作：文件→选项→加载项→Excel加载项→转到→勾选分析工具库→确定。',
-  5:'勾选"汇总统计"才能让Excel输出均值、中位数、标准差、偏度、峰度等全部核心指标。'};
-var QC={1:2,2:1,3:0,4:0};
-var QFB={
-  1:{0:'均值会被少数5000元以上批发大订单严重拉高，无法代表大多数普通订单的客单价水平。',
-     1:'极差只反映最大最小差距，不代表典型水平。',
-     2:'中位数不受极端大值影响，排在中间位置的订单金额才是大多数用户的真实支付水平。',
-     3:'标准差反映波动幅度，不代表客单价的典型水平。'},
-  2:{0:'均值相同时不能说两个渠道一样，标准差揭示了稳定性差异。',
-     1:'标准差200很小→每天UV接近5000，非常稳定；标准差3800很大→有的天爆发有的天冷清，不稳定。',
-     2:'恰好相反，标准差越小越稳定，所以A渠道更稳定。',
-     3:'标准差反映稳定性，不直接说明流量质量高低，流量质量需看转化率等其他指标。'},
-  3:{0:'偏度0.23为正，轻微右偏。峰度-0.70为负，略平顶。两者都接近0，整体接近正态分布，这是正确的综合判断。',
-     1:'偏度0.23>0说明是右偏，不是对称分布，对称分布的偏度应接近0。',
-     2:'峰度-0.70<0是平顶峰，不是尖顶峰。',
-     3:'偏度0.23>0是右偏，不是左偏。'},
-  4:{0:'勾选汇总统计是必须操作，不勾选则均值、标准差、偏度等核心指标不会出现在输出结果中。',
-     1:'数据分析工具库不是默认加载的，需要手动加载。',
-     2:'输出区域可以选择当前工作表的空白单元格，不需要强制选"新工作表"。',
-     3:'描述统计工具不需要预先对数据排序，工具会自动处理。'}};
-var CA={1:6860,2:7796};
-var CFBOK={1:'排序：3127、4512、5480、6860、7410、8900、10923，共7个，中间第4个是6860',2:'10923-3127=7796'};
-var CFBHINT={1:'提示：将7个数从小到大排列，取中间第4个',2:'提示：最大值减最小值'};
-
-
 function completeUnit(){
   var u=lu();if(!u){window.location.href='index.html';return;}
   var sc=Math.min(100,20+Math.round(xp*0.8));
   var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;
   var tx=xp+20;var prev=u.units['m4u1']||{};var already=prev.completed&&(prev.xpEarned||0)>0;
   var ax=already?0:tx;
-  u.units['m4u1']={completed:true,stars:Math.max(prev.stars||0,st),
-    score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};
+  u.units['m4u1']={completed:true,stars:Math.max(prev.stars||0,st),score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};
   u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;
-  var ach=u.achievements||[];
-  if(!ach.includes('first_unit'))ach.push('first_unit');
-  if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');
-  u.achievements=ach;su(u);
+  var ach=u.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');u.achievements=ach;su(u);
   document.getElementById('fxp').textContent='+'+(already?0:tx);
   document.getElementById('fsc').textContent=sc;
   document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);
-  showPart(4);if(st>=4)confetti();
+  showPart(5);if(st>=4)confetti();
   toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);
   setTimeout(function(){window.location.href='index.html';},2600);
 }
 (function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
-
 </script>
 </body>
 </html>
