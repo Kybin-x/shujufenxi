@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>5.3 基础数据图表制作</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#0F766E;--p2:#0D9488;--pL:#F0FDFA;--pM:#99F6E4;--pD:#134E4A;
+  --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
+  --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
+  --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
+  --bl:#1D4ED8;--blL:#EFF6FF;--blM:#BFDBFE;
+  --or:#EA580C;--orL:#FFF7ED;--orM:#FED7AA;
+  --ink:#0F172A;--i2:#334155;--i3:#64748B;
+  --bg:#F0FDFA;--cd:#FFF;--br:#99F6E4;--r:10px;
+  --sh:0 2px 12px rgba(15,118,110,.1),0 1px 3px rgba(0,0,0,.06)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.nb{position:sticky;top:0;z-index:100;background:rgba(240,253,250,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(15,118,110,.09)}
+.nbk{font-size:13px;font-weight:700;color:var(--p);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}.nbk:hover{background:var(--pL)}
+.nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nxp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
+#pg{height:5px;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--p);color:var(--p)}.pb.active{background:var(--p);border-color:var(--p);color:#fff}
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+.hero{background:linear-gradient(135deg,var(--pL),var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:30px 32px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'📈';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.09;pointer-events:none}
+.htag{display:inline-flex;background:rgba(15,118,110,.12);border:1.5px solid rgba(15,118,110,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p)}
+.hero-sub{font-size:13.5px;color:var(--i2);line-height:1.8;max-width:600px}
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:13px 20px;display:flex;align-items:center;gap:9px}
+.chi{font-size:20px;flex-shrink:0}.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
+.chb{font-size:10.5px;font-weight:700;background:var(--p);color:#fff;border-radius:10px;padding:2px 10px;flex-shrink:0}
+.cb{padding:18px 20px}
+.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:24px;padding:4px;margin-bottom:18px;flex-wrap:wrap}
+.tb{padding:7px 12px;border-radius:20px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tb.active{background:var(--p);color:#fff;box-shadow:0 2px 6px rgba(15,118,110,.25)}
+.tp{display:none}.tp.active{display:block}
+.sec{font-size:14px;font-weight:800;color:var(--ink);margin:20px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--p),var(--p2));border-radius:2px;flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.tbl th{background:var(--p);color:#fff;padding:9px 12px;text-align:left;font-weight:700;font-size:12px}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.65;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pL)}.tbl td:first-child{font-weight:700;color:var(--ink)}
+.tbl .hi{color:var(--p);font-weight:800}.tbl .ok{color:var(--gn);font-weight:700}.tbl .ng{color:var(--rd)}
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--pD);line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+/* chart type mini cards */
+.ct-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.ct{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:14px;transition:border-color .2s;cursor:default}
+.ct:hover{border-color:var(--p)}
+.ct-ico{font-size:26px;margin-bottom:7px}
+.ct-name{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.ct-kw{font-size:11px;font-weight:700;background:var(--pL);color:var(--p);border-radius:10px;padding:2px 8px;display:inline-block;margin-bottom:6px}
+.ct-desc{font-size:12px;color:var(--i2);line-height:1.65}
+.ct-eg{font-size:11.5px;color:var(--i3);margin-top:6px;padding-top:6px;border-top:1px dashed var(--br);line-height:1.6}
+/* SVG preview */
+.chart-preview{background:var(--pL);border-radius:8px;padding:8px;margin:10px 0;text-align:center}
+/* do/dont */
+.cmp2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.dontbox{background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:12px}
+.dobox{background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:12px}
+/* quiz */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:13px;overflow:hidden}
+.qhead{background:linear-gradient(90deg,var(--pL),#fff);padding:13px 17px;display:flex;align-items:flex-start;gap:9px}
+.qnum{width:27px;height:27px;min-width:27px;border-radius:50%;background:var(--p);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qtext{font-size:13px;font-weight:700;color:var(--ink);line-height:1.55}
+.qopts{padding:12px 17px;display:flex;flex-direction:column;gap:7px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
+.qfb{margin:0 17px 13px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.7;display:none}
+.qfb.ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}.qfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+.jl{display:flex;flex-direction:column;gap:10px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 16px}
+.jitop{display:flex;align-items:flex-start;gap:10px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.7}
+.jbs{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbt{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbT{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}.jbT:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbF{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}.jbF:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
+.jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
+.jbt.jdm{opacity:.28;cursor:default!important}
+.jfb{font-size:12px;margin-top:8px;padding:7px 10px;border-radius:6px;display:none}
+.jfb.ok{display:block;background:var(--gnL);color:#14532D}.jfb.ng{display:block;background:var(--rdL);color:var(--rd)}
+.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:24px 26px;margin-bottom:18px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:14px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:4px}.sumv{font-size:20px;font-weight:900;color:var(--p)}
+.kpl{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.kp{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--i2);line-height:1.65}
+.kpd{width:21px;height:21px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.btn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(15,118,110,.28);transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btnd{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(15,118,110,.3);transition:all .2s;margin-top:18px}
+.btnd:hover{transform:translateY(-2px)}
+#p1d,#p2d,#p3d{display:none;text-align:center;padding:16px 0 4px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp.show{opacity:1;transform:translateY(0)}
+#cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){.g2,.g3,.ct-grid,.sumg{grid-template-columns:1fr}.hero h1{font-size:21px}.tabs{gap:2px}.tb{padding:5px 8px;font-size:11px}.cmp2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="cft"></div><div id="toast"></div><div id="xpp"></div>
+<nav class="nb">
+  <a class="nbk" href="index.html">← 返回</a>
+  <div class="nbt">5.3 · 基础数据图表制作</div>
+  <div class="nxp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="pw"><div id="pg" style="width:0%"></div></div>
+<div class="pn">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📊 9大图表类型</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🎯 选图原则</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🎨 制作与美化</button>
+  <button class="pb" id="btn5" onclick="showPart(5)">🎮 互动练习</button>
+  <button class="pb" id="btn6" onclick="showPart(6)">🏁 单元完成</button>
+</div>
+<div class="main">
+
+<!-- P1 情境导入 -->
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="htag">M5 · 单元三</div>
+    <h1>让数据"说话"：<em>基础数据图表制作</em></h1>
+    <p class="hero-sub">密密麻麻的数字，老板看了5分钟还没懂……换一张图表，3秒钟就明白了！这就是图表的魔力！</p>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="chi">⚡</div><div class="cht">图表 vs 表格——哪个更直观？</div></div>
+    <div class="cb">
+      <div class="g2">
+        <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:8px">❌ 只有数字表格</div>
+          <div style="font-size:12px;color:var(--i2);line-height:2;font-family:monospace">
+            1月:12万|2月:15万|3月:13万<br>4月:18万|5月:22万|6月:19万<br>7月:25万|8月:28万|9月:24万
+          </div>
+          <div style="font-size:12px;color:var(--rd);margin-top:8px;font-weight:600">看了5分钟还不知道趋势如何……</div>
+        </div>
+        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:8px">✅ 换成折线图</div>
+          <svg viewBox="0 0 200 70" style="width:100%;max-height:70px;display:block;margin:0 auto">
+            <polyline points="10,58 32,48 54,52 76,38 98,24 120,34 142,14 164,8 186,18" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="10,58 32,48 54,52 76,38 98,24 120,34 142,14 164,8 186,18" fill="url(#gnGrad)" stroke="none" opacity="0.15"/>
+            <line x1="10" y1="65" x2="190" y2="65" stroke="#E2E8F0" stroke-width="1"/>
+            <circle cx="142" cy="14" r="3.5" fill="#16A34A"/>
+            <text x="142" y="10" font-size="7" fill="#16A34A" text-anchor="middle">峰值</text>
+          </svg>
+          <div style="font-size:12px;color:var(--gn);font-weight:600;margin-top:4px">3秒看出：整体上升趋势 📈</div>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:12px"><span>💡</span><span>本单元三大目标：①<strong>认识9种图表</strong>，知道每种长什么样、适合什么数据；②<strong>会选合适的图表</strong>，根据数据关系选对类型；③<strong>会做好看的图表</strong>，掌握制作和美化要点。</span></div>
+    </div>
+  </div>
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p1go()">了解价值，开始学习 →</button>
+  </div>
+  <div id="p1d"><button class="btn" onclick="showPart(2)">✅ 进入9大图表类型 →</button></div>
+</div>
+
+<!-- P2 9大图表 -->
+<div class="part" id="part2">
+  <div class="sec">九大图表类型——认识它们的"样子"和"用途"</div>
+  <div class="ct-grid">
+    <div class="ct">
+      <div class="ct-ico">📊</div>
+      <div class="ct-name">柱形图</div>
+      <div class="ct-kw">比高低 · 竖柱子</div>
+      <div class="ct-desc">用竖着的柱子高度比较数据大小。适合对比几个类别的数值差异。</div>
+      <div class="ct-eg">各月销售额对比、各商品销量排名（类别不多时）</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">📉</div>
+      <div class="ct-name">条形图</div>
+      <div class="ct-kw">横着比 · 标签长用</div>
+      <div class="ct-desc">柱形图的横向版本。类别名称较长时用条形图，避免X轴文字重叠。</div>
+      <div class="ct-eg">大家电搜索词人气排行（"空调挂架""洗衣机滚筒"等名字长）</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">📈</div>
+      <div class="ct-name">折线图</div>
+      <div class="ct-kw">看趋势 · 时间变化</div>
+      <div class="ct-desc">数据点用线段依次连接，直观展示数据随时间的变化趋势。</div>
+      <div class="ct-eg">月销售额趋势走势、访客数周变化情况</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">🥧</div>
+      <div class="ct-name">饼状图</div>
+      <div class="ct-kw">看份额 · 占比构成</div>
+      <div class="ct-desc">圆形分成若干扇形，展示各部分占总体的百分比。不超过5项。</div>
+      <div class="ct-eg">各流量来源占比、各渠道成交占比（展示构成关系）</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">🔵</div>
+      <div class="ct-name">散点图</div>
+      <div class="ct-kw">找规律 · 两变量关联</div>
+      <div class="ct-desc">坐标系中的若干散点，展示两个变量间的分布和关联关系。</div>
+      <div class="ct-eg">商品进价（X轴）vs售价（Y轴）——是否进价越高售价也越高？</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">🫧</div>
+      <div class="ct-name">气泡图</div>
+      <div class="ct-kw">三维看 · 气泡大小</div>
+      <div class="ct-desc">散点图升级版，气泡大小代表第三个数据维度，同时展示三个维度。</div>
+      <div class="ct-eg">X=销售量，Y=销售额，气泡大小=利润（同时看三个指标）</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">🗺️</div>
+      <div class="ct-name">热力图</div>
+      <div class="ct-kw">看热度 · 颜色深浅</div>
+      <div class="ct-desc">用颜色深浅（红/蓝）直观展示数据大小，发现"热点区域"和地理分布。</div>
+      <div class="ct-eg">详情页哪个区域被点得最多、各省份访客分布地图</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">🕸️</div>
+      <div class="ct-name">雷达图</div>
+      <div class="ct-kw">多维比 · 蜘蛛网形</div>
+      <div class="ct-desc">多边形蜘蛛网状图，展现多个维度的综合表现，面积越大综合实力越强。</div>
+      <div class="ct-eg">我店vs竞品：成交量/销售额/访客数/收藏数/点击量五维对比</div>
+    </div>
+    <div class="ct">
+      <div class="ct-ico">📋</div>
+      <div class="ct-name">交叉表</div>
+      <div class="ct-kw">交叉算 · 多行多列</div>
+      <div class="ct-desc">多行多列的表格形式，高效展现多个分组变量的交叉关系。</div>
+      <div class="ct-eg">各月各品类销售额交叉汇总（行=品类，列=月份）</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="ch"><div class="chi">📋</div><div class="cht">九大图表类型速查一览</div></div>
+    <div class="cb">
+      <table class="tbl">
+        <tr><th>图表类型</th><th>形状特征</th><th>核心用途</th><th>关键词</th><th>不适用场景</th></tr>
+        <tr><td>📊 柱形图</td><td>竖着的柱子</td><td>比较各类别数值大小</td><td class="hi">比高低</td><td>类别太多（&gt;8个）</td></tr>
+        <tr><td>📉 条形图</td><td>横着的条形</td><td>标签长时的类别比较</td><td class="hi">横着比</td><td>数据随时间变化</td></tr>
+        <tr><td>📈 折线图</td><td>数据点连线</td><td>展示时间变化趋势</td><td class="hi">看趋势</td><td>各类别间的大小比较</td></tr>
+        <tr><td>🥧 饼状图</td><td>圆形切块</td><td>展示各部分占比构成</td><td class="hi">看份额</td><td>类别超过5个</td></tr>
+        <tr><td>🔵 散点图</td><td>坐标散点</td><td>两变量的分布与关联</td><td class="hi">找规律</td><td>分类比较（用柱形图）</td></tr>
+        <tr><td>🫧 气泡图</td><td>大小不一圆圈</td><td>三维数据关系展示</td><td class="hi">三维看</td><td>只有两个维度时</td></tr>
+        <tr><td>🗺️ 热力图</td><td>颜色深浅区域</td><td>地理或页面的分布热点</td><td class="hi">看热度</td><td>非地理/页面数据</td></tr>
+        <tr><td>🕸️ 雷达图</td><td>蜘蛛网多边形</td><td>多维度综合对比</td><td class="hi">多维比</td><td>维度少于4个</td></tr>
+        <tr><td>📋 交叉表</td><td>多行多列表格</td><td>多变量交叉汇总分析</td><td class="hi">交叉算</td><td>只有单一维度时</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(3)">继续学习 选图原则 →</button>
+  </div>
+</div>
+
+<!-- P3 选图原则 -->
+<div class="part" id="part3">
+  <div class="card">
+    <div class="ch"><div class="chi">🎯</div><div class="cht">选图核心方法：先搞清楚数据是什么关系！</div></div>
+    <div class="cb">
+      <div class="tip"><span>🔑</span><span>选图三步法：<strong>① 整理数据（客观）→ ② 想清楚要表达什么关系（准确）→ ③ 对号入座选图表（一致）</strong></span></div>
+      <div class="g3" style="margin-top:14px">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">🏗️</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:5px">客观性原则</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">基于真实数据，先整理和分析已有的电商数据</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">🎯</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:5px">准确性原则</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">搞清楚想展示的数据关系类型，明确要说什么</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">✅</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:5px">一致性原则</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">根据数据关系选对应图表，确保图表与数据匹配</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">5种数据关系 → 5类选图方向</div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🥧</div><div class="cht">关系一：构成关系——"各部分占整体多少？"</div></div>
+    <div class="cb">
+      <div class="tip"><span>🔍</span><span>问自己：数据里有没有"份额""百分比""占多少""哪部分最大"？→ 有 → 选构成类图表</span></div>
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🥧</div>
+          <div style="font-size:12.5px;font-weight:700">饼状图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">各部分占总体比例，类别≤5</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">📊</div>
+          <div style="font-size:12.5px;font-weight:700">堆积柱形图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">各类别内部的构成变化</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🔽</div>
+          <div style="font-size:12.5px;font-weight:700">漏斗图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">流程转化各阶段占比</div>
+        </div>
+      </div>
+      <div style="background:var(--amL);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--am);margin-top:8px">
+        <strong>举例：</strong>各流量渠道占总流量的比例 → 用<strong>饼状图</strong>（淘宝搜索占35%、直通车占28%……）
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📊</div><div class="cht">关系二：比较关系——"哪个更大？哪个更强？"</div></div>
+    <div class="cb">
+      <div class="tip"><span>🔍</span><span>问自己：数据里有没有"最多""第一""比较高低""排名"？→ 有 → 选比较类图表</span></div>
+      <div class="g2">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px">
+          <div style="font-size:22px;margin-bottom:6px">📊</div>
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">柱形图</div>
+          <div style="font-size:12px;color:var(--i2)">垂直比较，类别不多时用，标签短</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px">
+          <div style="font-size:22px;margin-bottom:6px">📉</div>
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">条形图</div>
+          <div style="font-size:12px;color:var(--i2)">水平比较，标签较长时用（商品名长）</div>
+        </div>
+      </div>
+      <div style="background:var(--amL);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--am);margin-top:8px">
+        <strong>举例：</strong>各商品本月销量排名 → 用<strong>条形图</strong>（因为商品名"空调挂架""大容量冰箱"等名字较长）
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📈</div><div class="cht">关系三：趋势关系——"数据随时间怎么变化的？"</div></div>
+    <div class="cb">
+      <div class="tip"><span>🔍</span><span>问自己：数据里有没有"时间""增长""下降""波动"？→ 有时间序列 → 选折线图</span></div>
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px;margin-top:10px">
+        <div style="font-size:22px;margin-bottom:6px">📈</div>
+        <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">折线图（首选）</div>
+        <div style="font-size:12px;color:var(--i2)">数据点用线段连接，强调变化走势而非单点数值</div>
+      </div>
+      <div style="background:var(--amL);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--am);margin-top:8px">
+        <strong>举例：</strong>店铺过去12个月的访客数变化 → 用<strong>折线图</strong>（关注的是涨还是跌的趋势）
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🔵</div><div class="cht">关系四：分布关系——"数据集中在哪里？"</div></div>
+    <div class="cb">
+      <div class="tip"><span>🔍</span><span>问自己：数据里有没有"集中""频率""分布""在哪个区域"？→ 有 → 选分布类图表</span></div>
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🔵</div>
+          <div style="font-size:12.5px;font-weight:700">散点图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">两维度的分布</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🫧</div>
+          <div style="font-size:12.5px;font-weight:700">气泡图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">三维度的分布</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🗺️</div>
+          <div style="font-size:12.5px;font-weight:700">热力图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">地理/页面分布</div>
+        </div>
+      </div>
+      <div style="background:var(--amL);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--am);margin-top:8px">
+        <strong>举例：</strong>访客主要来自哪些省份 → 用<strong>热力图</strong>（地理分布，颜色越深访客越多）
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🕸️</div><div class="cht">关系五：联系关系——"两个数据有关联吗？"</div></div>
+    <div class="cb">
+      <div class="tip"><span>🔍</span><span>问自己：数据里有没有"与……有关""随……而变化""综合实力对比"？→ 有 → 选联系类图表</span></div>
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🔵</div>
+          <div style="font-size:12.5px;font-weight:700">散点图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">两变量关联</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🫧</div>
+          <div style="font-size:12.5px;font-weight:700">气泡图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">三变量关联</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">🕸️</div>
+          <div style="font-size:12.5px;font-weight:700">雷达图</div>
+          <div style="font-size:11.5px;color:var(--i3);margin-top:4px">多变量综合对比</div>
+        </div>
+      </div>
+      <div style="background:var(--amL);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--am);margin-top:8px">
+        <strong>举例：</strong>广告费用与销售额的关系 → 用<strong>散点图</strong>（X=广告费，Y=销售额，看是否正相关）
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="ch"><div class="chi">📋</div><div class="cht">图表选择决策表（速查）</div></div>
+    <div class="cb">
+      <table class="tbl">
+        <tr><th>我想表达的是……</th><th>推荐图表</th><th>电商场景举例</th></tr>
+        <tr><td>各部分占总体的比例</td><td class="hi">饼状图、堆积柱形图</td><td>各流量渠道占比</td></tr>
+        <tr><td>几个类别之间的大小比较</td><td class="hi">柱形图、条形图</td><td>各商品月销量排名</td></tr>
+        <tr><td>数据随时间的变化趋势</td><td class="hi">折线图</td><td>12个月销售额走势</td></tr>
+        <tr><td>数据的分布和聚集情况</td><td class="hi">散点图、气泡图、热力图</td><td>访客地域分布</td></tr>
+        <tr><td>两个变量之间的关联关系</td><td class="hi">散点图、气泡图</td><td>广告费vs销售额关系</td></tr>
+        <tr><td>一个对象的多维度综合表现</td><td class="hi">雷达图</td><td>我店vs竞品多维对比</td></tr>
+        <tr><td>多分组变量的交叉汇总</td><td class="hi">交叉表</td><td>各月各品类销售汇总</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(4)">继续学习 制作与美化 →</button>
+  </div>
+</div>
+
+<!-- P4 制作与美化 -->
+<div class="part" id="part4">
+  <div class="card">
+    <div class="ch"><div class="chi">📌</div><div class="cht">图表信息要完整——一张好图表的必备"配件"</div></div>
+    <div class="cb">
+      <div class="info-box"><span>📖</span><span>类比：就像一篇文章要有标题、正文、作者——图表也要有完整的配件，让读者一眼看懂。</span></div>
+      <table class="tbl">
+        <tr><th>元素</th><th>作用</th><th>好的例子</th><th>坏的例子</th></tr>
+        <tr><td>📌 标题</td><td>说明图表主题和结论</td><td class="ok">双11后访客数持续下滑</td><td class="ng">访客数变化图</td></tr>
+        <tr><td>🏷️ 图例</td><td>展示不同项目的标识</td><td class="ok">蓝色=A产品，橙色=B产品</td><td class="ng">系列1，系列2</td></tr>
+        <tr><td>📐 单位</td><td>说明数据的单位</td><td class="ok">（单位：万元）</td><td class="ng">没有单位标注</td></tr>
+        <tr><td>📝 脚注</td><td>对特殊数据进行说明</td><td class="ok">注：含双11活动期间数据</td><td class="ng">—</td></tr>
+        <tr><td>🔗 来源</td><td>赋予数据可信度</td><td class="ok">数据来源：淘宝生意参谋</td><td class="ng">没有来源</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">✏️</div><div class="cht">图表标题要明确——直接说观点，不要"废标题"</div></div>
+    <div class="cb">
+      <div class="cmp2">
+        <div class="dontbox">
+          <div style="font-size:12px;font-weight:700;color:var(--rd);margin-bottom:8px">❌ 废标题（只描述图表）</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.9">
+            · 销售数据图<br>
+            · 各区产量图<br>
+            · 访客数变化<br>
+            · 店铺月报图表
+          </div>
+        </div>
+        <div class="dobox">
+          <div style="font-size:12px;font-weight:700;color:var(--gn);margin-bottom:8px">✅ 好标题（直接说结论）</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.9">
+            · 公司销售额翻了一番<br>
+            · A区产量居第二位<br>
+            · 双11后访客数持续下滑<br>
+            · 7月销售额创今年新高
+          </div>
+        </div>
+      </div>
+      <div class="tip"><span>💡</span><span>好标题口诀：<strong>标题 = 直接说出结论或重点，不要只写"XX数据图"</strong>。读者看完标题就应该知道这张图要说什么。</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">⚠️</div><div class="cht">Y轴刻度从0开始——不要夸大数据差异！</div></div>
+    <div class="cb">
+      <div class="info-box"><span>📏</span><span>类比：如果身高测量不从0开始，高矮差异会被严重夸大！图表的Y轴也一样。</span></div>
+      <div class="cmp2">
+        <div class="dobox">
+          <div style="font-size:12px;font-weight:700;color:var(--gn);margin-bottom:8px">✅ 正确：Y轴从0开始</div>
+          <svg viewBox="0 0 160 90" style="width:100%;max-height:90px">
+            <line x1="25" y1="5" x2="25" y2="75" stroke="#94A3B8" stroke-width="1"/>
+            <line x1="25" y1="75" x2="155" y2="75" stroke="#94A3B8" stroke-width="1"/>
+            <text x="20" y="78" font-size="7" fill="#94A3B8" text-anchor="end">0</text>
+            <text x="20" y="55" font-size="7" fill="#94A3B8" text-anchor="end">50</text>
+            <text x="20" y="32" font-size="7" fill="#94A3B8" text-anchor="end">100</text>
+            <text x="20" y="10" font-size="7" fill="#94A3B8" text-anchor="end">150</text>
+            <rect x="35" y="35" width="20" height="40" fill="#0F766E" rx="2"/>
+            <rect x="65" y="28" width="20" height="47" fill="#0D9488" rx="2"/>
+            <rect x="95" y="42" width="20" height="33" fill="#0F766E" rx="2"/>
+            <rect x="125" y="20" width="20" height="55" fill="#14B8A6" rx="2"/>
+            <text x="45" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">A</text>
+            <text x="75" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">B</text>
+            <text x="105" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">C</text>
+            <text x="135" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">D</text>
+          </svg>
+          <div style="font-size:11.5px;color:var(--gn);margin-top:4px">数据差异显示真实，客观准确</div>
+        </div>
+        <div class="dontbox">
+          <div style="font-size:12px;font-weight:700;color:var(--rd);margin-bottom:8px">❌ 错误：Y轴从50开始</div>
+          <svg viewBox="0 0 160 90" style="width:100%;max-height:90px">
+            <line x1="25" y1="5" x2="25" y2="75" stroke="#94A3B8" stroke-width="1"/>
+            <line x1="25" y1="75" x2="155" y2="75" stroke="#94A3B8" stroke-width="1"/>
+            <text x="20" y="78" font-size="7" fill="#94A3B8" text-anchor="end">50</text>
+            <text x="20" y="50" font-size="7" fill="#94A3B8" text-anchor="end">80</text>
+            <text x="20" y="22" font-size="7" fill="#94A3B8" text-anchor="end">110</text>
+            <rect x="35" y="52" width="20" height="23" fill="#DC2626" rx="2"/>
+            <rect x="65" y="42" width="20" height="33" fill="#EF4444" rx="2"/>
+            <rect x="95" y="58" width="20" height="17" fill="#DC2626" rx="2"/>
+            <rect x="125" y="22" width="20" height="53" fill="#F87171" rx="2"/>
+            <text x="45" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">A</text>
+            <text x="75" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">B</text>
+            <text x="105" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">C</text>
+            <text x="135" y="88" font-size="7" fill="#94A3B8" text-anchor="middle">D</text>
+          </svg>
+          <div style="font-size:11.5px;color:var(--rd);margin-top:4px">视觉上差距被夸大，误导读者！</div>
+        </div>
+      </div>
+      <div class="warn-box"><span>⚠️</span><span>如果非要用非0起点（如数据都很大），必须添加<strong>截断标记（//）</strong>，并在说明中注明。不能让读者产生误解！</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🎨</div><div class="cht">图表美化三大原则</div></div>
+    <div class="cb">
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:15px">
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🖊️ 原则一：最大化数据墨水比</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.75;margin-bottom:8px">图表里的每一笔都要有意义，多余的装饰要删掉！</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">
+            <span style="color:var(--gn)">✅ 保留：</span>曲线、柱条、扇形（代表数据的元素）<br>
+            <span style="color:var(--rd)">❌ 删除：</span>多余网格线、花哨背景色、不必要的3D效果
+          </div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:15px">
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🖋️ 原则二：字体统一</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.75;margin-bottom:8px">字体混乱会让图表显得不专业。</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">
+            中文文字：<strong>微软雅黑</strong> 或 <strong>宋体</strong><br>
+            数字和字母：<strong>Arial</strong> 字体<br>
+            全图统一一套字体！
+          </div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:15px">
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🎨 原则三：色彩柔和协调</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.75;margin-bottom:8px">避免颜色太杂、太亮，影响阅读。</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">
+            <span style="color:var(--gn)">✅ 好：</span>深蓝→中蓝→浅蓝（同色系深浅）<br>
+            <span style="color:var(--rd)">❌ 坏：</span>红+绿+黄+紫（颜色太杂乱）
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">各图表制作注意事项</div>
+      <table class="tbl">
+        <tr><th>图表类型</th><th>⚠️ 重要注意事项</th></tr>
+        <tr><td>📊 柱形图</td><td>Y轴从0开始；同一系列用同一颜色；标签长则改用条形图；X轴标签不要倾斜</td></tr>
+        <tr><td>🥧 饼状图</td><td>类别≤5项；最大扇区从12点开始顺时针；直接标注标签，不用图例；用白色边框线分割扇区</td></tr>
+        <tr><td>📉 条形图</td><td>数据由大到小排列；标签特别长放在空白处；添加数据标签方便阅读</td></tr>
+        <tr><td>📈 折线图</td><td>折线要比网格线粗；折线数量≤5条（超过则分开做）；Y轴从0开始；X轴标签不倾斜</td></tr>
+      </table>
+      <div class="tip"><span>🔑</span><span>核心口诀：<strong>信息完整标题明，Y轴从零别忘记，颜色柔和字体统一，多余元素全删去。</strong></span></div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(5)">已学完，进入互动练习 →</button>
+  </div>
+</div>
+
+<!-- P5 练习 -->
+<div class="part" id="part5">
+  <div class="card">
+    <div class="ch"><div class="chi">✅</div><div class="cht">练习一 · 判断题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="jl">
+        <div class="ji" id="ji1"><div class="jitop">
+          <div class="jiq">1. 饼状图不建议使用图例来区分各扇区，应该直接将标签标注在扇区内或旁边。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbF" id="jf1" onclick="doJ(1,false)">×</button></div>
+        </div><div class="jfb" id="jfb1"></div></div>
+        <div class="ji" id="ji2"><div class="jitop">
+          <div class="jiq">2. 折线图中的折线数量越多越好，这样信息量更全面，读者可以同时比较更多数据。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbF" id="jf2" onclick="doJ(2,false)">×</button></div>
+        </div><div class="jfb" id="jfb2"></div></div>
+        <div class="ji" id="ji3"><div class="jitop">
+          <div class="jiq">3. 柱形图的Y轴应该从0开始，否则会视觉上夸大不同类别之间的数据差异。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbF" id="jf3" onclick="doJ(3,false)">×</button></div>
+        </div><div class="jfb" id="jfb3"></div></div>
+        <div class="ji" id="ji4"><div class="jitop">
+          <div class="jiq">4. 交叉表是一种图形类图表（像柱形图、折线图一样有可视化图形）。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbF" id="jf4" onclick="doJ(4,false)">×</button></div>
+        </div><div class="jfb" id="jfb4"></div></div>
+        <div class="ji" id="ji5"><div class="jitop">
+          <div class="jiq">5. 气泡图是散点图的升级版，气泡的大小可以代表第三个维度的数据，可以同时展示三个变量。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbF" id="jf5" onclick="doJ(5,false)">×</button></div>
+        </div><div class="jfb" id="jfb5"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📝</div><div class="cht">练习二 · 选择题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="qbox" id="qb1">
+        <div class="qhead"><div class="qnum">1</div><div class="qtext">分析各流量渠道（搜索/直通车/购物车等）占总流量的比例，选用哪种图表最合适？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 折线图（展示变化趋势）</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 饼状图（展示各部分占总体的比例）</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 散点图（展示两变量关联）</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 雷达图（多维度综合对比）</button>
+        </div>
+        <div class="qfb" id="qf1"></div>
+      </div>
+
+      <div class="qbox" id="qb2">
+        <div class="qhead"><div class="qnum">2</div><div class="qtext">分析店铺月销售额在过去12个月的增长趋势，选用哪种图表最合适？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 饼状图（展示构成占比）</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. 折线图（展示随时间的变化趋势）</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. 雷达图（多维度综合对比）</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. 热力图（地理/页面分布）</button>
+        </div>
+        <div class="qfb" id="qf2"></div>
+      </div>
+
+      <div class="qbox" id="qb3">
+        <div class="qhead"><div class="qnum">3</div><div class="qtext">分析各商品的销量排名，商品名称较长（如"女士修身收腰连衣裙"），选哪种图表？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 柱形图（竖着的柱子，标签在X轴可能重叠）</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 条形图（横着的条形，标签长时更清晰）</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 折线图（展示时间趋势）</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 散点图（展示分布关联）</button>
+        </div>
+        <div class="qfb" id="qf3"></div>
+      </div>
+
+      <div class="qbox" id="qb4">
+        <div class="qhead"><div class="qnum">4</div><div class="qtext">分析自家店铺与竞争对手在"成交量、销售额、访客数、收藏数、点击量"五个维度的综合实力对比，用哪种图表？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 饼状图（展示占比）</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 柱形图（各维度逐一比较）</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 雷达图（多维度综合对比，一眼看出综合实力）</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 热力图（地理分布）</button>
+        </div>
+        <div class="qfb" id="qf4"></div>
+      </div>
+
+      <div class="qbox" id="qb5">
+        <div class="qhead"><div class="qnum">5</div><div class="qtext">某电商企业想分析"直通车投放区域"对"访客数"和"浏览量"的影响，选用哪类图表较为合适？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q5o0" onclick="doQ(5,0)">A. 折线图（展示时间趋势，与地区无关）</button>
+          <button class="qopt" id="q5o1" onclick="doQ(5,1)">B. 热力图（地理分布图，直观展示各地区访客数/浏览量的热点分布）</button>
+          <button class="qopt" id="q5o2" onclick="doQ(5,2)">C. 饼状图（展示各地区占比，但不直观）</button>
+          <button class="qopt" id="q5o3" onclick="doQ(5,3)">D. 雷达图（多维度对比，不适合地理数据）</button>
+        </div>
+        <div class="qfb" id="qf5"></div>
+      </div>
+    </div>
+  </div>
+  <div id="p3d"><button class="btn" onclick="showPart(6)">查看单元完成情况 →</button></div>
+</div>
+
+<!-- P6 完成 -->
+<div class="part" id="part6">
+  <div class="sumc">
+    <div style="font-size:17px;font-weight:900;color:var(--ink);margin-bottom:16px">🏆 模块五全部完成！🎉</div>
+    <div class="sumg">
+      <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
+      <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
+      <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
+    </div>
+    <div class="kpl">
+      <div style="font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:10px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div>9大图表速记：<strong>柱/条=比大小；折线=看趋势；饼=看占比；散点/气泡=找关联；热力图=看热度；雷达=多维比；交叉表=汇总</strong></div></div>
+      <div class="kp"><div class="kpd">2</div><div>选图5关系：<strong>构成→饼图；比较→柱/条；趋势→折线；分布→散点/热力；联系→散点/雷达</strong></div></div>
+      <div class="kp"><div class="kpd">3</div><div>图表信息要完整：<strong>标题+图例+单位+脚注+数据来源</strong>，缺一不可</div></div>
+      <div class="kp"><div class="kpd">4</div><div>好标题原则：<strong>直接说结论</strong>（"双11后访客持续下滑"），不要写废标题（"访客数变化图"）</div></div>
+      <div class="kp"><div class="kpd">5</div><div>美化3原则：<strong>最大化数据墨水比（删多余装饰）+ 字体统一 + 色彩柔和协调</strong></div></div>
+      <div class="kp"><div class="kpd">6</div><div>Y轴必须从0开始，饼图类别≤5项，折线图折线≤5条，条形图数据从大到小排列</div></div>
+    </div>
+    <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:15px 18px;margin-top:16px">
+      <div style="font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:8px">🎊 恭喜你完成模块五！</div>
+      <div style="font-size:13px;color:var(--i2);line-height:1.9">
+        你现在已经掌握了电商数据分析的三大核心技能：<br>
+        <strong>单元一：</strong>知道监控哪6类数据，会处理7种异常情况 📊<br>
+        <strong>单元二：</strong>会按6步法制作日/周/月报表和专项报表 📋<br>
+        <strong>单元三：</strong>认识9种图表，会选合适的图表，会美化图表 📈<br>
+        这些都是<strong>电商运营岗位的必备能力</strong>！
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:22px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+  </div>
+</div>
+</div>
+<script>
+var SB_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+var SB_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+var SK='ecommerce_data_analysis_user';
+var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var _sb=null;try{if(window.supabase)_sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
+var xp=0,strs=0,jDone={},qDone={},cDone={};
+function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}localStorage.setItem(SK,JSON.stringify(d));if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);_sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}}
+function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xppop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xppop(a);}
+function confetti(){var c=document.getElementById('cft'),cs=['#0F766E','#0D9488','#14B8A6','#F97316','#10B981','#FBBF24'];c.innerHTML='';for(var i=0;i<65;i++){var p=document.createElement('div');p.className='cp';p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;border-radius:'+(Math.random()>0.5?'50%':'2px');c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=6;i++){document.getElementById('part'+i).classList.toggle('active',i===n);var b=document.getElementById('btn'+i);if(b)b.classList.toggle('active',i===n);}document.getElementById('pg').style.width=[0,17,33,50,67,83,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
+var JA={1:true,2:false,3:true,4:false,5:true};
+var JFB={
+  1:'饼状图的制作要点之一就是"不建议用图例"，而是直接把标签（数值或百分比）标注在扇区内或扇区旁边。使用图例需要读者来回对照，降低阅读效率。',
+  2:'折线图的折线数量建议不超过5条！超过5条会显得凌乱，读者无法有效分辨各条折线，反而降低信息传递效率。折线多时，建议拆分成多张图分开展示。',
+  3:'柱形图Y轴从0开始，是保证数据准确呈现的基本原则。如果从50开始，不同柱子的视觉高度差异会被严重夸大，让读者误以为差距比实际大得多，产生误导。',
+  4:'交叉表（Cross Table）是多行多列的表格形式，不是图形类图表。它没有可视化图形（不像柱形图、折线图那样有图形元素），而是通过行列交叉的数字来展示数据关系。',
+  5:'气泡图是散点图的升级版：散点图只能表达X和Y两个维度，气泡图通过气泡的大小（面积）额外增加第三个维度的信息，可以同时展示三个变量之间的关系。'
+};
+function doJ(n,v){if(jDone[n])return;jDone[n]=true;var ok=(v===JA[n]);var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);bt.disabled=true;bf.disabled=true;(JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdm');if(!ok)(v?bt:bf).classList.add('jng');var fb=document.getElementById('jfb'+n);fb.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];fb.className='jfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析理解');}chkDone();}
+var QC={1:1,2:1,3:1,4:2,5:1};
+var QFB={
+  1:{0:'折线图的核心是展示"随时间变化的趋势"，数据需要有时间维度。各渠道占比分析是构成关系，不是时间趋势。',
+     1:'饼状图最适合展示"各部分占总体的比例"——这就是典型的构成关系！各渠道占总流量的百分比，用饼状图一目了然。注意控制类别不超过5项。',
+     2:'散点图展示两个数值变量之间的分布与关联关系，不适合展示各部分占比。',
+     3:'雷达图展示同一对象多个维度的综合表现，不是用来分析各渠道占比的。'},
+  2:{0:'饼状图展示的是某一时间点各部分的占比构成，不适合展示12个月的时间序列变化趋势。',
+     1:'折线图最适合展示"随时间变化的趋势"。12个月的销售额数据是典型的时间序列，用折线图可以直观看出增长、下降、波动的趋势走势。',
+     2:'雷达图用于多个维度的综合对比（如我店vs竞品），不适合展示单一指标随时间的变化。',
+     3:'热力图展示地理或页面上的分布热点，不适合展示时间序列数据。'},
+  3:{0:'柱形图（竖着的柱子）的类别标签在X轴上，商品名称太长会导致文字重叠或需要倾斜显示，影响阅读。',
+     1:'条形图（横着的条形）的类别标签在Y轴（左侧），横向展示有更大空间，即使商品名很长也能完整显示，读者阅读清晰。',
+     2:'折线图用于展示时间变化趋势，不适合各商品销量排名比较。',
+     3:'散点图展示两个变量的分布关联，不适合展示单一变量的排名比较。'},
+  4:{0:'饼状图展示各部分占总体的比例，只能展示一个维度，无法同时比较五个维度。',
+     1:'柱形图可以逐一比较五个维度，但需要5张图或5组柱，不能像雷达图一样直观呈现综合实力对比。',
+     2:'雷达图（蜘蛛网图）正是为"多维度综合对比"设计的，五个维度形成五边形，雷达图面积越大综合实力越强，一张图同时比较五维，一目了然。',
+     3:'热力图用于地理分布或页面热点，不适合多维度综合实力对比。'},
+  5:{0:'折线图展示时间序列趋势，分析"投放区域"是地理维度的数据，不是时间维度，折线图不适用。',
+     1:'热力图通过颜色深浅展示地理上的数据分布，正好适合分析"各省份/地区的访客数和浏览量热点分布"——哪个省市的访客最多、浏览量最高，热力图一目了然。',
+     2:'饼状图展示各地区的占比，可以用，但不如热力图直观（饼图看不出地理位置关系）。',
+     3:'雷达图展示多维度综合实力，不适合地理分布数据。'}
+};
+function doQ(n,i){if(qDone[n])return;qDone[n]=true;var c=QC[n],ok=(i===c);for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);if(!b)continue;b.disabled=true;if(j===c)b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}var fb=document.getElementById('qf'+n);fb.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];fb.className='qfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
+function chkDone(){if(Object.keys(jDone).length>=5&&Object.keys(qDone).length>=5){document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}}
+function completeUnit(){var u=lu();if(!u){window.location.href='index.html';return;}var sc=Math.min(100,20+Math.round(xp*0.8));var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;var tx=xp+20;var prev=u.units['m5u3']||{};var already=prev.completed&&(prev.xpEarned||0)>0;var ax=already?0:tx;u.units['m5u3']={completed:true,stars:Math.max(prev.stars||0,st),score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;var ach=u.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');u.achievements=ach;su(u);document.getElementById('fxp').textContent='+'+(already?0:tx);document.getElementById('fsc').textContent=sc;document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);showPart(6);if(st>=4)confetti();toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);setTimeout(function(){window.location.href='index.html';},2600);}
+(function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
+</script>
+</body>
+</html>

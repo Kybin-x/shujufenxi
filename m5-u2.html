@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>5.2 基础数据报表制作</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#C2410C;--p2:#EA580C;--pL:#FFF7ED;--pM:#FED7AA;--pD:#7C2D12;
+  --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
+  --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
+  --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
+  --bl:#1D4ED8;--blL:#EFF6FF;--blM:#BFDBFE;
+  --ink:#0F172A;--i2:#334155;--i3:#64748B;
+  --bg:#FFF7ED;--cd:#FFF;--br:#FED7AA;--r:10px;
+  --sh:0 2px 12px rgba(194,65,12,.1),0 1px 3px rgba(0,0,0,.06)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.nb{position:sticky;top:0;z-index:100;background:rgba(255,247,237,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(194,65,12,.09)}
+.nbk{font-size:13px;font-weight:700;color:var(--p);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}.nbk:hover{background:var(--pL)}
+.nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nxp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
+#pg{height:5px;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--p);color:var(--p)}.pb.active{background:var(--p);border-color:var(--p);color:#fff}
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+.hero{background:linear-gradient(135deg,var(--pL),var(--pM) 45%,var(--pL) 100%);border:1.5px solid var(--br);border-radius:14px;padding:30px 32px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'📋';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.09;pointer-events:none}
+.htag{display:inline-flex;background:rgba(194,65,12,.12);border:1.5px solid rgba(194,65,12,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p)}
+.hero-sub{font-size:13.5px;color:var(--i2);line-height:1.8;max-width:600px}
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:13px 20px;display:flex;align-items:center;gap:9px}
+.chi{font-size:20px;flex-shrink:0}.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
+.chb{font-size:10.5px;font-weight:700;background:var(--p);color:#fff;border-radius:10px;padding:2px 10px;flex-shrink:0}
+.cb{padding:18px 20px}
+.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:24px;padding:4px;margin-bottom:18px;flex-wrap:wrap}
+.tb{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tb.active{background:var(--p);color:#fff;box-shadow:0 2px 6px rgba(194,65,12,.25)}
+.tp{display:none}.tp.active{display:block}
+.sec{font-size:14px;font-weight:800;color:var(--ink);margin:20px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--p),var(--p2));border-radius:2px;flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.tbl th{background:var(--p);color:#fff;padding:9px 12px;text-align:left;font-weight:700;font-size:12px}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.65;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pL)}.tbl td:first-child{font-weight:700;color:var(--ink)}
+.tbl .hi{color:var(--p);font-weight:800}.tbl .ok{color:var(--gn);font-weight:700}
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--pD);line-height:1.75;display:flex;gap:7px}
+.info-box{background:var(--blL);border:1px solid var(--blM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#1E3A8A;line-height:1.75;display:flex;gap:7px}
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.si{display:flex;align-items:flex-start;gap:13px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 15px}
+.sn{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb{flex:1}.sbt{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px}.sbd{font-size:12.5px;color:var(--i2);line-height:1.7}
+/* report preview */
+.rpt{background:#fff;border:2px solid #E2E8F0;border-radius:var(--r);overflow:hidden;margin:14px 0;font-size:12px}
+.rpt-head{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:10px 14px;font-weight:700;font-size:13px}
+.rpt-tbl{width:100%;border-collapse:collapse}
+.rpt-tbl th{background:var(--pL);color:var(--pD);padding:7px 10px;text-align:center;font-weight:700;font-size:11px;border:1px solid var(--pM)}
+.rpt-tbl td{padding:7px 10px;border:1px solid #E2E8F0;color:var(--i2);text-align:center;font-size:11.5px}
+.rpt-tbl .cat{background:var(--pL);font-weight:700;color:var(--p);text-align:left}
+/* step flow */
+.flow{display:flex;align-items:center;gap:0;margin:16px 0;flex-wrap:wrap}
+.fstep{flex:1;min-width:100px;background:var(--pL);border:1.5px solid var(--pM);border-radius:10px;padding:14px 10px;text-align:center}
+.fstep-n{font-size:20px;font-weight:900;color:var(--p);margin-bottom:5px}
+.fstep-t{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.fstep-d{font-size:11px;color:var(--i3)}
+.farrow{font-size:18px;color:var(--i3);padding:0 4px;flex-shrink:0}
+/* quiz */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:13px;overflow:hidden}
+.qhead{background:linear-gradient(90deg,var(--pL),#fff);padding:13px 17px;display:flex;align-items:flex-start;gap:9px}
+.qnum{width:27px;height:27px;min-width:27px;border-radius:50%;background:var(--p);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qtext{font-size:13px;font-weight:700;color:var(--ink);line-height:1.55}
+.qopts{padding:12px 17px;display:flex;flex-direction:column;gap:7px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
+.qfb{margin:0 17px 13px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.7;display:none}
+.qfb.ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}.qfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+.jl{display:flex;flex-direction:column;gap:10px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 16px}
+.jitop{display:flex;align-items:flex-start;gap:10px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.7}
+.jbs{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbt{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbT{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}.jbT:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbF{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}.jbF:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
+.jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
+.jbt.jdm{opacity:.28;cursor:default!important}
+.jfb{font-size:12px;margin-top:8px;padding:7px 10px;border-radius:6px;display:none}
+.jfb.ok{display:block;background:var(--gnL);color:#14532D}.jfb.ng{display:block;background:var(--rdL);color:var(--rd)}
+.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:24px 26px;margin-bottom:18px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:14px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:4px}.sumv{font-size:20px;font-weight:900;color:var(--p)}
+.kpl{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.kp{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--i2);line-height:1.65}
+.kpd{width:21px;height:21px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.btn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(194,65,12,.28);transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btnd{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(194,65,12,.3);transition:all .2s;margin-top:18px}
+.btnd:hover{transform:translateY(-2px)}
+#p1d,#p2d,#p3d{display:none;text-align:center;padding:16px 0 4px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp.show{opacity:1;transform:translateY(0)}
+#cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){.g2,.g3,.sumg{grid-template-columns:1fr}.hero h1{font-size:21px}.tabs{gap:2px}.tb{padding:5px 9px;font-size:11px}.flow{flex-direction:column}.farrow{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<div id="cft"></div><div id="toast"></div><div id="xpp"></div>
+<nav class="nb">
+  <a class="nbk" href="index.html">← 返回</a>
+  <div class="nbt">5.2 · 基础数据报表制作</div>
+  <div class="nxp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="pw"><div id="pg" style="width:0%"></div></div>
+<div class="pn">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📋 6步制作法</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">📊 日周月报表</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">📁 专项报表</button>
+  <button class="pb" id="btn5" onclick="showPart(5)">🎮 互动练习</button>
+  <button class="pb" id="btn6" onclick="showPart(6)">🏁 单元完成</button>
+</div>
+<div class="main">
+
+<!-- P1 -->
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="htag">M5 · 单元二</div>
+    <h1>用数据说清楚：<em>基础数据报表制作</em></h1>
+    <p class="hero-sub">老板问"上周销售情况怎么样？"只说"还不错"肯定不行！你需要一份清晰准确的数据报表来说话！</p>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">💡</div><div class="cht">为什么要做报表？——三大价值</div></div>
+    <div class="cb">
+      <div class="g3">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">📊</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px">了解经营动态</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">随时掌握店铺运营状况，进行整体评估，知道"我们做得怎么样"</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">📁</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px">方便查找数据</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">数据统一整理归档，随时可以调取查阅，不用每次都重新去找</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">💡</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px">支撑决策调整</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">为经营策略的调整提供系统参考信息，"下步该怎么做"有数据支撑</div>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:12px"><span>💡</span><span><strong>一句话总结：报表就是把数据"说清楚"的工具！</strong>让老板3秒钟看懂上周业务情况，比你解释30分钟都有效。</span></div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p1go()">了解价值，开始学习 →</button>
+  </div>
+  <div id="p1d"><button class="btn" onclick="showPart(2)">✅ 进入6步制作法 →</button></div>
+</div>
+
+<!-- P2 6步制作法 -->
+<div class="part" id="part2">
+  <div class="card">
+    <div class="ch"><div class="chi">📌</div><div class="cht">报表制作6步法——从需求到成品</div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fstep"><div class="fstep-n">①</div><div class="fstep-t">明确需求</div><div class="fstep-d">"做什么"</div></div>
+        <div class="farrow">→</div>
+        <div class="fstep"><div class="fstep-n">②</div><div class="fstep-t">构思大纲</div><div class="fstep-d">"怎么做"</div></div>
+        <div class="farrow">→</div>
+        <div class="fstep"><div class="fstep-n">③</div><div class="fstep-t">选择指标</div><div class="fstep-d">"看什么"</div></div>
+        <div class="farrow">→</div>
+        <div class="fstep"><div class="fstep-n">④</div><div class="fstep-t">搭建框架</div><div class="fstep-d">"建模板"</div></div>
+        <div class="farrow">→</div>
+        <div class="fstep"><div class="fstep-n">⑤</div><div class="fstep-t">采集数据</div><div class="fstep-d">"填数据"</div></div>
+        <div class="farrow">→</div>
+        <div class="fstep"><div class="fstep-n">⑥</div><div class="fstep-t">制作美化</div><div class="fstep-d">"好看懂"</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tb active" id="tb0" onclick="stab(0,6)">① 明确需求</button>
+    <button class="tb" id="tb1" onclick="stab(1,6)">② 构思大纲</button>
+    <button class="tb" id="tb2" onclick="stab(2,6)">③ 选择指标</button>
+    <button class="tb" id="tb3" onclick="stab(3,6)">④ 搭建框架</button>
+    <button class="tb" id="tb4" onclick="stab(4,6)">⑤ 采集数据</button>
+    <button class="tb" id="tb5" onclick="stab(5,6)">⑥ 制作美化</button>
+  </div>
+
+  <div class="tp active" id="tp0">
+    <div class="sec">Step 1：明确数据汇报的需求</div>
+    <div class="info-box"><span>📖</span><span>类比写作文要先审题——做报表也要先搞清楚"为谁做、做什么、为什么做"！</span></div>
+    <table class="tbl">
+      <tr><th>分析目标</th><th>说明</th><th>对应报表类型</th></tr>
+      <tr><td>网店运营分析</td><td>综合评估店铺整体运营状况</td><td>日报/周报/月报</td></tr>
+      <tr><td>销售分析</td><td>分析销售额、订单等核心销售指标</td><td>销售日报</td></tr>
+      <tr><td>用户分析</td><td>分析顾客行为特征、留存率</td><td>用户分析报表</td></tr>
+      <tr><td>竞品分析</td><td>分析竞争对手数据，制定竞争策略</td><td>市场分析报表</td></tr>
+    </table>
+    <div class="tip"><span>⚠️</span><span>需求不同 → 报表内容不同！核心问题：<strong>"这份报表给谁看？他们最关心什么？"</strong></span></div>
+  </div>
+
+  <div class="tp" id="tp1">
+    <div class="sec">Step 2：构思报表的大纲</div>
+    <div class="info-box"><span>🏗️</span><span>类比盖房子要先画图纸——做报表要先想好"从哪几个角度分析"，即确定分析维度。</span></div>
+    <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:18px;margin:12px 0">
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px">📝 示例：店铺运营分析报表大纲</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--pL);border-radius:7px">
+          <span style="background:var(--p);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+          <div><strong style="color:var(--p)">流量维度</strong>：访客数、浏览量、跳失率</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--pL);border-radius:7px">
+          <span style="background:var(--p);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+          <div><strong style="color:var(--p)">销售维度</strong>：销售额、成交用户数</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--pL);border-radius:7px">
+          <span style="background:var(--p);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span>
+          <div><strong style="color:var(--p)">转化维度</strong>：转化率、客单价</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--pL);border-radius:7px">
+          <span style="background:var(--p);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span>
+          <div><strong style="color:var(--p)">推广维度</strong>：ROI、点击量</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tp" id="tp2">
+    <div class="sec">Step 3：进行报表数据指标的选择</div>
+    <div class="info-box"><span>🛒</span><span>类比超市货架不能摆所有商品，要选最畅销的——报表也要选最重要的指标，不是越多越好！</span></div>
+    <div class="g2">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">① 根据分析目标选</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+          分析流量 → 选访客数、浏览量、跳失率<br>
+          分析销售 → 选销售额、转化率、客单价<br>
+          分析推广 → 选ROI、点击量、展现量
+        </div>
+      </div>
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">② 根据报表读者选</div>
+        <table class="tbl" style="margin:0">
+          <tr><th>读者</th><th>关注点</th><th>特点</th></tr>
+          <tr><td>一线运营</td><td>具体操作数据</td><td>细致详细</td></tr>
+          <tr><td>管理层</td><td>整体结果数据</td><td>概括结论</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="tip"><span>💡</span><span>给老板看的报表要<strong>"简单直接"</strong>，给自己用的报表可以<strong>"详细全面"</strong>。读者不同，指标选择不同！</span></div>
+  </div>
+
+  <div class="tp" id="tp3">
+    <div class="sec">Step 4：搭建报表框架——核心步骤！</div>
+    <div class="tip"><span>📌</span><span>这是报表制作最重要的一步！根据汇报周期不同，分为日报表、周报表、月报表三种框架，详见"日周月报表"页面。</span></div>
+  </div>
+
+  <div class="tp" id="tp4">
+    <div class="sec">Step 5：数据的采集与处理</div>
+    <div class="info-box"><span>🍚</span><span>类比：框架就像碗，数据就是米饭——碗做好了，还要把米饭填进去！</span></div>
+    <div class="g2">
+      <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🛒 淘宝/天猫 → 生意参谋</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+          <strong>操作流程：</strong><br>
+          ① 打开生意参谋<br>
+          ② 根据分析目标勾选所需数据指标<br>
+          ③ 导出数据（CSV/Excel格式）<br>
+          ④ 填入报表框架
+        </div>
+      </div>
+      <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">⚠️ 数据处理注意事项</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.85">
+          • 检查数据完整性（有没有缺失）<br>
+          • 统一数据格式（日期格式一致）<br>
+          • 处理异常值（明显错误的数据要核实）<br>
+          • 计算派生指标（如转化率=成交÷访客）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tp" id="tp5">
+    <div class="sec">Step 6：报表的制作与美化</div>
+    <div class="info-box"><span>🎨</span><span>数据填进去了，还要让报表"好看又好用"！两大美化技巧帮你突出重点。</span></div>
+    <div class="g2">
+      <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">✨ 技巧一：突出显示单元格</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.7;margin-bottom:10px">把重点数据用<strong>不同颜色背景</strong>标出，一眼识别异常！</div>
+        <div class="rpt">
+          <div class="rpt-head">日报表示例（访客数高于均值→绿色标记）</div>
+          <table class="rpt-tbl">
+            <tr><th>日期</th><th>访客数</th><th>浏览量</th></tr>
+            <tr><td>7/1</td><td>582</td><td>2,511</td></tr>
+            <tr><td>7/2</td><td style="background:#DCFCE7;color:#15803D;font-weight:700">615 ✅</td><td>2,510</td></tr>
+            <tr><td>7/3</td><td style="background:#DCFCE7;color:#15803D;font-weight:700">598 ✅</td><td>1,901</td></tr>
+            <tr><td>7/4</td><td>535</td><td>1,956</td></tr>
+            <tr><td>7/6</td><td style="background:#DCFCE7;color:#15803D;font-weight:700">701 ✅</td><td>2,835</td></tr>
+          </table>
+        </div>
+        <div style="font-size:11.5px;color:var(--i3);margin-top:6px">操作：开始→条件格式→突出显示单元格规则→大于→设置颜色</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">✨ 技巧二：设置数据条</div>
+        <div style="font-size:12.5px;color:var(--i2);line-height:1.7;margin-bottom:10px">在数字旁边加上长短不一的<strong>色条</strong>，数值大小一目了然！</div>
+        <div class="rpt">
+          <div class="rpt-head">浏览量数据条对比效果</div>
+          <table class="rpt-tbl">
+            <tr><th>日期</th><th>浏览量（数据条）</th></tr>
+            <tr><td>7/1</td><td style="text-align:left"><div style="display:inline-block;width:80px;height:12px;background:linear-gradient(90deg,#EA580C,#FED7AA);border-radius:2px;vertical-align:middle"></div> 2,511</td></tr>
+            <tr><td>7/3</td><td style="text-align:left"><div style="display:inline-block;width:60px;height:12px;background:linear-gradient(90deg,#EA580C,#FED7AA);border-radius:2px;vertical-align:middle"></div> 1,901</td></tr>
+            <tr><td>7/6</td><td style="text-align:left"><div style="display:inline-block;width:90px;height:12px;background:linear-gradient(90deg,#C2410C,#EA580C);border-radius:2px;vertical-align:middle"></div> 2,835</td></tr>
+          </table>
+        </div>
+        <div style="font-size:11.5px;color:var(--i3);margin-top:6px">操作：开始→条件格式→数据条→选颜色样式</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(3)">继续学习 日周月报表 →</button>
+  </div>
+</div>
+
+<!-- P3 日周月报表 -->
+<div class="part" id="part3">
+  <div class="card">
+    <div class="ch"><div class="chi">⚖️</div><div class="cht">三种日常报表对比总结</div></div>
+    <div class="cb">
+      <table class="tbl">
+        <tr><th>对比维度</th><th>📅 日报表</th><th>📊 周报表</th><th>📈 月报表</th></tr>
+        <tr><td>频率</td><td>每天</td><td>每周</td><td>每月</td></tr>
+        <tr><td>主要受众</td><td>运营人员自用</td><td>团队/主管</td><td>管理层/老板</td></tr>
+        <tr><td>数据细致度</td><td class="hi">最详细</td><td>适中</td><td>精简</td></tr>
+        <tr><td>是否含分析</td><td>一般不含</td><td>简要分析</td><td class="hi">详细分析总结</td></tr>
+        <tr><td>是否含计划</td><td>无</td><td>有下周工作计划</td><td>无</td></tr>
+        <tr><td>比较方式</td><td>单日对比</td><td>本周vs上周（环比）</td><td>本月vs上月（环比）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📅</div><div class="cht">日报表——每天追踪，记录详细数据</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">日报表是对每天各类数据指标的持续追踪记录，就像每天写的学习日记，记录当天情况。</p>
+      <div class="g2" style="margin-bottom:14px">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px">综合型日报表</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">包含流量+销售+转化，全面了解店铺每日状况</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px">专项型日报表</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">针对某一特定需求，如广告投入日报、活动效果日报</div>
+        </div>
+      </div>
+      <div class="rpt">
+        <div class="rpt-head">综合型日报表框架示例</div>
+        <table class="rpt-tbl">
+          <tr><th>日期</th><th colspan="4">【流量】</th><th colspan="4">【销售】</th><th colspan="2">【转化】</th></tr>
+          <tr><th></th><th>访客数</th><th>浏览量</th><th>平均深度</th><th>跳失率</th><th>成交用户</th><th>商品数</th><th>客单价</th><th>销售额</th><th>成交率</th><th>收藏率</th></tr>
+          <tr><td>2019/7/1</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td>2019/7/2</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📊</div><div class="cht">周报表——一周汇总，环比分析+下周计划</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">周报表是一周数据的汇总+与上周对比+简要分析，就像期中考试后的总结，既要看成绩也要分析原因。</p>
+      <div class="rpt">
+        <div class="rpt-head">周报表框架示例</div>
+        <table class="rpt-tbl">
+          <tr><th>项目</th><th>时间段</th><th>访客数</th><th>浏览量</th><th>跳失率</th><th>支付买家数</th><th>销售额</th><th>转化率</th><th>客单价</th></tr>
+          <tr><td class="cat" rowspan="3">本周概况</td><td>上周（6/24-6/30）</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td>本周（7/1-7/7）</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td style="color:var(--p);font-weight:700">环比</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td></tr>
+          <tr><td class="cat">本周工作总结</td><td colspan="8" style="color:var(--i3);text-align:left">（文字填写：本周主要做了什么，有什么效果）</td></tr>
+          <tr><td class="cat">下周工作计划</td><td colspan="8" style="color:var(--i3);text-align:left">（文字填写：下周计划做什么，预期目标是什么）</td></tr>
+        </table>
+      </div>
+      <div class="tip"><span>⭐</span><span>周报表特有功能：<strong>环比对比</strong>（本周vs上周）+ <strong>下周计划</strong>，这是与日报表最重要的区别！</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📈</div><div class="cht">月报表——月度总结，提交给管理层</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">月报表是月度运营的重要结果汇总，主要提交给管理层，聚焦关键结果指标。就像期末成绩单，汇报给家长看。</p>
+      <div class="rpt">
+        <div class="rpt-head">月报表框架示例</div>
+        <table class="rpt-tbl">
+          <tr><th>月份</th><th>访客数</th><th>浏览量</th><th>跳失率</th><th>转化率</th><th>客单价</th><th>销售额</th><th>毛利率</th></tr>
+          <tr><td>2019年7月</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td>2019年8月</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td style="color:var(--p);font-weight:700">环比</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td><td style="color:var(--i3)">计算</td></tr>
+          <tr><td colspan="8" class="cat">分析总结（访客数/浏览量/跳失率/转化率/客单价/销售额/毛利率/其他各项文字分析）</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(4)">继续学习 专项报表 →</button>
+  </div>
+</div>
+
+<!-- P4 专项报表 -->
+<div class="part" id="part4">
+  <div class="card">
+    <div class="ch"><div class="chi">🗂️</div><div class="cht">专项报表 vs 日常报表</div></div>
+    <div class="cb">
+      <div class="g2">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--p);margin-bottom:6px">📅 日常报表</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.7">定期的常规记录（每天/每周/每月都做），追踪日常运营动态</div>
+        </div>
+        <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--am);margin-bottom:6px">📊 专项报表</div>
+          <div style="font-size:12.5px;color:var(--i2);line-height:1.7">针对某一主题的深度分析报表，在需要时制作，不一定定期做</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📊</div><div class="cht">1. 市场分析报表——"外部环境怎么样？"</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">了解行业整体情况 + 竞争对手动态，为制定竞争策略提供数据支撑。</p>
+      <div class="g2" style="margin-bottom:12px">
+        <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:14px">
+          <div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px">行业数据</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">行业总销售额、行业平均利润、行业增长率、行业访客数、行业卖家数</div>
+        </div>
+        <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:14px">
+          <div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px">竞争对手数据</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">竞品销售额、竞品客单价、竞品热销商品、竞品毛利率</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">⚙️</div><div class="cht">2. 运营分析报表——"我们自己做得怎么样？"</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">综合呈现店铺各类运营数据，发现问题、优化运营。以流量来源分析为例：</p>
+      <div class="rpt">
+        <div class="rpt-head">运营分析报表框架示例（流量来源维度）</div>
+        <table class="rpt-tbl">
+          <tr><th>流量来源</th><th>来源明细</th><th>访客数</th><th>下单转化率</th><th>支付转化率</th><th>支付金额</th><th>UV价值</th></tr>
+          <tr><td class="cat" rowspan="3">付费流量</td><td>淘宝客</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td>直通车</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td>钻展</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td class="cat" rowspan="2">淘内免费</td><td>手淘首页</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+          <tr><td>手淘搜索</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td><td style="color:var(--i3)">填写</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📦</div><div class="cht">3. 产品分析报表——"商品表现怎么样？"</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:12px">了解各类商品的销售表现和盈利能力，调整商品结构。</p>
+      <div class="rpt">
+        <div class="rpt-head">产品分析报表框架示例</div>
+        <table class="rpt-tbl">
+          <tr><th>品类</th><th>时间</th><th>行业访客数</th><th>行业搜索指数</th><th>店铺访客数</th><th>详情跳出率</th><th>销售数量</th><th>退货率</th><th>客单价</th><th>毛利率</th></tr>
+          <tr><td class="cat" rowspan="3">毛衣</td><td>6月</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td></tr>
+          <tr><td>7月</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td></tr>
+          <tr><td>8月</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td><td style="color:var(--i3)">填</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">⚖️</div><div class="cht">三类专项报表对比</div></div>
+    <div class="cb">
+      <table class="tbl">
+        <tr><th>对比维度</th><th>📊 市场分析报表</th><th>⚙️ 运营分析报表</th><th>📦 产品分析报表</th></tr>
+        <tr><td>核心问题</td><td>市场和竞品怎么样？</td><td>店铺运营怎么样？</td><td>各商品表现怎么样？</td></tr>
+        <tr><td>数据来源</td><td>行业数据+竞品数据</td><td>店铺各维度运营数据</td><td>行业数据+店铺商品</td></tr>
+        <tr><td>分析对象</td><td>外部环境</td><td>内部运营</td><td>具体商品</td></tr>
+        <tr><td>使用场景</td><td>制定竞争策略</td><td>日常运营优化</td><td>商品结构调整</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(5)">已学完，进入互动练习 →</button>
+  </div>
+</div>
+
+<!-- P5 练习 -->
+<div class="part" id="part5">
+  <div class="card">
+    <div class="ch"><div class="chi">✅</div><div class="cht">练习一 · 判断题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="jl">
+        <div class="ji" id="ji1"><div class="jitop">
+          <div class="jiq">1. 周报表中必须包含"与上月的同比数据"，这是周报表的核心特点。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbF" id="jf1" onclick="doJ(1,false)">×</button></div>
+        </div><div class="jfb" id="jfb1"></div></div>
+        <div class="ji" id="ji2"><div class="jitop">
+          <div class="jiq">2. 月报表主要给管理层/老板查看，因此指标应该精简，以结论性指标为主，不需要每天的详细数据。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbF" id="jf2" onclick="doJ(2,false)">×</button></div>
+        </div><div class="jfb" id="jfb2"></div></div>
+        <div class="ji" id="ji3"><div class="jitop">
+          <div class="jiq">3. 报表美化的"数据条"功能，是在单元格中插入图片来展示数据大小。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbF" id="jf3" onclick="doJ(3,false)">×</button></div>
+        </div><div class="jfb" id="jfb3"></div></div>
+        <div class="ji" id="ji4"><div class="jitop">
+          <div class="jiq">4. 产品分析报表只需要店铺自身的商品数据，不需要行业数据进行对比。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbF" id="jf4" onclick="doJ(4,false)">×</button></div>
+        </div><div class="jfb" id="jfb4"></div></div>
+        <div class="ji" id="ji5"><div class="jitop">
+          <div class="jiq">5. 制作报表的第一步是"搭建框架"——先建好表格模板，再想清楚做报表的需求。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbF" id="jf5" onclick="doJ(5,false)">×</button></div>
+        </div><div class="jfb" id="jfb5"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📝</div><div class="cht">练习二 · 选择题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="qbox" id="qb1">
+        <div class="qhead"><div class="qnum">1</div><div class="qtext">某网店老板每周一要看"上周与上上周的销售对比，以及本周工作计划"，应该给他看哪种报表？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 日报表（每天详细数据）</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 周报表（一周汇总+环比+下周计划）</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 月报表（月度总结）</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 产品分析报表（商品分析）</button>
+        </div>
+        <div class="qfb" id="qf1"></div>
+      </div>
+
+      <div class="qbox" id="qb2">
+        <div class="qhead"><div class="qnum">2</div><div class="qtext">制作报表时，"选择数据指标"这一步，给一线运营人员的报表和给老板的报表有什么区别？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 给老板的指标更多、更详细，给运营的指标更少</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. 给老板的报表精简（结论性指标）；给运营人员的报表详细（操作型数据）</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. 两种报表的指标完全相同，只是格式不一样</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. 给老板的报表需要包含所有6大类数据指标</button>
+        </div>
+        <div class="qfb" id="qf2"></div>
+      </div>
+
+      <div class="qbox" id="qb3">
+        <div class="qhead"><div class="qnum">3</div><div class="qtext">某店铺发现竞争对手最近推出了新款爆品，想分析竞品价格、销量和热销款式，应该制作哪类专项报表？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 运营分析报表（分析内部运营数据）</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 产品分析报表（分析自家商品表现）</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 市场分析报表（包含竞品数据分析）</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 日报表（每天追踪数据变化）</button>
+        </div>
+        <div class="qfb" id="qf3"></div>
+      </div>
+
+      <div class="qbox" id="qb4">
+        <div class="qhead"><div class="qnum">4</div><div class="qtext">以下关于日报表、周报表、月报表的说法，哪个是正确的？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 三种报表都包含"下周/下月工作计划"</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 日报表最详细，受众是运营人员；月报表最精简，受众是管理层</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 月报表数据最详细，因为时间跨度最长</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 周报表和月报表都使用同比（与去年同期）进行比较</button>
+        </div>
+        <div class="qfb" id="qf4"></div>
+      </div>
+    </div>
+  </div>
+  <div id="p3d"><button class="btn" onclick="showPart(6)">查看单元完成情况 →</button></div>
+</div>
+
+<!-- P6 完成 -->
+<div class="part" id="part6">
+  <div class="sumc">
+    <div style="font-size:17px;font-weight:900;color:var(--ink);margin-bottom:16px">🏆 单元完成！</div>
+    <div class="sumg">
+      <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
+      <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
+      <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
+    </div>
+    <div class="kpl">
+      <div style="font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:10px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div>报表三大价值：了解经营动态 + 方便查找数据 + 支撑决策调整</div></div>
+      <div class="kp"><div class="kpd">2</div><div>制作6步法：<strong>明确需求→构思大纲→选择指标→搭建框架→采集数据→制作美化</strong></div></div>
+      <div class="kp"><div class="kpd">3</div><div>日报：每天详细，运营自用；周报：环比+下周计划；月报：精简结论，给管理层</div></div>
+      <div class="kp"><div class="kpd">4</div><div>专项报表3类：<strong>市场分析（行业+竞品）、运营分析（全维度）、产品分析（商品盈利）</strong></div></div>
+      <div class="kp"><div class="kpd">5</div><div>美化两招：<strong>突出显示单元格</strong>（条件格式→颜色）+ <strong>数据条</strong>（条件格式→数据条）</div></div>
+    </div>
+    <div style="text-align:center;margin-top:22px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+  </div>
+</div>
+</div>
+<script>
+var SB_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+var SB_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+var SK='ecommerce_data_analysis_user';
+var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var _sb=null;try{if(window.supabase)_sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
+var xp=0,strs=0,jDone={},qDone={},cDone={};
+function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}localStorage.setItem(SK,JSON.stringify(d));if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);_sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}}
+function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xppop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xppop(a);}
+function confetti(){var c=document.getElementById('cft'),cs=['#C2410C','#EA580C','#F97316','#1D4ED8','#10B981','#FBBF24'];c.innerHTML='';for(var i=0;i<65;i++){var p=document.createElement('div');p.className='cp';p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;border-radius:'+(Math.random()>0.5?'50%':'2px');c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=6;i++){document.getElementById('part'+i).classList.toggle('active',i===n);var b=document.getElementById('btn'+i);if(b)b.classList.toggle('active',i===n);}document.getElementById('pg').style.width=[0,17,33,50,67,83,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function stab(n,tot){for(var i=0;i<tot;i++){var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
+function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
+var JA={1:false,2:true,3:false,4:false,5:false};
+var JFB={
+  1:'周报表的核心特点是"本周与上周的环比数据"，不是同比（同比是与去年同期比，是跨年的比较）。周报表还必须包含"下周工作计划"，这是与日报表最重要的区别。',
+  2:'月报表面向管理层，关注整体结果而非每天细节。精简指标（销售额、转化率、毛利率等结论性数据）+ 分析总结，帮助老板快速了解一个月的运营成果。',
+  3:'数据条是Excel的"条件格式"功能，它在单元格内生成彩色的横条，条的长短代表数值大小，不是插入图片。操作：开始→条件格式→数据条→选颜色。',
+  4:'产品分析报表需要同时包含行业数据（行业访客数、搜索指数、交易指数）和店铺商品数据，通过对比行业数据才能判断店铺商品在行业中的表现是好是坏。',
+  5:'报表制作的第一步是"明确需求"，不是搭建框架！正确顺序：①明确需求→②构思大纲→③选择指标→④搭建框架→⑤采集数据→⑥制作美化。先搞清楚做什么再动手！'
+};
+function doJ(n,v){if(jDone[n])return;jDone[n]=true;var ok=(v===JA[n]);var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);bt.disabled=true;bf.disabled=true;(JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdm');if(!ok)(v?bt:bf).classList.add('jng');var fb=document.getElementById('jfb'+n);fb.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];fb.className='jfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析理解');}chkDone();}
+var QC={1:1,2:1,3:2,4:1};
+var QFB={
+  1:{0:'日报表是每天的详细数据记录，运营人员自己用。老板要看"上周与上上周对比+本周计划"，需要的是周报表。',
+     1:'周报表正好包含两个核心内容：①本周vs上周的环比数据，②下周工作计划。完全符合老板的需求。',
+     2:'月报表是月度汇总，是与上月的环比，不是"上周与上上周"的对比。',
+     3:'产品分析报表是专项报表，分析商品表现，不是日常运营汇报用的。'},
+  2:{0:'恰好相反！给老板的报表要精简，只需要结论性指标（销售额、转化率等）；给运营人员的报表才需要详细（每天每个指标都记录）。',
+     1:'正确！报表的"读者"决定了指标的选择。管理层关注整体结果→精简；一线运营关注具体操作数据→详细。这是报表制作的重要原则。',
+     2:'指标选择不只是格式不同，连指标种类和数量都不同，给管理层的可以只有3-5个核心指标，给运营的可以有20个以上的指标。',
+     3:'6大类全部指标会让报表非常复杂，不适合给老板看。'},
+  3:{0:'运营分析报表分析的是店铺自身的运营数据（流量、转化、服务等内部数据），不包含竞品数据。',
+     1:'产品分析报表分析的是自家商品的销售表现和盈利能力，不包含竞品数据。',
+     2:'市场分析报表专门包含竞争对手数据（竞品销售额、客单价、热销商品、毛利率），正是用于了解竞争态势和制定竞争策略的。',
+     3:'日报表是常规的每天数据追踪，不适合做竞品专项分析。'},
+  4:{0:'只有周报表有"下周工作计划"，日报表和月报表都没有。',
+     1:'正确！日报表数据最详细（每个指标每天记录），适合运营人员自用；月报表指标最精简（结论性数据+分析总结），适合给管理层看。',
+     2:'恰好相反，月报表数据最精简，时间跨度长并不等于数据详细。',
+     3:'周报表和月报表都使用环比（与上周/上月比较），只有当数据有季节性时才会额外补充同比。'}
+};
+function doQ(n,i){if(qDone[n])return;qDone[n]=true;var c=QC[n],ok=(i===c);for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);if(!b)continue;b.disabled=true;if(j===c)b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}var fb=document.getElementById('qf'+n);fb.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];fb.className='qfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
+function chkDone(){if(Object.keys(jDone).length>=5&&Object.keys(qDone).length>=4){document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}}
+function completeUnit(){var u=lu();if(!u){window.location.href='index.html';return;}var sc=Math.min(100,20+Math.round(xp*0.8));var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;var tx=xp+20;var prev=u.units['m5u2']||{};var already=prev.completed&&(prev.xpEarned||0)>0;var ax=already?0:tx;u.units['m5u2']={completed:true,stars:Math.max(prev.stars||0,st),score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;var ach=u.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');u.achievements=ach;su(u);document.getElementById('fxp').textContent='+'+(already?0:tx);document.getElementById('fsc').textContent=sc;document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);showPart(6);if(st>=4)confetti();toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);setTimeout(function(){window.location.href='index.html';},2600);}
+(function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
+</script>
+</body>
+</html>

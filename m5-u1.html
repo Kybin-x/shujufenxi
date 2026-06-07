@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>5.1 基础数据监控 · 电商数据分析</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#1D4ED8;--p2:#2563EB;--pL:#EFF6FF;--pM:#BFDBFE;--pD:#1E3A8A;
+  --gn:#16A34A;--gnL:#F0FDF4;--gnM:#BBF7D0;
+  --am:#D97706;--amL:#FFFBEB;--amM:#FDE68A;
+  --rd:#DC2626;--rdL:#FEF2F2;--rdM:#FECACA;
+  --vi:#7C3AED;--viL:#F5F3FF;--viM:#DDD6FE;
+  --te:#0891B2;--teL:#ECFEFF;--teM:#A5F3FC;
+  --ink:#0F172A;--i2:#334155;--i3:#64748B;
+  --bg:#EFF6FF;--cd:#FFF;--br:#BFDBFE;--r:10px;
+  --sh:0 2px 12px rgba(29,78,216,.1),0 1px 3px rgba(0,0,0,.06)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC','PingFang SC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.nb{position:sticky;top:0;z-index:100;background:rgba(239,246,255,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--br);display:flex;align-items:center;padding:0 18px;height:52px;gap:10px;box-shadow:0 2px 8px rgba(29,78,216,.09)}
+.nbk{font-size:13px;font-weight:700;color:var(--p);text-decoration:none;padding:5px 10px;border-radius:7px;transition:background .2s}.nbk:hover{background:var(--pL)}
+.nbt{flex:1;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nxp{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;border-radius:20px;padding:4px 12px}
+.pw{height:5px;background:var(--pM);position:sticky;top:52px;z-index:99}
+#pg{height:5px;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:0 3px 3px 0;transition:width .6s}
+.pn{display:flex;gap:6px;padding:14px 18px 0;max-width:980px;margin:0 auto;flex-wrap:wrap}
+.pb{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;background:var(--cd);border:1.5px solid var(--br);color:var(--i3);cursor:pointer;transition:all .2s}
+.pb:hover{border-color:var(--p);color:var(--p)}.pb.active{background:var(--p);border-color:var(--p);color:#fff}
+.main{max-width:980px;margin:0 auto;padding:18px 18px 80px}
+.part{display:none}.part.active{display:block}
+.hero{background:linear-gradient(135deg,#DBEAFE,#BFDBFE 45%,#EFF6FF 100%);border:1.5px solid var(--br);border-radius:14px;padding:30px 32px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'📊';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.09;pointer-events:none}
+.htag{display:inline-flex;align-items:center;background:rgba(29,78,216,.12);border:1.5px solid rgba(29,78,216,.3);border-radius:4px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--pD);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;color:var(--p)}
+.hero-sub{font-size:13.5px;color:var(--i2);line-height:1.8;max-width:600px}
+.card{background:var(--cd);border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh)}
+.ch{background:linear-gradient(135deg,var(--pL),var(--cd));border-bottom:1px solid var(--br);padding:13px 20px;display:flex;align-items:center;gap:9px}
+.chi{font-size:20px;flex-shrink:0}.cht{font-size:14px;font-weight:800;color:var(--ink);flex:1}
+.chb{font-size:10.5px;font-weight:700;background:var(--p);color:#fff;border-radius:10px;padding:2px 10px;flex-shrink:0}
+.cb{padding:18px 20px}
+.tabs{display:flex;gap:4px;background:var(--pL);border:1.5px solid var(--br);border-radius:24px;padding:4px;margin-bottom:18px;flex-wrap:wrap}
+.tb{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;color:var(--i3);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tb.active{background:var(--p);color:#fff;box-shadow:0 2px 6px rgba(29,78,216,.25)}
+.tp{display:none}.tp.active{display:block}
+.sec{font-size:14px;font-weight:800;color:var(--ink);margin:20px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::before{content:'';width:3px;height:18px;background:linear-gradient(180deg,var(--p),var(--p2));border-radius:2px;flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.tbl th{background:var(--p);color:#fff;padding:9px 12px;text-align:left;font-weight:700;font-size:12px}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--br);color:var(--i2);line-height:1.65;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pL)}.tbl td:first-child{font-weight:700;color:var(--ink)}
+.tbl .hi{color:var(--p);font-weight:800}.tbl .ok{color:var(--gn);font-weight:700}.tbl .wn{color:var(--am);font-weight:700}
+.tip{background:var(--pL);border:1px solid var(--pM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--pD);line-height:1.75;display:flex;gap:7px}
+.warn-box{background:var(--amL);border:1px solid var(--amM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#78350F;line-height:1.75;display:flex;gap:7px}
+.info-box{background:var(--teL);border:1px solid var(--teM);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12.5px;color:#0A4B5E;line-height:1.75;display:flex;gap:7px}
+.red-box{background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:14px 16px;margin:10px 0}
+.fml{background:#0F172A;border-radius:var(--r);padding:14px 18px;margin:12px 0;border-left:3px solid var(--p2)}
+.fml-label{font-size:10.5px;color:#7DD3FC;margin-bottom:7px;letter-spacing:.08em;font-weight:700}
+.fml-body{font-size:13px;color:#DBEAFE;font-family:monospace;line-height:2}
+.fml-fn{color:#7DD3FC}.fml-num{color:#FCD34D}.fml-ok{color:#86EFAC}
+/* metric cards */
+.mc{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:14px 16px}
+.mc-ico{font-size:24px;margin-bottom:8px}
+.mc-name{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:3px}
+.mc-def{font-size:12px;color:var(--i2);line-height:1.7;margin-bottom:6px}
+.mc-formula{background:var(--pL);border-radius:5px;padding:4px 9px;font-size:11.5px;font-family:monospace;color:var(--pD);display:inline-block;margin-bottom:6px}
+.mc-eg{font-size:11.5px;color:var(--i3);line-height:1.65;border-top:1px dashed var(--br);padding-top:6px;margin-top:6px}
+/* anomaly cards */
+.ano{background:#fff;border:1.5px solid var(--rdM);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.ano-head{background:linear-gradient(135deg,var(--rdL),#fff);border-bottom:1px solid var(--rdM);padding:12px 16px;display:flex;align-items:center;gap:8px}
+.ano-ico{font-size:18px}
+.ano-title{font-size:13.5px;font-weight:800;color:var(--rd)}
+.ano-body{padding:14px 16px}
+.ano-crit{font-size:12px;background:var(--rdL);border-radius:6px;padding:5px 10px;margin-bottom:10px;color:var(--rd);font-weight:600}
+/* steps */
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.si{display:flex;align-items:flex-start;gap:13px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 15px}
+.sn{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb{flex:1}.sbt{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px}.sbd{font-size:12.5px;color:var(--i2);line-height:1.7}
+.sbp{background:var(--pL);border:1px solid var(--pM);border-radius:6px;padding:5px 10px;margin-top:5px;font-size:12px;color:var(--pD)}
+/* QUIZ */
+.qbox{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);margin-bottom:13px;overflow:hidden}
+.qhead{background:linear-gradient(90deg,var(--pL),#fff);padding:13px 17px;display:flex;align-items:flex-start;gap:9px}
+.qnum{width:27px;height:27px;min-width:27px;border-radius:50%;background:var(--p);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.qtext{font-size:13px;font-weight:700;color:var(--ink);line-height:1.55}
+.qopts{padding:12px 17px;display:flex;flex-direction:column;gap:7px}
+.qopt{background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--i2);text-align:left;cursor:pointer;font-family:inherit;transition:all .18s;font-weight:500;width:100%;display:block}
+.qopt:hover{border-color:var(--p);background:var(--pL);color:var(--pD)}
+.qopt.qok{background:var(--pL)!important;border-color:var(--p)!important;color:var(--pD)!important;font-weight:700!important;cursor:default!important}
+.qopt.qng{background:var(--rdL)!important;border-color:var(--rdM)!important;color:var(--rd)!important;cursor:default!important}
+.qfb{margin:0 17px 13px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.7;display:none}
+.qfb.ok{display:block;background:var(--pL);color:var(--pD);border:1px solid var(--pM)}.qfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+.jl{display:flex;flex-direction:column;gap:10px}
+.ji{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 16px}
+.jitop{display:flex;align-items:flex-start;gap:10px}
+.jiq{flex:1;font-size:13px;color:var(--i2);line-height:1.7}
+.jbs{display:flex;gap:6px;flex-shrink:0;margin-top:2px}
+.jbt{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit;transition:all .18s}
+.jbT{background:var(--gnL);border-color:var(--gnM);color:var(--gn)}.jbT:hover{background:var(--gn);color:#fff;border-color:var(--gn)}
+.jbF{background:var(--rdL);border-color:var(--rdM);color:var(--rd)}.jbF:hover{background:var(--rd);color:#fff;border-color:var(--rd)}
+.jbt.jok{background:var(--gn)!important;color:#fff!important;border-color:var(--gn)!important;cursor:default!important}
+.jbt.jng{background:var(--rd)!important;color:#fff!important;border-color:var(--rd)!important;cursor:default!important}
+.jbt.jdm{opacity:.28;cursor:default!important}
+.jfb{font-size:12px;margin-top:8px;padding:7px 10px;border-radius:6px;display:none}
+.jfb.ok{display:block;background:var(--gnL);color:#14532D}.jfb.ng{display:block;background:var(--rdL);color:var(--rd)}
+.cc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--br);border-radius:var(--r);padding:16px 18px;margin-bottom:12px}
+.ccq{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.6}
+.ccd{background:#fff;border:1px solid var(--br);border-radius:7px;padding:10px 13px;margin-bottom:10px;font-size:12.5px;color:var(--i2);line-height:1.85}
+.ccr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.cci{border:1.5px solid var(--br);border-radius:6px;padding:6px 10px;font-size:13px;font-family:monospace;color:var(--ink);outline:none;width:130px;transition:border-color .2s}
+.cci:focus{border-color:var(--p);background:var(--pL)}.ccb{background:var(--p);color:#fff;border:none;border-radius:6px;padding:6px 15px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.cfb{font-size:12.5px;padding:7px 11px;border-radius:6px;margin-top:6px;display:none}
+.cfb.ok{display:block;background:var(--gnL);color:#14532D;border:1px solid var(--gnM)}.cfb.ng{display:block;background:var(--rdL);color:var(--rd);border:1px solid var(--rdM)}
+.sumc{background:linear-gradient(135deg,var(--pL),#fff);border:1.5px solid var(--pM);border-radius:14px;padding:24px 26px;margin-bottom:18px}
+.sumg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.sumi{background:#fff;border:1px solid var(--pM);border-radius:var(--r);padding:14px}
+.suml{font-size:11px;font-weight:700;color:var(--i3);margin-bottom:4px}.sumv{font-size:20px;font-weight:900;color:var(--p)}
+.kpl{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.kp{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--i2);line-height:1.65}
+.kpd{width:21px;height:21px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.btn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(29,78,216,.28);transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btnd{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:25px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(29,78,216,.3);transition:all .2s;margin-top:18px}
+.btnd:hover{transform:translateY(-2px)}
+#p1d,#p2d,#p3d,#p4d{display:none;text-align:center;padding:16px 0 4px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#xpp{position:fixed;top:78px;right:18px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:800;opacity:0;transform:translateY(10px);transition:all .4s;z-index:998;pointer-events:none}
+#xpp.show{opacity:1;transform:translateY(0)}
+#cft{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997}
+.cp{position:absolute;top:-10px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:0}}
+@media(max-width:640px){.g2,.g3,.sumg{grid-template-columns:1fr}.hero h1{font-size:21px}.tabs{gap:2px}.tb{padding:5px 9px;font-size:11px}}
+</style>
+</head>
+<body>
+<div id="cft"></div><div id="toast"></div><div id="xpp"></div>
+<nav class="nb">
+  <a class="nbk" href="index.html">← 返回</a>
+  <div class="nbt">5.1 · 基础数据监控</div>
+  <div class="nxp" id="navXP">⚡ 0 XP</div>
+</nav>
+<div class="pw"><div id="pg" style="width:0%"></div></div>
+<div class="pn">
+  <button class="pb active" id="btn1" onclick="showPart(1)">📖 情境导入</button>
+  <button class="pb" id="btn2" onclick="showPart(2)">📊 6大监控指标</button>
+  <button class="pb" id="btn3" onclick="showPart(3)">🤖 监控方式</button>
+  <button class="pb" id="btn4" onclick="showPart(4)">🔴 异常处理</button>
+  <button class="pb" id="btn5" onclick="showPart(5)">🎮 互动练习</button>
+  <button class="pb" id="btn6" onclick="showPart(6)">🏁 单元完成</button>
+</div>
+<div class="main">
+
+<!-- PART 1 情境导入 -->
+<div class="part active" id="part1">
+  <div class="hero">
+    <div class="htag">M5 · 单元一</div>
+    <h1>运营必备技能：<em>基础数据监控</em></h1>
+    <p class="hero-sub">每天早上第一件事是什么？看数据！但数据那么多，到底看哪些？怎么发现异常？本单元带你全掌握。</p>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🚨</div><div class="cht">真实场景：销售额突然下降40%！你怎么办？</div></div>
+    <div class="cb">
+      <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:18px;margin-bottom:14px">
+        <div style="font-size:13.5px;color:var(--ink);line-height:1.9;font-weight:500">
+          🌅 某天早上，老板冲进办公室：<br>
+          <strong>"昨天销售额比前天少了40%！这是怎么回事！"</strong><br><br>
+          你会怎么办？去哪里找原因？用什么数据说话？
+        </div>
+      </div>
+      <div class="g3">
+        <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">😰</div>
+          <div style="font-size:12.5px;font-weight:700;color:var(--rd);margin-bottom:6px">没做监控的运营</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">茫然无措，不知道从哪里查起，只能瞎猜</div>
+        </div>
+        <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">😎</div>
+          <div style="font-size:12.5px;font-weight:700;color:var(--gn);margin-bottom:6px">做好监控的运营</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">打开数据报表，5分钟找到原因：访客数正常，转化率从3%降到1.8%，是详情页出了问题！</div>
+        </div>
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">🏆</div>
+          <div style="font-size:12.5px;font-weight:700;color:var(--p);margin-bottom:6px">本单元学完后的你</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.7">知道监控哪6类数据，会用2种方式监控，能快速处理7种异常！</div>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:12px"><span>💡</span><span><strong>数据监控</strong>是电商运营的"预警系统"——提前发现问题、及时处理，比等问题爆发后再补救效率高10倍！</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🗺️</div><div class="cht">模块五 · 三单元学习路线</div></div>
+    <div class="cb">
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap">
+        <div style="flex:1;min-width:150px;background:var(--p);border-radius:var(--r);padding:16px;text-align:center;color:#fff">
+          <div style="font-size:22px;margin-bottom:6px">👁️</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:4px">单元一</div>
+          <div style="font-size:12px;opacity:.85">基础数据监控</div>
+          <div style="font-size:11px;opacity:.7;margin-top:4px">"知道看什么"</div>
+        </div>
+        <div style="font-size:22px;color:var(--i3);padding:0 8px">→</div>
+        <div style="flex:1;min-width:150px;background:var(--p2);border-radius:var(--r);padding:16px;text-align:center;color:#fff">
+          <div style="font-size:22px;margin-bottom:6px">📋</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:4px">单元二</div>
+          <div style="font-size:12px;opacity:.85">基础数据报表</div>
+          <div style="font-size:11px;opacity:.7;margin-top:4px">"记录整理数据"</div>
+        </div>
+        <div style="font-size:22px;color:var(--i3);padding:0 8px">→</div>
+        <div style="flex:1;min-width:150px;background:var(--te);border-radius:var(--r);padding:16px;text-align:center;color:#fff">
+          <div style="font-size:22px;margin-bottom:6px">📈</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:4px">单元三</div>
+          <div style="font-size:12px;opacity:.85">基础数据图表</div>
+          <div style="font-size:11px;opacity:.7;margin-top:4px">"可视化展示"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="p1go()">了解情境，开始学习 →</button>
+  </div>
+  <div id="p1d"><button class="btn" onclick="showPart(2)">✅ 进入6大监控指标 →</button></div>
+</div>
+
+<!-- PART 2 6大监控指标 -->
+<div class="part" id="part2">
+  <div class="tabs">
+    <button class="tb active" id="tb0" onclick="stab(0,6)">1️⃣ 流量</button>
+    <button class="tb" id="tb1" onclick="stab(1,6)">2️⃣ 销售转化</button>
+    <button class="tb" id="tb2" onclick="stab(2,6)">3️⃣ 商品</button>
+    <button class="tb" id="tb3" onclick="stab(3,6)">4️⃣ 客户</button>
+    <button class="tb" id="tb4" onclick="stab(4,6)">5️⃣ 供应链</button>
+    <button class="tb" id="tb5" onclick="stab(5,6)">6️⃣ 营销推广</button>
+  </div>
+
+  <!-- tab0 流量 -->
+  <div class="tp active" id="tp0">
+    <div class="sec">流量数据——"有多少人来？来了认真看吗？"</div>
+    <div class="info-box"><span>🏪</span><span>生活类比：流量就像实体店的"客流量"。来的人越多，机会越大！但光有客流不够，还要看顾客进来后有没有认真逛。</span></div>
+    <div class="g2">
+      <div class="card" style="margin-bottom:0">
+        <div class="ch" style="background:linear-gradient(135deg,#DBEAFE,#fff)"><div class="chi">📏</div><div class="cht">看"量"——有多少人来</div></div>
+        <div class="cb">
+          <div class="mc">
+            <div class="mc-ico">👥</div>
+            <div class="mc-name">访客数（UV）</div>
+            <div class="mc-def">来店的人数，同一个人来多次<strong>只算1次</strong>。UV = Unique Visitor（独立访客）</div>
+            <div class="mc-eg">今天有100个不同的人进了你的网店 → UV=100</div>
+          </div>
+          <div class="mc" style="margin-top:10px">
+            <div class="mc-ico">📄</div>
+            <div class="mc-name">浏览量（PV）</div>
+            <div class="mc-def">页面被看的总次数，同一人看多个页面<strong>每次都算</strong>。PV = Page View</div>
+            <div class="mc-eg">100人进店，每人平均看了3个页面 → PV=300<br>PV/UV=访问深度（平均每人看了几个页面）</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="ch" style="background:linear-gradient(135deg,#DBEAFE,#fff)"><div class="chi">🔍</div><div class="cht">看"质"——来的人认真看了吗</div></div>
+        <div class="cb">
+          <div class="mc">
+            <div class="mc-ico">🚪</div>
+            <div class="mc-name">跳失率</div>
+            <div class="mc-def">进来<strong>啥也没点就走</strong>的访客比例。越低越好 ✅</div>
+            <div class="mc-eg">100人进店，60人进来就走 → 跳失率60%<br>女装类目跳失率&gt;30%就要警惕！</div>
+          </div>
+          <div class="mc" style="margin-top:10px">
+            <div class="mc-ico">⏱️</div>
+            <div class="mc-name">平均访问深度 / 停留时长</div>
+            <div class="mc-def">平均看了几个页面 / 在店里待了多久。<strong>越高越好</strong> ✅</div>
+            <div class="mc-eg">停留时间长说明商品对买家有吸引力，愿意仔细看</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tip" style="margin-top:12px"><span>🔑</span><span>记忆口诀：<strong>UV=进店人数，PV=翻商品次数，跳失率=扭头就走的比例</strong>。流量好不好，量质两手抓！</span></div>
+  </div>
+
+  <!-- tab1 销售转化 -->
+  <div class="tp" id="tp1">
+    <div class="sec">销售及转化数据——"来了多少人真的买了？"</div>
+    <div class="info-box"><span>💰</span><span>生活类比：100个人进实体店，最后只有5个人付款，转化率就是5%。电商也一样，流量再多不转化就没意义！</span></div>
+    <div class="g2">
+      <div class="mc">
+        <div class="mc-ico">✅</div>
+        <div class="mc-name">成交转化率 ⭐重点</div>
+        <div class="mc-formula">转化率 = 付款人数 ÷ 访客数 × 100%</div>
+        <div class="mc-def">评价营销效果和商品吸引力的<strong>核心指标</strong>！转化率高说明商品好、详情页好、定价合理。</div>
+        <div class="mc-eg">访客100人，5人付款 → 转化率=5%<br>行业平均转化率：服装约2-4%，数码约1-3%</div>
+      </div>
+      <div class="mc">
+        <div class="mc-ico">💳</div>
+        <div class="mc-name">客单价 ⭐重点</div>
+        <div class="mc-formula">客单价 = 销售总额 ÷ 成交人数</div>
+        <div class="mc-def">每个顾客平均花多少钱。提升客单价 = 加购件数增加 + 凑单优惠。</div>
+        <div class="mc-eg">月销售额10万，成交500人 → 客单价=200元<br>客单价下降？检查优惠券设置和客服推荐</div>
+      </div>
+      <div class="mc">
+        <div class="mc-ico">📦</div>
+        <div class="mc-name">动销率 ⭐重点</div>
+        <div class="mc-formula">动销率 = 有销量的商品数 ÷ 全部商品数 × 100%</div>
+        <div class="mc-def">商品是否都在卖，影响店铺在平台的权重评级！</div>
+        <div class="mc-eg">店铺100件商品，80件有成交 → 动销率=80%<br>动销率低：平台认为商品质量差，降低店铺推荐</div>
+      </div>
+      <div class="mc">
+        <div class="mc-ico">↩️</div>
+        <div class="mc-name">退款金额</div>
+        <div class="mc-def">退货金额超过营业额<strong>10%</strong>即为异常，需立即排查质量或服务问题。</div>
+        <div class="mc-eg">月销售额10万，退款超过1万 → 需立即处理！<br>检查产品质量投诉、尺码标注是否准确</div>
+      </div>
+    </div>
+    <table class="tbl" style="margin-top:14px">
+      <tr><th>指标类型</th><th>具体指标</th><th>关注要点</th></tr>
+      <tr><td>💰 成交指标</td><td>成交金额、成交数量、成交用户数、转化率</td><td>转化率是核心，持续关注变化趋势</td></tr>
+      <tr><td>📋 订单指标</td><td>有效订单数、无效订单数</td><td>无效订单占比高要排查原因</td></tr>
+      <tr><td>↩️ 退货指标</td><td>退货金额、退货数量、退货用户数</td><td>超营业额10%立即处理</td></tr>
+      <tr><td>⚡ 效率指标</td><td>客单价、动销率、咨询量、咨询成交率</td><td>客单价和动销率是重点监控对象</td></tr>
+    </table>
+  </div>
+
+  <!-- tab2 商品 -->
+  <div class="tp" id="tp2">
+    <div class="sec">商品数据——"哪些商品表现好？哪些有问题？"</div>
+    <div class="info-box"><span>🛒</span><span>生活类比：就像超市分析哪个货架的商品更畅销——把好的位置留给明星商品，问题商品快速处理！</span></div>
+    <table class="tbl">
+      <tr><th>数据类型</th><th>具体指标</th><th>作用</th><th>异常信号</th></tr>
+      <tr><td>流量相关</td><td>商品访客数<br>商品浏览量</td><td>知道哪个商品更受关注，流量分配是否合理</td><td>主推商品访客数低 → 主图或标题有问题</td></tr>
+      <tr><td>访问质量</td><td>详情页跳出率</td><td>知道哪个商品详情页有问题，顾客看了就走</td><td>跳出率高 → 详情页设计差或价格不合理</td></tr>
+      <tr><td>转化效果</td><td>加购件数<br>支付件数<br>收藏次数</td><td>知道哪个商品转化更好，是不是真正的爆款</td><td>加购多但支付少 → 价格高或缺乏促购信号</td></tr>
+    </table>
+    <div class="tip"><span>💡</span><span>商品数据分析逻辑：<strong>访客多→说明流量好；跳出低→说明吸引力强；加购多支付多→说明转化好</strong>。找到"三好商品"重点推广！</span></div>
+  </div>
+
+  <!-- tab3 客户 -->
+  <div class="tp" id="tp3">
+    <div class="sec">客户数据——"顾客还会再来吗？"</div>
+    <div class="info-box"><span>💝</span><span>生活类比：理发店老板最希望的是"回头客"——电商也一样，老客复购比拉新省钱10倍！</span></div>
+    <div class="g3">
+      <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px">👥 客户质量（整体）</div>
+        <div style="font-size:12px;color:var(--i2);line-height:1.85">
+          • <strong>活跃客户数</strong>：最近购买过的客户总数<br>
+          • <strong>复购率</strong>：回购老客户的比例<br>
+          • <strong>留存率</strong>：客户持续活跃的比例<br>
+          • <strong>流失率</strong>：很久没有购买的客户比例
+        </div>
+      </div>
+      <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px">🌱 新客户（拉新）</div>
+        <div style="font-size:12px;color:var(--i2);line-height:1.85">
+          • <strong>新客户数量</strong>：本期新增的首购用户<br>
+          • <strong>新客获取成本</strong>：获取每个新客花了多少广告费<br>
+          • 新客成本越低 → 推广效率越高
+        </div>
+      </div>
+      <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px">🏆 老客户（留存）</div>
+        <div style="font-size:12px;color:var(--i2);line-height:1.85">
+          • <strong>消费频率</strong>：多久买一次<br>
+          • <strong>最近购买时间</strong>：距离上次购买多久了<br>
+          • <strong>消费金额</strong>：总共花了多少钱<br>
+          • <strong>重复购买次数</strong>：购买了几次
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="ch"><div class="chi">💎</div><div class="cht">RFM模型——找出你的"黄金客户"</div></div>
+      <div class="cb">
+        <p style="font-size:13px;color:var(--i2);margin-bottom:12px">RFM模型通过三个维度给客户打分，找出最有价值的客户：</p>
+        <div class="g3">
+          <div style="background:var(--rdL);border:1.5px solid var(--rdM);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:var(--rd);margin-bottom:6px">R</div>
+            <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">Recency</div>
+            <div style="font-size:12px;color:var(--i2);line-height:1.7">最近一次购买时间<br><span style="color:var(--rd);font-weight:600">越近越好</span>（说明客户还活跃）</div>
+          </div>
+          <div style="background:var(--gnL);border:1.5px solid var(--gnM);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:var(--gn);margin-bottom:6px">F</div>
+            <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">Frequency</div>
+            <div style="font-size:12px;color:var(--i2);line-height:1.7">购买频率<br><span style="color:var(--gn);font-weight:600">越高越好</span>（说明客户喜欢你）</div>
+          </div>
+          <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:var(--p);margin-bottom:6px">M</div>
+            <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">Monetary</div>
+            <div style="font-size:12px;color:var(--i2);line-height:1.7">消费金额<br><span style="color:var(--p);font-weight:600">越高越好</span>（说明客户价值高）</div>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:12px"><span>💡</span><span>RFM三项都高的客户 = <strong>"黄金客户"</strong>，要重点维护！可以发专属优惠券、提前告知活动，提升复购率。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- tab4 供应链 -->
+  <div class="tp" id="tp4">
+    <div class="sec">供应链数据——"货够不够？发货快不快？"</div>
+    <div class="info-box"><span>📦</span><span>供应链出问题，再好的商品也卖不出去！库存断货、发货超时都会直接影响差评率和店铺权重。</span></div>
+    <table class="tbl">
+      <tr><th>类型</th><th>指标</th><th>关注原因</th><th>异常信号</th></tr>
+      <tr><td>采购类</td><td>采购单价、采购数量</td><td>控制成本，保证毛利率</td><td>采购价上涨超10%需重新谈判</td></tr>
+      <tr><td>物流类</td><td>订单满足率、响应时间、送货时间</td><td>提升买家体验，减少差评</td><td>发货时间超48小时会影响评分</td></tr>
+      <tr><td>仓储类</td><td>仓储费用 ⭐</td><td>仓储费直接影响毛利率</td><td>库存积压导致仓储费暴增</td></tr>
+      <tr><td>库存类</td><td>库存周转率<br>残次库存比<br>售罄率 ⭐</td><td>减少积压，减少资金占用</td><td>售罄率低说明备货过多，需清仓</td></tr>
+    </table>
+    <div class="fml">
+      <div class="fml-label">📐 两个重要公式</div>
+      <div class="fml-body" style="font-size:13px">
+        <span class="fml-ok">售罄率</span> = 已销售数量 ÷ 总进货数量 × 100%<br>
+        <span style="color:#94A3B8;font-size:11.5px"># 售罄率高 → 这款商品卖得好！可以加大备货</span><br><br>
+        <span class="fml-ok">库存周转率</span> = 销售成本 ÷ 平均库存金额<br>
+        <span style="color:#94A3B8;font-size:11.5px"># 周转率低 → 库存积压，资金被占用，需促销清仓</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- tab5 营销推广 -->
+  <div class="tp" id="tp5">
+    <div class="sec">营销推广数据——"广告花的钱值不值？"</div>
+    <div class="info-box"><span>📢</span><span>每花一分钱广告费都要有回报！ROI（投入产出比）是判断广告效果最重要的指标。</span></div>
+    <table class="tbl">
+      <tr><th>指标</th><th>说明</th><th>好/坏判断</th></tr>
+      <tr><td>展现量</td><td>广告被看见了多少次</td><td>基础指标，展现多才有点击机会</td></tr>
+      <tr><td>点击量</td><td>有多少人点了广告</td><td>点击量÷展现量=点击率，越高越好</td></tr>
+      <tr><td>点击率（CTR）</td><td>广告点击量÷展现量×100%</td><td>行业平均约1-3%，高于均值说明创意好</td></tr>
+      <tr><td>ROI ⭐</td><td>投入产出比，花1元广告换多少销售额</td><td>ROI&gt;1才盈利，&gt;3算优秀</td></tr>
+    </table>
+    <div class="fml" style="margin-top:12px">
+      <div class="fml-label">📐 ROI计算公式</div>
+      <div class="fml-body" style="font-size:13px">
+        <span class="fml-ok">ROI</span> = 销售额 ÷ 广告费用<br>
+        <span style="color:#94A3B8;font-size:11.5px"># ROI=3，意思是花1元广告费，带来3元销售额</span><br><br>
+        例：花了5000元广告费，带来了20000元销售额<br>
+        ROI = <span class="fml-num">20000</span> ÷ <span class="fml-num">5000</span> = <span class="fml-ok">4</span>  → 非常好！
+      </div>
+    </div>
+    <div class="sec">不同运营阶段的关注重点</div>
+    <table class="tbl">
+      <tr><th>店铺阶段</th><th>重点关注</th><th>核心目标</th></tr>
+      <tr><td>🌱 运营初期</td><td>流量指标为主（访客数、跳失率）</td><td>积累数据，找准方向</td></tr>
+      <tr><td>🌿 运营中期</td><td>流量+成交指标（转化率、客单价）</td><td>提高销量，盈利增长</td></tr>
+      <tr><td>🌳 已成规模</td><td>全维度监控（6大类均需关注）</td><td>提升整体运营水平</td></tr>
+    </table>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(3)">继续学习 监控方式 →</button>
+  </div>
+</div>
+
+<!-- PART 3 监控方式 -->
+<div class="part" id="part3">
+  <div class="card">
+    <div class="ch"><div class="chi">👨‍💻</div><div class="cht">方式一：人工监控</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:14px">运营人员定期查看数据报表，与历史数据和行业标准对比，发现异常后手动处理。</p>
+      <div class="steps">
+        <div class="si"><div class="sn">1</div><div class="sb"><div class="sbt">设定正常范围</div><div class="sbd">根据历史数据的同比、环比，结合行业标准，确定每个指标的"健康区间"<br><span style="font-size:11.5px;color:var(--i3)">例：跳失率正常范围50-65%，超过70%需关注</span></div></div></div>
+        <div class="si"><div class="sn">2</div><div class="sb"><div class="sbt">定期查看日/周/月报表</div><div class="sbd">运营人员每天上班第一件事：打开数据报表，对比昨日/上周数据是否在正常范围内</div></div></div>
+        <div class="si"><div class="sn">3</div><div class="sb"><div class="sbt">发现异常，及时分析处理</div><div class="sbd">哪个指标超出正常范围 → 找原因 → 采取对应措施</div></div></div>
+      </div>
+      <div class="g2" style="margin-top:14px">
+        <div style="background:var(--pL);border:1.5px solid var(--pM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--p);margin-bottom:6px">📅 同比 vs 环比</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">
+            <strong>同比</strong>：今年1月 vs 去年1月（消除季节性影响）<br>
+            <strong>环比</strong>：2月 vs 1月（反映短期变化趋势）
+          </div>
+        </div>
+        <div style="background:var(--amL);border:1.5px solid var(--amM);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:6px">✅ 适合人工监控的场景</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">
+            • 数据量不多，手动可以完成<br>
+            • 需要结合业务经验判断<br>
+            • 小型店铺日常运营
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">🤖</div><div class="cht">方式二：工具自动监控</div></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--i2);margin-bottom:14px">设置好预警规则后，系统自动监控数据，发现异常后自动通知运营人员。适合数据量大、需要实时监控的场景。</p>
+      <div class="g2" style="margin-bottom:14px">
+        <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🛒 淘宝/天猫 → 生意参谋</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">免费版+付费版，可监控竞争对手数据，是淘系卖家必备工具</div>
+        </div>
+        <div style="background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px">🛍️ 京东 → 京东商智</div>
+          <div style="font-size:12px;color:var(--i2);line-height:1.85">专属京东商家的数据分析工具，功能与生意参谋类似</div>
+        </div>
+      </div>
+      <div class="sec">自动监控设置4步骤</div>
+      <div style="display:flex;gap:0;align-items:stretch;flex-wrap:wrap">
+        <div style="flex:1;min-width:120px;background:var(--p);color:#fff;border-radius:10px 0 0 10px;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">📏</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Step 1</div>
+          <div style="font-size:11.5px;opacity:.9">设正常范围</div>
+          <div style="font-size:11px;opacity:.75;margin-top:4px">如跳失率高于60%报警</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:var(--p2);color:#fff;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">⚡</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Step 2</div>
+          <div style="font-size:11.5px;opacity:.9">定触发条件</div>
+          <div style="font-size:11px;opacity:.75;margin-top:4px">超出范围就报警</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:var(--te);color:#fff;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🔁</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Step 3</div>
+          <div style="font-size:11.5px;opacity:.9">设预警频次</div>
+          <div style="font-size:11px;opacity:.75;margin-top:4px">每天1次或每30分钟</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:var(--gn);color:#fff;border-radius:0 10px 10px 0;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">📱</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Step 4</div>
+          <div style="font-size:11.5px;opacity:.9">选预警方式</div>
+          <div style="font-size:11px;opacity:.75;margin-top:4px">短信/钉钉/Email</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(4)">继续学习 异常处理 →</button>
+  </div>
+</div>
+
+<!-- PART 4 异常处理 -->
+<div class="part" id="part4">
+  <div class="tip" style="margin-bottom:16px"><span>💡</span><span>数据异常 = 店铺在发出"求救信号"！发现异常后，要先判断原因，再"对症下药"。不能乱猜，要用数据说话。</span></div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常1：访客数下降</div></div>
+    <div class="ano-body">
+      <div class="ano-crit">📏 判断标准：对比行业平均水平或店铺历史同比/环比数据</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>行业进入淡季（如夏天卖羽绒服）</td><td>调整产品结构，季节性波动无需过度干预</td></tr>
+        <tr><td>主图吸引力不够，点击率低</td><td>重新设计、优化商品主图和标题</td></tr>
+        <tr><td>竞争对手搞大促活动</td><td>开展对应的推广活动，保持竞争力</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常2：浏览量下降（访客数不变，浏览量下降）</div></div>
+    <div class="ano-body">
+      <div class="ano-crit">📏 判断标准：访客数增加但浏览量不涨，说明访客进来就走（跳失率高）</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>关键词和商品不符，来了发现不是找的</td><td>优化商品标题关键词，精准匹配</td></tr>
+        <tr><td>缺少关联销售，顾客没有继续逛的动力</td><td>设置"猜你喜欢"等关联推荐模块</td></tr>
+        <tr><td>商品卖点不突出，顾客不感兴趣</td><td>重新整理并突出核心卖点</td></tr>
+        <tr><td>店铺装修差、分类乱，找不到想要的</td><td>优化店铺视觉和商品分类导航</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常3：跳失率偏高</div></div>
+    <div class="ano-body">
+      <div class="ano-crit">📏 参考标准：皇冠级店铺首页跳失率&gt;60%异常；女装类目跳失率&gt;30%需关注</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>价格设置太高，顾客看了就走</td><td>调整商品定价策略，参考竞品</td></tr>
+        <tr><td>详情页质量差，缺乏吸引力</td><td>优化详情页，突出优势和使用场景</td></tr>
+        <tr><td>图片太大加载慢，顾客等不及</td><td>压缩图片大小，提升加载速度</td></tr>
+        <tr><td>客服回复慢，顾客问了没人答</td><td>设置快捷回复，优化客服响应时间</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常4：支付转化率下降</div></div>
+    <div class="ano-body">
+      <div class="ano-crit">📏 判断标准：转化率持续多天下降（单日波动是正常的）</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>销售淡季，季节性正常现象</td><td>正常现象，配合当季商品推广</td></tr>
+        <tr><td>标题与商品不符，吸引了错误用户</td><td>优化商品标题，精准匹配目标用户</td></tr>
+        <tr><td>价格调高了，性价比下降</td><td>酌情恢复价格+加大推广力度</td></tr>
+        <tr><td>竞争对手推出更强商品</td><td>标品看价格，非标品看品质和款式</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常5：客单价下降</div></div>
+    <div class="ano-body">
+      <div class="ano-crit">📏 判断标准：客单价持续降低，非活动期间出现</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>活动结束后正常回落</td><td>正常现象，无需过度干预</td></tr>
+        <tr><td>优惠券门槛设置不合理</td><td>合理设置满减门槛，引导凑单</td></tr>
+        <tr><td>客服没有推荐高价商品</td><td>加强客服销售技巧培训，设置推荐话术</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常6：退款金额偏高</div></div>
+    <div class="ano-body">
+      <div class="ano-crit" style="background:var(--rdL);border:1px solid var(--rdM);color:var(--rd)">⚠️ 危险线：退款金额 &gt; 店铺营业额的 10% 即为严重异常！</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>产品质量有问题，买家收到后不满意</td><td>立即下架，解决质量问题后再重新上架</td></tr>
+        <tr><td>服务出错（发错货/尺码标注错误）</td><td>提供免费换货或补差价，安抚买家</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ano">
+    <div class="ano-head"><div class="ano-ico">🔴</div><div class="ano-title">异常7：老客户数量下降（复购率降低）</div></div>
+    <div class="ano-body">
+      <div class="ano-crit">📏 判断标准：回购老客户越来越少，复购率持续降低</div>
+      <table class="tbl" style="margin:0">
+        <tr><th>可能原因</th><th>解决办法</th></tr>
+        <tr><td>长时间没有上新，老客户没有新鲜感</td><td>保持持续上新频率，增加老客吸引力</td></tr>
+        <tr><td>对老客户缺乏关怀，忘记他们了</td><td>建立老客户维护机制，提前告知活动</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="btn" style="font-size:13px;padding:8px 20px" onclick="showPart(5)">已学完，进入互动练习 →</button>
+  </div>
+</div>
+
+<!-- PART 5 互动练习 -->
+<div class="part" id="part5">
+  <div class="card">
+    <div class="ch"><div class="chi">🧮</div><div class="cht">练习一 · 计算挑战</div><div class="chb">每题 +10 XP</div></div>
+    <div class="cb">
+      <div class="cc">
+        <div class="ccq">① 某店铺当天有访客500人，其中80人付款，<strong>成交转化率</strong>是多少？（结果保留一位小数，如16.0）</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">转化率 =</span>
+          <input class="cci" id="ci1" type="number" step="0.1" placeholder="%前数字">
+          <span style="font-size:13px;font-weight:700;color:var(--i2)">%</span>
+          <button class="ccb" onclick="doC(1)">提交</button>
+        </div>
+        <div class="cfb" id="cf1"></div>
+      </div>
+      <div class="cc">
+        <div class="ccq">② 某店铺月销售总额为60000元，成交人数为300人，<strong>客单价</strong>是多少元？</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">客单价 =</span>
+          <input class="cci" id="ci2" type="number" placeholder="元">
+          <button class="ccb" onclick="doC(2)">提交</button>
+        </div>
+        <div class="cfb" id="cf2"></div>
+      </div>
+      <div class="cc">
+        <div class="ccq">③ 某广告活动花费了2000元广告费，带来了10000元销售额，<strong>ROI（投入产出比）</strong>是多少？</div>
+        <div class="ccr">
+          <span style="font-size:12px;font-weight:700;color:var(--i2)">ROI =</span>
+          <input class="cci" id="ci3" type="number" step="0.1" placeholder="数字">
+          <button class="ccb" onclick="doC(3)">提交</button>
+        </div>
+        <div class="cfb" id="cf3"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">✅</div><div class="cht">练习二 · 判断题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="jl">
+        <div class="ji" id="ji1"><div class="jitop">
+          <div class="jiq">1. 访客数（UV）和浏览量（PV）是同一个指标，同一个人访问多次算多次UV。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt1" onclick="doJ(1,true)">√</button><button class="jbt jbF" id="jf1" onclick="doJ(1,false)">×</button></div>
+        </div><div class="jfb" id="jfb1"></div></div>
+        <div class="ji" id="ji2"><div class="jitop">
+          <div class="jiq">2. 跳失率越高，说明访客对店铺越感兴趣，停留时间越长。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt2" onclick="doJ(2,true)">√</button><button class="jbt jbF" id="jf2" onclick="doJ(2,false)">×</button></div>
+        </div><div class="jfb" id="jfb2"></div></div>
+        <div class="ji" id="ji3"><div class="jitop">
+          <div class="jiq">3. 退款金额超过营业额10%，就需要立即排查质量或服务问题。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt3" onclick="doJ(3,true)">√</button><button class="jbt jbF" id="jf3" onclick="doJ(3,false)">×</button></div>
+        </div><div class="jfb" id="jfb3"></div></div>
+        <div class="ji" id="ji4"><div class="jitop">
+          <div class="jiq">4. RFM模型中，R代表的是客户的消费金额（Monetary），M代表最近购买时间（Recency）。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt4" onclick="doJ(4,true)">√</button><button class="jbt jbF" id="jf4" onclick="doJ(4,false)">×</button></div>
+        </div><div class="jfb" id="jfb4"></div></div>
+        <div class="ji" id="ji5"><div class="jitop">
+          <div class="jiq">5. 动销率越高，说明店铺有销量的商品比例越高，有利于提升店铺在平台的权重。</div>
+          <div class="jbs"><button class="jbt jbT" id="jt5" onclick="doJ(5,true)">√</button><button class="jbt jbF" id="jf5" onclick="doJ(5,false)">×</button></div>
+        </div><div class="jfb" id="jfb5"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="chi">📝</div><div class="cht">练习三 · 选择题</div><div class="chb">每题 +8 XP</div></div>
+    <div class="cb">
+      <div class="qbox" id="qb1">
+        <div class="qhead"><div class="qnum">1</div><div class="qtext">某网店运营发现：访客数没有变化，但销售额明显下降了。最可能出问题的指标是？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q1o0" onclick="doQ(1,0)">A. 浏览量（PV）下降了</button>
+          <button class="qopt" id="q1o1" onclick="doQ(1,1)">B. 成交转化率下降了</button>
+          <button class="qopt" id="q1o2" onclick="doQ(1,2)">C. 访客数据统计出了错</button>
+          <button class="qopt" id="q1o3" onclick="doQ(1,3)">D. 广告展现量减少了</button>
+        </div>
+        <div class="qfb" id="qf1"></div>
+      </div>
+
+      <div class="qbox" id="qb2">
+        <div class="qhead"><div class="qnum">2</div><div class="qtext">ROI = 3 表示的是什么含义？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q2o0" onclick="doQ(2,0)">A. 广告费用是销售额的3倍</button>
+          <button class="qopt" id="q2o1" onclick="doQ(2,1)">B. 花1元广告费，带来了3元销售额</button>
+          <button class="qopt" id="q2o2" onclick="doQ(2,2)">C. 利润是广告费的3倍</button>
+          <button class="qopt" id="q2o3" onclick="doQ(2,3)">D. 点击量是展现量的3倍</button>
+        </div>
+        <div class="qfb" id="qf2"></div>
+      </div>
+
+      <div class="qbox" id="qb3">
+        <div class="qhead"><div class="qnum">3</div><div class="qtext">某店铺跳失率突然从55%升到78%，以下哪个原因最不可能？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q3o0" onclick="doQ(3,0)">A. 详情页图片太大，加载太慢</button>
+          <button class="qopt" id="q3o1" onclick="doQ(3,1)">B. 价格调高了，访客觉得贵</button>
+          <button class="qopt" id="q3o2" onclick="doQ(3,2)">C. 刚发布了一批新商品</button>
+          <button class="qopt" id="q3o3" onclick="doQ(3,3)">D. 关键词与商品不匹配，来错人了</button>
+        </div>
+        <div class="qfb" id="qf3"></div>
+      </div>
+
+      <div class="qbox" id="qb4">
+        <div class="qhead"><div class="qnum">4</div><div class="qtext">一家刚开业3个月的新店，在数据监控阶段，应该重点关注哪类数据？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q4o0" onclick="doQ(4,0)">A. 供应链数据（库存周转率、仓储费用）</button>
+          <button class="qopt" id="q4o1" onclick="doQ(4,1)">B. 流量数据为主（访客数、跳失率等）</button>
+          <button class="qopt" id="q4o2" onclick="doQ(4,2)">C. 全维度监控，6大类都要同等关注</button>
+          <button class="qopt" id="q4o3" onclick="doQ(4,3)">D. 老客户数据（RFM模型分析）</button>
+        </div>
+        <div class="qfb" id="qf4"></div>
+      </div>
+
+      <div class="qbox" id="qb5">
+        <div class="qhead"><div class="qnum">5</div><div class="qtext">售罄率的计算公式是什么？</div></div>
+        <div class="qopts">
+          <button class="qopt" id="q5o0" onclick="doQ(5,0)">A. 售罄率 = 库存数量 ÷ 总进货数量 × 100%</button>
+          <button class="qopt" id="q5o1" onclick="doQ(5,1)">B. 售罄率 = 已销售数量 ÷ 总进货数量 × 100%</button>
+          <button class="qopt" id="q5o2" onclick="doQ(5,2)">C. 售罄率 = 销售额 ÷ 进货成本 × 100%</button>
+          <button class="qopt" id="q5o3" onclick="doQ(5,3)">D. 售罄率 = 有销量商品数 ÷ 全部商品数 × 100%</button>
+        </div>
+        <div class="qfb" id="qf5"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="p3d"><button class="btn" onclick="showPart(6)">查看单元完成情况 →</button></div>
+</div>
+
+<!-- PART 6 单元完成 -->
+<div class="part" id="part6">
+  <div class="sumc">
+    <div style="font-size:17px;font-weight:900;color:var(--ink);margin-bottom:16px">🏆 单元完成！</div>
+    <div class="sumg">
+      <div class="sumi"><div class="suml">获得 XP</div><div class="sumv" id="fxp">+0</div></div>
+      <div class="sumi"><div class="suml">评分</div><div class="sumv" id="fsc">—</div></div>
+      <div class="sumi"><div class="suml">评级</div><div class="sumv" id="fst">—</div></div>
+    </div>
+    <div class="kpl">
+      <div style="font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:10px">📌 本单元核心要点</div>
+      <div class="kp"><div class="kpd">1</div><div>电商监控6大类数据：<strong>流量/销售转化/商品/客户/供应链/营销推广</strong></div></div>
+      <div class="kp"><div class="kpd">2</div><div>3个重点指标：<strong>转化率</strong>=(付款人数÷访客数×100%)；<strong>客单价</strong>=(销售总额÷成交人数)；<strong>ROI</strong>=(销售额÷广告费)</div></div>
+      <div class="kp"><div class="kpd">3</div><div>RFM模型：<strong>R</strong>=最近购买时间；<strong>F</strong>=购买频率；<strong>M</strong>=消费金额，三项都高=黄金客户</div></div>
+      <div class="kp"><div class="kpd">4</div><div>两种监控方式：<strong>人工监控</strong>（看报表找异常）+ <strong>工具监控</strong>（生意参谋/京东商智自动预警）</div></div>
+      <div class="kp"><div class="kpd">5</div><div>7种异常处理：访客降/浏览降/跳失高/转化降/客单降/退款高/老客降，各有对应解决方案</div></div>
+      <div class="kp"><div class="kpd">6</div><div>新店重点看流量；中期看流量+成交；成熟期全维度监控</div></div>
+    </div>
+    <div style="text-align:center;margin-top:22px"><button class="btnd" onclick="completeUnit()">✅ 完成单元，返回主页</button></div>
+  </div>
+</div>
+</div>
+
+<script>
+var SB_URL='https://ovinpbddeuxpgouefczs.supabase.co';
+var SB_KEY='sb_publishable_spH9T9mN5TBAGCa3OehOfg_TWzU1pgX';
+var SK='ecommerce_data_analysis_user';
+var AU=['m1u1','m1u2','m1u3','m2u1','m2u2','m2u3','m2u4','m2u5','m3u1','m3u2','m3u3','m3u4','m4u1','m4u2','m4u3','m4u4','m5u1','m5u2','m5u3'];
+var _sb=null;try{if(window.supabase)_sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
+var xp=0,strs=0,cDone={},jDone={},qDone={};
+function lu(){try{return JSON.parse(localStorage.getItem(SK))||null;}catch(e){return null;}}
+function su(d){var ws=gws();d.lastVisit=new Date().toISOString();if(d.weekStart!==ws){d.weekXp=0;d.weekStart=ws;}localStorage.setItem(SK,JSON.stringify(d));if(_sb){var cu=AU.filter(function(id){return d.units[id]&&d.units[id].completed;}).length;var ts=AU.reduce(function(s,id){return s+((d.units[id]&&d.units[id].stars)||0);},0);_sb.from('student_progress').upsert({student_id:d.studentId,name:d.name,xp:d.xp,completed_units:cu,total_stars:ts,week_xp:d.weekXp||0,week_start:d.weekStart||ws,achievements:d.achievements,units:d.units,updated_at:new Date().toISOString()},{onConflict:'student_id'}).then(function(r){if(r.error)console.warn(r.error.message);});}}
+function gws(){var d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return d.toISOString().slice(0,10);}
+function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},t||2500);}
+function xppop(a){var e=document.getElementById('xpp');e.textContent='+'+a+' XP';e.classList.add('show');setTimeout(function(){e.classList.remove('show');},1900);}
+function addXP(a){xp+=a;var u=lu();document.getElementById('navXP').textContent='⚡ '+((u?u.xp:0)+xp)+' XP';xppop(a);}
+function confetti(){var c=document.getElementById('cft'),cs=['#1D4ED8','#2563EB','#3B82F6','#F97316','#10B981','#FBBF24'];c.innerHTML='';for(var i=0;i<65;i++){var p=document.createElement('div');p.className='cp';p.style.cssText='left:'+Math.random()*100+'%;background:'+cs[i%cs.length]+';width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*0.6+'s;border-radius:'+(Math.random()>0.5?'50%':'2px');c.appendChild(p);}setTimeout(function(){c.innerHTML='';},4500);}
+function showPart(n){for(var i=1;i<=6;i++){document.getElementById('part'+i).classList.toggle('active',i===n);var b=document.getElementById('btn'+i);if(b)b.classList.toggle('active',i===n);}document.getElementById('pg').style.width=[0,17,33,50,67,83,100][n]+'%';window.scrollTo({top:0,behavior:'smooth'});}
+function stab(n,tot){for(var i=0;i<tot;i++){var t=document.getElementById('tb'+i),p=document.getElementById('tp'+i);if(t)t.classList.toggle('active',i===n);if(p)p.classList.toggle('active',i===n);}}
+function p1go(){document.getElementById('p1d').style.display='block';showPart(2);}
+var JA={1:false,2:false,3:true,4:false,5:true};
+var JFB={
+  1:'访客数（UV）和浏览量（PV）是不同的指标！UV=Unique Visitor独立访客数，同一人来多次只算1次；PV=Page View页面浏览量，同一人看多个页面每次都算。',
+  2:'恰好相反！跳失率越高说明访客进来就走、不感兴趣，是负面指标。跳失率越低越好，说明访客在店里继续逛了，购买可能性更大。',
+  3:'退款金额超过营业额10%是一条重要的警戒线，超过后必须立即排查产品质量问题、发货问题等，否则会影响店铺信誉和评分。',
+  4:'RFM三个字母的含义正好搞反了！R=Recency（最近购买时间）、F=Frequency（购买频率）、M=Monetary（消费金额）。',
+  5:'动销率=有销量的商品数÷全部商品数×100%，动销率高说明店铺大部分商品都在卖，平台认为店铺商品质量好，会提高推荐权重。'
+};
+function doJ(n,v){if(jDone[n])return;jDone[n]=true;var ok=(v===JA[n]);var bt=document.getElementById('jt'+n),bf=document.getElementById('jf'+n);bt.disabled=true;bf.disabled=true;(JA[n]?bt:bf).classList.add('jok');(JA[n]?bf:bt).classList.add('jdm');if(!ok)(v?bt:bf).classList.add('jng');var fb=document.getElementById('jfb'+n);fb.textContent=(ok?'✅ 正确！':'❌ 错误！')+JFB[n];fb.className='jfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 判断正确！+8 XP');}else{toast('❌ 判断错误，看解析理解');}chkDone();}
+var CA={1:16,2:200,3:5};
+var CFBOK={1:'80÷500×100%=16%，这是一个相当不错的转化率！行业平均约2-4%',2:'60000÷300=200元，每个成交顾客平均花了200元',3:'10000÷2000=5，ROI=5说明每花1元广告费带来5元销售额，效果非常好！'};
+var CFBHINT={1:'转化率=付款人数÷访客数×100%，代入80÷500×100%',2:'客单价=销售总额÷成交人数，代入60000÷300',3:'ROI=销售额÷广告费用，代入10000÷2000'};
+function doC(n){if(cDone[n])return;var inp=document.getElementById('ci'+n),fb=document.getElementById('cf'+n);var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='请输入数字';fb.className='cfb ng';return;}if(Math.abs(v-CA[n])<0.15){cDone[n]=true;fb.textContent='✅ 正确！'+CFBOK[n];fb.className='cfb ok';inp.disabled=true;inp.style.background='#F0FDF4';inp.style.borderColor='#86EFAC';addXP(10);toast('✅ 答对！+10 XP');}else{fb.textContent='❌ 不对。'+CFBHINT[n];fb.className='cfb ng';toast('❌ 再想想！');}chkDone();}
+var QC={1:1,2:1,3:2,4:1,5:1};
+var QFB={
+  1:{0:'浏览量下降说明访客来了没有继续浏览，这只是原因之一。但题目说访客数没变、销售额明显下降，最直接的原因是付款人数减少，即转化率下降。',
+     1:'访客数不变但销售额下降，说明来的人数没有变，但付款的人数减少了，即成交转化率出现问题。可能是详情页、定价、竞争对手等原因导致转化率下降。',
+     2:'访客数据统计出错的可能性很小，且题目设定访客数正常，不是这个原因。',
+     3:'广告展现量影响的是访客数，题目说访客数没有变化，所以不是广告展现量的问题。'},
+  2:{0:'ROI=销售额÷广告费，ROI=3说明销售额是广告费的3倍，不是广告费是销售额的3倍。',
+     1:'ROI=投入产出比=销售额÷广告费用，ROI=3意味着每花1元广告费换来3元销售额，是衡量广告效率的核心指标。',
+     2:'ROI衡量的是销售额与广告费的比值，不是利润与广告费的比值。计算利润还需要扣除商品成本等。',
+     3:'ROI与点击量和展现量无关，那是CTR（点击率）的概念。'},
+  3:{0:'图片太大加载慢会导致访客等不及就关掉页面，确实会导致跳失率升高。',
+     1:'价格调高会让访客觉得性价比低，更容易扭头就走，跳失率升高。',
+     2:'上新商品本身不会直接导致跳失率升高，反而可能因为新品吸引力而降低跳失率。所以新上商品是最不可能的原因。',
+     3:'关键词不匹配会吸引来不对的用户，这批用户发现商品不是他们要找的，自然立刻离开，跳失率高。'},
+  4:{0:'新开业3个月的店，首要任务是积累流量、测试商品，供应链数据在初期不是重点（库存也不多）。',
+     1:'新店在运营初期，最重要的是先把流量做起来——有人进店才有后续。重点监控访客数、跳失率、浏览深度，找到适合的商品和目标用户。',
+     2:'全维度监控需要有足够的数据积累，新店数据量少，6大类全监控效果有限，应集中精力在最关键的流量指标上。',
+     3:'新店基本没有老客户，RFM分析在初期没有意义。'},
+  5:{0:'这个公式计算的是剩余库存比例，不是售罄率。库存数量÷总进货=还剩多少没卖出去。',
+     1:'售罄率=已销售数量÷总进货数量×100%，表示进货中已经卖出去的比例。售罄率越高说明商品卖得越好，可以加大备货。',
+     2:'这是毛利率的近似计算方式，不是售罄率。',
+     3:'这是动销率的公式，动销率=有销量的商品数÷全部商品数×100%，与售罄率是不同的概念。'}
+};
+function doQ(n,i){if(qDone[n])return;qDone[n]=true;var c=QC[n],ok=(i===c);for(var j=0;j<4;j++){var b=document.getElementById('q'+n+'o'+j);if(!b)continue;b.disabled=true;if(j===c)b.classList.add('qok');else if(j===i&&!ok)b.classList.add('qng');}var fb=document.getElementById('qf'+n);fb.textContent=(ok?'✅ ':' ❌ ')+QFB[n][i];fb.className='qfb '+(ok?'ok':'ng');if(ok){addXP(8);toast('✅ 答对！+8 XP');}else{toast('❌ 看解析再想想');}chkDone();}
+function chkDone(){if(Object.keys(jDone).length>=5&&Object.keys(qDone).length>=5&&Object.keys(cDone).length>=3){document.getElementById('p3d').style.display='block';strs=Math.max(strs,3);setTimeout(function(){window.scrollTo({top:document.getElementById('p3d').offsetTop-60,behavior:'smooth'});},300);}}
+function completeUnit(){var u=lu();if(!u){window.location.href='index.html';return;}var sc=Math.min(100,20+Math.round(xp*0.8));var st=strs>0?strs:sc>=90?5:sc>=75?4:sc>=60?3:sc>=45?2:1;var tx=xp+20;var prev=u.units['m5u1']||{};var already=prev.completed&&(prev.xpEarned||0)>0;var ax=already?0:tx;u.units['m5u1']={completed:true,stars:Math.max(prev.stars||0,st),score:Math.max(prev.score||0,sc),xpEarned:already?(prev.xpEarned||0):tx};u.xp=(u.xp||0)+ax;u.weekXp=(u.weekXp||0)+ax;var ach=u.achievements||[];if(!ach.includes('first_unit'))ach.push('first_unit');if(st>=3&&!ach.includes('first_star3'))ach.push('first_star3');u.achievements=ach;su(u);document.getElementById('fxp').textContent='+'+(already?0:tx);document.getElementById('fsc').textContent=sc;document.getElementById('fst').textContent='⭐'.repeat(st)+'☆'.repeat(5-st);showPart(6);if(st>=4)confetti();toast(already?'🔄已重新提交':'🎉已保存！+'+tx+' XP',2400);setTimeout(function(){window.location.href='index.html';},2600);}
+(function(){var u=lu();document.getElementById('navXP').textContent='⚡ '+((u&&u.xp)||0)+' XP';})();
+</script>
+</body>
+</html>
