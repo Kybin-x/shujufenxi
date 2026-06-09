@@ -40,7 +40,7 @@ function startExam() {
   document.getElementById('examArea').style.display = 'block';
   document.getElementById('examStudent').textContent = `${name}（${id}）`;
   document.getElementById('examRound').textContent = examState.round;
-  document.getElementById('headerAttempts').textContent = `剩余次数：${remaining}次`;
+  //document.getElementById('headerAttempts').textContent = `剩余次数：${remaining}次`;
   document.getElementById('attemptsInfo').textContent = `第 ${examState.round} 次作答，还剩 ${remaining-1} 次机会。`;
 
   renderExamQuestions();
