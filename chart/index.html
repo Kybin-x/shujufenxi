@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍫 数据分析基础 - 常用图表制作</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ==================== 顶部导航 ==================== -->
+<header class="header">
+  <div class="header-content">
+    <div class="header-title">
+      <span class="logo">🍫</span>
+      <div>
+        <h1>数据分析基础 · 常用图表制作</h1>
+        <p>中职电子商务专业 · 图表可视化学习</p>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>学习进度</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== Tab导航 ==================== -->
+<nav class="tab-nav-wrapper">
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="bar">📊 柱状图</button>
+    <button class="tab-btn" data-tab="line">📈 折线图</button>
+    <button class="tab-btn" data-tab="pie">🥧 饼图</button>
+    <button class="tab-btn" data-tab="hbar">📉 条形图</button>
+    <button class="tab-btn" data-tab="scatter">✨ 散点图</button>
+    <button class="tab-btn" data-tab="radar">🕸️ 雷达图</button>
+    <button class="tab-btn" data-tab="bubble">🫧 气泡图</button>
+    <button class="tab-btn exam-tab" data-tab="exam">📝 总测验</button>
+  </div>
+</nav>
+
+<!-- ==================== 主内容区 ==================== -->
+<main class="main-content" id="mainContent">
+
+<!-- ========== 柱状图 ========== -->
+<section class="tab-panel active" id="panel-bar">
+  <div class="section-hero">
+    <div class="hero-icon">📊</div>
+    <h2>柱状图（Column Chart）</h2>
+    <p>用垂直矩形柱子的高度表示数据大小，是最常用的图表类型之一，非常适合比较不同类别的数据。</p>
+    <div class="hero-tags">
+      <span class="hero-tag">数值比较</span>
+      <span class="hero-tag">分类数据</span>
+      <span class="hero-tag">电商销售分析</span>
+      <span class="hero-tag">简单直观</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>柱状图用垂直方向的矩形柱子来显示各类别数值，柱子高度代表数值大小，可以快速对比各类别差异。</p></div>
+      <div class="info-item"><h4>✅ 优点</h4><p>直观易懂、类别清晰、可同时展示多组数据（分组柱状图）、适合展示正负值。</p></div>
+      <div class="info-item"><h4>⚠️ 注意</h4><p>类别过多时不适用（超过12个）；连续时间序列数据更推荐折线图；Y轴建议从0开始。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>各商品月度销量对比、各店铺销售额排名、不同渠道引流数据对比等。</p></div>
+    </div>
+    <div style="margin-top:16px;">
+      <h4 style="color:var(--chocolate);margin-bottom:8px;">📌 适用场景</h4>
+      <div class="scene-list">
+        <span class="scene-tag blue">类别数据比较</span>
+        <span class="scene-tag green">销售额对比</span>
+        <span class="scene-tag orange">多组数据并列</span>
+        <span class="scene-tag red">完成率对比</span>
+        <span class="scene-tag purple">各渠道数据</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="bar">
+      <button class="chart-btn active" data-mode="monthly">月度销量</button>
+      <button class="chart-btn" data-mode="category">品类对比</button>
+      <button class="chart-btn" data-mode="grouped">分组对比</button>
+      <button class="chart-btn" data-mode="stacked">堆叠柱状</button>
+    </div>
+    <div class="chart-container"><div id="chartBar" class="chart-box"></div></div>
+    <div class="export-hint">💡 以上数据可在下方数据表格中查看，选中数据后在Excel中插入图表即可生成相似效果。</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（电商平台月度销售数据）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>月份</th><th>手机数码（件）</th><th>服装鞋包（件）</th><th>食品饮料（件）</th><th>家居百货（件）</th></tr></thead>
+        <tbody>
+          <tr><td>1月</td><td>1850</td><td>2300</td><td>980</td><td>1120</td></tr>
+          <tr><td>2月</td><td>1560</td><td>1980</td><td>1250</td><td>890</td></tr>
+          <tr><td>3月</td><td>2100</td><td>2650</td><td>1100</td><td>1380</td></tr>
+          <tr><td>4月</td><td>1920</td><td>2420</td><td>1350</td><td>1560</td></tr>
+          <tr><td>5月</td><td>2380</td><td>3100</td><td>1480</td><td>1720</td></tr>
+          <tr><td>6月</td><td>2760</td><td>2890</td><td>1620</td><td>1890</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="export-hint">📥 将以上数据复制到Excel中，选中数据区域 → 插入 → 图表 → 柱形图，即可生成柱状图。</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤</div>
+    <div class="steps-container" id="stepsBar"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exerciseBar"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizBar"></div>
+  </div>
+</section>
+
+<!-- ========== 折线图 ========== -->
+<section class="tab-panel" id="panel-line">
+  <div class="section-hero">
+    <div class="hero-icon">📈</div>
+    <h2>折线图（Line Chart）</h2>
+    <p>用折线连接各数据点，展示数据随时间或顺序的变化趋势，是分析趋势的最佳选择。</p>
+    <div class="hero-tags"><span class="hero-tag">趋势分析</span><span class="hero-tag">时间序列</span><span class="hero-tag">连续变化</span><span class="hero-tag">对比走势</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>折线图将各时间点或顺序点的数值用直线段连接，用于展示数据随时间的变化规律。</p></div>
+      <div class="info-item"><h4>✅ 优点</h4><p>趋势直观、可展示多条折线便于比较、能清楚呈现峰值谷值、适合大量时间点数据。</p></div>
+      <div class="info-item"><h4>⚠️ 注意</h4><p>不适合离散分类数据；折线过多（超过5条）会显得混乱；X轴数据需有顺序关系。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>店铺日流量趋势、双十一前后销售额变化、用户增长曲线、价格波动趋势。</p></div>
+    </div>
+    <div style="margin-top:16px;">
+      <h4 style="color:var(--chocolate);margin-bottom:8px;">📌 适用场景</h4>
+      <div class="scene-list"><span class="scene-tag blue">时间序列分析</span><span class="scene-tag green">销售趋势</span><span class="scene-tag orange">用户增长</span><span class="scene-tag red">价格波动</span><span class="scene-tag purple">流量分析</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="line">
+      <button class="chart-btn active" data-mode="trend">销售趋势</button>
+      <button class="chart-btn" data-mode="compare">多平台对比</button>
+      <button class="chart-btn" data-mode="smooth">平滑曲线</button>
+    </div>
+    <div class="chart-container"><div id="chartLine" class="chart-box"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（某电商店铺年度访客数据）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>月份</th><th>访客量（万人次）</th><th>成交量（件）</th><th>转化率（%）</th></tr></thead>
+        <tbody>
+          <tr><td>1月</td><td>12.5</td><td>3200</td><td>2.56</td></tr>
+          <tr><td>2月</td><td>10.8</td><td>2850</td><td>2.64</td></tr>
+          <tr><td>3月</td><td>15.2</td><td>4100</td><td>2.70</td></tr>
+          <tr><td>4月</td><td>14.6</td><td>3980</td><td>2.73</td></tr>
+          <tr><td>5月</td><td>18.3</td><td>5200</td><td>2.84</td></tr>
+          <tr><td>6月</td><td>16.9</td><td>4750</td><td>2.81</td></tr>
+          <tr><td>7月</td><td>19.5</td><td>5680</td><td>2.91</td></tr>
+          <tr><td>8月</td><td>21.2</td><td>6300</td><td>2.97</td></tr>
+          <tr><td>9月</td><td>20.8</td><td>6150</td><td>2.96</td></tr>
+          <tr><td>10月</td><td>28.6</td><td>9200</td><td>3.22</td></tr>
+          <tr><td>11月</td><td>45.8</td><td>16500</td><td>3.60</td></tr>
+          <tr><td>12月</td><td>25.3</td><td>8100</td><td>3.20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="export-hint">📥 选中以上数据 → Excel → 插入 → 折线图，可清晰看到双十一流量爆发趋势。</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤</div>
+    <div class="steps-container" id="stepsLine"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exerciseLine"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizLine"></div>
+  </div>
+</section>
+
+<!-- ========== 饼图 ========== -->
+<section class="tab-panel" id="panel-pie">
+  <div class="section-hero">
+    <div class="hero-icon">🥧</div>
+    <h2>饼图 & 复合饼图（Pie Chart）</h2>
+    <p>用圆形扇区面积展示各部分占总体的比例关系；复合饼图则可对某一扇区进行二级细分展示。</p>
+    <div class="hero-tags"><span class="hero-tag">占比分析</span><span class="hero-tag">构成比例</span><span class="hero-tag">复合饼图</span><span class="hero-tag">市场份额</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>饼图将圆形分成若干扇区，每个扇区面积代表该类别占总量的比例，所有扇区合计为100%。</p></div>
+      <div class="info-item"><h4>🍰 复合饼图</h4><p>将饼图中某个较小的扇区单独拆分，用另一个小饼图或条形图详细展示其内部构成。</p></div>
+      <div class="info-item"><h4>⚠️ 注意</h4><p>类别不超过7个；各类别差异要明显；避免使用3D效果；一般不用于趋势分析。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>各品类销售额占比、用户来源渠道分布、各地区订单占比、退款原因分布。</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="pie">
+      <button class="chart-btn active" data-mode="basic">基础饼图</button>
+      <button class="chart-btn" data-mode="doughnut">圆环图</button>
+      <button class="chart-btn" data-mode="compound">复合饼图</button>
+      <button class="chart-btn" data-mode="rose">玫瑰图</button>
+    </div>
+    <div class="chart-container"><div id="chartPie" class="chart-box"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（电商平台各品类销售额占比）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>商品品类</th><th>销售额（万元）</th><th>占比（%）</th><th>子类（复合饼图用）</th></tr></thead>
+        <tbody>
+          <tr><td>手机数码</td><td>285</td><td>38%</td><td>手机158、电脑72、配件55</td></tr>
+          <tr><td>服装鞋包</td><td>198</td><td>26%</td><td>—</td></tr>
+          <tr><td>食品饮料</td><td>142</td><td>19%</td><td>—</td></tr>
+          <tr><td>家居百货</td><td>89</td><td>12%</td><td>—</td></tr>
+          <tr><td>其他</td><td>36</td><td>5%</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤（含复合饼图）</div>
+    <div class="steps-container" id="stepsPie"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exercisePie"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizPie"></div>
+  </div>
+</section>
+
+<!-- ========== 条形图 ========== -->
+<section class="tab-panel" id="panel-hbar">
+  <div class="section-hero" style="background:linear-gradient(135deg,#1a4a1a,#0d2e0d)">
+    <div class="hero-icon">📉</div>
+    <h2>条形图（Bar Chart）</h2>
+    <p>条形图是柱状图的"横卧"版本，用水平矩形条的长度来表示数值大小，特别适合类别名称较长或类别数量较多的数据展示。</p>
+    <div class="hero-tags"><span class="hero-tag">水平排列</span><span class="hero-tag">类别对比</span><span class="hero-tag">排行榜</span><span class="hero-tag">长名称适用</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>条形图将矩形条水平放置，X轴为数值轴，Y轴为类别轴。条形越长表示数值越大，适合展示各类别的数值比较。</p></div>
+      <div class="info-item"><h4>🆚 与柱状图的区别</h4><p>柱状图垂直排列（适合时间序列）；条形图水平排列（适合类别名称长、类别多的场景）。</p></div>
+      <div class="info-item"><h4>✅ 优点</h4><p>类别标签空间充裕；适合展示排行榜；可展示负值（双向条形图）。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>商品销量排行榜、各省份订单量排名、店铺评分对比。</p></div>
+    </div>
+    <div class="compare-box" style="margin-top:16px;">
+      <div class="compare-item good"><h4>✅ 适合用条形图</h4>类别名称较长<br>类别数量多（8个以上）<br>需要展示排行榜效果</div>
+      <div class="compare-item bad"><h4>❌ 不适合用条形图</h4>数据有时间顺序（用折线图）<br>需要展示占比（用饼图）<br>类别只有2-3个</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="hbar">
+      <button class="chart-btn active" data-mode="rank">销量排行榜</button>
+      <button class="chart-btn" data-mode="region">地区订单量</button>
+      <button class="chart-btn" data-mode="bidirect">双向条形图</button>
+      <button class="chart-btn" data-mode="stacked">堆叠条形图</button>
+    </div>
+    <div class="chart-container"><div id="chartHbar" class="chart-box"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（电商平台热销商品排行）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>商品名称</th><th>月销量（件）</th><th>好评率（%）</th><th>退款率（%）</th></tr></thead>
+        <tbody>
+          <tr><td>无线蓝牙耳机Pro版</td><td>8650</td><td>96.2</td><td>2.1</td></tr>
+          <tr><td>运动休闲男士短袖</td><td>7320</td><td>94.8</td><td>3.5</td></tr>
+          <tr><td>网红零食大礼包</td><td>6890</td><td>92.1</td><td>1.8</td></tr>
+          <tr><td>智能手环健康监测</td><td>5640</td><td>95.6</td><td>2.8</td></tr>
+          <tr><td>办公室香薰机</td><td>4980</td><td>93.4</td><td>4.2</td></tr>
+          <tr><td>便携充电宝20000</td><td>4320</td><td>97.1</td><td>1.5</td></tr>
+          <tr><td>儿童积木益智玩具</td><td>3860</td><td>91.8</td><td>5.1</td></tr>
+          <tr><td>美妆护肤套装</td><td>3250</td><td>89.5</td><td>6.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤</div>
+    <div class="steps-container" id="stepsHbar"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exerciseHbar"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizHbar"></div>
+  </div>
+</section>
+
+<!-- ========== 散点图 ========== -->
+<section class="tab-panel" id="panel-scatter">
+  <div class="section-hero" style="background:linear-gradient(135deg,#1a3a6b,#0d2040)">
+    <div class="hero-icon">✨</div>
+    <h2>散点图（Scatter Chart）</h2>
+    <p>散点图通过在坐标系中绘制大量数据点，展示两个变量之间的相关关系，帮助发现数据中的规律、趋势或异常值。</p>
+    <div class="hero-tags"><span class="hero-tag">相关性分析</span><span class="hero-tag">两变量关系</span><span class="hero-tag">异常值识别</span><span class="hero-tag">数据分布</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>散点图用X轴和Y轴分别表示两个变量，每个数据点的位置由这两个变量的值决定，用于探索两个变量的相关性。</p></div>
+      <div class="info-item"><h4>📊 相关性类型</h4><p>正相关：点从左下到右上；负相关：点从左上到右下；无相关：点随机分布。</p></div>
+      <div class="info-item"><h4>✅ 优点</h4><p>能清晰展示两变量关系；可识别异常值；可添加趋势线辅助分析。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>广告投入与销售额关系、商品价格与销量关系、评分与复购率关系。</p></div>
+    </div>
+    <div class="highlight-box">
+      <strong>📌 三种相关关系：</strong><br>
+      🔴 <strong>正相关</strong>：X增大→Y增大（如：广告费↑，销售额↑）<br>
+      🔵 <strong>负相关</strong>：X增大→Y减小（如：价格↑，销量↓）<br>
+      ⚫ <strong>无相关</strong>：X变化→Y无规律
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="scatter">
+      <button class="chart-btn active" data-mode="adSales">广告费与销售额</button>
+      <button class="chart-btn" data-mode="priceQty">价格与销量</button>
+      <button class="chart-btn" data-mode="scoreBuy">评分与复购率</button>
+    </div>
+    <div class="chart-container"><div id="chartScatter" class="chart-box"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（各店铺广告投入与销售额）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>店铺编号</th><th>月广告费（万元）</th><th>月销售额（万元）</th><th>商品均价（元）</th><th>月销量（件）</th></tr></thead>
+        <tbody>
+          <tr><td>A001</td><td>0.5</td><td>8.2</td><td>128</td><td>2380</td></tr>
+          <tr><td>A002</td><td>1.2</td><td>15.6</td><td>256</td><td>1820</td></tr>
+          <tr><td>A003</td><td>2.0</td><td>28.4</td><td>89</td><td>5640</td></tr>
+          <tr><td>A004</td><td>0.8</td><td>12.1</td><td>368</td><td>980</td></tr>
+          <tr><td>A005</td><td>3.5</td><td>52.8</td><td>45</td><td>8920</td></tr>
+          <tr><td>A006</td><td>1.8</td><td>24.3</td><td>198</td><td>3150</td></tr>
+          <tr><td>A007</td><td>0.3</td><td>4.8</td><td>520</td><td>620</td></tr>
+          <tr><td>A008</td><td>4.2</td><td>63.5</td><td>35</td><td>12400</td></tr>
+          <tr><td>A009</td><td>2.6</td><td>38.9</td><td>156</td><td>4280</td></tr>
+          <tr><td>A010</td><td>1.5</td><td>21.7</td><td>88</td><td>6850</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤</div>
+    <div class="steps-container" id="stepsScatter"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exerciseScatter"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizScatter"></div>
+  </div>
+</section>
+
+<!-- ========== 雷达图 ========== -->
+<section class="tab-panel" id="panel-radar">
+  <div class="section-hero" style="background:linear-gradient(135deg,#4a1a6b,#2d0f40)">
+    <div class="hero-icon">🕸️</div>
+    <h2>雷达图（Radar Chart）</h2>
+    <p>雷达图又称蜘蛛图，以中心点向外辐射多条坐标轴，每条轴代表一个维度，将各维度数值连成多边形，用于多维度综合评估。</p>
+    <div class="hero-tags"><span class="hero-tag">多维度对比</span><span class="hero-tag">综合评估</span><span class="hero-tag">能力雷达</span><span class="hero-tag">竞品分析</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>雷达图从中心点出发绘制多条等角度分布的坐标轴，每个轴代表一个评价维度，各轴上的点连接形成多边形。</p></div>
+      <div class="info-item"><h4>📐 结构特点</h4><p>维度数量一般为3-8个；各维度数据需归一化到同一量纲；可同时展示多个对象对比。</p></div>
+      <div class="info-item"><h4>✅ 优点</h4><p>直观展示多维度综合表现；可同时对比多个对象；一眼看出优势和劣势维度。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>店铺综合运营评估、竞品多维度对比、客服团队能力评估。</p></div>
+    </div>
+    <div class="highlight-box"><strong>⚠️ 注意：</strong>各维度数据需统一量纲；维度不超过8个；对比对象不超过3个。</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="radar">
+      <button class="chart-btn active" data-mode="shop">店铺运营评估</button>
+      <button class="chart-btn" data-mode="product">竞品对比</button>
+      <button class="chart-btn" data-mode="staff">客服能力评估</button>
+    </div>
+    <div class="chart-container"><div id="chartRadar" class="chart-box"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（电商店铺运营综合评分）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>评估维度</th><th>A店铺（分）</th><th>B店铺（分）</th><th>C店铺（分）</th><th>满分</th></tr></thead>
+        <tbody>
+          <tr><td>商品质量</td><td>88</td><td>92</td><td>76</td><td>100</td></tr>
+          <tr><td>客服响应</td><td>95</td><td>78</td><td>89</td><td>100</td></tr>
+          <tr><td>物流速度</td><td>82</td><td>85</td><td>91</td><td>100</td></tr>
+          <tr><td>价格竞争力</td><td>76</td><td>94</td><td>88</td><td>100</td></tr>
+          <tr><td>店铺设计</td><td>91</td><td>72</td><td>85</td><td>100</td></tr>
+          <tr><td>售后服务</td><td>87</td><td>80</td><td>93</td><td>100</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤</div>
+    <div class="steps-container" id="stepsRadar"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exerciseRadar"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizRadar"></div>
+  </div>
+</section>
+
+<!-- ========== 气泡图 ========== -->
+<section class="tab-panel" id="panel-bubble">
+  <div class="section-hero" style="background:linear-gradient(135deg,#006b5e,#003d35)">
+    <div class="hero-icon">🫧</div>
+    <h2>气泡图（Bubble Chart）</h2>
+    <p>气泡图是散点图的升级版，在X轴和Y轴两个变量的基础上，用气泡的大小表示第三个变量，实现三维数据的可视化。</p>
+    <div class="hero-tags"><span class="hero-tag">三维数据</span><span class="hero-tag">气泡大小</span><span class="hero-tag">市场分析</span><span class="hero-tag">多变量关系</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📖</div>图表介绍</div>
+    <div class="info-grid">
+      <div class="info-item"><h4>🎯 定义</h4><p>气泡图在散点图基础上增加第三维度：每个数据点显示为一个圆形气泡，气泡大小代表第三个变量。</p></div>
+      <div class="info-item"><h4>📊 三个维度</h4><p>X轴：第一个变量；Y轴：第二个变量；气泡大小：第三个变量。</p></div>
+      <div class="info-item"><h4>✅ 优点</h4><p>一张图展示三个变量关系；信息密度高；适合市场分析和产品组合分析。</p></div>
+      <div class="info-item"><h4>🛒 电商应用</h4><p>商品类目分析（销量×利润率×商品数）、市场份额分析、客户价值分层。</p></div>
+    </div>
+    <div class="highlight-box">
+      <strong>🆚 散点图 vs 气泡图：</strong><br>
+      📍 <strong>散点图</strong>：展示 <strong>2个变量</strong> 之间的关系<br>
+      🫧 <strong>气泡图</strong>：展示 <strong>3个变量</strong> 之间的关系，气泡大小代表第三变量
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">🎮</div>互动图表示例</div>
+    <div class="chart-controls" data-chart="bubble">
+      <button class="chart-btn active" data-mode="market">品类市场分析</button>
+      <button class="chart-btn" data-mode="customer">客户价值分层</button>
+      <button class="chart-btn" data-mode="product">商品ROI分析</button>
+    </div>
+    <div class="chart-container"><div id="chartBubble" class="chart-box"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>案例数据（电商品类综合分析）</div>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>商品品类</th><th>月销量（件）X轴</th><th>利润率（%）Y轴</th><th>在售商品数（气泡）</th><th>月销售额（万元）</th></tr></thead>
+        <tbody>
+          <tr><td>手机数码</td><td>5680</td><td>18.5</td><td>320</td><td>285</td></tr>
+          <tr><td>服装鞋包</td><td>8920</td><td>42.3</td><td>1560</td><td>198</td></tr>
+          <tr><td>食品饮料</td><td>12400</td><td>28.6</td><td>890</td><td>142</td></tr>
+          <tr><td>家居百货</td><td>3250</td><td>35.8</td><td>680</td><td>89</td></tr>
+          <tr><td>美妆护肤</td><td>6890</td><td>55.2</td><td>420</td><td>156</td></tr>
+          <tr><td>母婴玩具</td><td>2180</td><td>38.4</td><td>290</td><td>64</td></tr>
+          <tr><td>运动户外</td><td>4320</td><td>31.2</td><td>510</td><td>118</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📗</div>Excel制作步骤</div>
+    <div class="steps-container" id="stepsBubble"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">✏️</div>课堂练习</div>
+    <div class="exercise-container" id="exerciseBubble"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="icon">📝</div>小节测验</div>
+    <div class="quiz-container" id="quizBubble"></div>
+  </div>
+</section>
+
+<!-- ========== 总测验 ========== -->
+<section class="tab-panel" id="panel-exam">
+  <div class="section-hero" style="background:linear-gradient(135deg,#8B1A1A,#5C0E0E)">
+    <div class="hero-icon">📝</div>
+    <h2>综合测验</h2>
+    <p>涵盖全部7种图表类型知识，检验你的学习成果！每位同学最多可提交 3 次。</p>
+    <div class="hero-tags"><span class="hero-tag">共20题</span><span class="hero-tag">满分100分</span><span class="hero-tag">最多3次</span><span class="hero-tag">成绩分析</span></div>
+  </div>
+  <!-- 登录区 -->
+  <div class="card" id="loginCard">
+    <div class="login-form">
+      <h3>🧑‍🎓 请输入你的信息</h3>
+      <div class="form-row">
+        <div class="form-group"><label for="studentId">学号</label><input type="text" id="studentId" placeholder="如：2024001" maxlength="20"></div>
+        <div class="form-group"><label for="studentName">姓名</label><input type="text" id="studentName" placeholder="请输入姓名" maxlength="10"></div>
+      </div>
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" id="startExamBtn">🚀 开始测验</button>
+    </div>
+  </div>
+  <!-- 考试区 -->
+  <div id="examArea" style="display:none">
+    <div class="attempts-info" id="attemptsInfo"></div>
+    <div class="exam-bar">
+      <div>
+        <div class="info">🧑‍🎓 <span id="examStudent"></span></div>
+        <div class="info" style="margin-top:4px;font-size:0.82rem;">📋 第 <span id="examRound"></span> 次作答</div>
+      </div>
+      <div class="timer" id="examTimer">30:00</div>
+      <div style="width:100%"><div class="progress-mini"><div class="progress-mini-fill" id="examProgressFill"></div></div></div>
+    </div>
+    <div id="questionArea"></div>
+    <div class="submit-area"><button class="submit-btn" id="submitExamBtn">📤 提交答卷</button></div>
+  </div>
+  <!-- 成绩报告 -->
+  <div class="result-panel" id="resultPanel">
+    <div class="result-hero">
+      <div class="emoji" id="resultEmoji">🏆</div>
+      <div class="score" id="resultScore">0<span>分</span></div>
+      <div class="msg" id="resultMsg"></div>
+      <div class="student-info">
+        <span>🧑‍🎓 学号：<strong id="resultId"></strong></span>
+        <span>📛 姓名：<strong id="resultName"></strong></span>
+        <span>📋 第<strong id="resultRound"></strong>次</span>
+      </div>
+    </div>
+    <div class="result-stats">
+      <div class="r-stat"><div class="icon">✅</div><div class="num" id="rCorrect">0</div><div class="label">答对</div></div>
+      <div class="r-stat"><div class="icon">❌</div><div class="num" id="rWrong">0</div><div class="label">答错</div></div>
+      <div class="r-stat"><div class="icon">⏱️</div><div class="num" id="rTime">0</div><div class="label">用时（分钟）</div></div>
+      <div class="r-stat"><div class="icon">📊</div><div class="num" id="rRate">0%</div><div class="label">正确率</div></div>
+    </div>
+    <div class="analysis-card"><h3>📊 各知识点得分分析</h3><div class="topic-grid" id="topicGrid"></div></div>
+    <div class="analysis-card"><h3>📋 薄弱知识点与学习建议</h3><div class="suggestion-box" id="suggestionBox"></div></div>
+    <div class="card history-card">
+      <div class="card-title"><div class="icon">📈</div>历次成绩记录</div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+    <div class="action-btns">
+      <button class="retry-btn" id="retryBtn">🔄 重新作答</button>
+      <button class="home-btn" id="homeBtn">⬆ 回到顶部</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- 脚本引用 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/steps.js"></script>
+<script src="js/interactive.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
