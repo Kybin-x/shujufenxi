@@ -126,14 +126,15 @@ function updateLineChart(mode, btn) {
       grid:{left:'3%',right:'8%',bottom:'12%',containLabel:true}
     },
     smooth: {
-      title:{text:'年度访客量平滑趋势曲线',left:'center',textStyle:{color:'#3E1F00',fontSize:14}},
-      tooltip:{trigger:'axis'},color:['#E84545'],
-      xAxis:{type:'category',data:months,boundaryGap:false},
-      yAxis:{type:'value',name:'访客量（万人次）'},
-      series:[{name:'访客量',type:'line',data:visoters,smooth:true,lineStyle:{width:3},
-        areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(232,69,69,0.3)'},{offset:1,color:'rgba(232,69,69,0)'}]}}}],
-      grid:{left:'3%',right:'4%',bottom:'8%',containLabel:true}
-    }
+  title:{text:'年度访客量平滑趋势曲线',left:'center',textStyle:{color:'#3E1F00',fontSize:14}},
+  tooltip:{trigger:'axis'},color:['#E84545'],
+  xAxis:{type:'category',data:months,boundaryGap:false},
+  yAxis:{type:'value',name:'访客量（万人次）'},
+  // 将拼写错误纠正
+  series:[{name:'访客量',type:'line',data:visitors,smooth:true,lineStyle:{width:3},
+    areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(232,69,69,0.3)'},{offset:1,color:'rgba(232,69,69,0)'}]}}}],
+  grid:{left:'3%',right:'4%',bottom:'8%',containLabel:true}
+}
   };
   if (mode === 'smooth') {
     optionMap.smooth.series[0].data = visitors;
